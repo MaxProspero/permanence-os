@@ -88,6 +88,24 @@ cp .env.example .env
 python agents/king_bot.py
 ```
 
+### 4. Governed Task Runner
+```bash
+python run_task.py "Your task goal"
+```
+
+This runner expects a provenance list at `memory/working/sources.json` with:
+- `source`
+- `timestamp`
+- `confidence`
+
+Example format: `docs/sources_example.json`
+
+### 5. Tests
+```bash
+python tests/test_polemarch.py
+python tests/test_agents.py
+```
+
 ## 🎛️ Core Principles
 
 ### The Constitution
@@ -191,6 +209,7 @@ The system is designed to fail cleanly:
 - `/docs/compression_framework.md` - Theoretical foundation
 - `/docs/canon_change_template.md` - Canon update ceremony template
 - `/CHANGELOG.md` - Project change history
+- `/docs/sources_example.json` - Sources provenance example
 
 ## 🤝 Contributing
 

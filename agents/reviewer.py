@@ -7,6 +7,7 @@ Evaluates outputs against a spec/rubric. Does not create content.
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
+import os
 
 from agents.utils import log
 
@@ -30,9 +31,19 @@ class ReviewerAgent:
 
     def review(self, output: Optional[str], spec: Optional[Dict[str, Any]]) -> ReviewResult:
         issues: List[str] = []
+        content: Optional[str] = None
 
-        if not output or not output.strip():
+        if not output or (isinstance(output, str) and not output.strip()):
             issues.append("Output is empty.")
+        elif isinstance(output, str) and os.path.exists(output):
+            with open(output, "r") as f:
+                content = f.read()
+        elif isinstance(output, str):
+            content = output
+
+        if content is not None:
+            if "DRAFT PLACEHOLDER" in content or "TODO:" in content:
+                issues.append("Output contains placeholders and is not final.")
 
         if not spec or not spec.get("deliverables"):
             issues.append("Missing or incomplete task specification (deliverables).")

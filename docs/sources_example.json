@@ -1,0 +1,8 @@
+[
+  {
+    "source": "example-source",
+    "timestamp": "2026-02-02T00:00:00+00:00",
+    "confidence": 0.7,
+    "notes": "Brief description of the source"
+  }
+]

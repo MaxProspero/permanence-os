@@ -30,6 +30,12 @@ cat canon/base_canon.yaml
 python agents/king_bot.py  # Polemarch
 ```
 
+### Governed Task Runner
+```bash
+python run_task.py "Your task goal"
+# Provide sources at memory/working/sources.json
+```
+
 ### Environment Variables
 ```bash
 export PERMANENCE_CANON_PATH="~/permanence-os/canon/base_canon.yaml"
