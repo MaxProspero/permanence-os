@@ -1,0 +1,14 @@
+# Core dependencies
+pyyaml>=6.0
+python-dotenv>=1.0.0
+anthropic>=0.18.0
+
+# Optional but recommended
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# For future expansion
+requests>=2.31.0
+jinja2>=3.1.2
