@@ -51,6 +51,8 @@ def main() -> int:
 
     polemarch = Polemarch()
     state = polemarch.initialize_task(goal)
+    if state:
+        state.status = Status.RUNNING
     polemarch.transition_stage(Stage.VALIDATION)
 
     validation = polemarch.validate_against_canon(goal)
@@ -73,6 +75,10 @@ def main() -> int:
 
     polemarch.transition_stage(Stage.PLANNING)
     polemarch.route_to_agent("planner")
+    budget_check = polemarch.check_budgets()
+    if not budget_check["within_budget"]:
+        polemarch.halt("Budget exceeded during planning")
+        return 1
     planner = PlannerAgent(polemarch.canon)
     spec = planner.create_plan(goal)
     spec_dict = asdict(spec)
@@ -84,6 +90,10 @@ def main() -> int:
 
     polemarch.transition_stage(Stage.RESEARCH)
     polemarch.route_to_agent("researcher")
+    budget_check = polemarch.check_budgets()
+    if not budget_check["within_budget"]:
+        polemarch.halt("Budget exceeded during research")
+        return 1
     researcher = ResearcherAgent()
     sources = _load_sources(SOURCES_PATH)
     if sources is None:
@@ -104,6 +114,10 @@ def main() -> int:
 
     polemarch.transition_stage(Stage.EXECUTION)
     polemarch.route_to_agent("executor")
+    budget_check = polemarch.check_budgets()
+    if not budget_check["within_budget"]:
+        polemarch.halt("Budget exceeded during execution")
+        return 1
     executor = ExecutorAgent()
     exec_result = executor.execute(spec_dict, inputs={"sources": sources})
     if state:
@@ -111,11 +125,19 @@ def main() -> int:
 
     polemarch.transition_stage(Stage.OUTPUT_REVIEW)
     polemarch.route_to_agent("reviewer")
+    budget_check = polemarch.check_budgets()
+    if not budget_check["within_budget"]:
+        polemarch.halt("Budget exceeded during review")
+        return 1
     reviewer = ReviewerAgent()
     review_result = reviewer.review(exec_result.artifact, spec_dict)
 
     polemarch.transition_stage(Stage.CONCILIATION)
     polemarch.route_to_agent("conciliator")
+    budget_check = polemarch.check_budgets()
+    if not budget_check["within_budget"]:
+        polemarch.halt("Budget exceeded during conciliation")
+        return 1
     conciliator = ConciliatorAgent()
     decision = conciliator.decide(review_result, retry_count=0, max_retries=2)
 

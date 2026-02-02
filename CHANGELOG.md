@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Added agent utilities and boundary tests
 - Added architecture and governance docs
 - Added governed task runner and sources example
+- Added budget guardrails across runner stages
 
 ## [0.1.0] - 2026-02-02
 - Established Canon v0.1.0 and core system values
