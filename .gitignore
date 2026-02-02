@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 logs/*.log
 memory/working/*
+memory/tool/*
 .DS_Store
