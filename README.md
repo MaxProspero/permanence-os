@@ -116,6 +116,11 @@ Cleanup helper:
 python scripts/clean_artifacts.py --all
 ```
 
+Status helper:
+```bash
+python scripts/status.py
+```
+
 ### 5. Tests
 ```bash
 python tests/test_polemarch.py

@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Expanded .env.example with optional path overrides
 - Added CLI flags for runner sources/draft overrides
 - Added artifact cleanup helper script
+- Added status helper script
 
 ## [0.1.0] - 2026-02-02
 - Established Canon v0.1.0 and core system values
