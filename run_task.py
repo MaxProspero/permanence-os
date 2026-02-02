@@ -21,6 +21,9 @@ WORKING_DIR = os.path.join(BASE_DIR, "memory", "working")
 SOURCES_PATH = os.getenv(
     "PERMANENCE_SOURCES_PATH", os.path.join(WORKING_DIR, "sources.json")
 )
+DRAFT_PATH = os.getenv(
+    "PERMANENCE_DRAFT_PATH", os.path.join(WORKING_DIR, "draft.md")
+)
 
 
 def _load_sources(path: str) -> Optional[List[Dict[str, Any]]]:
@@ -119,7 +122,10 @@ def main() -> int:
         polemarch.halt("Budget exceeded during execution")
         return 1
     executor = ExecutorAgent()
-    exec_result = executor.execute(spec_dict, inputs={"sources": sources})
+    inputs: Dict[str, Any] = {"sources": sources}
+    if os.path.exists(DRAFT_PATH):
+        inputs["draft_path"] = DRAFT_PATH
+    exec_result = executor.execute(spec_dict, inputs=inputs)
     if state:
         state.artifacts["output"] = exec_result.artifact
 

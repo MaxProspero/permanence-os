@@ -19,11 +19,13 @@
 
 ## Executor
 - Produces outputs strictly from approved plans
+- Can package a human-provided draft into outputs
 - No scope changes
 
 ## Reviewer
 - Evaluates outputs against spec/rubric
 - Provides pass/fail and required changes
+- Rejects placeholder or missing provenance sections
 
 ## Conciliator
 - Accept/retry/escalate decision after review

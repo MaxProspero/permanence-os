@@ -6,6 +6,8 @@ Test Suite for Polemarch (formerly King Bot)
 import os
 import sys
 
+os.environ.setdefault("PERMANENCE_LOG_DIR", "/tmp/permanence-os-test-logs")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from agents.king_bot import Polemarch, Stage, Status, RiskTier

@@ -43,7 +43,20 @@ class ExecutorAgent:
                 created_at=datetime.now(timezone.utc).isoformat(),
             )
 
-        sources = (inputs or {}).get("sources", [])
+        inputs = inputs or {}
+        sources = inputs.get("sources", [])
+        draft_text = self._load_draft(inputs)
+
+        if draft_text:
+            artifact_path = self._write_final(spec, sources, draft_text)
+            log(f"Executor created final artifact: {artifact_path}", level="INFO")
+            return ExecutionResult(
+                status="FINAL_CREATED",
+                artifact=artifact_path,
+                notes=["Final output created from provided draft."],
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+
         artifact_path = self._write_skeleton(spec, sources)
         log(f"Executor created skeleton artifact: {artifact_path}", level="INFO")
         return ExecutionResult(
@@ -52,6 +65,19 @@ class ExecutorAgent:
             notes=["Skeleton created; requires real execution to replace placeholders."],
             created_at=datetime.now(timezone.utc).isoformat(),
         )
+
+    def _load_draft(self, inputs: Dict[str, Any]) -> Optional[str]:
+        draft_text = inputs.get("draft_text")
+        if isinstance(draft_text, str) and draft_text.strip():
+            return draft_text
+
+        draft_path = inputs.get("draft_path")
+        if isinstance(draft_path, str) and os.path.exists(draft_path):
+            with open(draft_path, "r") as f:
+                text = f.read()
+            return text if text.strip() else None
+
+        return None
 
     def _write_skeleton(self, spec: Dict[str, Any], sources: List[Dict[str, Any]]) -> str:
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -105,6 +131,35 @@ class ExecutorAgent:
 
         with open(path, "w") as f:
             f.write("\n".join(lines) + "\n")
+
+        return path
+
+    def _write_final(
+        self, spec: Dict[str, Any], sources: List[Dict[str, Any]], draft_text: str
+    ) -> str:
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        goal = spec.get("goal", "Unknown goal")
+        slug = self._slugify(goal)[:40] or "task"
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        filename = f"{timestamp}-{slug}.md"
+        path = os.path.join(OUTPUT_DIR, filename)
+
+        content = draft_text
+        if "## Sources" not in content:
+            content = content.rstrip() + "\n\n## Sources (Provenance)\n"
+            if sources:
+                for src in sources:
+                    source = src.get("source", "unknown")
+                    ts = src.get("timestamp", "unknown")
+                    conf = src.get("confidence", "unknown")
+                    note = src.get("notes", "")
+                    note_part = f" - {note}" if note else ""
+                    content += f"- {source} | {ts} | {conf}{note_part}\n"
+            else:
+                content += "- (no sources provided)\n"
+
+        with open(path, "w") as f:
+            f.write(content.rstrip() + "\n")
 
         return path
 

@@ -105,6 +105,9 @@ Helper to build sources:
 python scripts/new_sources.py "source-name" 0.7 "optional notes"
 ```
 
+Optional draft input:
+- Place a markdown draft at `memory/working/draft.md` to have the Executor package it.
+
 ### 5. Tests
 ```bash
 python tests/test_polemarch.py

@@ -44,6 +44,8 @@ class ReviewerAgent:
         if content is not None:
             if "DRAFT PLACEHOLDER" in content or "TODO:" in content:
                 issues.append("Output contains placeholders and is not final.")
+            if "## Sources" not in content:
+                issues.append("Output is missing a sources/provenance section.")
 
         if not spec or not spec.get("deliverables"):
             issues.append("Missing or incomplete task specification (deliverables).")

@@ -7,6 +7,9 @@ import os
 import sys
 from datetime import datetime, timezone
 
+os.environ.setdefault("PERMANENCE_LOG_DIR", "/tmp/permanence-os-test-logs")
+os.environ.setdefault("PERMANENCE_OUTPUT_DIR", "/tmp/permanence-os-test-outputs")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from agents.researcher import ResearcherAgent
@@ -38,10 +41,38 @@ def test_executor_requires_spec():
     res = ea.execute(spec=None)
     assert res.status == "REFUSED"
 
+def test_executor_creates_skeleton_and_reviewer_rejects():
+    ea = ExecutorAgent()
+    spec = {"goal": "Test goal", "deliverables": ["x"], "constraints": ["y"]}
+    res = ea.execute(spec=spec, inputs={"sources": []})
+    assert res.status == "SKELETON_CREATED"
+    assert res.artifact is not None
+
+    rv = ReviewerAgent()
+    review = rv.review(res.artifact, spec)
+    assert review.approved is False
+
+    if res.artifact and os.path.exists(res.artifact):
+        os.remove(res.artifact)
+
+def test_executor_packages_draft_and_reviewer_approves():
+    ea = ExecutorAgent()
+    spec = {"goal": "Final goal", "deliverables": ["x"], "constraints": ["y"]}
+    draft = "# Title\n\nFinal content.\n"
+    res = ea.execute(spec=spec, inputs={"sources": [], "draft_text": draft})
+    assert res.status == "FINAL_CREATED"
+    assert res.artifact is not None
+
+    rv = ReviewerAgent()
+    review = rv.review(res.artifact, spec)
+    assert review.approved is True
+
+    if res.artifact and os.path.exists(res.artifact):
+        os.remove(res.artifact)
 
 def test_reviewer_minimal_rubric():
     rv = ReviewerAgent()
-    res = rv.review("output", {"deliverables": ["x"]})
+    res = rv.review("output\n\n## Sources\n- x", {"deliverables": ["x"]})
     assert res.approved is True
 
 
