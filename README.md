@@ -100,6 +100,11 @@ This runner expects a provenance list at `memory/working/sources.json` with:
 
 Example format: `docs/sources_example.json`
 
+Helper to build sources:
+```bash
+python scripts/new_sources.py "source-name" 0.7 "optional notes"
+```
+
 ### 5. Tests
 ```bash
 python tests/test_polemarch.py
