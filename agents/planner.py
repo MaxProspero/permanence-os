@@ -6,7 +6,7 @@ Converts human goals into structured, bounded task specifications
 
 from dataclasses import dataclass
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 @dataclass
@@ -68,7 +68,7 @@ class PlannerAgent:
         falsifiable = self._check_falsifiability(success_criteria)
 
         task_spec = TaskSpecification(
-            task_id=f"SPEC-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}",
+            task_id=f"SPEC-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}",
             goal=goal,
             success_criteria=success_criteria,
             deliverables=deliverables,
@@ -77,7 +77,7 @@ class PlannerAgent:
             estimated_steps=estimated_steps,
             estimated_tool_calls=estimated_tool_calls,
             falsifiable=falsifiable,
-            created_at=datetime.utcnow().isoformat(),
+            created_at=datetime.now(timezone.utc).isoformat(),
         )
 
         return task_spec

@@ -1,0 +1,14 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+- Added stub implementations for Researcher, Executor, Reviewer, Conciliator
+- Added agent utilities and boundary tests
+- Added architecture and governance docs
+
+## [0.1.0] - 2026-02-02
+- Established Canon v0.1.0 and core system values
+- Implemented Polemarch (governor) and Planner agents
+- Added initial tests and example workflow
+- Added documentation and Codex integration guide

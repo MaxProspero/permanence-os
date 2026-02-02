@@ -189,6 +189,8 @@ The system is designed to fail cleanly:
 - `/docs/agent_specs.md` - Individual agent specifications
 - `/docs/memory_system.md` - Memory architecture
 - `/docs/compression_framework.md` - Theoretical foundation
+- `/docs/canon_change_template.md` - Canon update ceremony template
+- `/CHANGELOG.md` - Project change history
 
 ## 🤝 Contributing
 

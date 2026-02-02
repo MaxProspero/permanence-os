@@ -6,7 +6,7 @@ Routes, enforces, escalates. Never creates content or reasons about truth.
 
 import yaml
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -132,14 +132,14 @@ class Polemarch:
 
     def _log(self, message: str, level: str = "INFO"):
         """Append-only logging"""
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
         log_entry = f"[{timestamp}] [{level}] {message}"
 
         if self.state:
             self.state.logs.append(log_entry)
 
         # Also write to file
-        log_file = os.path.join(LOG_DIR, f"{datetime.utcnow().strftime('%Y-%m-%d')}.log")
+        log_file = os.path.join(LOG_DIR, f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.log")
         os.makedirs(LOG_DIR, exist_ok=True)
         with open(log_file, "a") as f:
             f.write(log_entry + "\n")
@@ -148,7 +148,7 @@ class Polemarch:
 
     def initialize_task(self, task_goal: str) -> SystemState:
         """Create new task state"""
-        task_id = f"T-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}"
+        task_id = f"T-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
 
         self.state = SystemState(
             task_id=task_id,
@@ -164,8 +164,8 @@ class Polemarch:
             sources=[],
             escalation=None,
             logs=[],
-            created_at=datetime.utcnow().isoformat(),
-            updated_at=datetime.utcnow().isoformat(),
+            created_at=datetime.now(timezone.utc).isoformat(),
+            updated_at=datetime.now(timezone.utc).isoformat(),
         )
 
         self._log(f"Task initialized: {task_id}")
@@ -329,7 +329,7 @@ class Polemarch:
 
         prev_stage = self.state.stage
         self.state.stage = next_stage
-        self.state.updated_at = datetime.utcnow().isoformat()
+        self.state.updated_at = datetime.now(timezone.utc).isoformat()
 
         self._log(f"Stage transition: {prev_stage.value} → {next_stage.value}")
 
