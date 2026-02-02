@@ -83,6 +83,8 @@ cp .env.example .env
 # Add your API keys to .env
 ```
 
+Optional: set path overrides in `.env` if you need custom locations.
+
 ### 3. Run
 ```bash
 python agents/king_bot.py
