@@ -35,6 +35,7 @@ python agents/king_bot.py  # Polemarch
 python run_task.py "Your task goal"
 # Provide sources at memory/working/sources.json
 # Optional: provide a draft at memory/working/draft.md
+python run_task.py "Your task goal" --sources /path/to/sources.json --draft /path/to/draft.md
 ```
 
 ### Environment Variables

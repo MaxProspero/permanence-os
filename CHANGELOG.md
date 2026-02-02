@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - Added helper script to create sources provenance file
 - Added draft-aware executor packaging and stricter review checks
 - Expanded .env.example with optional path overrides
+- Added CLI flags for runner sources/draft overrides
 
 ## [0.1.0] - 2026-02-02
 - Established Canon v0.1.0 and core system values

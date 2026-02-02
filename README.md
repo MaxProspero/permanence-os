@@ -93,6 +93,7 @@ python agents/king_bot.py
 ### 4. Governed Task Runner
 ```bash
 python run_task.py "Your task goal"
+python run_task.py "Your task goal" --sources /path/to/sources.json --draft /path/to/draft.md
 ```
 
 This runner expects a provenance list at `memory/working/sources.json` with:

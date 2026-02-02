@@ -3,6 +3,7 @@
 Governed task runner: Polemarch -> Planner -> Researcher -> Executor -> Reviewer -> Conciliator.
 """
 
+import argparse
 import json
 import os
 import sys
@@ -42,12 +43,10 @@ def _save_json(obj: Any, path: str) -> None:
         json.dump(obj, f, indent=2)
 
 
-def main() -> int:
-    if len(sys.argv) < 2:
-        print("Usage: python run_task.py \"your task goal\"")
-        return 2
+def run_task(goal: str, sources_path: Optional[str] = None, draft_path: Optional[str] = None) -> int:
+    sources_path = sources_path or SOURCES_PATH
+    draft_path = draft_path or DRAFT_PATH
 
-    goal = " ".join(sys.argv[1:]).strip()
     if not goal:
         print("Error: task goal is empty")
         return 2
@@ -98,10 +97,10 @@ def main() -> int:
         polemarch.halt("Budget exceeded during research")
         return 1
     researcher = ResearcherAgent()
-    sources = _load_sources(SOURCES_PATH)
+    sources = _load_sources(sources_path)
     if sources is None:
         polemarch.escalate(
-            f"Sources missing. Provide a provenance list at {SOURCES_PATH}"
+            f"Sources missing. Provide a provenance list at {sources_path}"
         )
         polemarch.save_state()
         return 4
@@ -123,8 +122,8 @@ def main() -> int:
         return 1
     executor = ExecutorAgent()
     inputs: Dict[str, Any] = {"sources": sources}
-    if os.path.exists(DRAFT_PATH):
-        inputs["draft_path"] = DRAFT_PATH
+    if os.path.exists(draft_path):
+        inputs["draft_path"] = draft_path
     exec_result = executor.execute(spec_dict, inputs=inputs)
     if state:
         state.artifacts["output"] = exec_result.artifact
@@ -163,6 +162,17 @@ def main() -> int:
     log("Retry recommended; update inputs and re-run", level="WARNING")
     polemarch.save_state()
     return 6
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run a governed task workflow.")
+    parser.add_argument("goal", nargs="+", help="Task goal")
+    parser.add_argument("--sources", dest="sources_path", help="Override sources.json path")
+    parser.add_argument("--draft", dest="draft_path", help="Override draft.md path")
+
+    args = parser.parse_args()
+    goal = " ".join(args.goal).strip()
+    return run_task(goal, sources_path=args.sources_path, draft_path=args.draft_path)
 
 
 if __name__ == "__main__":
