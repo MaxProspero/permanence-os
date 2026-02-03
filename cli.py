@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, dashboard, openclaw-status, openclaw-sync
 """
 
 import argparse
@@ -22,6 +22,8 @@ def cmd_run(args: argparse.Namespace) -> int:
         cmd += ["--sources", args.sources]
     if args.draft:
         cmd += ["--draft", args.draft]
+    if args.allow_single_source:
+        cmd += ["--allow-single-source"]
     return _run(cmd)
 
 
@@ -60,6 +62,14 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_agents.py"),
         os.path.join(BASE_DIR, "tests", "test_compliance_gate.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_researcher_documents.py"),
+        os.path.join(BASE_DIR, "tests", "test_memory_promotion.py"),
+        os.path.join(BASE_DIR, "tests", "test_promotion_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_promotion_review.py"),
+        os.path.join(BASE_DIR, "tests", "test_hr_agent.py"),
+        os.path.join(BASE_DIR, "tests", "test_episodic_memory.py"),
+        os.path.join(BASE_DIR, "tests", "test_openclaw_health_sync.py"),
+        os.path.join(BASE_DIR, "tests", "test_briefing_run.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -67,6 +77,24 @@ def cmd_test(_args: argparse.Namespace) -> int:
         if code != 0:
             exit_code = code
     return exit_code
+
+
+def cmd_promote(args: argparse.Namespace) -> int:
+    cmd = [
+        sys.executable,
+        os.path.join(BASE_DIR, "scripts", "promote_memory.py"),
+    ]
+    if args.since:
+        cmd += ["--since", args.since]
+    if args.count is not None:
+        cmd += ["--count", str(args.count)]
+    if args.output:
+        cmd += ["--output", args.output]
+    if args.template:
+        cmd += ["--template", args.template]
+    if args.rubric:
+        cmd += ["--rubric", args.rubric]
+    return _run(cmd)
 
 
 def main() -> int:
@@ -77,6 +105,11 @@ def main() -> int:
     run_p.add_argument("goal", help="Task goal")
     run_p.add_argument("--sources", help="Override sources.json path")
     run_p.add_argument("--draft", help="Override draft.md path")
+    run_p.add_argument(
+        "--allow-single-source",
+        action="store_true",
+        help="Allow proceeding with a single source (override logged)",
+    )
     run_p.set_defaults(func=cmd_run)
 
     add_p = sub.add_parser("add-source", help="Append a source provenance entry")
@@ -116,6 +149,149 @@ def main() -> int:
         )
     )
 
+    docs_p = sub.add_parser("ingest-docs", help="Ingest documents into sources.json")
+    docs_p.add_argument("--doc-dir", help="Document directory")
+    docs_p.add_argument("--output", help="Output sources.json path")
+    docs_p.add_argument("--confidence", type=float, default=0.6, help="Default confidence")
+    docs_p.add_argument("--max", type=int, default=100, help="Max entries")
+    docs_p.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
+    docs_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ingest_documents.py"),
+                *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--confidence", str(args.confidence)] if args.confidence else []),
+                *(["--max", str(args.max)] if args.max else []),
+                *(["--excerpt", str(args.excerpt)] if args.excerpt else []),
+            ]
+        )
+    )
+
+    ingest_sources_p = sub.add_parser("ingest-sources", help="Ingest sources via adapter registry")
+    ingest_sources_p.add_argument("--adapter", default="tool_memory", help="Adapter name")
+    ingest_sources_p.add_argument("--list", action="store_true", help="List adapters")
+    ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
+    ingest_sources_p.add_argument("--doc-dir", help="Documents directory")
+    ingest_sources_p.add_argument("--output", help="Output sources.json path")
+    ingest_sources_p.add_argument("--confidence", type=float, default=0.5, help="Default confidence")
+    ingest_sources_p.add_argument("--max", type=int, default=100, help="Max entries")
+    ingest_sources_p.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
+    ingest_sources_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ingest_sources.py"),
+                "--adapter",
+                args.adapter,
+                *(["--list"] if args.list else []),
+                *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
+                *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--confidence", str(args.confidence)] if args.confidence else []),
+                *(["--max", str(args.max)] if args.max else []),
+                *(["--excerpt", str(args.excerpt)] if args.excerpt else []),
+            ]
+        )
+    )
+
+    promote_p = sub.add_parser("promote", help="Generate Canon change draft from episodic memory")
+    promote_p.add_argument("--since", help="ISO date/time filter (UTC)")
+    promote_p.add_argument("--count", type=int, help="Limit to N most recent episodes")
+    promote_p.add_argument("--output", help="Output markdown path")
+    promote_p.add_argument("--template", help="Template path override")
+    promote_p.add_argument("--rubric", help="Rubric path override")
+    promote_p.set_defaults(func=cmd_promote)
+
+    review_p = sub.add_parser("promotion-review", help="Generate Canon promotion review checklist")
+    review_p.add_argument("--output", help="Output markdown path")
+    review_p.add_argument("--min-count", type=int, default=2, help="Minimum queue size")
+    review_p.add_argument("--rubric", help="Rubric path")
+    review_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "promotion_review.py"),
+                *(["--output", args.output] if args.output else []),
+                *(["--min-count", str(args.min_count)] if args.min_count else []),
+                *(["--rubric", args.rubric] if args.rubric else []),
+            ]
+        )
+    )
+
+    queue_p = sub.add_parser("queue", help="Manage Canon promotion queue")
+    queue_p.add_argument("queue_args", nargs=argparse.REMAINDER)
+    queue_p.set_defaults(
+        func=lambda args: _run(
+            [sys.executable, os.path.join(BASE_DIR, "scripts", "promotion_queue.py")]
+            + args.queue_args
+        )
+    )
+
+    hr_p = sub.add_parser("hr-report", help="Generate weekly HR system health report")
+    hr_p.add_argument("--output", help="Output report path")
+    hr_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "hr_report.py"),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    briefing_p = sub.add_parser("briefing", help="Run Briefing Agent and write output")
+    briefing_p.add_argument("--output", help="Output report path")
+    briefing_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "briefing_run.py"),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    dash_p = sub.add_parser("dashboard", help="Generate dashboard report")
+    dash_p.add_argument("--output", help="Output report path")
+    dash_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "dashboard_report.py"),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    oc_p = sub.add_parser("openclaw-status", help="Fetch OpenClaw status/health output")
+    oc_p.add_argument("--health", action="store_true", help="Run openclaw health instead of status")
+    oc_p.add_argument("--output", help="Write output to path (default: outputs/...)")
+    oc_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "openclaw_status.py"),
+                *(["--health"] if args.health else []),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    sync_p = sub.add_parser("openclaw-sync", help="Run OpenClaw health sync job")
+    sync_p.add_argument("--interval", type=int, default=60, help="Poll interval in seconds")
+    sync_p.add_argument("--once", action="store_true", help="Single check then exit")
+    sync_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "openclaw_health_sync.py"),
+                *(["--interval", str(args.interval)] if args.interval else []),
+                *(["--once"] if args.once else []),
+            ]
+        )
+    )
     args = parser.parse_args()
     return args.func(args)
 

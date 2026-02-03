@@ -2,6 +2,13 @@
 __pycache__/
 *.pyc
 logs/*.log
+logs/*.json
+logs/*.jsonl
 memory/working/*
 memory/tool/*
+memory/episodic/*.json
+memory/episodic/*.jsonl
+outputs/*.md
+outputs/*.txt
+outputs/*.json
 .DS_Store

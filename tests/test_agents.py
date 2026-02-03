@@ -41,20 +41,20 @@ def test_executor_requires_spec():
     res = ea.execute(spec=None)
     assert res.status == "REFUSED"
 
-def test_executor_creates_skeleton_and_reviewer_rejects():
+def test_executor_auto_compose_and_reviewer_approves():
     ea = ExecutorAgent()
     spec = {"goal": "Test goal", "deliverables": ["x"], "constraints": ["y"]}
-    res = ea.execute(spec=spec, inputs={"sources": []})
-    assert res.status == "SKELETON_CREATED"
+    sources = [{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7}]
+    res = ea.execute(spec=spec, inputs={"sources": sources})
+    assert res.status == "AUTO_COMPOSED"
     assert res.artifact is not None
 
     rv = ReviewerAgent()
     review = rv.review(res.artifact, spec)
-    assert review.approved is False
+    assert review.approved is True
 
     if res.artifact and os.path.exists(res.artifact):
         os.remove(res.artifact)
-
 def test_executor_packages_draft_and_reviewer_approves():
     ea = ExecutorAgent()
     spec = {"goal": "Final goal", "deliverables": ["x"], "constraints": ["y"]}

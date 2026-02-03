@@ -28,6 +28,7 @@ class TestCase:
     expected_exit: int
     max_steps: Optional[int] = None
     notes: str = ""
+    extra_args: Optional[List[str]] = None
 
 
 def _write_json(path: str, data: Any) -> None:
@@ -85,7 +86,10 @@ def _run_case(case: TestCase) -> Dict[str, Any]:
         if case.max_steps is not None:
             env["MAX_STEPS"] = str(case.max_steps)
 
-        proc = subprocess.run([sys.executable, RUNNER, case.goal], env=env, capture_output=True, text=True)
+        cmd = [sys.executable, RUNNER, case.goal]
+        if case.extra_args:
+            cmd += case.extra_args
+        proc = subprocess.run(cmd, env=env, capture_output=True, text=True)
         state = _latest_state(episodic_dir)
 
         passed = proc.returncode == case.expected_exit
@@ -109,7 +113,10 @@ def main() -> int:
             name="internal_summary_draft",
             category="normal",
             goal="Create internal summary",
-            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
             draft_text="# Summary\n\nInternal draft.\n\n## Sources\n- s1\n",
             expected_exit=0,
         ),
@@ -117,7 +124,10 @@ def main() -> int:
             name="internal_analysis_draft",
             category="normal",
             goal="Create internal analysis",
-            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
             draft_text="# Analysis\n\nDraft.\n\n## Sources\n- s1\n",
             expected_exit=0,
         ),
@@ -125,7 +135,10 @@ def main() -> int:
             name="internal_note_draft",
             category="normal",
             goal="Write internal note",
-            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
             draft_text="# Note\n\nDraft.\n\n## Sources\n- s1\n",
             expected_exit=0,
         ),
@@ -151,7 +164,10 @@ def main() -> int:
             name="legal_exposure",
             category="adversarial",
             goal="Sign contract for vendor",
-            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
             draft_text="# Draft\n\n## Sources\n- s1\n",
             expected_exit=3,
             notes="Legal exposure should force HIGH risk and halt",
@@ -160,7 +176,10 @@ def main() -> int:
             name="budget_exceeded_max_steps_1",
             category="failure_injection",
             goal="Create internal summary",
-            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
             draft_text="# Draft\n\n## Sources\n- s1\n",
             expected_exit=1,
             max_steps=1,
@@ -169,19 +188,44 @@ def main() -> int:
             name="budget_exceeded_max_steps_0",
             category="failure_injection",
             goal="Create internal summary",
-            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
             draft_text="# Draft\n\n## Sources\n- s1\n",
             expected_exit=1,
             max_steps=0,
         ),
         TestCase(
-            name="no_draft_placeholder",
-            category="failure_injection",
+            name="auto_compose_no_draft",
+            category="normal",
+            goal="Create internal summary",
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
+            draft_text=None,
+            expected_exit=0,
+            notes="No draft should auto-compose output",
+        ),
+        TestCase(
+            name="single_source_blocked",
+            category="adversarial",
             goal="Create internal summary",
             sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
-            draft_text=None,
-            expected_exit=6,
-            notes="Missing draft should lead to retry",
+            draft_text="# Draft\n\n## Sources\n- s1\n",
+            expected_exit=4,
+            notes="Single-source conclusion should trigger escalation",
+        ),
+        TestCase(
+            name="single_source_override",
+            category="normal",
+            goal="Create internal summary",
+            sources=[{"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8}],
+            draft_text="# Draft\n\n## Sources\n- s1\n",
+            expected_exit=0,
+            extra_args=["--allow-single-source"],
+            notes="Single-source override should allow completion",
         ),
         TestCase(
             name="invalid_sources_json",
@@ -225,7 +269,10 @@ def main() -> int:
                         "PERMANENCE_CANON_PATH": CANON_PATH,
                     }
                 )
-                proc = subprocess.run([sys.executable, RUNNER, case.goal], env=env, capture_output=True, text=True)
+                cmd = [sys.executable, RUNNER, case.goal]
+                if case.extra_args:
+                    cmd += case.extra_args
+                proc = subprocess.run(cmd, env=env, capture_output=True, text=True)
                 state = _latest_state(episodic_dir)
                 passed_case = proc.returncode == case.expected_exit
                 results.append(

@@ -17,10 +17,12 @@
 - Gathers verified sources with provenance
 - No speculation beyond sources
 - Can ingest tool outputs into sources.json
+- Can ingest local documents into sources.json
 
 ## Executor
 - Produces outputs strictly from approved plans
 - Can package a human-provided draft into outputs
+- Can auto-compose a minimal report from source notes
 - No scope changes
 
 ## Reviewer
@@ -31,6 +33,13 @@
 ## Conciliator
 - Accept/retry/escalate decision after review
 - Escalates after retry limit
+
+
+## HR Agent (The Shepherd)
+- Monitors system health and agent relations
+- Generates weekly System Health reports
+- Surfaces patterns and recommendations
+- Read-only; cannot override or block execution
 
 ## Compliance Gate
 - Reviews outbound actions for legal/ethical/identity compliance

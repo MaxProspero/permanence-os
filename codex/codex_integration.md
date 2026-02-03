@@ -37,6 +37,7 @@ python run_task.py "Your task goal"
 # Provide sources at memory/working/sources.json
 # Optional: provide a draft at memory/working/draft.md
 python run_task.py "Your task goal" --sources /path/to/sources.json --draft /path/to/draft.md
+python run_task.py "Your task goal" --allow-single-source
 ```
 
 Identity routing is configured in `identity_config.yaml`.
@@ -49,11 +50,18 @@ python scripts/ingest_tool_outputs.py --tool-dir memory/tool --output memory/wor
 ### Unified CLI
 ```bash
 python cli.py run "Your task goal"
+python cli.py run "Your task goal" --allow-single-source
 python cli.py add-source "source-name" 0.7 "optional notes"
 python cli.py ingest --tool-dir memory/tool --output memory/working/sources.json
+python cli.py ingest-docs --doc-dir memory/working/documents --output memory/working/sources.json
+python cli.py ingest-sources --adapter tool_memory --output memory/working/sources.json
 python cli.py status
 python cli.py clean --all
 python cli.py test
+python cli.py queue list
+python cli.py hr-report
+python cli.py promotion-review --output outputs/promotion_review.md
+python cli.py promote --count 5
 ```
 
 ### Evaluation Harness
@@ -67,6 +75,13 @@ PERMANENCE_EVAL_OUTPUT=/tmp/eval_report.json python scripts/eval_harness.py
 export PERMANENCE_CANON_PATH="~/permanence-os/canon/base_canon.yaml"
 export PERMANENCE_LOG_DIR="~/permanence-os/logs"
 export PERMANENCE_MEMORY_DIR="~/permanence-os/memory"
+export PERMANENCE_PROMOTION_OUTPUT="~/permanence-os/outputs/canon_change_proposal.md"
+export PERMANENCE_PROMOTION_RUBRIC="~/permanence-os/docs/promotion_rubric.md"
+export PERMANENCE_PROMOTION_QUEUE="~/permanence-os/memory/working/promotion_queue.json"
+export PERMANENCE_PROMOTION_REVIEW_OUTPUT="~/permanence-os/outputs/promotion_review.md"
+export PERMANENCE_HR_REPORT_OUTPUT="~/permanence-os/outputs/weekly_system_health_report.md"
+export PERMANENCE_HR_HISTORY="~/permanence-os/logs/hr_agent_history.json"
+export PERMANENCE_DOCUMENTS_DIR="~/permanence-os/memory/working/documents"
 ```
 
 ### Usage Pattern in Codex

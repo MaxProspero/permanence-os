@@ -326,7 +326,22 @@ class Polemarch:
         Route task to appropriate agent
         Returns: {agent: str, instructions: str}
         """
-        valid_agents = ["planner", "researcher", "executor", "reviewer", "conciliator"]
+        valid_agents = [
+            "planner",
+            "researcher",
+            "executor",
+            "reviewer",
+            "conciliator",
+            "compliance_gate",
+            "hr_agent",
+            "briefing_agent",
+            "email_agent",
+            "device_agent",
+            "social_agent",
+            "health_agent",
+            "trainer_agent",
+            "therapist_agent",
+        ]
 
         if agent_type not in valid_agents:
             self._log(f"Invalid agent type: {agent_type}", level="ERROR")

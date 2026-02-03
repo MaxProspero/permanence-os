@@ -5,11 +5,13 @@ Permanence OS is a governed personal intelligence system built around compressio
 ## Authority Stack
 
 ```
-Layer 0: Human (Payton) ─────────── Final Authority
+Layer 0: Human Authority (Dax / Payton) ─────────── Final Authority
          │
 Layer 1: Base Canon ─────────────── Constitutional Law
          │
 Layer 2: Polemarch ──────────────── Governor & Router
+         │
+Layer 2.5: System Services ─────── Compliance Gate, HR Agent, Briefing Agent
          │
 Layer 3: Executive Bots ─────────── Strategy Translation
          │

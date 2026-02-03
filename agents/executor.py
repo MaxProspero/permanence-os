@@ -57,12 +57,12 @@ class ExecutorAgent:
                 created_at=datetime.now(timezone.utc).isoformat(),
             )
 
-        artifact_path = self._write_skeleton(spec, sources)
-        log(f"Executor created skeleton artifact: {artifact_path}", level="INFO")
+        artifact_path = self._write_compiled(spec, sources)
+        log(f"Executor created compiled artifact: {artifact_path}", level="INFO")
         return ExecutionResult(
-            status="SKELETON_CREATED",
+            status="AUTO_COMPOSED",
             artifact=artifact_path,
-            notes=["Skeleton created; requires real execution to replace placeholders."],
+            notes=["Compiled output created from sources without additional claims."],
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
@@ -128,6 +128,63 @@ class ExecutorAgent:
                 "[TODO: Replace placeholders with real content produced from verified sources.]",
             ]
         )
+
+        with open(path, "w") as f:
+            f.write("\n".join(lines) + "\n")
+
+        return path
+
+    def _write_compiled(self, spec: Dict[str, Any], sources: List[Dict[str, Any]]) -> str:
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        goal = spec.get("goal", "Unknown goal")
+        slug = self._slugify(goal)[:40] or "task"
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        filename = f"{timestamp}-{slug}.md"
+        path = os.path.join(OUTPUT_DIR, filename)
+
+        deliverables = spec.get("deliverables", [])
+        constraints = spec.get("constraints", [])
+
+        lines = [
+            "# Report",
+            "",
+            "## Goal",
+            goal,
+            "",
+            "## Deliverables",
+        ]
+        if deliverables:
+            lines.extend([f"- {d}" for d in deliverables])
+        else:
+            lines.append("- (none)")
+
+        lines.extend(["", "## Constraints"])
+        if constraints:
+            lines.extend([f"- {c}" for c in constraints])
+        else:
+            lines.append("- (none)")
+
+        lines.extend(["", "## Source Notes"])
+        notes_added = False
+        for src in sources:
+            note = src.get("notes")
+            if note:
+                notes_added = True
+                lines.append(f"- {note}")
+        if not notes_added:
+            lines.append("- No source notes provided; compiled output is provenance-only.")
+
+        lines.extend(["", "## Sources (Provenance)"])
+        if sources:
+            for src in sources:
+                source = src.get("source", "unknown")
+                ts = src.get("timestamp", "unknown")
+                conf = src.get("confidence", "unknown")
+                note = src.get("notes", "")
+                note_part = f" - {note}" if note else ""
+                lines.append(f"- {source} | {ts} | {conf}{note_part}")
+        else:
+            lines.append("- (no sources provided)")
 
         with open(path, "w") as f:
             f.write("\n".join(lines) + "\n")

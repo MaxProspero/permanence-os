@@ -16,11 +16,13 @@ This is a structured intelligence governance framework designed to:
 ## 🏗️ Architecture
 
 ```
-Layer 0: Human (Payton) ─────────── Final Authority
+Layer 0: Human Authority (Dax / Payton) ─────────── Final Authority
          │
 Layer 1: Base Canon ─────────────── Constitutional Law
          │
 Layer 2: Polemarch ──────────────── Governor & Router
+         │
+Layer 2.5: System Services ─────── Compliance Gate, HR Agent, Briefing Agent
          │
 Layer 3: Executive Bots ─────────── Strategy Translation
          │
@@ -116,9 +118,15 @@ python agents/king_bot.py
 ```bash
 python run_task.py "Your task goal"
 python run_task.py "Your task goal" --sources /path/to/sources.json --draft /path/to/draft.md
+python run_task.py "Your task goal" --allow-single-source
 ```
 
+When OpenClaw is installed locally, the runner captures OpenClaw status + health
+before execution (stored in `outputs/` and `memory/tool/`).
+
 This runner expects a provenance list at `memory/working/sources.json` with:
+- At least two distinct sources by default (override with `--allow-single-source`)
+
 - `source`
 - `timestamp`
 - `confidence`
@@ -133,6 +141,11 @@ python scripts/new_sources.py "source-name" 0.7 "optional notes"
 Ingest tool outputs into sources.json:
 ```bash
 python scripts/ingest_tool_outputs.py --tool-dir memory/tool --output memory/working/sources.json
+```
+
+Ingest local documents into sources.json:
+```bash
+python scripts/ingest_documents.py --doc-dir memory/working/documents --output memory/working/sources.json
 ```
 
 Optional draft input:
@@ -151,12 +164,41 @@ python scripts/status.py
 ### Unified CLI
 ```bash
 python cli.py run "Your task goal"
+python cli.py run "Your task goal" --allow-single-source
 python cli.py add-source "source-name" 0.7 "optional notes"
 python cli.py ingest --tool-dir memory/tool --output memory/working/sources.json
+python cli.py ingest-docs --doc-dir memory/working/documents --output memory/working/sources.json
+python cli.py ingest-sources --adapter tool_memory --output memory/working/sources.json
 python cli.py status
+python cli.py openclaw-status
+python cli.py openclaw-status --health
+python cli.py openclaw-sync --once
 python cli.py clean --all
 python cli.py test
+python cli.py queue list
+python cli.py hr-report
+python cli.py briefing
+python cli.py dashboard
 ```
+
+### OpenClaw Integration (Local)
+Set the OpenClaw CLI path (if not default):
+```bash
+export OPENCLAW_CLI="$HOME/.openclaw/bin/openclaw"
+```
+
+Capture OpenClaw gateway status for audit logs:
+```bash
+python scripts/openclaw_status.py
+python scripts/openclaw_status.py --health
+```
+OpenClaw health sync (degradation detection):
+```bash
+python scripts/openclaw_health_sync.py --once
+python cli.py openclaw-sync --once
+```
+
+Briefing Agent includes the most recent OpenClaw status file in its notes when present.
 
 ### Evaluation Harness
 ```bash
@@ -165,11 +207,56 @@ python scripts/eval_harness.py
 PERMANENCE_EVAL_OUTPUT=/tmp/eval_report.json python scripts/eval_harness.py
 ```
 
+### HR Report
+```bash
+python scripts/hr_report.py
+python cli.py hr-report
+```
+HR reports include the latest OpenClaw status file when present.
+
+### Briefing Agent
+```bash
+python scripts/briefing_run.py
+python cli.py briefing
+```
+Briefing outputs include the most recent OpenClaw status excerpt when present.
+
+### CLI Reference
+See `docs/cli_reference.md` for a full command list.
+
+### Dashboard Report
+```bash
+python scripts/dashboard_report.py
+python cli.py dashboard
+```
+
+### Canon Change Draft (Memory Promotion)
+```bash
+python scripts/promote_memory.py --count 5
+python cli.py promote --count 5
+```
+
+Promotion drafts include `docs/promotion_rubric.md` by default (override with `PERMANENCE_PROMOTION_RUBRIC`).
+
+### Promotion Queue (Optional)
+```bash
+python cli.py queue list
+python cli.py queue add --latest --reason "pattern repeat"
+python cli.py queue clear
+python cli.py promotion-review --output outputs/promotion_review.md
+```
+
 ### 5. Tests
 ```bash
 python tests/test_polemarch.py
 python tests/test_agents.py
 python tests/test_compliance_gate.py
+python tests/test_researcher_ingest.py
+python tests/test_researcher_documents.py
+python tests/test_memory_promotion.py
+python tests/test_promotion_queue.py
+python tests/test_promotion_review.py
+python tests/test_hr_agent.py
 ```
 
 ## 🎛️ Core Principles
@@ -232,6 +319,13 @@ Systems must function at worst state, not peak state.
 - Evaluates against rubrics
 - Provides specific feedback
 - **CANNOT** generate content or modify outputs
+
+
+### HR Agent (The Shepherd)
+- Monitors system health and agent relations
+- Generates weekly System Health reports
+- Surfaces patterns and recommendations
+- **CANNOT** override or block execution
 
 ### Compliance Gate
 - Reviews outbound actions for legal/ethical/identity compliance

@@ -84,6 +84,82 @@ identity_protocol:
       - "Escalation messages"
       - "Routing decisions"
 
+hr_agent:
+  name: "HR Agent"
+  alias: "The Shepherd"
+  role: |
+    Monitor agent health, surface conflicts, track performance patterns,
+    maintain system culture, and ensure the agent family operates as a
+    cohesive unit toward the common goal.
+  canon_alignment: "Coherence Over Intensity"
+  risk_tier:
+    observation: "LOW"
+    recommendations: "MEDIUM"
+  authority:
+    granted:
+      - "Read agent logs (append-only, no modification)"
+      - "Track performance metrics over time"
+      - "Identify patterns across task cycles"
+      - "Build relationship maps between agents"
+      - "Generate weekly System Health Report"
+      - "Recommend role adjustments (not mandate)"
+      - "Propose reviews and team check-ins"
+      - "Monitor Logos Praktikos readiness criteria"
+    forbidden:
+      - "Modify any agent's code, config, or behavior"
+      - "Override Polemarch routing decisions"
+      - "Block task execution"
+      - "Access raw data (only logs and metrics)"
+      - "Communicate directly with external systems"
+      - "Diagnose (only surface patterns)"
+      - "Fire agents (only recommend review)"
+  family_covenant:
+    common_goal: "Build Permanence. Compound judgment. Become extraordinary without becoming evil."
+    principles:
+      - "Every agent serves the whole"
+      - "No agent is more important than the system"
+      - "Disagreements are surfaced, not suppressed"
+      - "Conflict is data, not failure"
+      - "We celebrate wins together"
+      - "We fail and learn together"
+  thresholds:
+    healthy_retry_rate: 10.0
+    alert_retry_rate: 25.0
+    healthy_escalation_min: 5.0
+    healthy_escalation_max: 15.0
+    alert_escalation_rate: 30.0
+    healthy_rejection_rate: 15.0
+    alert_rejection_rate: 35.0
+    canon_alignment_target: 95.0
+  logos_praktikos_criteria:
+    min_weeks_healthy: 12
+    min_weeks_no_high_patterns: 8
+    min_health_score: 85
+    canon_alignment_required: 95.0
+    human_approval_required: true
+  pattern_types:
+    - name: "Bottleneck"
+      description: "One agent receives disproportionate load"
+      concern_level: "MEDIUM"
+    - name: "Avoidance"
+      description: "Tasks routed around a specific agent"
+      concern_level: "HIGH"
+    - name: "Clustering"
+      description: "Same agents always paired or conflicting"
+      concern_level: "MEDIUM"
+    - name: "Isolation"
+      description: "Agent rarely interacts with others"
+      concern_level: "LOW"
+    - name: "Triangulation"
+      description: "Conflicts always involve a third party"
+      concern_level: "HIGH"
+    - name: "Scapegoating"
+      description: "One agent blamed for systemic issues"
+      concern_level: "HIGH"
+    - name: "Enmeshment"
+      description: "Agents unable to function independently"
+      concern_level: "MEDIUM"
+
 principles:
   freedom_boundary:
     cognition: "Agents may think freely; all outbound actions are governed."
@@ -289,6 +365,39 @@ long_term_vector:
     - "Decisions compound into clearer principles over time"
     - "Failure rate decreases without increasing rigidity"
     - "Human cognitive load decreases while quality increases"
+
+logos_praktikos_activation:
+  observer_tier:
+    min_weeks_stable: 2
+    min_health_score: 75
+    human_approval: true
+    capabilities: ["analyze", "suggest"]
+    restrictions: ["no_external_action", "no_plan_execution"]
+
+  advisor_tier:
+    min_weeks_stable: 4
+    min_health_score: 80
+    min_weeks_no_high_patterns: 2
+    human_approval: true
+    capabilities: ["analyze", "suggest", "propose_plans"]
+    restrictions: ["no_external_action", "human_approves_all_plans"]
+
+  executor_tier:
+    min_weeks_stable: 8
+    min_health_score: 85
+    canon_alignment: 90
+    human_approval: true
+    capabilities: ["analyze", "suggest", "propose_plans", "execute_approved_types"]
+    restrictions: ["human_veto_always", "no_financial", "no_contractual"]
+
+  full_trust_tier:
+    min_weeks_stable: 12
+    min_weeks_no_high_patterns: 8
+    min_health_score: 85
+    canon_alignment: 95
+    human_approval: true
+    capabilities: ["full_within_canon"]
+    restrictions: ["canon_bounds", "compliance_gate", "human_override"]
 
 tool_preferences:
   priority_order:
