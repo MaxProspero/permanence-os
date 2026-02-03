@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Added OpenClaw health sync job + CLI command (openclaw-sync)
 - Added CLI reference documentation and new tests for episodic memory + OpenClaw sync + briefing
 - Added dashboard report script and CLI command (dashboard)
+- Added weekly cleanup + auto-commit scripts and system snapshot report
 - Added promotion review checklist generator and CLI command
 - Added source adapter registry and ingest-sources CLI entrypoint
 - Added document ingestion for Researcher with CLI support

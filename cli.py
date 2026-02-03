@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, dashboard, openclaw-status, openclaw-sync
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -265,6 +265,11 @@ def main() -> int:
         )
     )
 
+    snap_p = sub.add_parser("snapshot", help="Generate aggregated system snapshot")
+    snap_p.set_defaults(
+        func=lambda _args: _run([sys.executable, os.path.join(BASE_DIR, "scripts", "system_snapshot.py")])
+    )
+
     oc_p = sub.add_parser("openclaw-status", help="Fetch OpenClaw status/health output")
     oc_p.add_argument("--health", action="store_true", help="Run openclaw health instead of status")
     oc_p.add_argument("--output", help="Write output to path (default: outputs/...)")
@@ -289,6 +294,39 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "openclaw_health_sync.py"),
                 *(["--interval", str(args.interval)] if args.interval else []),
                 *(["--once"] if args.once else []),
+            ]
+        )
+    )
+
+    clean_weekly_p = sub.add_parser("cleanup-weekly", help="Weekly cleanup with retention")
+    clean_weekly_p.add_argument("--outputs-days", type=int, default=14)
+    clean_weekly_p.add_argument("--tool-days", type=int, default=14)
+    clean_weekly_p.add_argument("--log-days", type=int, default=30)
+    clean_weekly_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "cleanup_weekly.py"),
+                "--outputs-days",
+                str(args.outputs_days),
+                "--tool-days",
+                str(args.tool_days),
+                "--log-days",
+                str(args.log_days),
+            ]
+        )
+    )
+
+    git_auto_p = sub.add_parser("git-autocommit", help="Auto-commit tracked changes")
+    git_auto_p.add_argument("--message", help="Commit message")
+    git_auto_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "git_autocommit.py"),
+                "--repo",
+                BASE_DIR,
+                *(["--message", args.message] if args.message else []),
             ]
         )
     )

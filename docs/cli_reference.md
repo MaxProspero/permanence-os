@@ -14,6 +14,9 @@ Generate a daily briefing (includes latest OpenClaw status excerpt).
 ### `python cli.py dashboard`
 Generate a consolidated dashboard report.
 
+### `python cli.py snapshot`
+Generate a system snapshot with status + OpenClaw + HR + briefing.
+
 ### `python cli.py hr-report`
 Generate weekly system health report (includes OpenClaw status excerpt).
 
@@ -24,6 +27,12 @@ Capture OpenClaw status to outputs + tool memory.
 Run OpenClaw health sync job.
 - `--interval N` poll interval seconds
 - `--once` single check then exit
+
+### `python cli.py cleanup-weekly`
+Rotate outputs/tool memory/logs with retention defaults.
+
+### `python cli.py git-autocommit`
+Auto-commit tracked changes with a weekly message.
 
 ## Memory Commands
 

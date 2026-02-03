@@ -179,6 +179,9 @@ python cli.py queue list
 python cli.py hr-report
 python cli.py briefing
 python cli.py dashboard
+python cli.py snapshot
+python cli.py cleanup-weekly
+python cli.py git-autocommit
 ```
 
 ### OpenClaw Integration (Local)
@@ -228,6 +231,20 @@ See `docs/cli_reference.md` for a full command list.
 ```bash
 python scripts/dashboard_report.py
 python cli.py dashboard
+```
+
+### System Snapshot
+```bash
+python scripts/system_snapshot.py
+python cli.py snapshot
+```
+
+### Weekly Cleanup + Auto-Commit
+```bash
+python scripts/cleanup_weekly.py
+python scripts/git_autocommit.py
+python cli.py cleanup-weekly
+python cli.py git-autocommit
 ```
 
 ### Canon Change Draft (Memory Promotion)
