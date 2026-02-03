@@ -2,6 +2,13 @@
 
 > A governed personal intelligence system that compounds judgment without losing agency, authenticity, or coherence over time.
 
+## ✅ Current State (2026-02-03)
+- OpenClaw connected; status/health captured into `outputs/` + `memory/tool/`
+- Governed pipeline wired (Polemarch → Planner → Researcher → Executor → Reviewer → Compliance Gate)
+- HR Agent active with system health reporting + tool degradation awareness
+- Episodic memory logging in both per-task JSON and daily JSONL
+- Automations scheduled for daily briefing/dashboard and weekly HR/cleanup
+
 ## 🎯 What Is This?
 
 This is **not** a typical AI agent system.

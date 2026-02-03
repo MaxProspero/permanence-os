@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- N/A
+
+## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting
 - Added HR report generator script and CLI command (hr-report)
 - Added HR Agent Canon amendment (CA-003) with thresholds and family covenant
