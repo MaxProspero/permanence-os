@@ -41,6 +41,15 @@ python run_task.py "Your task goal" --sources /path/to/sources.json --draft /pat
 
 Identity routing is configured in `identity_config.yaml`.
 
+### Unified CLI
+```bash
+python cli.py run "Your task goal"
+python cli.py add-source "source-name" 0.7 "optional notes"
+python cli.py status
+python cli.py clean --all
+python cli.py test
+```
+
 ### Environment Variables
 ```bash
 export PERMANENCE_CANON_PATH="~/permanence-os/canon/base_canon.yaml"

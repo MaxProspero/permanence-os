@@ -143,6 +143,15 @@ Status helper:
 python scripts/status.py
 ```
 
+### Unified CLI
+```bash
+python cli.py run "Your task goal"
+python cli.py add-source "source-name" 0.7 "optional notes"
+python cli.py status
+python cli.py clean --all
+python cli.py test
+```
+
 ### 5. Tests
 ```bash
 python tests/test_polemarch.py

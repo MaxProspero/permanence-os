@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - Added Legal Integrity and Identity Protocol amendments to the Canon
 - Added compliance gate and department agent stubs
 - Added identity_config.yaml and compliance gate tests
+- Added unified CLI (run/add-source/status/clean/test)
 
 ## [0.1.0] - 2026-02-02
 - Established Canon v0.1.0 and core system values
