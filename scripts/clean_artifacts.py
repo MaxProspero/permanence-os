@@ -42,6 +42,7 @@ def main() -> int:
         total += _delete_ext(EPISODIC_DIR, ".json")
     if args.all or args.outputs:
         total += _delete_ext(OUTPUT_DIR, ".md")
+        total += _delete_ext(OUTPUT_DIR, ".json")
 
     print(f"Removed {total} artifact files")
     return 0

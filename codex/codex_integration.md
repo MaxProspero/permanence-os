@@ -50,6 +50,12 @@ python cli.py clean --all
 python cli.py test
 ```
 
+### Evaluation Harness
+```bash
+python scripts/eval_harness.py
+PERMANENCE_EVAL_OUTPUT=/tmp/eval_report.json python scripts/eval_harness.py
+```
+
 ### Environment Variables
 ```bash
 export PERMANENCE_CANON_PATH="~/permanence-os/canon/base_canon.yaml"

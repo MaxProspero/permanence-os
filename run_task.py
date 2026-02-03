@@ -20,7 +20,8 @@ from agents.compliance_gate import ComplianceGate
 from agents.identity import select_identity_for_goal
 from agents.utils import log, BASE_DIR
 
-WORKING_DIR = os.path.join(BASE_DIR, "memory", "working")
+MEMORY_DIR = os.getenv("PERMANENCE_MEMORY_DIR", os.path.join(BASE_DIR, "memory"))
+WORKING_DIR = os.path.join(MEMORY_DIR, "working")
 SOURCES_PATH = os.getenv(
     "PERMANENCE_SOURCES_PATH", os.path.join(WORKING_DIR, "sources.json")
 )
@@ -111,7 +112,12 @@ def run_task(goal: str, sources_path: Optional[str] = None, draft_path: Optional
         polemarch.halt("Budget exceeded during research")
         return 1
     researcher = ResearcherAgent()
-    sources = _load_sources(sources_path)
+    try:
+        sources = _load_sources(sources_path)
+    except (ValueError, json.JSONDecodeError) as exc:
+        polemarch.escalate(f"Sources file invalid: {exc}")
+        polemarch.save_state()
+        return 4
     if sources is None:
         polemarch.escalate(
             f"Sources missing. Provide a provenance list at {sources_path}"

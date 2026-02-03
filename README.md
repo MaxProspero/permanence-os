@@ -152,6 +152,13 @@ python cli.py clean --all
 python cli.py test
 ```
 
+### Evaluation Harness
+```bash
+python scripts/eval_harness.py
+# Optional: override report path
+PERMANENCE_EVAL_OUTPUT=/tmp/eval_report.json python scripts/eval_harness.py
+```
+
 ### 5. Tests
 ```bash
 python tests/test_polemarch.py
