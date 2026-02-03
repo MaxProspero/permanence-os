@@ -234,6 +234,9 @@ Briefing outputs include the most recent OpenClaw status excerpt when present.
 ### CLI Reference
 See `docs/cli_reference.md` for a full command list.
 
+### Roadmap
+Phase 2 build priorities are in `docs/roadmap_phase2.md`.
+
 ### Dashboard Report
 ```bash
 python scripts/dashboard_report.py
