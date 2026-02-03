@@ -16,6 +16,8 @@ from agents.researcher import ResearcherAgent
 from agents.executor import ExecutorAgent
 from agents.reviewer import ReviewerAgent
 from agents.conciliator import ConciliatorAgent
+from agents.compliance_gate import ComplianceGate
+from agents.identity import select_identity_for_goal
 from agents.utils import log, BASE_DIR
 
 WORKING_DIR = os.path.join(BASE_DIR, "memory", "working")
@@ -25,6 +27,18 @@ SOURCES_PATH = os.getenv(
 DRAFT_PATH = os.getenv(
     "PERMANENCE_DRAFT_PATH", os.path.join(WORKING_DIR, "draft.md")
 )
+
+
+def _is_irreversible(goal: str) -> bool:
+    goal_lower = goal.lower()
+    markers = ["publish", "post", "send", "delete", "commit", "sign", "wire", "pay"]
+    return any(m in goal_lower for m in markers)
+
+
+def _is_external_action(goal: str) -> bool:
+    goal_lower = goal.lower()
+    markers = ["publish", "post", "send", "email", "announce", "press", "public"]
+    return any(m in goal_lower for m in markers)
 
 
 def _load_sources(path: str) -> Optional[List[Dict[str, Any]]]:
@@ -136,6 +150,32 @@ def run_task(goal: str, sources_path: Optional[str] = None, draft_path: Optional
         return 1
     reviewer = ReviewerAgent()
     review_result = reviewer.review(exec_result.artifact, spec_dict)
+
+    if review_result.approved:
+        gate = ComplianceGate()
+        identity_used = select_identity_for_goal(goal)
+        action = {
+            "goal": goal,
+            "identity_used": identity_used,
+            "risk_tier": risk.value if hasattr(risk, "value") else str(risk),
+            "external_action": _is_external_action(goal),
+            "irreversible": _is_irreversible(goal),
+            "output_path": exec_result.artifact,
+        }
+        compliance = gate.review(action)
+        if state:
+            state.artifacts["compliance"] = {
+                "verdict": compliance.verdict,
+                "reasons": compliance.reasons,
+            }
+
+        if compliance.verdict == "HOLD":
+            polemarch.escalate("Compliance Gate HOLD: " + "; ".join(compliance.reasons))
+            polemarch.save_state()
+            return 5
+        if compliance.verdict == "REJECT":
+            polemarch.halt("Compliance Gate REJECT: " + "; ".join(compliance.reasons))
+            return 5
 
     polemarch.transition_stage(Stage.CONCILIATION)
     polemarch.route_to_agent("conciliator")

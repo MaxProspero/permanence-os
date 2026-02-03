@@ -30,3 +30,17 @@
 ## Conciliator
 - Accept/retry/escalate decision after review
 - Escalates after retry limit
+
+## Compliance Gate
+- Reviews outbound actions for legal/ethical/identity compliance
+- Verdicts: APPROVE | HOLD | REJECT
+- Sits after Reviewer for external actions
+
+## Department Agents (Stubs)
+- Email Agent
+- Device Agent
+- Social Media Agent
+- Health Agent
+- Briefing Agent
+- Trainer Agent
+- Therapist Agent

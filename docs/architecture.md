@@ -23,3 +23,4 @@ Layer 5: Audit Loop ─────────────── Evolution & Le
 - The Canon is read-only to agents.
 - Polemarch enforces, routes, and escalates.
 - Agents execute bounded roles with strict lane discipline.
+- Compliance Gate reviews outbound actions for legal/identity compliance.

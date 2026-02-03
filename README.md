@@ -47,6 +47,15 @@ Core principle: *"Discipline under fire, clarity under fog, structure under chao
 
 Implementation note: the Polemarch code lives in `agents/king_bot.py` for backward compatibility.
 
+## 🪪 Identity Protocol
+
+The system supports dual identities:
+- **Kael Dax** (internal / system use)
+- **Payton Hicks** (public / legal use)
+
+Routing rules are defined in `identity_config.yaml`. Agents use internal identity for logs and
+escalations, and public identity for outward-facing or binding actions.
+
 ## 📁 Directory Structure
 
 ```
@@ -59,6 +68,19 @@ permanence-os/
 │   ├── researcher.py
 │   ├── executor.py
 │   └── reviewer.py
+│   ├── conciliator.py
+│   ├── compliance_gate.py
+│   └── departments/
+│       ├── email_agent.py
+│       ├── device_agent.py
+│       ├── social_agent.py
+│       ├── health_agent.py
+│       ├── briefing_agent.py
+│       ├── trainer_agent.py
+│       └── therapist_agent.py
+├── identity_config.yaml
+├── run_task.py
+├── scripts/
 ├── memory/             # Persistent storage
 │   ├── episodic/       # Task logs
 │   ├── working/        # Temporary scratchpad
@@ -125,6 +147,7 @@ python scripts/status.py
 ```bash
 python tests/test_polemarch.py
 python tests/test_agents.py
+python tests/test_compliance_gate.py
 ```
 
 ## 🎛️ Core Principles
@@ -188,6 +211,11 @@ Systems must function at worst state, not peak state.
 - Provides specific feedback
 - **CANNOT** generate content or modify outputs
 
+### Compliance Gate
+- Reviews outbound actions for legal/ethical/identity compliance
+- Verdicts: APPROVE | HOLD | REJECT
+- Sits after Reviewer for external actions
+
 ## 📈 Success Metrics
 
 - Canon fidelity (value alignment)
@@ -231,6 +259,7 @@ The system is designed to fail cleanly:
 - `/docs/canon_change_template.md` - Canon update ceremony template
 - `/CHANGELOG.md` - Project change history
 - `/docs/sources_example.json` - Sources provenance example
+- `/identity_config.yaml` - Identity routing configuration
 
 ## 🤝 Contributing
 

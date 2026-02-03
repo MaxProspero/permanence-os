@@ -1,0 +1,32 @@
+identity:
+  internal:
+    name: "Kael Dax"
+    short: "Dax"
+    role: "Human Authority"
+  public:
+    name: "Payton Hicks"
+    legal_name: "Payton Bernard Hicks"
+  usage:
+    use_public_when:
+      - "Public-facing content"
+      - "Legal signatures and contracts"
+      - "Official business communications"
+    use_internal_when:
+      - "Internal logs and escalations"
+      - "Canon authorship and amendments"
+      - "Private reflections"
+    use_short_when:
+      - "Escalation messages"
+      - "Routing decisions"
+  alter_ego:
+    name: "Kael Dax"
+    permitted:
+      - "Secondary social accounts"
+      - "Anonymous or experimental content"
+    forbidden:
+      - "Legally binding actions"
+      - "Financial transactions"
+      - "Official statements"
+    boundary:
+      - "Legal liability requires Compliance Gate review"
+      - "No agent confirms linkage between identities publicly"

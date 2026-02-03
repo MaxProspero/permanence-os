@@ -7,10 +7,12 @@ Routes, enforces, escalates. Never creates content or reasons about truth.
 import yaml
 import json
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 import os
+
+from agents.identity import internal_short
 
 # Configuration
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -180,6 +182,12 @@ class Polemarch:
         """
         self._log("Validating task against Canon...")
 
+        if "legal advice" in task_goal.lower():
+            self._log(
+                "Legal advice request detected; must escalate to qualified professionals",
+                level="WARNING",
+            )
+
         # Check invariants
         for _invariant in self.canon["invariants"]:
             if "modify" in task_goal.lower() and "canon" in task_goal.lower():
@@ -200,11 +208,52 @@ class Polemarch:
             "canon_ref": "All invariants checked",
         }
 
+    def _legal_exposure_check(self, task_goal: str) -> Tuple[bool, str]:
+        """
+        Detect legal exposure domains and return (is_exposed, reason).
+        """
+        task_lower = task_goal.lower()
+        legal_markers = [
+            "money",
+            "payment",
+            "invoice",
+            "contract",
+            "agreement",
+            "legal",
+            "lawsuit",
+            "compliance",
+            "regulation",
+            "gdpr",
+            "hipaa",
+            "privacy",
+            "personal data",
+            "pii",
+            "public statement",
+            "publish",
+            "post",
+            "send",
+            "email",
+            "financial",
+            "tax",
+            "bank",
+            "wire",
+        ]
+        if any(marker in task_lower for marker in legal_markers):
+            return True, "Legal exposure detected in task goal"
+        return False, ""
+
     def assign_risk_tier(self, task_goal: str) -> RiskTier:
         """
         Classify task risk level based on Canon criteria
         """
         task_lower = task_goal.lower()
+
+        legal_exposure, legal_reason = self._legal_exposure_check(task_goal)
+        if legal_exposure:
+            self._log(f"Risk tier assigned: HIGH ({legal_reason})")
+            if self.state is not None:
+                self.state.artifacts["legal_exposure"] = legal_reason
+            return RiskTier.HIGH
 
         # HIGH risk indicators
         high_indicators = [
@@ -298,7 +347,9 @@ class Polemarch:
         """
         Escalate to human authority
         """
-        self._log(f"ESCALATING TO HUMAN: {reason}", level="CRITICAL")
+        self._log(
+            f"ESCALATING TO HUMAN ({internal_short()}): {reason}", level="CRITICAL"
+        )
 
         if self.state:
             self.state.escalation = reason

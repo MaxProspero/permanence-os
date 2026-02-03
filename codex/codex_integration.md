@@ -15,6 +15,7 @@ Terminology note: **Polemarch** (formerly “King Bot”) is implemented in `age
 2. **Logs are append-only** - Every interface must log to `logs/`
 3. **State persists** - Use `memory/episodic/` for task history
 4. **Human authority final** - No interface can override escalations
+5. **Compliance Gate** - Outbound actions require compliance review
 
 ## Codex-Specific Setup
 
@@ -37,6 +38,8 @@ python run_task.py "Your task goal"
 # Optional: provide a draft at memory/working/draft.md
 python run_task.py "Your task goal" --sources /path/to/sources.json --draft /path/to/draft.md
 ```
+
+Identity routing is configured in `identity_config.yaml`.
 
 ### Environment Variables
 ```bash
