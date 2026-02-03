@@ -16,6 +16,7 @@
 ## Researcher
 - Gathers verified sources with provenance
 - No speculation beyond sources
+- Can ingest tool outputs into sources.json
 
 ## Executor
 - Produces outputs strictly from approved plans

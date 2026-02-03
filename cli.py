@@ -59,6 +59,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_polemarch.py"),
         os.path.join(BASE_DIR, "tests", "test_agents.py"),
         os.path.join(BASE_DIR, "tests", "test_compliance_gate.py"),
+        os.path.join(BASE_DIR, "tests", "test_researcher_ingest.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -96,6 +97,24 @@ def main() -> int:
 
     test_p = sub.add_parser("test", help="Run test suite")
     test_p.set_defaults(func=cmd_test)
+
+    ingest_p = sub.add_parser("ingest", help="Ingest tool outputs into sources.json")
+    ingest_p.add_argument("--tool-dir", help="Tool memory directory")
+    ingest_p.add_argument("--output", help="Output sources.json path")
+    ingest_p.add_argument("--confidence", type=float, default=0.5, help="Default confidence")
+    ingest_p.add_argument("--max", type=int, default=100, help="Max entries")
+    ingest_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ingest_tool_outputs.py"),
+                *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--confidence", str(args.confidence)] if args.confidence else []),
+                *(["--max", str(args.max)] if args.max else []),
+            ]
+        )
+    )
 
     args = parser.parse_args()
     return args.func(args)

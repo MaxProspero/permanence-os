@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Added identity_config.yaml and compliance gate tests
 - Added unified CLI (run/add-source/status/clean/test)
 - Added evaluation harness with normal/adversarial/failure tests
+- Added Researcher tool-ingest pipeline and CLI ingest command
 
 ## [0.1.0] - 2026-02-02
 - Established Canon v0.1.0 and core system values

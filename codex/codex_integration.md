@@ -41,10 +41,16 @@ python run_task.py "Your task goal" --sources /path/to/sources.json --draft /pat
 
 Identity routing is configured in `identity_config.yaml`.
 
+### Tool Output Ingestion
+```bash
+python scripts/ingest_tool_outputs.py --tool-dir memory/tool --output memory/working/sources.json
+```
+
 ### Unified CLI
 ```bash
 python cli.py run "Your task goal"
 python cli.py add-source "source-name" 0.7 "optional notes"
+python cli.py ingest --tool-dir memory/tool --output memory/working/sources.json
 python cli.py status
 python cli.py clean --all
 python cli.py test

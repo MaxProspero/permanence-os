@@ -120,7 +120,7 @@ def run_task(goal: str, sources_path: Optional[str] = None, draft_path: Optional
         return 4
     if sources is None:
         polemarch.escalate(
-            f"Sources missing. Provide a provenance list at {sources_path}"
+            f"Sources missing. Provide a provenance list at {sources_path} (or run cli.py ingest)."
         )
         polemarch.save_state()
         return 4

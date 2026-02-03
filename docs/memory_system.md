@@ -12,3 +12,5 @@ Promotion path:
 ```
 Working → Episodic → Canon (human ceremony only)
 ```
+
+Tool memory can be ingested into `memory/working/sources.json` using `scripts/ingest_tool_outputs.py`.
