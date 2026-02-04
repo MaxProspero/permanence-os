@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, health-summary, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -71,6 +71,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_openclaw_health_sync.py"),
         os.path.join(BASE_DIR, "tests", "test_briefing_run.py"),
         os.path.join(BASE_DIR, "tests", "test_email_agent.py"),
+        os.path.join(BASE_DIR, "tests", "test_health_agent.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -268,6 +269,20 @@ def main() -> int:
                 *(["--vip"] + args.vip if args.vip else []),
                 *(["--ignore"] + args.ignore if args.ignore else []),
                 *(["--max-items", str(args.max_items)] if args.max_items else []),
+            ]
+        )
+    )
+
+    health_p = sub.add_parser("health-summary", help="Run Health Agent summary")
+    health_p.add_argument("--data-dir", help="Health data directory")
+    health_p.add_argument("--max-days", type=int, default=14, help="Max days to analyze")
+    health_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "health_summary.py"),
+                *(["--data-dir", args.data_dir] if args.data_dir else []),
+                *(["--max-days", str(args.max_days)] if args.max_days else []),
             ]
         )
     )

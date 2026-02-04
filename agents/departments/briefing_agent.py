@@ -61,6 +61,7 @@ class BriefingAgent:
         notes.extend(self._section_system_status())
         notes.extend(self._section_openclaw())
         notes.extend(self._section_email_triage())
+        notes.extend(self._section_health_summary())
         notes.extend(self._section_hr_report())
         notes.extend(self._section_outputs())
 
@@ -279,6 +280,16 @@ class BriefingAgent:
         lines.append("")
         return lines
 
+    def _section_health_summary(self) -> List[str]:
+        lines = ["## Health Summary"]
+        note = self._latest_health_summary()
+        if note:
+            lines.append(f"- {note}")
+        else:
+            lines.append("- No health summary found")
+        lines.append("")
+        return lines
+
     def _section_outputs(self) -> List[str]:
         output_dir = os.getenv(
             "PERMANENCE_OUTPUT_DIR",
@@ -301,3 +312,25 @@ class BriefingAgent:
             lines.append(f"- {path.name}")
         lines.append("")
         return lines
+
+    @staticmethod
+    def _latest_health_summary() -> Optional[str]:
+        output_dir = os.getenv(
+            "PERMANENCE_OUTPUT_DIR",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "outputs")),
+        )
+        try:
+            candidates = sorted(
+                Path(output_dir).glob("health_summary_*.md"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+        except FileNotFoundError:
+            return None
+        if not candidates:
+            return None
+        latest = candidates[0]
+        excerpt = BriefingAgent._read_excerpt(latest, max_lines=6)
+        if excerpt:
+            return f"Health summary: {excerpt}"
+        return f"Health summary captured: {latest}"
