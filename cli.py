@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, health-summary, social-summary, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -73,6 +73,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_email_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_health_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_social_agent.py"),
+        os.path.join(BASE_DIR, "tests", "test_logos_gate.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -306,6 +307,18 @@ def main() -> int:
                 *(["--draft-body", args.draft_body] if args.draft_body else []),
                 *(["--draft-platform", args.draft_platform] if args.draft_platform else []),
                 *([arg for tag in args.draft_tag for arg in ("--draft-tag", tag)] if args.draft_tag else []),
+            ]
+        )
+    )
+
+    logos_p = sub.add_parser("logos-gate", help="Evaluate Logos Praktikos activation tiers")
+    logos_p.add_argument("--output", help="Output report path")
+    logos_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "logos_gate.py"),
+                *(["--output", args.output] if args.output else []),
             ]
         )
     )

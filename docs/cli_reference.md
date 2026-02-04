@@ -20,6 +20,9 @@ Run Health Agent summary on local health files.
 ### `python cli.py social-summary`
 Run Social Agent summary or save a draft.
 
+### `python cli.py logos-gate`
+Evaluate Logos Praktikos activation tiers.
+
 ### `python cli.py dashboard`
 Generate a consolidated dashboard report.
 

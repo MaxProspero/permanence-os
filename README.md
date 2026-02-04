@@ -189,6 +189,7 @@ python cli.py briefing
 python cli.py email-triage
 python cli.py health-summary
 python cli.py social-summary
+python cli.py logos-gate
 python cli.py dashboard
 python cli.py snapshot
 python cli.py cleanup-weekly

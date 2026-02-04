@@ -50,6 +50,8 @@ Recommended order:
 **Goal:** tiered activation per Canon thresholds.
 - Observer → Advisor → Limited Executor → Full Trust
 
+**Status:** Logos gate evaluator implemented (uses HR history + Canon tiers).
+
 ---
 Owner: Dax  
 Last updated: 2026-02-03

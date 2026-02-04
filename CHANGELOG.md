@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - Implemented Health Agent local summary + report output
 - Implemented Social Agent local draft queue + summary
 - Improved promotion queue hygiene (pattern labels + audit/prune)
+- Added Logos Praktikos gate evaluator
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting
