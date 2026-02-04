@@ -46,6 +46,9 @@ class ReviewerAgent:
                 issues.append("Output contains placeholders and is not final.")
             if "## Sources" not in content:
                 issues.append("Output is missing a sources/provenance section.")
+            if "Output (Spec-Bound)" in content:
+                if "Evidence (verbatim" in content and "- [" not in content:
+                    issues.append("Spec-bound output missing evidence entries with source labels.")
 
         if not spec or not spec.get("deliverables"):
             issues.append("Missing or incomplete task specification (deliverables).")

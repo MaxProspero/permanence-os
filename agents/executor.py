@@ -172,14 +172,19 @@ class ExecutorAgent:
                         "",
                         f"### {d}",
                         "",
-                        "Evidence:",
+                        "Evidence (verbatim or excerpted from sources):",
                     ]
                 )
-                notes = [src.get("notes") for src in sources if src.get("notes")]
-                if notes:
-                    lines.extend([f"- {note}" for note in notes])
+                evidence = self._select_evidence_for_deliverable(d, sources)
+                if evidence:
+                    for src, note in evidence:
+                        label = src.get("source", "unknown")
+                        if note:
+                            lines.append(f"- [{label}] {note}")
+                        else:
+                            lines.append(f"- [{label}] (no excerpt provided)")
                 else:
-                    lines.append("- (no source notes provided)")
+                    lines.append("- (no sources available)")
         else:
             lines.append("- No deliverables specified; output limited to provenance summary.")
 
@@ -228,6 +233,29 @@ class ExecutorAgent:
             f.write(content.rstrip() + "\n")
 
         return path
+
+    def _select_evidence_for_deliverable(
+        self, deliverable: str, sources: List[Dict[str, Any]]
+    ) -> List[tuple[Dict[str, Any], str]]:
+        keywords = self._extract_keywords(deliverable)
+        matched: List[tuple[Dict[str, Any], str]] = []
+
+        for src in sources:
+            note = src.get("notes") or ""
+            if keywords and any(k in note.lower() for k in keywords):
+                matched.append((src, note))
+
+        if not matched:
+            matched = [(src, src.get("notes") or "") for src in sources if src.get("notes")]
+
+        if not matched:
+            matched = [(src, "") for src in sources]
+
+        return matched
+
+    def _extract_keywords(self, text: str) -> List[str]:
+        tokens = re.findall(r"[a-zA-Z0-9]+", text.lower())
+        return [t for t in tokens if len(t) >= 4]
 
     def _slugify(self, text: str) -> str:
         lowered = text.lower().strip()

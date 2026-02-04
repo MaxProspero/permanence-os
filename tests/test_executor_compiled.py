@@ -24,6 +24,7 @@ def test_compiled_output_has_sections():
     assert "## Output (Spec-Bound)" in content
     assert "### Deliverable A" in content
     assert "## Sources (Provenance)" in content
+    assert "- [s1]" in content or "- [s2]" in content
     assert "TODO:" not in content
 
 

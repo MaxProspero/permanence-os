@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Improved promotion queue hygiene (pattern labels + audit/prune)
 - Added Logos Praktikos gate evaluator
 - Added web_search adapter (Tavily) for Researcher
+- Executor now emits source-labeled evidence lines in spec-bound output
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting
