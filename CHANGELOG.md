@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Fixed Gmail ingest imports for CLI execution
 - Added pytest.ini to limit test discovery to tests/ directory
 - Unified briefing now aggregates email, health, social, focus, and system health summaries
+- Added Google Docs ingestion adapter (Drive/Docs API) with CLI flags
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

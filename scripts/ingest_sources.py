@@ -29,6 +29,11 @@ def main() -> int:
     parser.add_argument("--urls", nargs="*", help="URLs to fetch (url_fetch adapter)")
     parser.add_argument("--urls-path", help="File containing URLs (url_fetch adapter)")
     parser.add_argument("--query", help="Search query (web_search adapter)")
+    parser.add_argument("--doc-ids", nargs="*", help="Google Doc IDs (google_docs adapter)")
+    parser.add_argument("--doc-ids-path", help="File containing Google Doc IDs")
+    parser.add_argument("--folder-id", help="Google Drive folder ID (google_docs adapter)")
+    parser.add_argument("--credentials", help="Google OAuth credentials.json path")
+    parser.add_argument("--token", help="Google OAuth token.json path")
     parser.add_argument("--tool-dir", default=TOOL_DIR, help="Tool memory directory")
     parser.add_argument("--doc-dir", default=DOC_DIR, help="Documents directory")
     parser.add_argument(
@@ -91,6 +96,20 @@ def main() -> int:
             max_entries=args.max,
             excerpt_chars=args.excerpt,
             timeout_sec=args.timeout,
+            tool_dir=args.tool_dir,
+        )
+    elif args.adapter == "google_docs":
+        run_adapter(
+            "google_docs",
+            doc_ids=args.doc_ids,
+            doc_ids_path=args.doc_ids_path,
+            folder_id=args.folder_id,
+            output_path=args.output,
+            default_confidence=args.confidence,
+            max_entries=args.max,
+            excerpt_chars=args.excerpt,
+            credentials_path=args.credentials,
+            token_path=args.token,
             tool_dir=args.tool_dir,
         )
     else:

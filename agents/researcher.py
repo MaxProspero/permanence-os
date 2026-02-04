@@ -20,6 +20,9 @@ TOOL_DIR = os.getenv("PERMANENCE_TOOL_DIR", os.path.join(BASE_DIR, "memory", "to
 DOC_DIR = os.getenv(
     "PERMANENCE_DOCUMENTS_DIR", os.path.join(BASE_DIR, "memory", "working", "documents")
 )
+GOOGLE_DIR = os.getenv(
+    "PERMANENCE_GOOGLE_DIR", os.path.join(BASE_DIR, "memory", "working", "google")
+)
 
 
 @dataclass
@@ -304,6 +307,136 @@ class ResearcherAgent:
 
         log(f"Web search produced {len(sources)} sources", level="INFO")
         return sources
+
+    def compile_sources_from_google_docs(
+        self,
+        doc_ids: Optional[List[str]] = None,
+        doc_ids_path: Optional[str] = None,
+        folder_id: Optional[str] = None,
+        output_path: Optional[str] = None,
+        default_confidence: float = 0.6,
+        max_entries: int = 50,
+        excerpt_chars: int = 280,
+        credentials_path: Optional[str] = None,
+        token_path: Optional[str] = None,
+        tool_dir: str = TOOL_DIR,
+    ) -> List[Dict[str, Any]]:
+        """
+        Ingest Google Docs into sources.json (read-only).
+        Requires Google OAuth credentials and Docs/Drive APIs enabled.
+        """
+        ids: List[str] = []
+        if doc_ids:
+            ids.extend([d for d in doc_ids if d])
+        if doc_ids_path:
+            ids.extend(self._read_ids_file(doc_ids_path))
+
+        credentials_path = credentials_path or os.path.join(GOOGLE_DIR, "credentials.json")
+        token_path = token_path or os.path.join(GOOGLE_DIR, "docs_token.json")
+        os.makedirs(os.path.dirname(token_path), exist_ok=True)
+        os.makedirs(tool_dir, exist_ok=True)
+
+        if not os.path.exists(credentials_path):
+            raise FileNotFoundError(f"Missing Google credentials file: {credentials_path}")
+
+        try:
+            from google.oauth2.credentials import Credentials
+            from google_auth_oauthlib.flow import InstalledAppFlow
+            from google.auth.transport.requests import Request
+            from googleapiclient.discovery import build
+        except ImportError as exc:
+            raise RuntimeError("Google API libraries not installed. Run pip install -r requirements.txt") from exc
+
+        scopes = [
+            "https://www.googleapis.com/auth/documents.readonly",
+            "https://www.googleapis.com/auth/drive.readonly",
+        ]
+
+        creds = None
+        if os.path.exists(token_path):
+            creds = Credentials.from_authorized_user_file(token_path, scopes)
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(credentials_path, scopes)
+                creds = flow.run_local_server(port=0)
+            with open(token_path, "w") as token:
+                token.write(creds.to_json())
+
+        docs_service = build("docs", "v1", credentials=creds)
+        drive_service = build("drive", "v3", credentials=creds)
+
+        if folder_id:
+            ids.extend(self._list_docs_in_folder(drive_service, folder_id))
+
+        if not ids:
+            raise ValueError("No Google Doc IDs provided")
+
+        # Deduplicate while preserving order
+        seen = set()
+        unique_ids = []
+        for doc_id in ids:
+            if doc_id in seen:
+                continue
+            seen.add(doc_id)
+            unique_ids.append(doc_id)
+
+        sources: List[Dict[str, Any]] = []
+        now = datetime.now(timezone.utc)
+        for doc_id in unique_ids:
+            if len(sources) >= max_entries:
+                break
+            try:
+                doc = docs_service.documents().get(documentId=doc_id).execute()
+            except Exception as exc:
+                log(f"Failed to fetch Google Doc {doc_id}: {exc}", level="WARNING")
+                continue
+            title = doc.get("title") or "Untitled"
+            text = self._extract_google_doc_text(doc)
+            excerpt = self._excerpt(text, excerpt_chars) if text else ""
+            timestamp = now.isoformat()
+            url = f"https://docs.google.com/document/d/{doc_id}/edit"
+            content_hash = self._hash_bytes(text.encode("utf-8")) if text else None
+
+            record = {
+                "source": url,
+                "timestamp": timestamp,
+                "confidence": default_confidence,
+                "notes": excerpt or f"Google Doc: {title}",
+                "hash": content_hash,
+                "origin": "google_docs",
+                "doc_id": doc_id,
+                "title": title,
+            }
+            sources.append(record)
+
+            tool_payload = {
+                "doc_id": doc_id,
+                "title": title,
+                "url": url,
+                "timestamp": timestamp,
+                "confidence": default_confidence,
+                "excerpt": excerpt,
+                "text_length": len(text),
+                "hash": content_hash,
+                "origin": "google_docs",
+            }
+            tool_name = f"google_doc_{doc_id}_{now.strftime('%Y%m%d-%H%M%S')}.json"
+            tool_path = os.path.join(tool_dir, tool_name)
+            try:
+                with open(tool_path, "w") as f:
+                    json.dump(tool_payload, f, indent=2)
+            except OSError:
+                pass
+
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, "w") as f:
+                json.dump(sources, f, indent=2)
+
+        log(f"Compiled {len(sources)} sources from Google Docs", level="INFO")
+        return sources
     def _sources_from_file(self, path: str, default_confidence: float) -> List[Dict[str, Any]]:
         try:
             if path.endswith(".json"):
@@ -485,6 +618,62 @@ class ResearcherAgent:
             except json.JSONDecodeError:
                 return []
         return [line.strip() for line in data.splitlines() if line.strip()]
+
+    def _read_ids_file(self, path: str) -> List[str]:
+        try:
+            with open(path, "r") as f:
+                data = f.read().strip()
+        except OSError:
+            return []
+        if not data:
+            return []
+        if path.endswith(".json"):
+            try:
+                parsed = json.loads(data)
+                if isinstance(parsed, list):
+                    return [str(d).strip() for d in parsed if str(d).strip()]
+            except json.JSONDecodeError:
+                return []
+        return [line.strip() for line in data.splitlines() if line.strip()]
+
+    def _list_docs_in_folder(self, drive_service: Any, folder_id: str) -> List[str]:
+        query = (
+            f"'{folder_id}' in parents and mimeType='application/vnd.google-apps.document' and trashed=false"
+        )
+        ids: List[str] = []
+        page_token = None
+        while True:
+            response = (
+                drive_service.files()
+                .list(
+                    q=query,
+                    pageSize=100,
+                    fields="nextPageToken, files(id, name, modifiedTime)",
+                    pageToken=page_token,
+                )
+                .execute()
+            )
+            files = response.get("files", [])
+            # Sort newest first
+            files.sort(key=lambda f: f.get("modifiedTime", ""), reverse=True)
+            ids.extend([f.get("id") for f in files if f.get("id")])
+            page_token = response.get("nextPageToken")
+            if not page_token:
+                break
+        return ids
+
+    def _extract_google_doc_text(self, doc: Dict[str, Any]) -> str:
+        content = doc.get("body", {}).get("content", [])
+        parts: List[str] = []
+        for block in content:
+            paragraph = block.get("paragraph")
+            if not paragraph:
+                continue
+            for elem in paragraph.get("elements", []):
+                text_run = elem.get("textRun")
+                if text_run and text_run.get("content"):
+                    parts.append(text_run["content"])
+        return "".join(parts).strip()
 
     def _hash_bytes(self, content: bytes) -> str:
         return hashlib.sha256(content).hexdigest()

@@ -65,6 +65,22 @@ def _web_search_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
     )
 
 
+def _google_docs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
+    agent = ResearcherAgent()
+    return agent.compile_sources_from_google_docs(
+        doc_ids=kwargs.get("doc_ids"),
+        doc_ids_path=kwargs.get("doc_ids_path"),
+        folder_id=kwargs.get("folder_id"),
+        output_path=kwargs.get("output_path"),
+        default_confidence=kwargs.get("default_confidence", 0.6),
+        max_entries=kwargs.get("max_entries", 50),
+        excerpt_chars=kwargs.get("excerpt_chars", 280),
+        credentials_path=kwargs.get("credentials_path"),
+        token_path=kwargs.get("token_path"),
+        tool_dir=kwargs.get("tool_dir", TOOL_DIR),
+    )
+
+
 def get_adapters() -> Dict[str, AdapterSpec]:
     return {
         "tool_memory": AdapterSpec(
@@ -90,6 +106,12 @@ def get_adapters() -> Dict[str, AdapterSpec]:
             description="Web search via Tavily (requires TAVILY_API_KEY)",
             default_confidence=0.5,
             run=_web_search_adapter,
+        ),
+        "google_docs": AdapterSpec(
+            name="google_docs",
+            description="Ingest Google Docs via Drive/Docs API (read-only)",
+            default_confidence=0.6,
+            run=_google_docs_adapter,
         ),
     }
 

@@ -75,6 +75,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_social_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_logos_gate.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_web_search.py"),
+        os.path.join(BASE_DIR, "tests", "test_researcher_google_docs.py"),
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
     ]
     exit_code = 0
@@ -181,6 +182,11 @@ def main() -> int:
     ingest_sources_p.add_argument("--query", help="Search query (web_search adapter)")
     ingest_sources_p.add_argument("--urls", nargs="*", help="URLs to fetch (url_fetch adapter)")
     ingest_sources_p.add_argument("--urls-path", help="File containing URLs (url_fetch adapter)")
+    ingest_sources_p.add_argument("--doc-ids", nargs="*", help="Google Doc IDs (google_docs adapter)")
+    ingest_sources_p.add_argument("--doc-ids-path", help="File containing Google Doc IDs")
+    ingest_sources_p.add_argument("--folder-id", help="Google Drive folder ID (google_docs adapter)")
+    ingest_sources_p.add_argument("--credentials", help="Google OAuth credentials.json path")
+    ingest_sources_p.add_argument("--token", help="Google OAuth token.json path")
     ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
     ingest_sources_p.add_argument("--doc-dir", help="Documents directory")
     ingest_sources_p.add_argument("--output", help="Output sources.json path")
@@ -202,6 +208,11 @@ def main() -> int:
                 *(["--query", args.query] if args.query else []),
                 *(["--urls"] + args.urls if args.urls else []),
                 *(["--urls-path", args.urls_path] if args.urls_path else []),
+                *(["--doc-ids"] + args.doc_ids if args.doc_ids else []),
+                *(["--doc-ids-path", args.doc_ids_path] if args.doc_ids_path else []),
+                *(["--folder-id", args.folder_id] if args.folder_id else []),
+                *(["--credentials", args.credentials] if args.credentials else []),
+                *(["--token", args.token] if args.token else []),
                 *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
                 *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
                 *(["--output", args.output] if args.output else []),
