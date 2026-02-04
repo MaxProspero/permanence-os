@@ -220,6 +220,90 @@ class ResearcherAgent:
         log(f"Fetched {len(sources)} sources from URLs", level="INFO")
         return sources
 
+    def compile_sources_from_web_search(
+        self,
+        query: str,
+        output_path: Optional[str] = None,
+        default_confidence: float = 0.5,
+        max_entries: int = 5,
+        excerpt_chars: int = 280,
+        timeout_sec: int = 20,
+        tool_dir: str = TOOL_DIR,
+    ) -> List[Dict[str, Any]]:
+        """
+        Web search via Tavily API. Requires TAVILY_API_KEY.
+        """
+        api_key = os.getenv("TAVILY_API_KEY")
+        if not api_key:
+            raise RuntimeError("TAVILY_API_KEY is not set")
+
+        if not query or not query.strip():
+            raise ValueError("Query is required for web search")
+
+        try:
+            import requests  # local import to keep dependency optional
+        except ImportError:
+            raise RuntimeError("requests is not installed")
+
+        payload = {
+            "api_key": api_key,
+            "query": query,
+            "max_results": max_entries,
+            "include_answer": False,
+            "include_raw_content": False,
+        }
+        try:
+            resp = requests.post("https://api.tavily.com/search", json=payload, timeout=timeout_sec)
+        except requests.RequestException as exc:
+            log(f"Web search failed: {exc}", level="ERROR")
+            raise RuntimeError("Web search request failed") from exc
+
+        if resp.status_code != 200:
+            raise RuntimeError(f"Web search failed: {resp.status_code} {resp.text[:200]}")
+
+        data = resp.json()
+        results = data.get("results", [])
+        sources: List[Dict[str, Any]] = []
+        os.makedirs(tool_dir, exist_ok=True)
+        fetched_at = datetime.now(timezone.utc).isoformat()
+
+        for idx, item in enumerate(results[:max_entries]):
+            url = item.get("url") or item.get("source") or "unknown"
+            content = item.get("content") or item.get("snippet") or ""
+            snippet = self._excerpt(content, excerpt_chars)
+            raw = json.dumps(item, sort_keys=True).encode("utf-8")
+            sources.append(
+                {
+                    "source": url,
+                    "timestamp": fetched_at,
+                    "confidence": default_confidence,
+                    "notes": snippet,
+                    "hash": self._hash_bytes(raw),
+                    "origin": "tavily",
+                }
+            )
+
+            tool_payload = {
+                "query": query,
+                "result_index": idx,
+                "item": item,
+                "timestamp": fetched_at,
+            }
+            tool_name = f"web_search_{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}_{idx}.json"
+            tool_path = os.path.join(tool_dir, tool_name)
+            try:
+                with open(tool_path, "w") as f:
+                    json.dump(tool_payload, f, indent=2)
+            except OSError:
+                pass
+
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, "w") as f:
+                json.dump(sources, f, indent=2)
+
+        log(f"Web search produced {len(sources)} sources", level="INFO")
+        return sources
     def _sources_from_file(self, path: str, default_confidence: float) -> List[Dict[str, Any]]:
         try:
             if path.endswith(".json"):

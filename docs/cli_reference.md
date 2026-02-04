@@ -72,6 +72,8 @@ Ingest documents into sources.json.
 ### `python cli.py ingest-sources`
 Ingest sources via adapter registry.
 
+Adapters:
+- `web_search` (Tavily; requires `TAVILY_API_KEY`)
 ## Maintenance Commands
 
 ### `python cli.py clean`

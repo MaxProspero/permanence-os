@@ -74,6 +74,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_health_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_social_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_logos_gate.py"),
+        os.path.join(BASE_DIR, "tests", "test_researcher_web_search.py"),
     ]
     exit_code = 0
     for t in tests:

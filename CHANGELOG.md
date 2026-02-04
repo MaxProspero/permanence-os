@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Implemented Social Agent local draft queue + summary
 - Improved promotion queue hygiene (pattern labels + audit/prune)
 - Added Logos Praktikos gate evaluator
+- Added web_search adapter (Tavily) for Researcher
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

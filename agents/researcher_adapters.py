@@ -52,6 +52,19 @@ def _url_fetch_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
     )
 
 
+def _web_search_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
+    agent = ResearcherAgent()
+    return agent.compile_sources_from_web_search(
+        query=kwargs.get("query", ""),
+        output_path=kwargs.get("output_path"),
+        default_confidence=kwargs.get("default_confidence", 0.5),
+        max_entries=kwargs.get("max_entries", 5),
+        excerpt_chars=kwargs.get("excerpt_chars", 280),
+        timeout_sec=kwargs.get("timeout_sec", 20),
+        tool_dir=kwargs.get("tool_dir", TOOL_DIR),
+    )
+
+
 def get_adapters() -> Dict[str, AdapterSpec]:
     return {
         "tool_memory": AdapterSpec(
@@ -71,6 +84,12 @@ def get_adapters() -> Dict[str, AdapterSpec]:
             description="Fetch URLs and emit sources with provenance",
             default_confidence=0.5,
             run=_url_fetch_adapter,
+        ),
+        "web_search": AdapterSpec(
+            name="web_search",
+            description="Web search via Tavily (requires TAVILY_API_KEY)",
+            default_confidence=0.5,
+            run=_web_search_adapter,
         ),
     }
 
