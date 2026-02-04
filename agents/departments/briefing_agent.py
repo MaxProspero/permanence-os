@@ -5,11 +5,12 @@ Aggregate intelligence from departments into a daily report.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime, timezone, timedelta
 import os
 from pathlib import Path
 import json
+import re
 
 from agents.utils import log
 
@@ -51,6 +52,11 @@ class BriefingAgent:
     def execute(self, _task: Dict[str, Any]) -> AgentResult:
         log("BriefingAgent execute called", level="INFO")
         now = datetime.now(timezone.utc).isoformat()
+        email_summary = self._load_email_summary()
+        health_summary = self._load_health_summary()
+        social_summary = self._load_social_summary()
+        system_health = self._load_system_health()
+        focus_items = self._generate_focus(email_summary, health_summary, social_summary)
         notes: List[str] = [
             "# Daily Briefing",
             "",
@@ -60,10 +66,11 @@ class BriefingAgent:
 
         notes.extend(self._section_system_status())
         notes.extend(self._section_openclaw())
-        notes.extend(self._section_email_triage())
-        notes.extend(self._section_health_summary())
-        notes.extend(self._section_social_summary())
-        notes.extend(self._section_hr_report())
+        notes.extend(self._section_email_summary(email_summary))
+        notes.extend(self._section_health_summary(health_summary))
+        notes.extend(self._section_social_summary(social_summary))
+        notes.extend(self._section_focus(focus_items))
+        notes.extend(self._section_system_health(system_health))
         notes.extend(self._section_outputs())
 
         return AgentResult(
@@ -165,6 +172,208 @@ class BriefingAgent:
         return f"HR report captured: {latest}"
 
     @staticmethod
+    def _latest_tool_payload(prefix: str) -> Optional[Path]:
+        tool_dir = os.getenv(
+            "PERMANENCE_TOOL_DIR",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "memory", "tool")),
+        )
+        try:
+            candidates = sorted(
+                Path(tool_dir).glob(f"{prefix}_*.json"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+        except FileNotFoundError:
+            return None
+        if not candidates:
+            return None
+        return candidates[0]
+
+    @staticmethod
+    def _read_json(path: Path) -> Optional[Dict[str, Any]]:
+        try:
+            with open(path, "r") as f:
+                return json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return None
+
+    @staticmethod
+    def _parse_email_md(path: Path) -> Dict[str, Any]:
+        summary = {"p0": 0, "p1": 0, "p2": 0, "p3": 0, "p2_items": []}
+        try:
+            lines = path.read_text().splitlines()
+        except OSError:
+            return summary
+        current = None
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            match = re.match(r"^##\s+P([0-3])\s+\((\d+)\)", line)
+            if match:
+                bucket = f"p{match.group(1)}"
+                summary[bucket] = int(match.group(2))
+                current = bucket
+                continue
+            if current == "p2" and line.startswith("- "):
+                summary["p2_items"].append(line[2:])
+        return summary
+
+    def _load_email_summary(self) -> Dict[str, Any]:
+        payload_path = self._latest_tool_payload("email_triage")
+        if payload_path:
+            payload = self._read_json(payload_path) or {}
+            p0 = payload.get("P0", []) or payload.get("p0", [])
+            p1 = payload.get("P1", []) or payload.get("p1", [])
+            p2 = payload.get("P2", []) or payload.get("p2", [])
+            p3 = payload.get("P3", []) or payload.get("p3", [])
+            p2_items = [item.get("summary") for item in p2 if isinstance(item, dict)]
+            return {
+                "p0": len(p0),
+                "p1": len(p1),
+                "p2": len(p2),
+                "p3": len(p3),
+                "p2_items": [i for i in p2_items if i],
+            }
+        output_dir = os.getenv(
+            "PERMANENCE_OUTPUT_DIR",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "outputs")),
+        )
+        try:
+            candidates = sorted(
+                Path(output_dir).glob("email_triage_*.md"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+        except FileNotFoundError:
+            return {"p0": 0, "p1": 0, "p2": 0, "p3": 0, "p2_items": [], "missing": True}
+        if not candidates:
+            return {"p0": 0, "p1": 0, "p2": 0, "p3": 0, "p2_items": [], "missing": True}
+        summary = self._parse_email_md(candidates[0])
+        summary["missing"] = False
+        return summary
+
+    def _load_health_summary(self) -> Dict[str, Any]:
+        payload_path = self._latest_tool_payload("health_summary")
+        if not payload_path:
+            return {"not_connected": True}
+        payload = self._read_json(payload_path) or {}
+        latest = payload.get("latest") or {}
+        return {
+            "not_connected": False,
+            "avg_sleep_hours": payload.get("avg_sleep_hours"),
+            "avg_hrv": payload.get("avg_hrv"),
+            "avg_recovery": payload.get("avg_recovery"),
+            "avg_strain": payload.get("avg_strain"),
+            "latest": latest,
+        }
+
+    def _load_social_summary(self) -> Dict[str, Any]:
+        payload_path = self._latest_tool_payload("social_summary")
+        if not payload_path:
+            return {"not_connected": True, "drafts_ready": 0, "notifications": 0, "dms_pending": 0}
+        payload = self._read_json(payload_path) or {}
+        drafts = payload.get("drafts") or []
+        return {
+            "not_connected": False,
+            "drafts_ready": payload.get("count", len(drafts)),
+            "notifications": 0,
+            "dms_pending": 0,
+        }
+
+    def _load_system_health(self) -> Dict[str, Any]:
+        output_dir = os.getenv(
+            "PERMANENCE_OUTPUT_DIR",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "outputs")),
+        )
+        hr_path = Path(output_dir) / "weekly_system_health_report.md"
+        patterns = 0
+        logos_status = "unknown"
+        if hr_path.exists():
+            try:
+                lines = hr_path.read_text().splitlines()
+            except OSError:
+                lines = []
+            in_patterns = False
+            for line in lines:
+                if line.strip().startswith("PATTERNS DETECTED"):
+                    in_patterns = True
+                    continue
+                if in_patterns and line.strip().startswith("WINS THIS WEEK"):
+                    in_patterns = False
+                if in_patterns and line.strip().startswith("  "):
+                    if line.strip().startswith("1.") or line.strip().startswith("2.") or line.strip().startswith("3."):
+                        patterns += 1
+                if line.strip().startswith("Ready:"):
+                    value = line.split("Ready:", 1)[-1].strip().upper()
+                    logos_status = "READY" if value.startswith("YES") else "DORMANT"
+        episodic_count = self._count_episodic_entries_24h()
+        return {
+            "patterns_detected": patterns,
+            "compliance_holds": 0,
+            "episodic_entries_24h": episodic_count,
+            "logos_status": logos_status,
+        }
+
+    @staticmethod
+    def _count_episodic_entries_24h() -> int:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        memory_dir = os.getenv("PERMANENCE_MEMORY_DIR", os.path.join(base_dir, "memory"))
+        episodic_dir = Path(memory_dir) / "episodic"
+        if not episodic_dir.exists():
+            return 0
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        count = 0
+        for path in episodic_dir.glob("episodic_*.jsonl"):
+            try:
+                for line in path.read_text().splitlines():
+                    if not line.strip():
+                        continue
+                    try:
+                        entry = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    ts = entry.get("timestamp")
+                    if not ts:
+                        continue
+                    try:
+                        parsed = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                    except ValueError:
+                        continue
+                    if parsed >= cutoff:
+                        count += 1
+            except OSError:
+                continue
+        return count
+
+    @staticmethod
+    def _recommendation_from_health(health: Dict[str, Any]) -> Optional[str]:
+        if health.get("not_connected"):
+            return None
+        recovery = health.get("avg_recovery")
+        sleep = health.get("avg_sleep_hours")
+        if isinstance(recovery, (int, float)) and recovery < 70:
+            return "Light day. Prioritize recovery."
+        if isinstance(sleep, (int, float)) and sleep < 7:
+            return "Prioritize sleep and recovery."
+        return None
+
+    def _generate_focus(
+        self, email: Dict[str, Any], health: Dict[str, Any], social: Dict[str, Any]
+    ) -> List[str]:
+        focus: List[str] = []
+        for item in email.get("p2_items", [])[:3]:
+            focus.append(f"Handle email: {item}")
+        health_note = self._recommendation_from_health(health)
+        if health_note:
+            focus.append(health_note)
+        if social.get("drafts_ready", 0) > 0:
+            focus.append(f"Review {social.get('drafts_ready')} social drafts")
+        if not focus:
+            focus.append("Review the daily briefing and set top priorities.")
+        return focus[:5]
+
+    @staticmethod
     def _latest_status_snapshot() -> Optional[Dict[str, Any]]:
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         memory_dir = os.getenv("PERMANENCE_MEMORY_DIR", os.path.join(base_dir, "memory"))
@@ -261,43 +470,72 @@ class BriefingAgent:
         lines.append("")
         return lines
 
-    def _section_email_triage(self) -> List[str]:
-        lines = ["## Email Triage"]
-        email_note = self._latest_email_triage()
-        if email_note:
-            lines.append(f"- {email_note}")
-        else:
+    def _section_email_summary(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## Email"]
+        if summary.get("missing"):
             lines.append("- No email triage report found")
+            lines.append("")
+            return lines
+        p2_items = summary.get("p2_items", [])
+        p2_count = summary.get("p2", 0)
+        p3_count = summary.get("p3", 0)
+        lines.append(f"- P2: {p2_count} items needing action")
+        if p2_items:
+            for item in p2_items[:5]:
+                lines.append(f"  - {item}")
+        lines.append(f"- P3: {p3_count} items auto-archived")
+        inbox_zero = (summary.get("p0", 0) + summary.get("p1", 0) + summary.get("p2", 0)) == 0
+        lines.append(f"- Inbox zero: {'YES' if inbox_zero else 'NO'}")
         lines.append("")
         return lines
 
-    def _section_hr_report(self) -> List[str]:
-        lines = ["## HR Health"]
-        hr_note = self._latest_hr_report()
-        if hr_note:
-            lines.append(f"- {hr_note}")
-        else:
-            lines.append("- No HR report found")
+    def _section_health_summary(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## Health"]
+        if summary.get("not_connected"):
+            lines.append("- Health data not connected")
+            lines.append("")
+            return lines
+        lines.append(f"- Sleep (avg): {summary.get('avg_sleep_hours')}")
+        lines.append(f"- HRV (avg): {summary.get('avg_hrv')}")
+        lines.append(f"- Recovery (avg): {summary.get('avg_recovery')}")
+        lines.append(f"- Strain (avg): {summary.get('avg_strain')}")
+        latest = summary.get("latest") or {}
+        if latest:
+            lines.append("- Latest entry:")
+            for key in ["date", "sleep_hours", "hrv", "recovery_score", "strain"]:
+                if key in latest:
+                    lines.append(f"  - {key}: {latest.get(key)}")
+        recommendation = self._recommendation_from_health(summary)
+        if recommendation:
+            lines.append(f"- Recommendation: {recommendation}")
         lines.append("")
         return lines
 
-    def _section_health_summary(self) -> List[str]:
-        lines = ["## Health Summary"]
-        note = self._latest_health_summary()
-        if note:
-            lines.append(f"- {note}")
-        else:
-            lines.append("- No health summary found")
+    def _section_social_summary(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## Social"]
+        if summary.get("not_connected"):
+            lines.append("- Social data not connected")
+            lines.append("")
+            return lines
+        lines.append(f"- Notifications: {summary.get('notifications', 0)}")
+        lines.append(f"- DMs pending: {summary.get('dms_pending', 0)}")
+        lines.append(f"- Draft queue: {summary.get('drafts_ready', 0)} ready")
         lines.append("")
         return lines
 
-    def _section_social_summary(self) -> List[str]:
-        lines = ["## Social Drafts"]
-        note = self._latest_social_summary()
-        if note:
-            lines.append(f"- {note}")
-        else:
-            lines.append("- No social summary found")
+    def _section_focus(self, focus: List[str]) -> List[str]:
+        lines = ["## Today's Focus"]
+        for idx, item in enumerate(focus, 1):
+            lines.append(f"{idx}. {item}")
+        lines.append("")
+        return lines
+
+    def _section_system_health(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## System Health"]
+        lines.append(f"- HR patterns detected: {summary.get('patterns_detected')}")
+        lines.append(f"- Compliance holds: {summary.get('compliance_holds')}")
+        lines.append(f"- Episodic entries (24h): {summary.get('episodic_entries_24h')}")
+        lines.append(f"- Logos Praktikos: {summary.get('logos_status')}")
         lines.append("")
         return lines
 
