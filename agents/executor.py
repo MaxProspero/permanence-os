@@ -164,15 +164,24 @@ class ExecutorAgent:
         else:
             lines.append("- (none)")
 
-        lines.extend(["", "## Source Notes"])
-        notes_added = False
-        for src in sources:
-            note = src.get("notes")
-            if note:
-                notes_added = True
-                lines.append(f"- {note}")
-        if not notes_added:
-            lines.append("- No source notes provided; compiled output is provenance-only.")
+        lines.extend(["", "## Output (Spec-Bound)"])
+        if deliverables:
+            for d in deliverables:
+                lines.extend(
+                    [
+                        "",
+                        f"### {d}",
+                        "",
+                        "Evidence:",
+                    ]
+                )
+                notes = [src.get("notes") for src in sources if src.get("notes")]
+                if notes:
+                    lines.extend([f"- {note}" for note in notes])
+                else:
+                    lines.append("- (no source notes provided)")
+        else:
+            lines.append("- No deliverables specified; output limited to provenance summary.")
 
         lines.extend(["", "## Sources (Provenance)"])
         if sources:
