@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 - Briefing now includes top document excerpts
 - Added Google Drive PDF ingestion adapter
 - Replaced deprecated datetime.utcnow usage with timezone-aware timestamps
+- Added ingest-sources append mode to merge sources.json
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

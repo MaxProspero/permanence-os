@@ -77,6 +77,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_researcher_web_search.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_google_docs.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_drive_pdfs.py"),
+        os.path.join(BASE_DIR, "tests", "test_ingest_sources_append.py"),
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
     ]
     exit_code = 0
@@ -193,6 +194,7 @@ def main() -> int:
     ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
     ingest_sources_p.add_argument("--doc-dir", help="Documents directory")
     ingest_sources_p.add_argument("--output", help="Output sources.json path")
+    ingest_sources_p.add_argument("--append", action="store_true", help="Append to existing sources.json")
     ingest_sources_p.add_argument("--confidence", type=float, default=0.5, help="Default confidence")
     ingest_sources_p.add_argument("--max", type=int, default=100, help="Max entries")
     ingest_sources_p.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
@@ -221,6 +223,7 @@ def main() -> int:
                 *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
                 *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
                 *(["--output", args.output] if args.output else []),
+                *(["--append"] if args.append else []),
                 *(["--confidence", str(args.confidence)] if args.confidence else []),
                 *(["--max", str(args.max)] if args.max else []),
                 *(["--excerpt", str(args.excerpt)] if args.excerpt else []),

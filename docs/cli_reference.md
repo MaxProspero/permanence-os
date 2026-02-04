@@ -82,6 +82,9 @@ Adapters:
 
 Example:
 `python cli.py ingest-sources --adapter google_docs --doc-ids 1A2B3C --output memory/working/sources.json`
+
+Append mode (merge instead of overwrite):
+`python cli.py ingest-sources --adapter drive_pdfs --folder-id FOLDER_ID --append`
 ## Maintenance Commands
 
 ### `python cli.py clean`
