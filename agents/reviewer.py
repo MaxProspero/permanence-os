@@ -47,8 +47,11 @@ class ReviewerAgent:
             if "## Sources" not in content:
                 issues.append("Output is missing a sources/provenance section.")
             if "Output (Spec-Bound)" in content:
-                if "Evidence (verbatim" in content and "- [" not in content:
-                    issues.append("Spec-bound output missing evidence entries with source labels.")
+                missing = self._missing_evidence_sections(content, spec)
+                if missing:
+                    issues.append(
+                        "Spec-bound output missing evidence for deliverables: " + ", ".join(missing)
+                    )
 
         if not spec or not spec.get("deliverables"):
             issues.append("Missing or incomplete task specification (deliverables).")
@@ -61,6 +64,31 @@ class ReviewerAgent:
             required_changes=issues,
             created_at=datetime.now(timezone.utc).isoformat(),
         )
+
+    def _missing_evidence_sections(self, content: str, spec: Optional[Dict[str, Any]]) -> List[str]:
+        deliverables = (spec or {}).get("deliverables", [])
+        if not deliverables:
+            return []
+        missing: List[str] = []
+        lines = content.splitlines()
+        for deliverable in deliverables:
+            marker = f"### {deliverable}"
+            try:
+                idx = lines.index(marker)
+            except ValueError:
+                missing.append(deliverable)
+                continue
+            # Search until next section header
+            has_evidence = False
+            for line in lines[idx + 1 :]:
+                if line.startswith("### ") or line.startswith("## "):
+                    break
+                if line.strip().startswith("- ["):
+                    has_evidence = True
+                    break
+            if not has_evidence:
+                missing.append(deliverable)
+        return missing
 
 
 if __name__ == "__main__":

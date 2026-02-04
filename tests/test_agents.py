@@ -82,6 +82,26 @@ def test_reviewer_minimal_rubric():
     assert res.approved is True
 
 
+def test_reviewer_requires_evidence_for_deliverables():
+    rv = ReviewerAgent()
+    content = "\n".join(
+        [
+            "# Report",
+            "",
+            "## Output (Spec-Bound)",
+            "",
+            "### Deliverable A",
+            "",
+            "Evidence (verbatim or excerpted from sources):",
+            "",
+            "## Sources (Provenance)",
+            "- s1 | 2026-02-02T00:00:00+00:00 | 0.7",
+        ]
+    )
+    res = rv.review(content, {"deliverables": ["Deliverable A"]})
+    assert res.approved is False
+
+
 def test_conciliator_escalates_after_retries():
     ca = ConciliatorAgent()
     rr = ReviewResult(approved=False, notes=["x"], required_changes=["x"], created_at=datetime.now(timezone.utc).isoformat())
