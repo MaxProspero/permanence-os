@@ -415,7 +415,7 @@ class HRAgent:
                         evidence=[f"{name}: {count}", f"avg: {avg:.1f}"],
                         agents_involved=[name],
                         concern_level=ConcernLevel.MEDIUM,
-                        detected_at=datetime.utcnow(),
+                        detected_at=datetime.now(timezone.utc),
                         recommendation=f"Redistribute workload from {name} or add capacity.",
                     )
                 )
@@ -434,7 +434,7 @@ class HRAgent:
                         evidence=[f"{name}: {count}", f"avg: {avg:.1f}"],
                         agents_involved=[name],
                         concern_level=ConcernLevel.HIGH,
-                        detected_at=datetime.utcnow(),
+                        detected_at=datetime.now(timezone.utc),
                         recommendation=f"Check if {name} is being bypassed due to misconfig or quality issues.",
                     )
                 )
@@ -469,7 +469,7 @@ class HRAgent:
                             ],
                             agents_involved=[pair[0], pair[1]],
                             concern_level=ConcernLevel.MEDIUM,
-                            detected_at=datetime.utcnow(),
+                            detected_at=datetime.now(timezone.utc),
                             recommendation="Review whether clustering is intentional or causing narrow routing.",
                         )
                     )
@@ -507,7 +507,7 @@ class HRAgent:
                     ],
                     agents_involved=[pair[0], pair[1]],
                     concern_level=ConcernLevel.MEDIUM,
-                    detected_at=datetime.utcnow(),
+                    detected_at=datetime.now(timezone.utc),
                     recommendation="Check if the pair can operate independently; add alternate routing paths.",
                 )
             )
@@ -522,7 +522,7 @@ class HRAgent:
                         evidence=[f"connections: {len(metrics.relationships)}"],
                         agents_involved=[name],
                         concern_level=ConcernLevel.LOW,
-                        detected_at=datetime.utcnow(),
+                        detected_at=datetime.now(timezone.utc),
                         recommendation=f"Verify {name} integration and routing.",
                     )
                 )
@@ -541,7 +541,7 @@ class HRAgent:
                     evidence=[f"{a}" for a in agents],
                     agents_involved=agents,
                     concern_level=ConcernLevel.HIGH,
-                    detected_at=datetime.utcnow(),
+                    detected_at=datetime.now(timezone.utc),
                     recommendation="Review escalation causes and clarify resolution paths.",
                 )
             )
@@ -560,7 +560,7 @@ class HRAgent:
                         evidence=[f"{name}: {metrics.rejection_rate:.1f}%", f"avg: {avg:.1f}%"],
                         agents_involved=[name],
                         concern_level=ConcernLevel.HIGH,
-                        detected_at=datetime.utcnow(),
+                        detected_at=datetime.now(timezone.utc),
                         recommendation=f"Investigate inputs or specs feeding {name}.",
                     )
                 )

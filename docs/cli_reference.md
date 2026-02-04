@@ -78,6 +78,7 @@ Ingest sources via adapter registry.
 Adapters:
 - `web_search` (Tavily; requires `TAVILY_API_KEY`)
 - `google_docs` (Google Docs/Drive; requires OAuth credentials.json)
+- `drive_pdfs` (Google Drive PDFs; requires OAuth credentials.json)
 
 Example:
 `python cli.py ingest-sources --adapter google_docs --doc-ids 1A2B3C --output memory/working/sources.json`

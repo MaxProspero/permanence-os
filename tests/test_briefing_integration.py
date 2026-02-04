@@ -88,5 +88,6 @@ def test_briefing_includes_email_health_social_and_focus():
         assert "## Social" in content
         assert "Draft queue" in content
         assert "## Documents" in content
+        assert "doc excerpt" in content
         assert "## Today's Focus" in content
         assert "## System Health" in content

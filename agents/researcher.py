@@ -206,7 +206,7 @@ class ResearcherAgent:
                 "status": fetched.get("status"),
             }
 
-            tool_name = f"url_fetch_{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}_{idx}.json"
+            tool_name = f"url_fetch_{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}_{idx}.json"
             tool_path = os.path.join(tool_dir, tool_name)
             try:
                 with open(tool_path, "w") as f:
@@ -293,7 +293,7 @@ class ResearcherAgent:
                 "item": item,
                 "timestamp": fetched_at,
             }
-            tool_name = f"web_search_{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}_{idx}.json"
+            tool_name = f"web_search_{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}_{idx}.json"
             tool_path = os.path.join(tool_dir, tool_name)
             try:
                 with open(tool_path, "w") as f:
@@ -437,6 +437,154 @@ class ResearcherAgent:
                 json.dump(sources, f, indent=2)
 
         log(f"Compiled {len(sources)} sources from Google Docs", level="INFO")
+        return sources
+
+    def compile_sources_from_drive_pdfs(
+        self,
+        file_ids: Optional[List[str]] = None,
+        file_ids_path: Optional[str] = None,
+        folder_id: Optional[str] = None,
+        output_path: Optional[str] = None,
+        default_confidence: float = 0.6,
+        max_entries: int = 50,
+        excerpt_chars: int = 280,
+        credentials_path: Optional[str] = None,
+        token_path: Optional[str] = None,
+        tool_dir: str = TOOL_DIR,
+    ) -> List[Dict[str, Any]]:
+        """
+        Ingest PDF files from Google Drive into sources.json (read-only).
+        """
+        ids: List[str] = []
+        if file_ids:
+            ids.extend([d for d in file_ids if d])
+        if file_ids_path:
+            ids.extend(self._read_ids_file(file_ids_path))
+
+        credentials_path = credentials_path or os.path.join(GOOGLE_DIR, "credentials.json")
+        token_path = token_path or os.path.join(GOOGLE_DIR, "drive_token.json")
+        os.makedirs(os.path.dirname(token_path), exist_ok=True)
+        os.makedirs(tool_dir, exist_ok=True)
+
+        if not os.path.exists(credentials_path):
+            raise FileNotFoundError(f"Missing Google credentials file: {credentials_path}")
+
+        try:
+            from google.oauth2.credentials import Credentials
+            from google_auth_oauthlib.flow import InstalledAppFlow
+            from google.auth.transport.requests import Request
+            from googleapiclient.discovery import build
+            from googleapiclient.http import MediaIoBaseDownload
+        except ImportError as exc:
+            raise RuntimeError("Google API libraries not installed. Run pip install -r requirements.txt") from exc
+
+        scopes = ["https://www.googleapis.com/auth/drive.readonly"]
+
+        creds = None
+        if os.path.exists(token_path):
+            creds = Credentials.from_authorized_user_file(token_path, scopes)
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(credentials_path, scopes)
+                creds = flow.run_local_server(port=0)
+            with open(token_path, "w") as token:
+                token.write(creds.to_json())
+
+        drive_service = build("drive", "v3", credentials=creds)
+
+        if folder_id:
+            ids.extend(self._list_pdfs_in_folder(drive_service, folder_id))
+
+        if not ids:
+            raise ValueError("No Drive PDF file IDs provided")
+
+        # Deduplicate while preserving order
+        seen = set()
+        unique_ids = []
+        for file_id in ids:
+            if file_id in seen:
+                continue
+            seen.add(file_id)
+            unique_ids.append(file_id)
+
+        sources: List[Dict[str, Any]] = []
+        for file_id in unique_ids:
+            if len(sources) >= max_entries:
+                break
+            try:
+                meta = (
+                    drive_service.files()
+                    .get(fileId=file_id, fields="id,name,modifiedTime,mimeType,size")
+                    .execute()
+                )
+            except Exception as exc:
+                log(f"Failed to fetch Drive metadata for {file_id}: {exc}", level="WARNING")
+                continue
+            if meta.get("mimeType") != "application/pdf":
+                continue
+
+            content = self._download_drive_file(drive_service, file_id)
+            if not content:
+                continue
+
+            name = meta.get("name") or "drive.pdf"
+            timestamp = meta.get("modifiedTime") or datetime.now(timezone.utc).isoformat()
+            url = f"https://drive.google.com/file/d/{file_id}/view"
+
+            text = ""
+            try:
+                from pypdf import PdfReader
+
+                reader = PdfReader(io.BytesIO(content))
+                for page in reader.pages:
+                    page_text = page.extract_text() or ""
+                    if page_text:
+                        text += page_text + "\n"
+            except Exception:
+                text = ""
+
+            excerpt = self._excerpt(text, excerpt_chars) if text else ""
+            content_hash = self._hash_bytes(content)
+
+            record = {
+                "source": url,
+                "timestamp": timestamp,
+                "confidence": default_confidence,
+                "notes": excerpt or f"Drive PDF: {name}",
+                "hash": content_hash,
+                "origin": "drive_pdf",
+                "file_id": file_id,
+                "title": name,
+            }
+            sources.append(record)
+
+            tool_payload = {
+                "file_id": file_id,
+                "name": name,
+                "url": url,
+                "timestamp": timestamp,
+                "confidence": default_confidence,
+                "excerpt": excerpt,
+                "text_length": len(text),
+                "hash": content_hash,
+                "origin": "drive_pdf",
+            }
+            tool_name = f"drive_pdf_{file_id}_{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.json"
+            tool_path = os.path.join(tool_dir, tool_name)
+            try:
+                with open(tool_path, "w") as f:
+                    json.dump(tool_payload, f, indent=2)
+            except OSError:
+                pass
+
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, "w") as f:
+                json.dump(sources, f, indent=2)
+
+        log(f"Compiled {len(sources)} sources from Drive PDFs", level="INFO")
         return sources
     def _sources_from_file(self, path: str, default_confidence: float) -> List[Dict[str, Any]]:
         try:
@@ -703,6 +851,46 @@ class ResearcherAgent:
             if not page_token:
                 break
         return ids
+
+    def _list_pdfs_in_folder(self, drive_service: Any, folder_id: str) -> List[str]:
+        query = f"'{folder_id}' in parents and mimeType='application/pdf' and trashed=false"
+        ids: List[str] = []
+        page_token = None
+        while True:
+            response = (
+                drive_service.files()
+                .list(
+                    q=query,
+                    pageSize=100,
+                    fields="nextPageToken, files(id, name, modifiedTime)",
+                    pageToken=page_token,
+                )
+                .execute()
+            )
+            files = response.get("files", [])
+            files.sort(key=lambda f: f.get("modifiedTime", ""), reverse=True)
+            ids.extend([f.get("id") for f in files if f.get("id")])
+            page_token = response.get("nextPageToken")
+            if not page_token:
+                break
+        return ids
+
+    @staticmethod
+    def _download_drive_file(drive_service: Any, file_id: str) -> Optional[bytes]:
+        try:
+            from googleapiclient.http import MediaIoBaseDownload
+        except ImportError:
+            return None
+        request = drive_service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        try:
+            while not done:
+                _status, done = downloader.next_chunk()
+        except Exception:
+            return None
+        return fh.getvalue()
 
     def _extract_google_doc_text(self, doc: Dict[str, Any]) -> str:
         content = doc.get("body", {}).get("content", [])

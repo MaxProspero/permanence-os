@@ -81,6 +81,22 @@ def _google_docs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
     )
 
 
+def _drive_pdfs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
+    agent = ResearcherAgent()
+    return agent.compile_sources_from_drive_pdfs(
+        file_ids=kwargs.get("file_ids"),
+        file_ids_path=kwargs.get("file_ids_path"),
+        folder_id=kwargs.get("folder_id"),
+        output_path=kwargs.get("output_path"),
+        default_confidence=kwargs.get("default_confidence", 0.6),
+        max_entries=kwargs.get("max_entries", 50),
+        excerpt_chars=kwargs.get("excerpt_chars", 280),
+        credentials_path=kwargs.get("credentials_path"),
+        token_path=kwargs.get("token_path"),
+        tool_dir=kwargs.get("tool_dir", TOOL_DIR),
+    )
+
+
 def get_adapters() -> Dict[str, AdapterSpec]:
     return {
         "tool_memory": AdapterSpec(
@@ -112,6 +128,12 @@ def get_adapters() -> Dict[str, AdapterSpec]:
             description="Ingest Google Docs via Drive/Docs API (read-only)",
             default_confidence=0.6,
             run=_google_docs_adapter,
+        ),
+        "drive_pdfs": AdapterSpec(
+            name="drive_pdfs",
+            description="Ingest PDF files from Google Drive (read-only)",
+            default_confidence=0.6,
+            run=_drive_pdfs_adapter,
         ),
     }
 

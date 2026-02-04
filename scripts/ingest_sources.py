@@ -32,6 +32,8 @@ def main() -> int:
     parser.add_argument("--doc-ids", nargs="*", help="Google Doc IDs (google_docs adapter)")
     parser.add_argument("--doc-ids-path", help="File containing Google Doc IDs")
     parser.add_argument("--folder-id", help="Google Drive folder ID (google_docs adapter)")
+    parser.add_argument("--file-ids", nargs="*", help="Google Drive file IDs (drive_pdfs adapter)")
+    parser.add_argument("--file-ids-path", help="File containing Drive file IDs (drive_pdfs adapter)")
     parser.add_argument("--credentials", help="Google OAuth credentials.json path")
     parser.add_argument("--token", help="Google OAuth token.json path")
     parser.add_argument("--tool-dir", default=TOOL_DIR, help="Tool memory directory")
@@ -103,6 +105,20 @@ def main() -> int:
             "google_docs",
             doc_ids=args.doc_ids,
             doc_ids_path=args.doc_ids_path,
+            folder_id=args.folder_id,
+            output_path=args.output,
+            default_confidence=args.confidence,
+            max_entries=args.max,
+            excerpt_chars=args.excerpt,
+            credentials_path=args.credentials,
+            token_path=args.token,
+            tool_dir=args.tool_dir,
+        )
+    elif args.adapter == "drive_pdfs":
+        run_adapter(
+            "drive_pdfs",
+            file_ids=args.file_ids,
+            file_ids_path=args.file_ids_path,
             folder_id=args.folder_id,
             output_path=args.output,
             default_confidence=args.confidence,

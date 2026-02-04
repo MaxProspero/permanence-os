@@ -76,6 +76,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_logos_gate.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_web_search.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_google_docs.py"),
+        os.path.join(BASE_DIR, "tests", "test_researcher_drive_pdfs.py"),
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
     ]
     exit_code = 0
@@ -185,6 +186,8 @@ def main() -> int:
     ingest_sources_p.add_argument("--doc-ids", nargs="*", help="Google Doc IDs (google_docs adapter)")
     ingest_sources_p.add_argument("--doc-ids-path", help="File containing Google Doc IDs")
     ingest_sources_p.add_argument("--folder-id", help="Google Drive folder ID (google_docs adapter)")
+    ingest_sources_p.add_argument("--file-ids", nargs="*", help="Google Drive file IDs (drive_pdfs adapter)")
+    ingest_sources_p.add_argument("--file-ids-path", help="File containing Drive file IDs (drive_pdfs adapter)")
     ingest_sources_p.add_argument("--credentials", help="Google OAuth credentials.json path")
     ingest_sources_p.add_argument("--token", help="Google OAuth token.json path")
     ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
@@ -211,6 +214,8 @@ def main() -> int:
                 *(["--doc-ids"] + args.doc_ids if args.doc_ids else []),
                 *(["--doc-ids-path", args.doc_ids_path] if args.doc_ids_path else []),
                 *(["--folder-id", args.folder_id] if args.folder_id else []),
+                *(["--file-ids"] + args.file_ids if args.file_ids else []),
+                *(["--file-ids-path", args.file_ids_path] if args.file_ids_path else []),
                 *(["--credentials", args.credentials] if args.credentials else []),
                 *(["--token", args.token] if args.token else []),
                 *(["--tool-dir", args.tool_dir] if args.tool_dir else []),

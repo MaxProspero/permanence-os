@@ -336,7 +336,7 @@ class BriefingAgent:
         items: List[Dict[str, Any]] = []
         for src in sources:
             origin = str(src.get("origin") or "")
-            if "memory/working/documents" in origin or src.get("origin") == "google_docs":
+            if "memory/working/documents" in origin or origin in {"google_docs", "drive_pdf"}:
                 title = src.get("title") or src.get("source") or origin
                 items.append(
                     {
@@ -356,7 +356,19 @@ class BriefingAgent:
                 return datetime.min.replace(tzinfo=timezone.utc)
 
         items.sort(key=lambda i: _parse_ts(i.get("timestamp")), reverse=True)
-        return {"missing": False, "count": len(items), "items": items}
+        excerpt_items: List[Tuple[str, str]] = []
+        for item in items:
+            note = item.get("notes")
+            if note:
+                excerpt_items.append((item.get("title") or "Untitled", note))
+            if len(excerpt_items) >= 3:
+                break
+        return {
+            "missing": False,
+            "count": len(items),
+            "items": items,
+            "excerpts": excerpt_items,
+        }
 
     @staticmethod
     def _count_episodic_entries_24h() -> int:
@@ -577,6 +589,11 @@ class BriefingAgent:
             title = item.get("title") or "Untitled"
             ts = item.get("timestamp") or "unknown"
             lines.append(f"  - {title} ({ts})")
+        excerpts = summary.get("excerpts") or []
+        if excerpts:
+            lines.append("- Top excerpts:")
+            for title, note in excerpts:
+                lines.append(f"  - {title}: {note}")
         lines.append("")
         return lines
 
