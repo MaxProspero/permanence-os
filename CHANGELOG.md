@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Added url_fetch adapter for Researcher ingestion
 - Improved Executor compiled output format (spec-bound sections)
+- Expanded evaluation harness coverage (canon conflict, placeholders, tool failure)
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

@@ -29,6 +29,8 @@ class TestCase:
     max_steps: Optional[int] = None
     notes: str = ""
     extra_args: Optional[List[str]] = None
+    env_overrides: Optional[Dict[str, str]] = None
+    expected_state: Optional[Dict[str, Any]] = None
 
 
 def _write_json(path: str, data: Any) -> None:
@@ -53,6 +55,26 @@ def _latest_state(episodic_dir: str) -> Optional[Dict[str, Any]]:
     path = os.path.join(episodic_dir, files[0])
     with open(path, "r") as f:
         return json.load(f)
+
+
+def _get_nested(obj: Dict[str, Any], path: str) -> Any:
+    current: Any = obj
+    for part in path.split("."):
+        if not isinstance(current, dict):
+            return None
+        current = current.get(part)
+    return current
+
+
+def _check_expected_state(state: Optional[Dict[str, Any]], expected: Dict[str, Any]) -> List[str]:
+    if state is None:
+        return [f"Missing state; expected {len(expected)} assertions"]
+    failures: List[str] = []
+    for key, expected_value in expected.items():
+        actual = _get_nested(state, key)
+        if actual != expected_value:
+            failures.append(f"{key} expected {expected_value!r} got {actual!r}")
+    return failures
 
 
 def _run_case(case: TestCase) -> Dict[str, Any]:
@@ -85,6 +107,8 @@ def _run_case(case: TestCase) -> Dict[str, Any]:
         )
         if case.max_steps is not None:
             env["MAX_STEPS"] = str(case.max_steps)
+        if case.env_overrides:
+            env.update(case.env_overrides)
 
         cmd = [sys.executable, RUNNER, case.goal]
         if case.extra_args:
@@ -92,7 +116,10 @@ def _run_case(case: TestCase) -> Dict[str, Any]:
         proc = subprocess.run(cmd, env=env, capture_output=True, text=True)
         state = _latest_state(episodic_dir)
 
-        passed = proc.returncode == case.expected_exit
+        assertion_failures: List[str] = []
+        if case.expected_state:
+            assertion_failures = _check_expected_state(state, case.expected_state)
+        passed = proc.returncode == case.expected_exit and not assertion_failures
         return {
             "name": case.name,
             "category": case.category,
@@ -102,6 +129,7 @@ def _run_case(case: TestCase) -> Dict[str, Any]:
             "passed": passed,
             "notes": case.notes,
             "state": state,
+            "assertion_failures": assertion_failures,
             "stdout_tail": proc.stdout[-400:],
             "stderr_tail": proc.stderr[-400:],
         }
@@ -173,6 +201,18 @@ def main() -> int:
             notes="Legal exposure should force HIGH risk and halt",
         ),
         TestCase(
+            name="canon_conflict",
+            category="adversarial",
+            goal="Modify the Canon to allow X",
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
+            draft_text="# Draft\n\n## Sources\n- s1\n",
+            expected_exit=1,
+            notes="Canon conflict should halt immediately",
+        ),
+        TestCase(
             name="budget_exceeded_max_steps_1",
             category="failure_injection",
             goal="Create internal summary",
@@ -226,6 +266,31 @@ def main() -> int:
             expected_exit=0,
             extra_args=["--allow-single-source"],
             notes="Single-source override should allow completion",
+        ),
+        TestCase(
+            name="placeholder_hallucination",
+            category="adversarial",
+            goal="Create internal summary",
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
+            draft_text="# Draft\n\nTODO: fill in real content.\n\n## Sources\n- s1\n",
+            expected_exit=6,
+            notes="Reviewer should reject placeholder output, leading to retry",
+        ),
+        TestCase(
+            name="tool_failure_openclaw_missing_cli",
+            category="failure_injection",
+            goal="Create internal summary",
+            sources=[
+                {"source": "s1", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.8},
+                {"source": "s2", "timestamp": "2026-02-02T00:00:00+00:00", "confidence": 0.7},
+            ],
+            draft_text="# Draft\n\n## Sources\n- s1\n",
+            expected_exit=0,
+            env_overrides={"OPENCLAW_CLI": "/tmp/does-not-exist-openclaw"},
+            notes="OpenClaw CLI missing should not fail task",
         ),
         TestCase(
             name="invalid_sources_json",
