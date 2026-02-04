@@ -177,12 +177,18 @@ def main() -> int:
     ingest_sources_p = sub.add_parser("ingest-sources", help="Ingest sources via adapter registry")
     ingest_sources_p.add_argument("--adapter", default="tool_memory", help="Adapter name")
     ingest_sources_p.add_argument("--list", action="store_true", help="List adapters")
+    ingest_sources_p.add_argument("--query", help="Search query (web_search adapter)")
+    ingest_sources_p.add_argument("--urls", nargs="*", help="URLs to fetch (url_fetch adapter)")
+    ingest_sources_p.add_argument("--urls-path", help="File containing URLs (url_fetch adapter)")
     ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
     ingest_sources_p.add_argument("--doc-dir", help="Documents directory")
     ingest_sources_p.add_argument("--output", help="Output sources.json path")
     ingest_sources_p.add_argument("--confidence", type=float, default=0.5, help="Default confidence")
     ingest_sources_p.add_argument("--max", type=int, default=100, help="Max entries")
     ingest_sources_p.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
+    ingest_sources_p.add_argument("--timeout", type=int, default=20, help="Timeout (seconds)")
+    ingest_sources_p.add_argument("--max-bytes", type=int, default=1_000_000, help="Max bytes per URL")
+    ingest_sources_p.add_argument("--user-agent", default="PermanenceOS-Researcher/0.2", help="URL fetch user agent")
     ingest_sources_p.set_defaults(
         func=lambda args: _run(
             [
@@ -191,12 +197,18 @@ def main() -> int:
                 "--adapter",
                 args.adapter,
                 *(["--list"] if args.list else []),
+                *(["--query", args.query] if args.query else []),
+                *(["--urls"] + args.urls if args.urls else []),
+                *(["--urls-path", args.urls_path] if args.urls_path else []),
                 *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
                 *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
                 *(["--output", args.output] if args.output else []),
                 *(["--confidence", str(args.confidence)] if args.confidence else []),
                 *(["--max", str(args.max)] if args.max else []),
                 *(["--excerpt", str(args.excerpt)] if args.excerpt else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--max-bytes", str(args.max_bytes)] if args.max_bytes else []),
+                *(["--user-agent", args.user_agent] if args.user_agent else []),
             ]
         )
     )

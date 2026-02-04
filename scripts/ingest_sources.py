@@ -5,10 +5,21 @@ Unified ingestion entrypoint using Researcher adapter registry.
 
 import argparse
 import os
+import sys
 
-from agents.researcher_adapters import list_adapters, run_adapter
-from agents.researcher import TOOL_DIR, DOC_DIR
-from agents.utils import BASE_DIR
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(BASE_DIR)
+
+from agents.researcher_adapters import list_adapters, run_adapter  # noqa: E402
+from agents.researcher import TOOL_DIR, DOC_DIR  # noqa: E402
+from agents.utils import BASE_DIR as PROJECT_ROOT  # noqa: E402
+
+try:
+    from dotenv import load_dotenv  # noqa: E402
+
+    load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
+except Exception:
+    pass
 
 
 def main() -> int:
@@ -22,7 +33,7 @@ def main() -> int:
     parser.add_argument("--doc-dir", default=DOC_DIR, help="Documents directory")
     parser.add_argument(
         "--output",
-        default=os.path.join(BASE_DIR, "memory", "working", "sources.json"),
+        default=os.path.join(PROJECT_ROOT, "memory", "working", "sources.json"),
         help="Output sources.json path",
     )
     parser.add_argument("--confidence", type=float, default=0.5, help="Default confidence")
