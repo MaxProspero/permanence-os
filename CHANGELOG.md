@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Executor now emits source-labeled evidence lines in spec-bound output
 - Reviewer enforces evidence coverage per deliverable
 - Reviewer flags source dominance in evidence lines
+- Added Gmail read-only ingest (OAuth) for Email Agent
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

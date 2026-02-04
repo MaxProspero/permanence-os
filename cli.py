@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -75,6 +75,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_social_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_logos_gate.py"),
         os.path.join(BASE_DIR, "tests", "test_researcher_web_search.py"),
+        os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -286,6 +287,26 @@ def main() -> int:
                 *(["--vip"] + args.vip if args.vip else []),
                 *(["--ignore"] + args.ignore if args.ignore else []),
                 *(["--max-items", str(args.max_items)] if args.max_items else []),
+            ]
+        )
+    )
+
+    gmail_p = sub.add_parser("gmail-ingest", help="Ingest Gmail messages (read-only)")
+    gmail_p.add_argument("--credentials", help="OAuth credentials.json path")
+    gmail_p.add_argument("--token", help="OAuth token.json path")
+    gmail_p.add_argument("--output", help="Output inbox json path")
+    gmail_p.add_argument("--max", type=int, default=50, help="Max messages to fetch")
+    gmail_p.add_argument("--query", help="Gmail search query")
+    gmail_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "gmail_ingest.py"),
+                *(["--credentials", args.credentials] if args.credentials else []),
+                *(["--token", args.token] if args.token else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--max", str(args.max)] if args.max else []),
+                *(["--query", args.query] if args.query else []),
             ]
         )
     )

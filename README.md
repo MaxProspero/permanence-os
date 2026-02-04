@@ -188,6 +188,7 @@ python cli.py queue list
 python cli.py hr-report
 python cli.py briefing
 python cli.py email-triage
+python cli.py gmail-ingest
 python cli.py health-summary
 python cli.py social-summary
 python cli.py logos-gate
@@ -242,6 +243,14 @@ Store email JSON/JSONL in `memory/working/email/` and run:
 ```bash
 python scripts/email_triage.py
 python cli.py email-triage
+```
+
+### Gmail Ingest (Read-only)
+1) Create OAuth credentials in Google Cloud (Gmail API enabled).
+2) Save credentials to `memory/working/google/credentials.json`.
+3) Run:
+```bash
+python cli.py gmail-ingest --max 50
 ```
 
 ### Health Summary

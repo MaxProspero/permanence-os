@@ -14,6 +14,9 @@ Generate a daily briefing (includes latest OpenClaw status excerpt).
 ### `python cli.py email-triage`
 Run Email Agent triage on local inbox files.
 
+### `python cli.py gmail-ingest`
+Ingest Gmail messages (read-only) into the local inbox file.
+
 ### `python cli.py health-summary`
 Run Health Agent summary on local health files.
 
