@@ -176,6 +176,7 @@ python cli.py add-source "source-name" 0.7 "optional notes"
 python cli.py ingest --tool-dir memory/tool --output memory/working/sources.json
 python cli.py ingest-docs --doc-dir memory/working/documents --output memory/working/sources.json
 python cli.py ingest-sources --adapter tool_memory --output memory/working/sources.json
+python cli.py ingest-sources --adapter url_fetch --urls https://example.com --output memory/working/sources.json
 python cli.py status
 python cli.py openclaw-status
 python cli.py openclaw-status --health

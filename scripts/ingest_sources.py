@@ -15,6 +15,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Ingest sources via adapter registry")
     parser.add_argument("--adapter", default="tool_memory", help="Adapter name")
     parser.add_argument("--list", action="store_true", help="List available adapters")
+    parser.add_argument("--urls", nargs="*", help="URLs to fetch (url_fetch adapter)")
+    parser.add_argument("--urls-path", help="File containing URLs (url_fetch adapter)")
     parser.add_argument("--tool-dir", default=TOOL_DIR, help="Tool memory directory")
     parser.add_argument("--doc-dir", default=DOC_DIR, help="Documents directory")
     parser.add_argument(
@@ -25,6 +27,9 @@ def main() -> int:
     parser.add_argument("--confidence", type=float, default=0.5, help="Default confidence")
     parser.add_argument("--max", type=int, default=100, help="Max entries")
     parser.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
+    parser.add_argument("--timeout", type=int, default=15, help="URL fetch timeout (seconds)")
+    parser.add_argument("--max-bytes", type=int, default=1_000_000, help="Max bytes per URL")
+    parser.add_argument("--user-agent", default="PermanenceOS-Researcher/0.2", help="URL fetch user agent")
 
     args = parser.parse_args()
 
@@ -49,6 +54,20 @@ def main() -> int:
             default_confidence=args.confidence,
             max_entries=args.max,
             excerpt_chars=args.excerpt,
+        )
+    elif args.adapter == "url_fetch":
+        run_adapter(
+            "url_fetch",
+            urls=args.urls,
+            urls_path=args.urls_path,
+            output_path=args.output,
+            default_confidence=args.confidence,
+            max_entries=args.max,
+            excerpt_chars=args.excerpt,
+            timeout_sec=args.timeout,
+            max_bytes=args.max_bytes,
+            user_agent=args.user_agent,
+            tool_dir=args.tool_dir,
         )
     else:
         run_adapter(

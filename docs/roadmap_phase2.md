@@ -5,10 +5,12 @@
 - Tool adapters (web/search/doc APIs)
 - Source dominance checks
 - Automatic sources.json generation
+ - URL fetch adapter (read-only, blocks private/localhost)
 
 **Done when:**
 - Researcher can collect 3+ sources with provenance
 - Reviewer blocks single‑source outputs by default
+ - URL adapter produces sources.json and tool memory entries
 
 ## 2) Executor Pipeline (Priority 2)
 **Goal:** generate outputs strictly from plan + sources.

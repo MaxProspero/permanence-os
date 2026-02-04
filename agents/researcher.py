@@ -11,6 +11,8 @@ import hashlib
 import json
 import os
 import re
+import ipaddress
+from urllib.parse import urlparse
 
 from agents.utils import log, BASE_DIR
 
@@ -140,6 +142,84 @@ class ResearcherAgent:
         log(f"Compiled {len(sources)} sources from documents", level="INFO")
         return sources
 
+    def compile_sources_from_urls(
+        self,
+        urls: Optional[List[str]] = None,
+        urls_path: Optional[str] = None,
+        output_path: Optional[str] = None,
+        default_confidence: float = 0.5,
+        max_entries: int = 50,
+        excerpt_chars: int = 280,
+        timeout_sec: int = 15,
+        max_bytes: int = 1_000_000,
+        user_agent: str = "PermanenceOS-Researcher/0.2",
+        tool_dir: str = TOOL_DIR,
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetch URLs and produce sources with provenance.
+        Blocks localhost/private IPs by default.
+        """
+        url_list = urls or []
+        if urls_path:
+            url_list.extend(self._read_urls_file(urls_path))
+
+        if not url_list:
+            raise ValueError("No URLs provided")
+
+        sources: List[Dict[str, Any]] = []
+        os.makedirs(tool_dir, exist_ok=True)
+
+        for idx, url in enumerate(url_list):
+            if len(sources) >= max_entries:
+                break
+            if not self._safe_url(url):
+                log(f"Skipping unsafe URL: {url}", level="WARNING")
+                continue
+
+            fetched = self._fetch_url(
+                url,
+                timeout_sec=timeout_sec,
+                max_bytes=max_bytes,
+                user_agent=user_agent,
+            )
+            if not fetched:
+                continue
+
+            fetched_at = datetime.now(timezone.utc).isoformat()
+            content = fetched["content"]
+            content_type = fetched.get("content_type")
+            snippet = self._excerpt(fetched.get("text", ""), excerpt_chars)
+            content_hash = self._hash_bytes(content)
+
+            tool_payload = {
+                "source": url,
+                "timestamp": fetched_at,
+                "confidence": default_confidence,
+                "notes": snippet or "Fetched content",
+                "hash": content_hash,
+                "origin": "url_fetch",
+                "content_type": content_type,
+                "status": fetched.get("status"),
+            }
+
+            tool_name = f"url_fetch_{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}_{idx}.json"
+            tool_path = os.path.join(tool_dir, tool_name)
+            try:
+                with open(tool_path, "w") as f:
+                    json.dump(tool_payload, f, indent=2)
+            except OSError:
+                pass
+
+            sources.append(tool_payload)
+
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, "w") as f:
+                json.dump(sources, f, indent=2)
+
+        log(f"Fetched {len(sources)} sources from URLs", level="INFO")
+        return sources
+
     def _sources_from_file(self, path: str, default_confidence: float) -> List[Dict[str, Any]]:
         try:
             if path.endswith(".json"):
@@ -236,6 +316,91 @@ class ResearcherAgent:
         if len(normalized) <= limit:
             return normalized
         return normalized[: limit - 3].rstrip() + "..."
+
+    def _safe_url(self, url: str) -> bool:
+        try:
+            parsed = urlparse(url)
+        except Exception:
+            return False
+        if parsed.scheme not in {"http", "https"}:
+            return False
+        host = parsed.hostname
+        if not host:
+            return False
+        if host in {"localhost", "127.0.0.1", "::1"}:
+            return False
+        if host.endswith(".local"):
+            return False
+        try:
+            ip = ipaddress.ip_address(host)
+            if ip.is_private or ip.is_loopback or ip.is_link_local:
+                return False
+        except ValueError:
+            pass
+        return True
+
+    def _fetch_url(
+        self,
+        url: str,
+        timeout_sec: int,
+        max_bytes: int,
+        user_agent: str,
+    ) -> Optional[Dict[str, Any]]:
+        try:
+            import requests  # local import to keep dependency optional
+        except ImportError:
+            log("requests not installed; cannot fetch URLs", level="ERROR")
+            return None
+
+        try:
+            resp = requests.get(
+                url,
+                timeout=timeout_sec,
+                headers={"User-Agent": user_agent},
+            )
+        except requests.RequestException:
+            log(f"Fetch failed for URL: {url}", level="WARNING")
+            return None
+
+        content = resp.content[:max_bytes]
+        text = ""
+        try:
+            text = content.decode("utf-8", errors="ignore")
+        except Exception:
+            text = ""
+
+        if text:
+            try:
+                from bs4 import BeautifulSoup
+
+                soup = BeautifulSoup(text, "html.parser")
+                text = soup.get_text(" ", strip=True)
+            except Exception:
+                pass
+
+        return {
+            "status": resp.status_code,
+            "content_type": resp.headers.get("Content-Type", ""),
+            "content": content,
+            "text": text,
+        }
+
+    def _read_urls_file(self, path: str) -> List[str]:
+        try:
+            with open(path, "r") as f:
+                data = f.read().strip()
+        except OSError:
+            return []
+        if not data:
+            return []
+        if path.endswith(".json"):
+            try:
+                parsed = json.loads(data)
+                if isinstance(parsed, list):
+                    return [str(u).strip() for u in parsed if str(u).strip()]
+            except json.JSONDecodeError:
+                return []
+        return [line.strip() for line in data.splitlines() if line.strip()]
 
     def _hash_bytes(self, content: bytes) -> str:
         return hashlib.sha256(content).hexdigest()

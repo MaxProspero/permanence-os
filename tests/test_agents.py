@@ -36,6 +36,12 @@ def test_researcher_provenance_ok():
     assert result["ok"] is True
 
 
+def test_researcher_safe_url():
+    ra = ResearcherAgent()
+    assert ra._safe_url("https://example.com") is True
+    assert ra._safe_url("http://127.0.0.1:8080") is False
+
+
 def test_executor_requires_spec():
     ea = ExecutorAgent()
     res = ea.execute(spec=None)
