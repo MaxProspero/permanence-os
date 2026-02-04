@@ -11,6 +11,9 @@ Display system status (latest task, logs, outputs, OpenClaw status).
 ### `python cli.py briefing`
 Generate a daily briefing (includes latest OpenClaw status excerpt).
 
+### `python cli.py email-triage`
+Run Email Agent triage on local inbox files.
+
 ### `python cli.py dashboard`
 Generate a consolidated dashboard report.
 

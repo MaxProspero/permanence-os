@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -70,6 +70,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_episodic_memory.py"),
         os.path.join(BASE_DIR, "tests", "test_openclaw_health_sync.py"),
         os.path.join(BASE_DIR, "tests", "test_briefing_run.py"),
+        os.path.join(BASE_DIR, "tests", "test_email_agent.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -249,6 +250,24 @@ def main() -> int:
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "briefing_run.py"),
                 *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    email_p = sub.add_parser("email-triage", help="Run Email Agent triage")
+    email_p.add_argument("--inbox-dir", help="Inbox directory")
+    email_p.add_argument("--vip", nargs="*", default=[], help="VIP sender emails")
+    email_p.add_argument("--ignore", nargs="*", default=[], help="Ignored sender emails")
+    email_p.add_argument("--max-items", type=int, default=25, help="Max items to include")
+    email_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "email_triage.py"),
+                *(["--inbox-dir", args.inbox_dir] if args.inbox_dir else []),
+                *(["--vip"] + args.vip if args.vip else []),
+                *(["--ignore"] + args.ignore if args.ignore else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
             ]
         )
     )

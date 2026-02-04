@@ -36,6 +36,8 @@ Recommended order:
 3) Health
 4) Social
 
+**Status:** Email triage implemented (local JSON/JSONL inbox).
+
 ## 5) Memory Promotion Protocol (Priority 5)
 **Goal:** human‑approved Canon updates from episodic patterns.
 - Promotion queue hygiene

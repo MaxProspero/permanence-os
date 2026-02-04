@@ -50,9 +50,12 @@ class BriefingAgent:
     def execute(self, _task: Dict[str, Any]) -> AgentResult:
         log("BriefingAgent execute called (stub)", level="INFO")
         openclaw_note = self._latest_openclaw_status()
+        email_note = self._latest_email_triage()
         notes = ["BriefingAgent is a stub; add aggregation pipeline."]
         if openclaw_note:
             notes.append(openclaw_note)
+        if email_note:
+            notes.append(email_note)
         return AgentResult(
             status="NOT_IMPLEMENTED",
             notes=notes,
@@ -85,3 +88,31 @@ class BriefingAgent:
         if excerpt:
             return f"OpenClaw status: {excerpt}"
         return f"OpenClaw status captured: {latest}"
+
+    @staticmethod
+    def _latest_email_triage() -> Optional[str]:
+        output_dir = os.getenv(
+            "PERMANENCE_OUTPUT_DIR",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "outputs")),
+        )
+        try:
+            candidates = sorted(
+                Path(output_dir).glob("email_triage_*.md"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+        except FileNotFoundError:
+            return None
+        if not candidates:
+            return None
+        latest = candidates[0]
+        excerpt = ""
+        try:
+            with open(latest, "r") as f:
+                lines = [next(f).rstrip() for _ in range(6)]
+            excerpt = " | ".join([l for l in lines if l])
+        except (OSError, StopIteration):
+            excerpt = ""
+        if excerpt:
+            return f"Email triage: {excerpt}"
+        return f"Email triage captured: {latest}"

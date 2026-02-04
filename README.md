@@ -186,6 +186,7 @@ python cli.py test
 python cli.py queue list
 python cli.py hr-report
 python cli.py briefing
+python cli.py email-triage
 python cli.py dashboard
 python cli.py snapshot
 python cli.py cleanup-weekly
@@ -231,6 +232,13 @@ python scripts/briefing_run.py
 python cli.py briefing
 ```
 Briefing outputs include the most recent OpenClaw status excerpt when present.
+
+### Email Triage
+Store email JSON/JSONL in `memory/working/email/` and run:
+```bash
+python scripts/email_triage.py
+python cli.py email-triage
+```
 
 ### CLI Reference
 See `docs/cli_reference.md` for a full command list.
