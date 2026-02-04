@@ -5,9 +5,13 @@ Ingest local documents into memory/working/sources.json.
 
 import argparse
 import os
+import sys
 
-from agents.researcher import ResearcherAgent, DOC_DIR
-from agents.utils import BASE_DIR
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(BASE_DIR)
+
+from agents.researcher import ResearcherAgent, DOC_DIR  # noqa: E402
+from agents.utils import BASE_DIR  # noqa: E402
 
 
 def main() -> int:
