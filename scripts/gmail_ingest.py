@@ -9,10 +9,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from agents.utils import log, BASE_DIR
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(BASE_DIR)
+
+from agents.utils import log, BASE_DIR  # noqa: E402
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
