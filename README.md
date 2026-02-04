@@ -237,6 +237,9 @@ See `docs/cli_reference.md` for a full command list.
 ### Roadmap
 Phase 2 build priorities are in `docs/roadmap_phase2.md`.
 
+### Governance
+Code ownership is defined in `CODEOWNERS`.
+
 ### Dashboard Report
 ```bash
 python scripts/dashboard_report.py
