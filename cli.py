@@ -187,6 +187,7 @@ def main() -> int:
     ingest_sources_p.add_argument("--max", type=int, default=100, help="Max entries")
     ingest_sources_p.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
     ingest_sources_p.add_argument("--timeout", type=int, default=20, help="Timeout (seconds)")
+    ingest_sources_p.add_argument("--url-timeout", type=int, default=15, help="URL fetch timeout (seconds)")
     ingest_sources_p.add_argument("--max-bytes", type=int, default=1_000_000, help="Max bytes per URL")
     ingest_sources_p.add_argument("--user-agent", default="PermanenceOS-Researcher/0.2", help="URL fetch user agent")
     ingest_sources_p.set_defaults(
@@ -207,6 +208,7 @@ def main() -> int:
                 *(["--max", str(args.max)] if args.max else []),
                 *(["--excerpt", str(args.excerpt)] if args.excerpt else []),
                 *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--url-timeout", str(args.url_timeout)] if args.url_timeout else []),
                 *(["--max-bytes", str(args.max_bytes)] if args.max_bytes else []),
                 *(["--user-agent", args.user_agent] if args.user_agent else []),
             ]

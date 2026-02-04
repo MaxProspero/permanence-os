@@ -40,7 +40,7 @@ def main() -> int:
     parser.add_argument("--max", type=int, default=100, help="Max entries")
     parser.add_argument("--excerpt", type=int, default=280, help="Excerpt length")
     parser.add_argument("--timeout", type=int, default=20, help="Web search timeout (seconds)")
-    parser.add_argument("--timeout", type=int, default=15, help="URL fetch timeout (seconds)")
+    parser.add_argument("--url-timeout", type=int, default=15, help="URL fetch timeout (seconds)")
     parser.add_argument("--max-bytes", type=int, default=1_000_000, help="Max bytes per URL")
     parser.add_argument("--user-agent", default="PermanenceOS-Researcher/0.2", help="URL fetch user agent")
 
@@ -77,7 +77,7 @@ def main() -> int:
             default_confidence=args.confidence,
             max_entries=args.max,
             excerpt_chars=args.excerpt,
-            timeout_sec=args.timeout,
+            timeout_sec=args.url_timeout,
             max_bytes=args.max_bytes,
             user_agent=args.user_agent,
             tool_dir=args.tool_dir,
