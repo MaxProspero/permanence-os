@@ -12,6 +12,7 @@ import json
 import os
 import re
 import ipaddress
+import io
 from urllib.parse import urlparse
 
 from agents.utils import log, BASE_DIR
@@ -513,6 +514,47 @@ class ResearcherAgent:
                     "timestamp": mtime,
                     "confidence": default_confidence,
                     "notes": excerpt or "Document ingested (no excerpt)",
+                    "hash": self._hash_bytes(content),
+                    "origin": path,
+                }
+            ]
+
+        if ext == ".pdf":
+            try:
+                with open(path, "rb") as f:
+                    content = f.read()
+            except OSError:
+                return []
+            mtime = datetime.fromtimestamp(os.path.getmtime(path), timezone.utc).isoformat()
+            try:
+                from pypdf import PdfReader
+            except ImportError:
+                return [
+                    {
+                        "source": os.path.basename(path),
+                        "timestamp": mtime,
+                        "confidence": default_confidence,
+                        "notes": "PDF detected (install pypdf to extract text)",
+                        "hash": self._hash_bytes(content),
+                        "origin": path,
+                    }
+                ]
+            text = ""
+            try:
+                reader = PdfReader(io.BytesIO(content))
+                for page in reader.pages:
+                    page_text = page.extract_text() or ""
+                    if page_text:
+                        text += page_text + "\n"
+            except Exception:
+                text = ""
+            excerpt = self._excerpt(text, excerpt_chars) if text else ""
+            return [
+                {
+                    "source": os.path.basename(path),
+                    "timestamp": mtime,
+                    "confidence": default_confidence,
+                    "notes": excerpt or "PDF ingested (no extractable text)",
                     "hash": self._hash_bytes(content),
                     "origin": path,
                 }
