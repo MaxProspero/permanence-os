@@ -24,6 +24,7 @@ def test_briefing_includes_email_health_social_and_focus():
         os.environ["PERMANENCE_OUTPUT_DIR"] = output_dir
         os.environ["PERMANENCE_TOOL_DIR"] = tool_dir
         os.environ["PERMANENCE_MEMORY_DIR"] = os.path.join(tmp, "memory")
+        os.environ["PERMANENCE_SOURCES_PATH"] = os.path.join(tmp, "memory", "working", "sources.json")
 
         _write_json(
             os.path.join(tool_dir, "email_triage_20260204-000000.json"),
@@ -58,6 +59,22 @@ def test_briefing_includes_email_health_social_and_focus():
         with open(episodic_path, "w") as f:
             f.write(json.dumps({"timestamp": datetime.now(timezone.utc).isoformat()}) + "\n")
 
+        sources_dir = os.path.join(tmp, "memory", "working")
+        os.makedirs(sources_dir, exist_ok=True)
+        with open(os.environ["PERMANENCE_SOURCES_PATH"], "w") as f:
+            json.dump(
+                [
+                    {
+                        "source": "paper.pdf",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "notes": "doc excerpt",
+                        "origin": "/tmp/memory/working/documents/paper.pdf",
+                    }
+                ],
+                f,
+                indent=2,
+            )
+
         from agents.departments.briefing_agent import BriefingAgent  # noqa: E402
 
         notes = BriefingAgent().execute({}).notes
@@ -70,6 +87,6 @@ def test_briefing_includes_email_health_social_and_focus():
         assert "avg" in content
         assert "## Social" in content
         assert "Draft queue" in content
+        assert "## Documents" in content
         assert "## Today's Focus" in content
         assert "## System Health" in content
-

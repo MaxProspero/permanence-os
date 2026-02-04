@@ -56,6 +56,7 @@ class BriefingAgent:
         health_summary = self._load_health_summary()
         social_summary = self._load_social_summary()
         system_health = self._load_system_health()
+        documents_summary = self._load_documents_summary()
         focus_items = self._generate_focus(email_summary, health_summary, social_summary)
         notes: List[str] = [
             "# Daily Briefing",
@@ -69,6 +70,7 @@ class BriefingAgent:
         notes.extend(self._section_email_summary(email_summary))
         notes.extend(self._section_health_summary(health_summary))
         notes.extend(self._section_social_summary(social_summary))
+        notes.extend(self._section_documents(documents_summary))
         notes.extend(self._section_focus(focus_items))
         notes.extend(self._section_system_health(system_health))
         notes.extend(self._section_outputs())
@@ -315,6 +317,47 @@ class BriefingAgent:
             "logos_status": logos_status,
         }
 
+    def _load_documents_summary(self) -> Dict[str, Any]:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        sources_path = os.getenv(
+            "PERMANENCE_SOURCES_PATH",
+            os.path.join(base_dir, "memory", "working", "sources.json"),
+        )
+        if not os.path.exists(sources_path):
+            return {"missing": True, "count": 0, "items": []}
+        try:
+            with open(sources_path, "r") as f:
+                sources = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return {"missing": True, "count": 0, "items": []}
+        if not isinstance(sources, list):
+            return {"missing": True, "count": 0, "items": []}
+
+        items: List[Dict[str, Any]] = []
+        for src in sources:
+            origin = str(src.get("origin") or "")
+            if "memory/working/documents" in origin or src.get("origin") == "google_docs":
+                title = src.get("title") or src.get("source") or origin
+                items.append(
+                    {
+                        "title": title,
+                        "timestamp": src.get("timestamp"),
+                        "notes": src.get("notes"),
+                        "origin": origin,
+                    }
+                )
+
+        def _parse_ts(ts: Optional[str]) -> datetime:
+            if not ts:
+                return datetime.min.replace(tzinfo=timezone.utc)
+            try:
+                return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            except ValueError:
+                return datetime.min.replace(tzinfo=timezone.utc)
+
+        items.sort(key=lambda i: _parse_ts(i.get("timestamp")), reverse=True)
+        return {"missing": False, "count": len(items), "items": items}
+
     @staticmethod
     def _count_episodic_entries_24h() -> int:
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -520,6 +563,20 @@ class BriefingAgent:
         lines.append(f"- Notifications: {summary.get('notifications', 0)}")
         lines.append(f"- DMs pending: {summary.get('dms_pending', 0)}")
         lines.append(f"- Draft queue: {summary.get('drafts_ready', 0)} ready")
+        lines.append("")
+        return lines
+
+    def _section_documents(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## Documents"]
+        if summary.get("missing") or summary.get("count", 0) == 0:
+            lines.append("- No document sources found in sources.json")
+            lines.append("")
+            return lines
+        lines.append(f"- Sources: {summary.get('count')}")
+        for item in summary.get("items", [])[:5]:
+            title = item.get("title") or "Untitled"
+            ts = item.get("timestamp") or "unknown"
+            lines.append(f"  - {title} ({ts})")
         lines.append("")
         return lines
 

@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Unified briefing now aggregates email, health, social, focus, and system health summaries
 - Added Google Docs ingestion adapter (Drive/Docs API) with CLI flags
 - Added PDF text extraction for document ingestion (pypdf)
+- Briefing now includes Documents section sourced from sources.json
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting
