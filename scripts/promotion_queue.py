@@ -17,6 +17,7 @@ QUEUE_PATH = os.getenv(
     os.path.join(MEMORY_DIR, "working", "promotion_queue.json"),
 )
 LOG_DIR = os.getenv("PERMANENCE_LOG_DIR", os.path.join(BASE_DIR, "logs"))
+MAX_QUEUE = int(os.getenv("PERMANENCE_PROMOTION_QUEUE_MAX", "50"))
 
 
 def log(message: str, level: str = "INFO") -> None:
@@ -66,9 +67,12 @@ def _episode_by_id(task_id: str) -> Optional[Dict[str, Any]]:
 
 
 def _format_entry(entry: Dict[str, Any]) -> str:
+    reason = entry.get("reason", "")
+    pattern = entry.get("pattern", "")
+    extra = f" | pattern: {pattern}" if pattern else ""
     return (
         f"{entry.get('task_id', 'unknown')} | {entry.get('goal', '')} | "
-        f"added: {entry.get('added_at', '')} | reason: {entry.get('reason', '')}"
+        f"added: {entry.get('added_at', '')} | reason: {reason}{extra}"
     )
 
 
@@ -84,7 +88,7 @@ def list_queue() -> int:
     return 0
 
 
-def add_entry(task_id: Optional[str], reason: str, latest: bool) -> int:
+def add_entry(task_id: Optional[str], reason: str, latest: bool, pattern: str) -> int:
     queue = _load_queue()
     if latest:
         episode = _latest_episode()
@@ -113,8 +117,12 @@ def add_entry(task_id: Optional[str], reason: str, latest: bool) -> int:
         "risk_tier": episode.get("risk_tier"),
         "added_at": datetime.now(timezone.utc).isoformat(),
         "reason": reason,
+        "pattern": pattern or "",
     }
     queue.append(entry)
+    if len(queue) > MAX_QUEUE:
+        queue = queue[-MAX_QUEUE:]
+        log(f"Promotion queue trimmed to max size {MAX_QUEUE}", level="WARNING")
     _save_queue(queue)
     log(f"Promotion queue add: {task_id}")
     print(f"Added {task_id} to promotion queue")
@@ -140,6 +148,33 @@ def clear_queue() -> int:
     return 0
 
 
+def audit_queue(prune: bool) -> int:
+    queue = _load_queue()
+    if not queue:
+        print("Promotion queue is empty")
+        return 0
+    missing: List[Dict[str, Any]] = []
+    for entry in queue:
+        task_id = entry.get("task_id")
+        if not task_id or not _episode_by_id(task_id):
+            missing.append(entry)
+
+    if not missing:
+        print("Promotion queue audit: no missing episodes")
+        return 0
+
+    print("Promotion queue audit: missing episodes")
+    for entry in missing:
+        print("- " + _format_entry(entry))
+
+    if prune:
+        remaining = [e for e in queue if e not in missing]
+        _save_queue(remaining)
+        log(f"Promotion queue pruned missing episodes: {len(missing)}", level="WARNING")
+        print(f"Pruned {len(missing)} entries")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Manage Canon promotion queue")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -151,7 +186,8 @@ def main() -> int:
     add_p.add_argument("--task-id", help="Task id to enqueue")
     add_p.add_argument("--latest", action="store_true", help="Use latest episodic entry")
     add_p.add_argument("--reason", default="", help="Reason for promotion consideration")
-    add_p.set_defaults(func=lambda args: add_entry(args.task_id, args.reason, args.latest))
+    add_p.add_argument("--pattern", default="", help="Optional pattern label")
+    add_p.set_defaults(func=lambda args: add_entry(args.task_id, args.reason, args.latest, args.pattern))
 
     remove_p = sub.add_parser("remove", help="Remove task from queue")
     remove_p.add_argument("task_id", help="Task id to remove")
@@ -159,6 +195,10 @@ def main() -> int:
 
     clear_p = sub.add_parser("clear", help="Clear the queue")
     clear_p.set_defaults(func=lambda _args: clear_queue())
+
+    audit_p = sub.add_parser("audit", help="Audit queue for missing episodes")
+    audit_p.add_argument("--prune", action="store_true", help="Remove missing entries")
+    audit_p.set_defaults(func=lambda args: audit_queue(args.prune))
 
     args = parser.parse_args()
     return args.func(args)

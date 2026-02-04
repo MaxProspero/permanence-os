@@ -39,13 +39,24 @@ def test_promotion_queue_add_list_clear():
         env["PERMANENCE_LOG_DIR"] = os.path.join(tmp, "logs")
 
         subprocess.check_call(
-            [sys.executable, SCRIPT, "add", "--task-id", "T-QUEUE", "--reason", "test"],
+            [
+                sys.executable,
+                SCRIPT,
+                "add",
+                "--task-id",
+                "T-QUEUE",
+                "--reason",
+                "test",
+                "--pattern",
+                "pattern-a",
+            ],
             env=env,
         )
 
         output = subprocess.check_output([sys.executable, SCRIPT, "list"], env=env, text=True)
         assert "T-QUEUE" in output
 
+        subprocess.check_call([sys.executable, SCRIPT, "audit"], env=env)
         subprocess.check_call([sys.executable, SCRIPT, "clear"], env=env)
         output = subprocess.check_output([sys.executable, SCRIPT, "list"], env=env, text=True)
         assert "empty" in output.lower()

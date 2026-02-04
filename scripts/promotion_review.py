@@ -62,6 +62,7 @@ def _render_checklist(queue: List[Dict[str, Any]], min_count: int, rubric: str) 
     if not queue:
         lines.append("- None")
     else:
+        pattern_counts: Dict[str, int] = {}
         for entry in queue:
             task_id = entry.get("task_id", "unknown")
             episode = _load_episode(task_id)
@@ -71,7 +72,21 @@ def _render_checklist(queue: List[Dict[str, Any]], min_count: int, rubric: str) 
             lines.append(f"- {task_id} | {status}/{stage} | {goal}")
             if entry.get("reason"):
                 lines.append(f"  - Reason: {entry.get('reason')}")
+            if entry.get("pattern"):
+                lines.append(f"  - Pattern: {entry.get('pattern')}")
+                pattern_counts[entry.get("pattern")] = pattern_counts.get(entry.get("pattern"), 0) + 1
+            if not episode:
+                lines.append("  - WARNING: episodic record missing")
     lines.append("")
+
+    if queue:
+        lines.append("## Pattern Tally")
+        if pattern_counts:
+            for pattern, count in sorted(pattern_counts.items(), key=lambda x: x[0]):
+                lines.append(f"- {pattern}: {count}")
+        else:
+            lines.append("- (no pattern labels provided)")
+        lines.append("")
 
     lines.append("## Checklist (Preflight)")
     lines.append("- [ ] Pattern appears in at least two independent episodes")

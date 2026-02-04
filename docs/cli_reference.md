@@ -54,6 +54,10 @@ Generate promotion review checklist.
 ### `python cli.py queue`
 Manage promotion queue.
 
+Queue subcommands:
+- `python scripts/promotion_queue.py add --task-id T-... --reason "..." --pattern "..."`  
+- `python scripts/promotion_queue.py audit --prune`
+
 ## Ingestion Commands
 
 ### `python cli.py ingest`
