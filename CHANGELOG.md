@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Improved Executor compiled output format (spec-bound sections)
 - Expanded evaluation harness coverage (canon conflict, placeholders, tool failure)
 - Implemented Email Agent local triage + report output
+- Implemented Briefing Agent aggregation (OpenClaw, HR, email, system status)
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

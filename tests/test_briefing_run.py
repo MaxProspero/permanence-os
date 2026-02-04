@@ -28,6 +28,7 @@ def test_briefing_run_writes_file_with_openclaw_excerpt():
         with open(output, "r") as f:
             content = f.read()
         assert "OpenClaw status" in content
+        assert "System Status" in content
 
 
 if __name__ == "__main__":
