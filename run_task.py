@@ -229,6 +229,8 @@ def run_task(
     inputs: Dict[str, Any] = {"sources": sources}
     if os.path.exists(draft_path):
         inputs["draft_path"] = draft_path
+    # Pass sources into spec for reviewer dominance checks
+    spec_dict["sources"] = sources
     exec_result = executor.execute(spec_dict, inputs=inputs)
     if state:
         state.artifacts["output"] = exec_result.artifact

@@ -32,6 +32,7 @@ class ReviewerAgent:
     def review(self, output: Optional[str], spec: Optional[Dict[str, Any]]) -> ReviewResult:
         issues: List[str] = []
         content: Optional[str] = None
+        sources_data: List[Dict[str, Any]] = []
 
         if not output or (isinstance(output, str) and not output.strip()):
             issues.append("Output is empty.")
@@ -40,6 +41,9 @@ class ReviewerAgent:
                 content = f.read()
         elif isinstance(output, str):
             content = output
+
+        if spec and isinstance(spec.get("sources"), list):
+            sources_data = spec.get("sources") or []
 
         if content is not None:
             if "DRAFT PLACEHOLDER" in content or "TODO:" in content:
@@ -52,6 +56,9 @@ class ReviewerAgent:
                     issues.append(
                         "Spec-bound output missing evidence for deliverables: " + ", ".join(missing)
                     )
+            dominance_issue = self._detect_source_dominance(content, sources_data)
+            if dominance_issue:
+                issues.append(dominance_issue)
 
         if not spec or not spec.get("deliverables"):
             issues.append("Missing or incomplete task specification (deliverables).")
@@ -89,6 +96,30 @@ class ReviewerAgent:
             if not has_evidence:
                 missing.append(deliverable)
         return missing
+
+    def _detect_source_dominance(
+        self, content: str, sources: List[Dict[str, Any]], threshold: float = 0.7
+    ) -> Optional[str]:
+        """
+        Detect if a single source dominates evidence lines.
+        Evidence lines are counted by prefix "- [source]".
+        """
+        if not sources:
+            return None
+        counts: Dict[str, int] = {}
+        total = 0
+        for line in content.splitlines():
+            line = line.strip()
+            if line.startswith("- [") and "]" in line:
+                label = line[3:].split("]")[0].strip()
+                counts[label] = counts.get(label, 0) + 1
+                total += 1
+        if total == 0:
+            return None
+        top_label, top_count = max(counts.items(), key=lambda x: x[1])
+        if total > 0 and (top_count / total) >= threshold:
+            return f"Source dominance detected: {top_label} accounts for {top_count}/{total} evidence lines."
+        return None
 
 
 if __name__ == "__main__":

@@ -102,6 +102,27 @@ def test_reviewer_requires_evidence_for_deliverables():
     assert res.approved is False
 
 
+def test_reviewer_detects_source_dominance():
+    rv = ReviewerAgent()
+    content = "\n".join(
+        [
+            "## Output (Spec-Bound)",
+            "### Deliverable A",
+            "Evidence (verbatim or excerpted from sources):",
+            "- [source-a] note 1",
+            "- [source-a] note 2",
+            "- [source-a] note 3",
+            "- [source-b] note 4",
+            "## Sources (Provenance)",
+            "- source-a | t | 0.7",
+            "- source-b | t | 0.7",
+        ]
+    )
+    spec = {"deliverables": ["Deliverable A"], "sources": [{"source": "source-a"}, {"source": "source-b"}]}
+    res = rv.review(content, spec)
+    assert res.approved is False
+
+
 def test_conciliator_escalates_after_retries():
     ca = ConciliatorAgent()
     rr = ReviewResult(approved=False, notes=["x"], required_changes=["x"], created_at=datetime.now(timezone.utc).isoformat())
