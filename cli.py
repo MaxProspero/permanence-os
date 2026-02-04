@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, health-summary, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, health-summary, social-summary, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -72,6 +72,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_briefing_run.py"),
         os.path.join(BASE_DIR, "tests", "test_email_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_health_agent.py"),
+        os.path.join(BASE_DIR, "tests", "test_social_agent.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -283,6 +284,28 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "health_summary.py"),
                 *(["--data-dir", args.data_dir] if args.data_dir else []),
                 *(["--max-days", str(args.max_days)] if args.max_days else []),
+            ]
+        )
+    )
+
+    social_p = sub.add_parser("social-summary", help="Run Social Agent summary or save draft")
+    social_p.add_argument("--queue-dir", help="Social queue directory")
+    social_p.add_argument("--max-items", type=int, default=20, help="Max items to include")
+    social_p.add_argument("--draft-title", help="Draft title")
+    social_p.add_argument("--draft-body", help="Draft body")
+    social_p.add_argument("--draft-platform", help="Draft platform")
+    social_p.add_argument("--draft-tag", action="append", default=[], help="Draft tags (repeatable)")
+    social_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "social_summary.py"),
+                *(["--queue-dir", args.queue_dir] if args.queue_dir else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
+                *(["--draft-title", args.draft_title] if args.draft_title else []),
+                *(["--draft-body", args.draft_body] if args.draft_body else []),
+                *(["--draft-platform", args.draft_platform] if args.draft_platform else []),
+                *([arg for tag in args.draft_tag for arg in ("--draft-tag", tag)] if args.draft_tag else []),
             ]
         )
     )

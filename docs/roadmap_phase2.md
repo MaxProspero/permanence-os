@@ -39,6 +39,7 @@ Recommended order:
 **Status:** Email triage implemented (local JSON/JSONL inbox).
 **Status:** Briefing aggregation implemented (local outputs + OpenClaw + HR + email + health).
 **Status:** Health summary implemented (local JSON/JSONL health data).
+**Status:** Social draft queue implemented (local JSON/JSONL drafts).
 
 ## 5) Memory Promotion Protocol (Priority 5)
 **Goal:** human‑approved Canon updates from episodic patterns.

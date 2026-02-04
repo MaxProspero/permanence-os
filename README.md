@@ -188,6 +188,7 @@ python cli.py hr-report
 python cli.py briefing
 python cli.py email-triage
 python cli.py health-summary
+python cli.py social-summary
 python cli.py dashboard
 python cli.py snapshot
 python cli.py cleanup-weekly
@@ -246,6 +247,13 @@ Store health JSON/JSONL in `memory/working/health/` and run:
 ```bash
 python scripts/health_summary.py
 python cli.py health-summary
+```
+
+### Social Drafts
+Store social drafts in `memory/working/social/` and run:
+```bash
+python scripts/social_summary.py
+python cli.py social-summary
 ```
 
 ### CLI Reference

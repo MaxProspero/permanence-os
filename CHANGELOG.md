@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Implemented Email Agent local triage + report output
 - Implemented Briefing Agent aggregation (OpenClaw, HR, email, system status)
 - Implemented Health Agent local summary + report output
+- Implemented Social Agent local draft queue + summary
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting
