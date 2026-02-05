@@ -13,6 +13,7 @@ import os
 import re
 import ipaddress
 import io
+import time
 from urllib.parse import urlparse
 
 from agents.utils import log, BASE_DIR
@@ -318,9 +319,12 @@ class ResearcherAgent:
         default_confidence: float = 0.6,
         max_entries: int = 50,
         excerpt_chars: int = 280,
+        max_doc_chars: int = 50_000,
         credentials_path: Optional[str] = None,
         token_path: Optional[str] = None,
         tool_dir: str = TOOL_DIR,
+        cursor_path: Optional[str] = None,
+        max_seen: int = 5000,
     ) -> List[Dict[str, Any]]:
         """
         Ingest Google Docs into sources.json (read-only).
@@ -384,17 +388,20 @@ class ResearcherAgent:
             unique_ids.append(doc_id)
 
         sources: List[Dict[str, Any]] = []
+        processed = self._load_cursor_ids(cursor_path) if cursor_path else set()
         now = datetime.now(timezone.utc)
         for doc_id in unique_ids:
             if len(sources) >= max_entries:
                 break
+            if doc_id in processed:
+                continue
             try:
                 doc = docs_service.documents().get(documentId=doc_id).execute()
             except Exception as exc:
                 log(f"Failed to fetch Google Doc {doc_id}: {exc}", level="WARNING")
                 continue
             title = doc.get("title") or "Untitled"
-            text = self._extract_google_doc_text(doc)
+            text = self._extract_google_doc_text(doc, max_chars=max_doc_chars)
             excerpt = self._excerpt(text, excerpt_chars) if text else ""
             timestamp = now.isoformat()
             url = f"https://docs.google.com/document/d/{doc_id}/edit"
@@ -430,11 +437,16 @@ class ResearcherAgent:
                     json.dump(tool_payload, f, indent=2)
             except OSError:
                 pass
+            if cursor_path:
+                processed.add(doc_id)
 
         if output_path:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "w") as f:
                 json.dump(sources, f, indent=2)
+
+        if cursor_path:
+            self._save_cursor_ids(cursor_path, processed, max_seen=max_seen)
 
         log(f"Compiled {len(sources)} sources from Google Docs", level="INFO")
         return sources
@@ -448,9 +460,13 @@ class ResearcherAgent:
         default_confidence: float = 0.6,
         max_entries: int = 50,
         excerpt_chars: int = 280,
+        max_pdf_bytes: int = 8_000_000,
+        max_seconds_per_file: int = 25,
         credentials_path: Optional[str] = None,
         token_path: Optional[str] = None,
         tool_dir: str = TOOL_DIR,
+        cursor_path: Optional[str] = None,
+        max_seen: int = 5000,
     ) -> List[Dict[str, Any]]:
         """
         Ingest PDF files from Google Drive into sources.json (read-only).
@@ -510,9 +526,12 @@ class ResearcherAgent:
             unique_ids.append(file_id)
 
         sources: List[Dict[str, Any]] = []
+        processed = self._load_cursor_ids(cursor_path) if cursor_path else set()
         for file_id in unique_ids:
             if len(sources) >= max_entries:
                 break
+            if file_id in processed:
+                continue
             try:
                 meta = (
                     drive_service.files()
@@ -524,8 +543,24 @@ class ResearcherAgent:
                 continue
             if meta.get("mimeType") != "application/pdf":
                 continue
+            try:
+                size = int(meta.get("size") or 0)
+            except (TypeError, ValueError):
+                size = 0
+            if size and max_pdf_bytes and size > max_pdf_bytes:
+                log(
+                    f"Skipping Drive PDF {file_id} (size {size} > {max_pdf_bytes} bytes)",
+                    level="WARNING",
+                )
+                if cursor_path:
+                    processed.add(file_id)
+                continue
 
-            content = self._download_drive_file(drive_service, file_id)
+            content = self._download_drive_file(
+                drive_service,
+                file_id,
+                max_seconds=max_seconds_per_file,
+            )
             if not content:
                 continue
 
@@ -578,11 +613,16 @@ class ResearcherAgent:
                     json.dump(tool_payload, f, indent=2)
             except OSError:
                 pass
+            if cursor_path:
+                processed.add(file_id)
 
         if output_path:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "w") as f:
                 json.dump(sources, f, indent=2)
+
+        if cursor_path:
+            self._save_cursor_ids(cursor_path, processed, max_seen=max_seen)
 
         log(f"Compiled {len(sources)} sources from Drive PDFs", level="INFO")
         return sources
@@ -876,7 +916,11 @@ class ResearcherAgent:
         return ids
 
     @staticmethod
-    def _download_drive_file(drive_service: Any, file_id: str) -> Optional[bytes]:
+    def _download_drive_file(
+        drive_service: Any,
+        file_id: str,
+        max_seconds: int = 25,
+    ) -> Optional[bytes]:
         try:
             from googleapiclient.http import MediaIoBaseDownload
         except ImportError:
@@ -885,16 +929,20 @@ class ResearcherAgent:
         fh = io.BytesIO()
         downloader = MediaIoBaseDownload(fh, request)
         done = False
+        started = time.monotonic()
         try:
             while not done:
                 _status, done = downloader.next_chunk()
+                if max_seconds and (time.monotonic() - started) > max_seconds:
+                    return None
         except Exception:
             return None
         return fh.getvalue()
 
-    def _extract_google_doc_text(self, doc: Dict[str, Any]) -> str:
+    def _extract_google_doc_text(self, doc: Dict[str, Any], max_chars: int = 50_000) -> str:
         content = doc.get("body", {}).get("content", [])
         parts: List[str] = []
+        total = 0
         for block in content:
             paragraph = block.get("paragraph")
             if not paragraph:
@@ -902,8 +950,40 @@ class ResearcherAgent:
             for elem in paragraph.get("elements", []):
                 text_run = elem.get("textRun")
                 if text_run and text_run.get("content"):
-                    parts.append(text_run["content"])
+                    chunk = text_run["content"]
+                    parts.append(chunk)
+                    total += len(chunk)
+                    if max_chars and total >= max_chars:
+                        return "".join(parts).strip()
         return "".join(parts).strip()
+
+    @staticmethod
+    def _load_cursor_ids(path: Optional[str]) -> set[str]:
+        if not path or not os.path.exists(path):
+            return set()
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return set()
+        if isinstance(data, list):
+            return set(str(x) for x in data)
+        if isinstance(data, dict) and "ids" in data and isinstance(data["ids"], list):
+            return set(str(x) for x in data["ids"])
+        return set()
+
+    @staticmethod
+    def _save_cursor_ids(path: str, ids: set[str], max_seen: int = 5000) -> None:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        ordered = list(ids)
+        if max_seen and len(ordered) > max_seen:
+            ordered = ordered[-max_seen:]
+        payload = {"ids": ordered, "updated_at": datetime.now(timezone.utc).isoformat()}
+        try:
+            with open(path, "w") as f:
+                json.dump(payload, f, indent=2)
+        except OSError:
+            pass
 
     def _hash_bytes(self, content: bytes) -> str:
         return hashlib.sha256(content).hexdigest()

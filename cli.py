@@ -191,6 +191,12 @@ def main() -> int:
     ingest_sources_p.add_argument("--file-ids-path", help="File containing Drive file IDs (drive_pdfs adapter)")
     ingest_sources_p.add_argument("--credentials", help="Google OAuth credentials.json path")
     ingest_sources_p.add_argument("--token", help="Google OAuth token.json path")
+    ingest_sources_p.add_argument("--cursor", help="Cursor file path (resume processed IDs)")
+    ingest_sources_p.add_argument("--resume", action="store_true", help="Resume using default cursor file")
+    ingest_sources_p.add_argument("--max-seconds", type=int, default=25, help="Per-file max seconds (Drive PDFs)")
+    ingest_sources_p.add_argument("--max-pdf-bytes", type=int, default=8_000_000, help="Skip PDFs larger than this size")
+    ingest_sources_p.add_argument("--max-doc-chars", type=int, default=50_000, help="Max chars per Google Doc")
+    ingest_sources_p.add_argument("--max-seen", type=int, default=5000, help="Max IDs to keep in cursor")
     ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
     ingest_sources_p.add_argument("--doc-dir", help="Documents directory")
     ingest_sources_p.add_argument("--output", help="Output sources.json path")
@@ -220,6 +226,12 @@ def main() -> int:
                 *(["--file-ids-path", args.file_ids_path] if args.file_ids_path else []),
                 *(["--credentials", args.credentials] if args.credentials else []),
                 *(["--token", args.token] if args.token else []),
+                *(["--cursor", args.cursor] if args.cursor else []),
+                *(["--resume"] if args.resume else []),
+                *(["--max-seconds", str(args.max_seconds)] if args.max_seconds else []),
+                *(["--max-pdf-bytes", str(args.max_pdf_bytes)] if args.max_pdf_bytes else []),
+                *(["--max-doc-chars", str(args.max_doc_chars)] if args.max_doc_chars else []),
+                *(["--max-seen", str(args.max_seen)] if args.max_seen else []),
                 *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
                 *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
                 *(["--output", args.output] if args.output else []),

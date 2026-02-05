@@ -75,9 +75,12 @@ def _google_docs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
         default_confidence=kwargs.get("default_confidence", 0.6),
         max_entries=kwargs.get("max_entries", 50),
         excerpt_chars=kwargs.get("excerpt_chars", 280),
+        max_doc_chars=kwargs.get("max_doc_chars", 50_000),
         credentials_path=kwargs.get("credentials_path"),
         token_path=kwargs.get("token_path"),
         tool_dir=kwargs.get("tool_dir", TOOL_DIR),
+        cursor_path=kwargs.get("cursor_path"),
+        max_seen=kwargs.get("max_seen", 5000),
     )
 
 
@@ -91,9 +94,13 @@ def _drive_pdfs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
         default_confidence=kwargs.get("default_confidence", 0.6),
         max_entries=kwargs.get("max_entries", 50),
         excerpt_chars=kwargs.get("excerpt_chars", 280),
+        max_pdf_bytes=kwargs.get("max_pdf_bytes", 8_000_000),
+        max_seconds_per_file=kwargs.get("max_seconds_per_file", 25),
         credentials_path=kwargs.get("credentials_path"),
         token_path=kwargs.get("token_path"),
         tool_dir=kwargs.get("tool_dir", TOOL_DIR),
+        cursor_path=kwargs.get("cursor_path"),
+        max_seen=kwargs.get("max_seen", 5000),
     )
 
 

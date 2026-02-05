@@ -6,6 +6,7 @@ Unified ingestion entrypoint using Researcher adapter registry.
 import argparse
 import os
 import sys
+import json
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(BASE_DIR)
@@ -36,6 +37,12 @@ def main() -> int:
     parser.add_argument("--file-ids-path", help="File containing Drive file IDs (drive_pdfs adapter)")
     parser.add_argument("--credentials", help="Google OAuth credentials.json path")
     parser.add_argument("--token", help="Google OAuth token.json path")
+    parser.add_argument("--cursor", help="Cursor file path (resume processed IDs)")
+    parser.add_argument("--resume", action="store_true", help="Resume using default cursor file")
+    parser.add_argument("--max-seconds", type=int, default=25, help="Per-file max seconds (Drive PDFs)")
+    parser.add_argument("--max-pdf-bytes", type=int, default=8_000_000, help="Skip PDFs larger than this size")
+    parser.add_argument("--max-doc-chars", type=int, default=50_000, help="Max chars per Google Doc")
+    parser.add_argument("--max-seen", type=int, default=5000, help="Max IDs to keep in cursor")
     parser.add_argument("--tool-dir", default=TOOL_DIR, help="Tool memory directory")
     parser.add_argument("--doc-dir", default=DOC_DIR, help="Documents directory")
     parser.add_argument(
@@ -65,6 +72,13 @@ def main() -> int:
 
     def _maybe_output() -> str | None:
         return None if args.append else args.output
+
+    cursor_path = args.cursor
+    if args.resume and not cursor_path:
+        if args.adapter == "google_docs":
+            cursor_path = os.path.join(PROJECT_ROOT, "memory", "working", "google", "docs_cursor.json")
+        elif args.adapter == "drive_pdfs":
+            cursor_path = os.path.join(PROJECT_ROOT, "memory", "working", "google", "drive_cursor.json")
 
     if args.adapter == "tool_memory":
         new_sources = run_adapter(
@@ -118,9 +132,12 @@ def main() -> int:
             default_confidence=args.confidence,
             max_entries=args.max,
             excerpt_chars=args.excerpt,
+            max_doc_chars=args.max_doc_chars,
             credentials_path=args.credentials,
             token_path=args.token,
             tool_dir=args.tool_dir,
+            cursor_path=cursor_path,
+            max_seen=args.max_seen,
         )
     elif args.adapter == "drive_pdfs":
         new_sources = run_adapter(
@@ -132,9 +149,13 @@ def main() -> int:
             default_confidence=args.confidence,
             max_entries=args.max,
             excerpt_chars=args.excerpt,
+            max_pdf_bytes=args.max_pdf_bytes,
+            max_seconds_per_file=args.max_seconds,
             credentials_path=args.credentials,
             token_path=args.token,
             tool_dir=args.tool_dir,
+            cursor_path=cursor_path,
+            max_seen=args.max_seen,
         )
     else:
         new_sources = run_adapter(

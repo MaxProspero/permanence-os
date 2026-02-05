@@ -85,6 +85,15 @@ Example:
 
 Append mode (merge instead of overwrite):
 `python cli.py ingest-sources --adapter drive_pdfs --folder-id FOLDER_ID --append`
+
+Resume mode (skip already ingested IDs with a cursor):
+`python cli.py ingest-sources --adapter drive_pdfs --folder-id FOLDER_ID --append --resume`
+`python cli.py ingest-sources --adapter google_docs --folder-id FOLDER_ID --append --resume`
+
+Tuning:
+- `--max-pdf-bytes` skip oversized PDFs (default 8,000,000)
+- `--max-seconds` per-file timeout (default 25)
+- `--max-doc-chars` cap doc text extraction (default 50,000)
 ## Maintenance Commands
 
 ### `python cli.py clean`
