@@ -12,6 +12,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(BASE_DIR)
 
 from agents.utils import BASE_DIR as PROJECT_ROOT, log  # noqa: E402
+from core.storage import storage  # noqa: E402
 
 
 def _load_sources(path: str) -> list[dict]:
@@ -33,7 +34,7 @@ def main() -> int:
         return 1
 
     now = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    out_path = os.path.join(PROJECT_ROOT, "outputs", f"sources_digest_{now}.md")
+    out_path = storage.paths.outputs_digests / f"sources_digest_{now}.md"
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     lines = [

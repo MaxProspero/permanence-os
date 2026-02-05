@@ -12,14 +12,19 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(BASE_DIR)
 
 from agents.departments.briefing_agent import BriefingAgent  # noqa: E402
+from core.storage import storage  # noqa: E402
 from scripts.openclaw_status import capture_openclaw_status  # noqa: E402
 
 
 def _default_output_path() -> str:
-    output_dir = os.getenv("PERMANENCE_OUTPUT_DIR", os.path.join(BASE_DIR, "outputs"))
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = os.getenv("PERMANENCE_OUTPUT_DIR")
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        base_dir = output_dir
+    else:
+        base_dir = str(storage.paths.outputs_briefings)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    return os.path.join(output_dir, f"briefing_{stamp}.md")
+    return os.path.join(base_dir, f"briefing_{stamp}.md")
 
 
 def main() -> int:
