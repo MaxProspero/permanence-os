@@ -94,12 +94,16 @@ Tuning:
 - `--max-pdf-bytes` skip oversized PDFs (default 8,000,000)
 - `--max-seconds` per-file timeout (default 25)
 - `--max-doc-chars` cap doc text extraction (default 50,000)
+- `--skip-failures` mark failed items as processed (avoids repeated timeouts)
 
 ### `python cli.py ingest-drive-all`
 Batch ingest Drive PDFs + Docs with resume.
 
 Example:
 `python cli.py ingest-drive-all --folder-id FOLDER_ID --max 10`
+
+Tuning:
+`python cli.py ingest-drive-all --folder-id FOLDER_ID --max 5 --max-seconds 40 --max-pdf-bytes 15000000 --skip-failures`
 ## Maintenance Commands
 
 ### `python cli.py clean`

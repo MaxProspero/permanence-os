@@ -43,6 +43,7 @@ def main() -> int:
     parser.add_argument("--max-pdf-bytes", type=int, default=8_000_000, help="Skip PDFs larger than this size")
     parser.add_argument("--max-doc-chars", type=int, default=50_000, help="Max chars per Google Doc")
     parser.add_argument("--max-seen", type=int, default=5000, help="Max IDs to keep in cursor")
+    parser.add_argument("--skip-failures", action="store_true", help="Mark failed items as processed")
     parser.add_argument("--tool-dir", default=TOOL_DIR, help="Tool memory directory")
     parser.add_argument("--doc-dir", default=DOC_DIR, help="Documents directory")
     parser.add_argument(
@@ -138,6 +139,7 @@ def main() -> int:
             tool_dir=args.tool_dir,
             cursor_path=cursor_path,
             max_seen=args.max_seen,
+            skip_failures=args.skip_failures,
         )
     elif args.adapter == "drive_pdfs":
         new_sources = run_adapter(
@@ -156,6 +158,7 @@ def main() -> int:
             tool_dir=args.tool_dir,
             cursor_path=cursor_path,
             max_seen=args.max_seen,
+            skip_failures=args.skip_failures,
         )
     else:
         new_sources = run_adapter(

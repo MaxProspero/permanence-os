@@ -81,6 +81,7 @@ def _google_docs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
         tool_dir=kwargs.get("tool_dir", TOOL_DIR),
         cursor_path=kwargs.get("cursor_path"),
         max_seen=kwargs.get("max_seen", 5000),
+        skip_failures=kwargs.get("skip_failures", False),
     )
 
 
@@ -101,6 +102,7 @@ def _drive_pdfs_adapter(**kwargs: Any) -> List[Dict[str, Any]]:
         tool_dir=kwargs.get("tool_dir", TOOL_DIR),
         cursor_path=kwargs.get("cursor_path"),
         max_seen=kwargs.get("max_seen", 5000),
+        skip_failures=kwargs.get("skip_failures", False),
     )
 
 

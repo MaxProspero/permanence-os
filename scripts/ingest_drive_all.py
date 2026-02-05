@@ -34,6 +34,10 @@ def main() -> int:
     parser.add_argument("--max", type=int, default=10, help="Max items per batch")
     parser.add_argument("--max-batches", type=int, default=0, help="Stop after N batches (0 = no limit)")
     parser.add_argument("--sleep", type=int, default=2, help="Seconds to sleep between batches")
+    parser.add_argument("--max-seconds", type=int, default=25, help="Per-file max seconds")
+    parser.add_argument("--max-pdf-bytes", type=int, default=8_000_000, help="Skip PDFs larger than this size")
+    parser.add_argument("--max-doc-chars", type=int, default=50_000, help="Max chars per Google Doc")
+    parser.add_argument("--skip-failures", action="store_true", help="Mark failed items as processed")
     args = parser.parse_args()
 
     batches = 0
@@ -52,6 +56,13 @@ def main() -> int:
             str(args.max),
             "--append",
             "--resume",
+            "--max-seconds",
+            str(args.max_seconds),
+            "--max-pdf-bytes",
+            str(args.max_pdf_bytes),
+            "--max-doc-chars",
+            str(args.max_doc_chars),
+            *(["--skip-failures"] if args.skip_failures else []),
         ]
         doc_cmd = [
             "python",
@@ -65,6 +76,11 @@ def main() -> int:
             str(args.max),
             "--append",
             "--resume",
+            "--max-seconds",
+            str(args.max_seconds),
+            "--max-doc-chars",
+            str(args.max_doc_chars),
+            *(["--skip-failures"] if args.skip_failures else []),
         ]
 
         _run_ingest(pdf_cmd)

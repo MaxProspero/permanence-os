@@ -325,6 +325,7 @@ class ResearcherAgent:
         tool_dir: str = TOOL_DIR,
         cursor_path: Optional[str] = None,
         max_seen: int = 5000,
+        skip_failures: bool = False,
     ) -> List[Dict[str, Any]]:
         """
         Ingest Google Docs into sources.json (read-only).
@@ -399,6 +400,8 @@ class ResearcherAgent:
                 doc = docs_service.documents().get(documentId=doc_id).execute()
             except Exception as exc:
                 log(f"Failed to fetch Google Doc {doc_id}: {exc}", level="WARNING")
+                if cursor_path and skip_failures:
+                    processed.add(doc_id)
                 continue
             title = doc.get("title") or "Untitled"
             text = self._extract_google_doc_text(doc, max_chars=max_doc_chars)
@@ -467,6 +470,7 @@ class ResearcherAgent:
         tool_dir: str = TOOL_DIR,
         cursor_path: Optional[str] = None,
         max_seen: int = 5000,
+        skip_failures: bool = False,
     ) -> List[Dict[str, Any]]:
         """
         Ingest PDF files from Google Drive into sources.json (read-only).
@@ -540,6 +544,8 @@ class ResearcherAgent:
                 )
             except Exception as exc:
                 log(f"Failed to fetch Drive metadata for {file_id}: {exc}", level="WARNING")
+                if cursor_path and skip_failures:
+                    processed.add(file_id)
                 continue
             if meta.get("mimeType") != "application/pdf":
                 continue
@@ -562,6 +568,8 @@ class ResearcherAgent:
                 max_seconds=max_seconds_per_file,
             )
             if not content:
+                if cursor_path and skip_failures:
+                    processed.add(file_id)
                 continue
 
             name = meta.get("name") or "drive.pdf"

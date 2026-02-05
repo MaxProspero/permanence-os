@@ -31,6 +31,8 @@ All notable changes to this project will be documented in this file.
 - Added per-file timeouts and size caps for Drive PDF ingestion
 - Added max-doc-chars guard for Google Docs ingestion
 - Added ingest-drive-all batch command for Drive PDFs + Docs
+- Added skip-failures flag to avoid repeated timeouts in Drive/Docs ingest
+- Added ingest-drive-all tuning flags (timeouts, size caps, skip-failures)
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

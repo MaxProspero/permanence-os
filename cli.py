@@ -197,6 +197,7 @@ def main() -> int:
     ingest_sources_p.add_argument("--max-pdf-bytes", type=int, default=8_000_000, help="Skip PDFs larger than this size")
     ingest_sources_p.add_argument("--max-doc-chars", type=int, default=50_000, help="Max chars per Google Doc")
     ingest_sources_p.add_argument("--max-seen", type=int, default=5000, help="Max IDs to keep in cursor")
+    ingest_sources_p.add_argument("--skip-failures", action="store_true", help="Mark failed items as processed")
     ingest_sources_p.add_argument("--tool-dir", help="Tool memory directory")
     ingest_sources_p.add_argument("--doc-dir", help="Documents directory")
     ingest_sources_p.add_argument("--output", help="Output sources.json path")
@@ -232,6 +233,7 @@ def main() -> int:
                 *(["--max-pdf-bytes", str(args.max_pdf_bytes)] if args.max_pdf_bytes else []),
                 *(["--max-doc-chars", str(args.max_doc_chars)] if args.max_doc_chars else []),
                 *(["--max-seen", str(args.max_seen)] if args.max_seen else []),
+                *(["--skip-failures"] if args.skip_failures else []),
                 *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
                 *(["--doc-dir", args.doc_dir] if args.doc_dir else []),
                 *(["--output", args.output] if args.output else []),
@@ -255,6 +257,10 @@ def main() -> int:
     ingest_drive_all_p.add_argument("--max", type=int, default=10, help="Max items per batch")
     ingest_drive_all_p.add_argument("--max-batches", type=int, default=0, help="Stop after N batches (0 = no limit)")
     ingest_drive_all_p.add_argument("--sleep", type=int, default=2, help="Seconds between batches")
+    ingest_drive_all_p.add_argument("--max-seconds", type=int, default=25, help="Per-file max seconds")
+    ingest_drive_all_p.add_argument("--max-pdf-bytes", type=int, default=8_000_000, help="Skip PDFs larger than this size")
+    ingest_drive_all_p.add_argument("--max-doc-chars", type=int, default=50_000, help="Max chars per Google Doc")
+    ingest_drive_all_p.add_argument("--skip-failures", action="store_true", help="Mark failed items as processed")
     ingest_drive_all_p.set_defaults(
         func=lambda args: _run(
             [
@@ -268,6 +274,13 @@ def main() -> int:
                 str(args.max_batches),
                 "--sleep",
                 str(args.sleep),
+                "--max-seconds",
+                str(args.max_seconds),
+                "--max-pdf-bytes",
+                str(args.max_pdf_bytes),
+                "--max-doc-chars",
+                str(args.max_doc_chars),
+                *(["--skip-failures"] if args.skip_failures else []),
             ]
         )
     )
