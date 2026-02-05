@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -281,6 +281,16 @@ def main() -> int:
                 "--max-doc-chars",
                 str(args.max_doc_chars),
                 *(["--skip-failures"] if args.skip_failures else []),
+            ]
+        )
+    )
+
+    sources_digest_p = sub.add_parser("sources-digest", help="Generate a sources digest (no LLM)")
+    sources_digest_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "sources_digest.py"),
             ]
         )
     )

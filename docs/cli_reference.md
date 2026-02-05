@@ -104,6 +104,9 @@ Example:
 
 Tuning:
 `python cli.py ingest-drive-all --folder-id FOLDER_ID --max 5 --max-seconds 40 --max-pdf-bytes 15000000 --skip-failures`
+
+### `python cli.py sources-digest`
+Generate a markdown digest from sources.json (no LLM).
 ## Maintenance Commands
 
 ### `python cli.py clean`
