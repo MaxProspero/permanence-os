@@ -107,6 +107,9 @@ Tuning:
 
 ### `python cli.py sources-digest`
 Generate a markdown digest from sources.json (no LLM).
+
+### `python cli.py sources-brief`
+Generate a synthesis brief from sources.json (heuristic, no LLM).
 ## Maintenance Commands
 
 ### `python cli.py clean`

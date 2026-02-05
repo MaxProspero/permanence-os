@@ -34,6 +34,7 @@ All notable changes to this project will be documented in this file.
 - Added skip-failures flag to avoid repeated timeouts in Drive/Docs ingest
 - Added ingest-drive-all tuning flags (timeouts, size caps, skip-failures)
 - Added sources-digest command for non-LLM summaries
+- Added sources-brief command for heuristic synthesis
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting
