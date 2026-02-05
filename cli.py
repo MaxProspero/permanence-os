@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -243,6 +243,31 @@ def main() -> int:
                 *(["--url-timeout", str(args.url_timeout)] if args.url_timeout else []),
                 *(["--max-bytes", str(args.max_bytes)] if args.max_bytes else []),
                 *(["--user-agent", args.user_agent] if args.user_agent else []),
+            ]
+        )
+    )
+
+    ingest_drive_all_p = sub.add_parser(
+        "ingest-drive-all",
+        help="Batch ingest Drive PDFs + Docs with resume",
+    )
+    ingest_drive_all_p.add_argument("--folder-id", required=True, help="Google Drive folder ID")
+    ingest_drive_all_p.add_argument("--max", type=int, default=10, help="Max items per batch")
+    ingest_drive_all_p.add_argument("--max-batches", type=int, default=0, help="Stop after N batches (0 = no limit)")
+    ingest_drive_all_p.add_argument("--sleep", type=int, default=2, help="Seconds between batches")
+    ingest_drive_all_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ingest_drive_all.py"),
+                "--folder-id",
+                args.folder_id,
+                "--max",
+                str(args.max),
+                "--max-batches",
+                str(args.max_batches),
+                "--sleep",
+                str(args.sleep),
             ]
         )
     )
