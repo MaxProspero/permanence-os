@@ -8,9 +8,13 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+import os
 import sys
 
-from core.storage import storage
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(BASE_DIR)
+
+from core.storage import storage  # noqa: E402
 
 REPO_ROOT = Path(__file__).parent.parent
 SOURCES_FILE = REPO_ROOT / "memory" / "working" / "sources.json"

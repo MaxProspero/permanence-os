@@ -110,6 +110,21 @@ Generate a markdown digest from sources.json (no LLM).
 
 ### `python cli.py sources-brief`
 Generate a synthesis brief from sources.json (heuristic, no LLM).
+
+### `python cli.py synthesis-brief`
+Generate a governed synthesis brief (draft + optional approval).
+- `--days 7|30|90` lookback window (default 30)
+- `--max-sources N` limit source count
+- `--no-prompt` skip approval (draft only)
+- `--approve` auto-approve draft to final
+
+### `python cli.py notebooklm-sync`
+Sync NotebookLM exports from a Google Drive folder into storage archives.
+- `--folder-id FOLDER_ID` (or set `PERMANENCE_NOTEBOOKLM_FOLDER_ID`)
+- `--max-files N` (default 50)
+- `--max-seconds N` (default 120)
+- `--max-bytes N` skip large files (default 25,000,000)
+- `--split-max-chars N` split oversized Docs into text parts (default 40,000)
 ## Maintenance Commands
 
 ### `python cli.py clean`

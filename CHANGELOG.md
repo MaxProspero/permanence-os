@@ -37,6 +37,9 @@ All notable changes to this project will be documented in this file.
 - Added LaCie-aware storage manager with fallback
 - Added automation scripts for 3x daily briefing runs
 - Added sources-brief command for heuristic synthesis
+- Added synthesis-brief command with draft approval flow
+- Added NotebookLM Drive sync script + CLI command
+- Added size-based split fallback for oversized NotebookLM Docs exports
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

@@ -1,0 +1,18 @@
+=== Briefing Run Started: Thu Feb  5 16:11:02 CST 2026 ===
+[2026-02-05T22:11:02.552101+00:00] [INFO] Storage root: /Volumes/LaCie
+[2026-02-05T22:11:07.414650+00:00] [INFO] OpenClaw status captured: /Users/paytonhicks/Documents/Permanence OS/permanence-os/outputs/openclaw_status_20260205-221107.txt
+[2026-02-05T22:11:07.414848+00:00] [INFO] OpenClaw status tool memory: /Users/paytonhicks/Documents/Permanence OS/permanence-os/memory/tool/openclaw_status_20260205-221107.txt
+[2026-02-05T22:11:10.146933+00:00] [INFO] OpenClaw health captured: /Users/paytonhicks/Documents/Permanence OS/permanence-os/outputs/openclaw_health_20260205-221110.txt
+[2026-02-05T22:11:10.147096+00:00] [INFO] OpenClaw health tool memory: /Users/paytonhicks/Documents/Permanence OS/permanence-os/memory/tool/openclaw_health_20260205-221110.txt
+[2026-02-05T22:11:10.147179+00:00] [INFO] BriefingAgent execute called
+Briefing written to /Volumes/LaCie/outputs/briefings/briefing_20260205-221110.md
+[2026-02-05T22:11:10.385337+00:00] [INFO] Storage root: /Volumes/LaCie
+[2026-02-05T22:11:10.391616+00:00] [INFO] Sources digest written to /Volumes/LaCie/outputs/digests/sources_digest_20260205-221110.md
+Sources digest written to /Volumes/LaCie/outputs/digests/sources_digest_20260205-221110.md
+[2026-02-05T22:11:10.520108+00:00] [INFO] Storage root: /Volumes/LaCie
+[2026-02-05T22:11:12.396769+00:00] [INFO] NotebookLM sync complete: 0 downloaded, 0 split, 58 skipped
+NotebookLM sync complete: 0 downloaded, 0 split, 58 skipped
+Traceback (most recent call last):
+  File "/Users/paytonhicks/Documents/Permanence OS/permanence-os/automation/healthcheck.py", line 13, in <module>
+    from core.storage import storage
+ModuleNotFoundError: No module named 'core'

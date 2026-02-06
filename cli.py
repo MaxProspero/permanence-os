@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -301,6 +301,56 @@ def main() -> int:
             [
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "sources_brief.py"),
+            ]
+        )
+    )
+
+    synth_p = sub.add_parser("synthesis-brief", help="Generate governed synthesis brief (draft + approval)")
+    synth_p.add_argument("--days", type=int, default=30, choices=[7, 30, 90], help="Lookback window")
+    synth_p.add_argument("--max-sources", type=int, default=50, help="Max sources to include")
+    synth_p.add_argument("--no-prompt", action="store_true", help="Skip approval prompt (draft only)")
+    synth_p.add_argument("--approve", action="store_true", help="Auto-approve draft to final")
+    synth_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "synthesis_brief.py"),
+                "--days",
+                str(args.days),
+                "--max-sources",
+                str(args.max_sources),
+                *(["--no-prompt"] if args.no_prompt else []),
+                *(["--approve"] if args.approve else []),
+            ]
+        )
+    )
+
+    notebook_p = sub.add_parser("notebooklm-sync", help="Sync NotebookLM exports from Drive")
+    notebook_p.add_argument("--folder-id", help="Google Drive folder ID")
+    notebook_p.add_argument("--credentials", help="Google OAuth credentials.json path")
+    notebook_p.add_argument("--token", help="Google OAuth token path")
+    notebook_p.add_argument("--cursor", help="Cursor file path")
+    notebook_p.add_argument("--max-files", type=int, default=50, help="Max files per run")
+    notebook_p.add_argument("--max-seconds", type=int, default=120, help="Max seconds per run")
+    notebook_p.add_argument("--max-bytes", type=int, default=25_000_000, help="Skip files larger than this")
+    notebook_p.add_argument("--split-max-chars", type=int, default=40_000, help="Max chars per split part")
+    notebook_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "notebooklm_sync.py"),
+                *(["--folder-id", args.folder_id] if args.folder_id else []),
+                *(["--credentials", args.credentials] if args.credentials else []),
+                *(["--token", args.token] if args.token else []),
+                *(["--cursor", args.cursor] if args.cursor else []),
+                "--max-files",
+                str(args.max_files),
+                "--max-seconds",
+                str(args.max_seconds),
+                "--max-bytes",
+                str(args.max_bytes),
+                "--split-max-chars",
+                str(args.split_max_chars),
             ]
         )
     )

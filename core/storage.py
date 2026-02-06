@@ -12,6 +12,13 @@ from pathlib import Path
 
 from agents.utils import log, BASE_DIR
 
+try:
+    from dotenv import load_dotenv  # type: ignore
+
+    load_dotenv(os.path.join(BASE_DIR, ".env"))
+except Exception:
+    pass
+
 
 @dataclass(frozen=True)
 class StoragePaths:
@@ -21,6 +28,9 @@ class StoragePaths:
     outputs_briefings: Path
     outputs_digests: Path
     outputs_synthesis: Path
+    outputs_synthesis_drafts: Path
+    outputs_synthesis_final: Path
+    archives_notebooklm: Path
 
 
 class StorageManager:
@@ -44,6 +54,9 @@ class StorageManager:
         outputs_briefings = root / "outputs" / "briefings"
         outputs_digests = root / "outputs" / "digests"
         outputs_synthesis = root / "outputs" / "synthesis"
+        outputs_synthesis_drafts = outputs_synthesis / "drafts"
+        outputs_synthesis_final = outputs_synthesis / "final"
+        archives_notebooklm = root / "archives" / "notebooklm"
 
         for path in (
             memory_episodic,
@@ -51,6 +64,9 @@ class StorageManager:
             outputs_briefings,
             outputs_digests,
             outputs_synthesis,
+            outputs_synthesis_drafts,
+            outputs_synthesis_final,
+            archives_notebooklm,
         ):
             path.mkdir(parents=True, exist_ok=True)
 
@@ -74,6 +90,9 @@ class StorageManager:
             outputs_briefings=outputs_briefings,
             outputs_digests=outputs_digests,
             outputs_synthesis=outputs_synthesis,
+            outputs_synthesis_drafts=outputs_synthesis_drafts,
+            outputs_synthesis_final=outputs_synthesis_final,
+            archives_notebooklm=archives_notebooklm,
         )
 
 
