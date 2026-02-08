@@ -36,17 +36,39 @@ class StoragePaths:
 class StorageManager:
     def __init__(self, root: Path | None = None):
         env_root = os.getenv("PERMANENCE_STORAGE_ROOT")
+        fallback_root = Path(BASE_DIR) / "permanence_storage"
         if root:
             storage_root = root
         elif env_root:
             storage_root = Path(os.path.expanduser(env_root))
         else:
-            lacie = Path("/Volumes/LaCie_Permanence")
-            storage_root = lacie if lacie.exists() else Path.home() / "permanence_storage"
+            for candidate in (Path("/Volumes/LaCie_Permanence"), Path("/Volumes/LaCie")):
+                if candidate.exists():
+                    storage_root = candidate
+                    break
+            else:
+                storage_root = fallback_root
+
+        if not self._is_writable(storage_root):
+            log(
+                f"Storage root not writable ({storage_root}); falling back to {fallback_root}",
+                level="WARNING",
+            )
+            storage_root = fallback_root
 
         self.paths = self._ensure_structure(storage_root)
         if self.paths.root.exists():
             log(f"Storage root: {self.paths.root}", level="INFO")
+
+    def _is_writable(self, root: Path) -> bool:
+        try:
+            root.mkdir(parents=True, exist_ok=True)
+            probe = root / ".permanence_write_probe"
+            probe.write_text("ok")
+            probe.unlink(missing_ok=True)
+            return True
+        except OSError:
+            return False
 
     def _ensure_structure(self, root: Path) -> StoragePaths:
         memory_episodic = root / "memory" / "episodic"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, promote, promotion-review, queue, hr-report, briefing, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, promote, promotion-review, queue, hr-report, briefing, ari-reception, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -13,7 +13,12 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 
 def _run(cmd: list[str]) -> int:
-    return subprocess.call(cmd)
+    env = os.environ.copy()
+    current = env.get("PYTHONPATH", "")
+    paths = [p for p in current.split(os.pathsep) if p]
+    if BASE_DIR not in paths:
+        env["PYTHONPATH"] = os.pathsep.join([BASE_DIR, *paths]) if paths else BASE_DIR
+    return subprocess.call(cmd, cwd=BASE_DIR, env=env)
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -70,6 +75,15 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_episodic_memory.py"),
         os.path.join(BASE_DIR, "tests", "test_openclaw_health_sync.py"),
         os.path.join(BASE_DIR, "tests", "test_briefing_run.py"),
+        os.path.join(BASE_DIR, "tests", "test_v03_components.py"),
+        os.path.join(BASE_DIR, "tests", "test_synthesis_brief.py"),
+        os.path.join(BASE_DIR, "tests", "test_automation_reporting.py"),
+        os.path.join(BASE_DIR, "tests", "test_reliability_gate.py"),
+        os.path.join(BASE_DIR, "tests", "test_reliability_streak.py"),
+        os.path.join(BASE_DIR, "tests", "test_phase_gate.py"),
+        os.path.join(BASE_DIR, "tests", "test_status_glance.py"),
+        os.path.join(BASE_DIR, "tests", "test_dell_cutover_verify.py"),
+        os.path.join(BASE_DIR, "tests", "test_ari_reception.py"),
         os.path.join(BASE_DIR, "tests", "test_email_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_health_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_social_agent.py"),
@@ -355,6 +369,265 @@ def main() -> int:
         )
     )
 
+    automation_verify_p = sub.add_parser("automation-verify", help="Verify launchd schedule + load state")
+    automation_verify_p.add_argument("--label", default="com.permanence.briefing", help="Launchd label")
+    automation_verify_p.add_argument("--plist", help="LaunchAgent plist path")
+    automation_verify_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "automation_verify.py"),
+                *(["--label", args.label] if args.label else []),
+                *(["--plist", args.plist] if args.plist else []),
+            ]
+        )
+    )
+
+    automation_report_p = sub.add_parser("automation-report", help="Generate automation daily report")
+    automation_report_p.add_argument("--days", type=int, default=1, help="Lookback window in days")
+    automation_report_p.add_argument("--label", default="com.permanence.briefing", help="Launchd label")
+    automation_report_p.add_argument("--log-dir", help="Automation log directory")
+    automation_report_p.add_argument("--output", help="Output markdown path")
+    automation_report_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "automation_daily_report.py"),
+                *(["--days", str(args.days)] if args.days else []),
+                *(["--label", args.label] if args.label else []),
+                *(["--log-dir", args.log_dir] if args.log_dir else []),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    reliability_watch_p = sub.add_parser(
+        "reliability-watch",
+        help="7-day background reliability watcher (failure-only alerts)",
+    )
+    reliability_watch_p.add_argument("--arm", action="store_true", help="Start watch and install background agent")
+    reliability_watch_p.add_argument("--disarm", action="store_true", help="Stop watch and remove background agent")
+    reliability_watch_p.add_argument("--start", action="store_true", help="Start watch window only")
+    reliability_watch_p.add_argument("--check", action="store_true", help="Run one check pass")
+    reliability_watch_p.add_argument("--status", action="store_true", help="Show watch status")
+    reliability_watch_p.add_argument("--stop", action="store_true", help="Stop watch (state only)")
+    reliability_watch_p.add_argument("--install-agent", action="store_true", help="Install watcher launch agent")
+    reliability_watch_p.add_argument("--uninstall-agent", action="store_true", help="Remove watcher launch agent")
+    reliability_watch_p.add_argument("--force", action="store_true", help="Force restart on --start/--arm")
+    reliability_watch_p.add_argument("--days", type=int, default=7, help="Watch duration in days")
+    reliability_watch_p.add_argument("--slots", default="7,12,19", help="Comma-separated slot hours")
+    reliability_watch_p.add_argument(
+        "--tolerance-minutes",
+        type=int,
+        default=90,
+        help="Allowed drift from each slot",
+    )
+    reliability_watch_p.add_argument(
+        "--check-interval-minutes",
+        type=int,
+        default=30,
+        help="Background check interval",
+    )
+    reliability_watch_p.add_argument("--state-file", help="Watcher state file path")
+    reliability_watch_p.add_argument("--log-dir", help="Automation run log directory")
+    reliability_watch_p.add_argument("--alert-log", help="Failure/completion alert log path")
+    reliability_watch_p.add_argument("--plist-path", help="LaunchAgent plist path")
+    reliability_watch_p.add_argument(
+        "--no-immediate-check",
+        action="store_true",
+        help="Do not run immediate check after --arm",
+    )
+    reliability_watch_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "reliability_watch.py"),
+                *(["--arm"] if args.arm else []),
+                *(["--disarm"] if args.disarm else []),
+                *(["--start"] if args.start else []),
+                *(["--check"] if args.check else []),
+                *(["--status"] if args.status else []),
+                *(["--stop"] if args.stop else []),
+                *(["--install-agent"] if args.install_agent else []),
+                *(["--uninstall-agent"] if args.uninstall_agent else []),
+                *(["--force"] if args.force else []),
+                *(["--days", str(args.days)] if args.days else []),
+                *(["--slots", args.slots] if args.slots else []),
+                *(["--tolerance-minutes", str(args.tolerance_minutes)] if args.tolerance_minutes else []),
+                *(
+                    ["--check-interval-minutes", str(args.check_interval_minutes)]
+                    if args.check_interval_minutes
+                    else []
+                ),
+                *(["--state-file", args.state_file] if args.state_file else []),
+                *(["--log-dir", args.log_dir] if args.log_dir else []),
+                *(["--alert-log", args.alert_log] if args.alert_log else []),
+                *(["--plist-path", args.plist_path] if args.plist_path else []),
+                *(["--no-immediate-check"] if args.no_immediate_check else []),
+            ]
+        )
+    )
+
+    reliability_gate_p = sub.add_parser(
+        "reliability-gate",
+        help="Enforce strict automation reliability gate",
+    )
+    reliability_gate_p.add_argument("--days", type=int, default=7, help="Number of days to evaluate")
+    reliability_gate_p.add_argument(
+        "--slots",
+        default="7,12,19",
+        help="Comma-separated scheduled hours (local time)",
+    )
+    reliability_gate_p.add_argument(
+        "--tolerance-minutes",
+        type=int,
+        default=90,
+        help="Allowed drift from each slot",
+    )
+    reliability_gate_p.add_argument(
+        "--require-notebooklm",
+        action="store_true",
+        help="Require NotebookLM status=0 for slot pass",
+    )
+    reliability_gate_p.add_argument(
+        "--include-today",
+        action="store_true",
+        help="Include current day in the evaluation window",
+    )
+    reliability_gate_p.add_argument("--log-dir", help="Automation log directory")
+    reliability_gate_p.add_argument("--output", help="Output report path")
+    reliability_gate_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "reliability_gate.py"),
+                *(["--days", str(args.days)] if args.days else []),
+                *(["--slots", args.slots] if args.slots else []),
+                *(["--tolerance-minutes", str(args.tolerance_minutes)] if args.tolerance_minutes else []),
+                *(["--require-notebooklm"] if args.require_notebooklm else []),
+                *(["--include-today"] if args.include_today else []),
+                *(["--log-dir", args.log_dir] if args.log_dir else []),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    reliability_streak_p = sub.add_parser(
+        "reliability-streak",
+        help="View or update reliability streak",
+    )
+    reliability_streak_p.add_argument("--update", action="store_true", help="Update streak mode")
+    reliability_streak_p.add_argument("--status", type=int, choices=[0, 1], help="Gate status code")
+    reliability_streak_p.add_argument("--date", help="Date override (YYYY-MM-DD)")
+    reliability_streak_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "reliability_streak.py"),
+                *(["--update"] if args.update else []),
+                *(["--status", str(args.status)] if args.status is not None else []),
+                *(["--date", args.date] if args.date else []),
+            ]
+        )
+    )
+
+    phase_gate_p = sub.add_parser(
+        "phase-gate",
+        help="Enforce weekly phase gate (strict reliability + streak)",
+    )
+    phase_gate_p.add_argument("--days", type=int, default=7, help="Reliability window days")
+    phase_gate_p.add_argument(
+        "--slots",
+        default="7,12,19",
+        help="Comma-separated scheduled hours (local time)",
+    )
+    phase_gate_p.add_argument(
+        "--tolerance-minutes",
+        type=int,
+        default=90,
+        help="Allowed drift from each slot",
+    )
+    phase_gate_p.add_argument(
+        "--require-notebooklm",
+        action="store_true",
+        help="Require NotebookLM status=0 for slot pass",
+    )
+    phase_gate_p.add_argument(
+        "--include-today",
+        action="store_true",
+        help="Include current day in the reliability window",
+    )
+    phase_gate_p.add_argument(
+        "--target-streak",
+        type=int,
+        default=7,
+        help="Required consecutive-pass days",
+    )
+    phase_gate_p.add_argument("--log-dir", help="Automation log directory")
+    phase_gate_p.add_argument("--streak-file", help="Reliability streak JSON path")
+    phase_gate_p.add_argument("--output", help="Output report path")
+    phase_gate_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "phase_gate.py"),
+                *(["--days", str(args.days)] if args.days else []),
+                *(["--slots", args.slots] if args.slots else []),
+                *(["--tolerance-minutes", str(args.tolerance_minutes)] if args.tolerance_minutes else []),
+                *(["--require-notebooklm"] if args.require_notebooklm else []),
+                *(["--include-today"] if args.include_today else []),
+                *(["--target-streak", str(args.target_streak)] if args.target_streak else []),
+                *(["--log-dir", args.log_dir] if args.log_dir else []),
+                *(["--streak-file", args.streak_file] if args.streak_file else []),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    status_glance_p = sub.add_parser(
+        "status-glance",
+        help="Write one-line glance status file (text + json)",
+    )
+    status_glance_p.add_argument("--log-dir", help="Directory containing phase/reliability logs")
+    status_glance_p.add_argument("--automation-log-dir", help="Directory containing run_*.log")
+    status_glance_p.add_argument("--streak-file", help="Path to reliability_streak.json")
+    status_glance_p.add_argument("--slots", default="7,12,19", help="Comma-separated slot hours")
+    status_glance_p.add_argument("--tolerance-minutes", type=int, default=90, help="Allowed slot drift")
+    status_glance_p.add_argument("--output", help="One-line status output path")
+    status_glance_p.add_argument("--json-output", help="JSON status output path")
+    status_glance_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "status_glance.py"),
+                *(["--log-dir", args.log_dir] if args.log_dir else []),
+                *(["--automation-log-dir", args.automation_log_dir] if args.automation_log_dir else []),
+                *(["--streak-file", args.streak_file] if args.streak_file else []),
+                *(["--slots", args.slots] if args.slots else []),
+                *(["--tolerance-minutes", str(args.tolerance_minutes)] if args.tolerance_minutes else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--json-output", args.json_output] if args.json_output else []),
+            ]
+        )
+    )
+
+    dell_cutover_verify_p = sub.add_parser(
+        "dell-cutover-verify",
+        help="Verify Dell cron cutover prerequisites and schedule block",
+    )
+    dell_cutover_verify_p.add_argument("--repo-path", help="Repo path to verify")
+    dell_cutover_verify_p.add_argument("--env-file", help="Path to .env for required keys check")
+    dell_cutover_verify_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "dell_cutover_verify.py"),
+                *(["--repo-path", args.repo_path] if args.repo_path else []),
+                *(["--env-file", args.env_file] if args.env_file else []),
+            ]
+        )
+    )
+
     promote_p = sub.add_parser("promote", help="Generate Canon change draft from episodic memory")
     promote_p.add_argument("--since", help="ISO date/time filter (UTC)")
     promote_p.add_argument("--count", type=int, help="Limit to N most recent episodes")
@@ -408,6 +681,33 @@ def main() -> int:
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "briefing_run.py"),
                 *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    ari_p = sub.add_parser("ari-reception", help="Run Ari receptionist intake/summary")
+    ari_p.add_argument("--action", choices=["intake", "summary"], default="summary", help="Ari action")
+    ari_p.add_argument("--queue-dir", help="Queue directory override")
+    ari_p.add_argument("--sender", help="Sender (intake)")
+    ari_p.add_argument("--message", help="Message body (intake)")
+    ari_p.add_argument("--channel", help="Channel (intake)")
+    ari_p.add_argument("--source", help="Source system (intake)")
+    ari_p.add_argument("--priority", choices=["urgent", "high", "normal", "low"], help="Priority override")
+    ari_p.add_argument("--max-items", type=int, default=20, help="Max items in summary")
+    ari_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ari_reception.py"),
+                "--action",
+                args.action,
+                *(["--queue-dir", args.queue_dir] if args.queue_dir else []),
+                *(["--sender", args.sender] if args.sender else []),
+                *(["--message", args.message] if args.message else []),
+                *(["--channel", args.channel] if args.channel else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--priority", args.priority] if args.priority else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
             ]
         )
     )

@@ -37,8 +37,16 @@ def main() -> int:
     briefing = BriefingAgent()
     result = briefing.execute({})
     output_path = args.output or _default_output_path()
-    with open(output_path, "w") as f:
-        f.write("\n".join(result.notes) + "\n")
+    try:
+        with open(output_path, "w") as f:
+            f.write("\n".join(result.notes) + "\n")
+    except OSError:
+        fallback_dir = os.path.join(BASE_DIR, "permanence_storage", "outputs", "briefings")
+        os.makedirs(fallback_dir, exist_ok=True)
+        fallback_path = os.path.join(fallback_dir, os.path.basename(output_path))
+        with open(fallback_path, "w") as f:
+            f.write("\n".join(result.notes) + "\n")
+        output_path = fallback_path
 
     print(f"Briefing written to {output_path}")
     return 0

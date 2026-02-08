@@ -17,13 +17,17 @@ def test_briefing_includes_email_health_social_and_focus():
         output_dir = os.path.join(tmp, "outputs")
         tool_dir = os.path.join(tmp, "memory", "tool")
         episodic_dir = os.path.join(tmp, "memory", "episodic")
+        storage_root = os.path.join(tmp, "storage")
+        storage_logs = os.path.join(storage_root, "logs")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(tool_dir, exist_ok=True)
         os.makedirs(episodic_dir, exist_ok=True)
+        os.makedirs(storage_logs, exist_ok=True)
 
         os.environ["PERMANENCE_OUTPUT_DIR"] = output_dir
         os.environ["PERMANENCE_TOOL_DIR"] = tool_dir
         os.environ["PERMANENCE_MEMORY_DIR"] = os.path.join(tmp, "memory")
+        os.environ["PERMANENCE_STORAGE_ROOT"] = storage_root
         os.environ["PERMANENCE_SOURCES_PATH"] = os.path.join(tmp, "memory", "working", "sources.json")
 
         _write_json(
@@ -52,6 +56,26 @@ def test_briefing_includes_email_health_social_and_focus():
                 "drafts": [{"title": "Draft A"}, {"title": "Draft B"}],
             },
         )
+        _write_json(
+            os.path.join(tool_dir, "ari_reception_20260204-000000.json"),
+            {
+                "total_entries": 9,
+                "open_entries": 4,
+                "urgent_open_entries": 1,
+            },
+        )
+        _write_json(
+            os.path.join(storage_logs, "status_today.json"),
+            {
+                "today_state": "PASS",
+                "slot_progress": "3/3",
+                "streak": {"current": 2, "target": 7},
+                "phase_gate": "PENDING",
+                "updated_at_utc": "2026-02-04T12:00:00+00:00",
+            },
+        )
+        with open(os.path.join(storage_logs, "automation_report_2026-02-04.md"), "w") as f:
+            f.write("# report\n")
         with open(os.path.join(output_dir, "weekly_system_health_report.md"), "w") as f:
             f.write("PATTERNS DETECTED\n  1. [LOW] test\nLOGOS PRAKTIKOS STATUS\nReady: NO\n")
 
@@ -87,6 +111,10 @@ def test_briefing_includes_email_health_social_and_focus():
         assert "avg" in content
         assert "## Social" in content
         assert "Draft queue" in content
+        assert "## Ari Reception" in content
+        assert "Urgent open entries: 1" in content
+        assert "## Operator Panel" in content
+        assert "Today gate: PASS (3/3)" in content
         assert "## Documents" in content
         assert "doc excerpt" in content
         assert "## Today's Focus" in content

@@ -74,7 +74,7 @@ class SynthesisAgent:
         ]
         return " ".join(parts).lower()
 
-    def _detect_themes(self, sources: List[Dict]) -> List[str]:
+    def _detect_themes(self, sources: List[Dict]) -> Tuple[List[str], str]:
         scores: Dict[str, int] = {k: 0 for k in KEYWORD_MAP}
         for src in sources:
             text = self._extract_text(src)
@@ -84,7 +84,11 @@ class SynthesisAgent:
                         scores[theme] += 1
         ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
         top = [name for name, score in ranked if score > 0][:3]
-        return top if top else THEME_FALLBACK[:3]
+        top_score = ranked[0][1] if ranked else 0
+        # Treat sparse keyword matches as low confidence and fall back to canonical themes.
+        if not top or top_score < 2:
+            return THEME_FALLBACK[:3], "LOW"
+        return top, "MEDIUM"
 
     def _build_theme_blocks(self, sources: List[Dict], themes: List[str]) -> List[ThemeBlock]:
         blocks: List[ThemeBlock] = []
@@ -127,7 +131,10 @@ class SynthesisAgent:
         if not sources:
             raise ValueError("No sources available for synthesis.")
 
-        themes = self._detect_themes(sources) if auto_detect else THEME_FALLBACK[:3]
+        if auto_detect:
+            themes, theme_confidence = self._detect_themes(sources)
+        else:
+            themes, theme_confidence = (THEME_FALLBACK[:3], "LOW")
         blocks = self._build_theme_blocks(sources, themes)
         actions = self._actions_from_themes(blocks)
 
@@ -143,6 +150,7 @@ class SynthesisAgent:
             "",
             "## Executive Summary",
             "This is an extractive draft based on recent sources. Review required.",
+            f"Theme detection confidence: {theme_confidence}",
             "",
             "## Key Themes",
             "",
@@ -168,4 +176,3 @@ class SynthesisAgent:
         final_path.write_text(draft_path.read_text())
         log(f"Synthesis final written: {final_path}", level="INFO")
         return final_path
-

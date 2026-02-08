@@ -125,6 +125,12 @@ Sync NotebookLM exports from a Google Drive folder into storage archives.
 - `--max-seconds N` (default 120)
 - `--max-bytes N` skip large files (default 25,000,000)
 - `--split-max-chars N` split oversized Docs into text parts (default 40,000)
+
+### `python cli.py ari-reception`
+Run Ari receptionist workflow.
+- `--action intake --sender "Name" --message "..."` appends to queue
+- `--action summary` writes latest receptionist summary report
+- `--queue-dir` override queue location
 ## Maintenance Commands
 
 ### `python cli.py clean`
@@ -132,3 +138,31 @@ Clean artifacts (logs/outputs/episodic).
 
 ### `python cli.py test`
 Run test suite.
+
+### `python cli.py automation-verify`
+Verify launchd schedule and load state on macOS.
+
+### `python cli.py automation-report`
+Generate daily automation run report.
+
+### `python cli.py reliability-gate`
+Evaluate strict slot-based reliability window.
+
+### `python cli.py reliability-watch`
+Run background 7-day reliability watch with failure-only notifications.
+- `--arm --days 7` start watch and install launch agent
+- `--status` check current watch state
+- `--disarm` stop watch and remove launch agent
+- `--check-interval-minutes 30` set background check cadence
+
+### `python cli.py reliability-streak`
+Show/update reliability streak.
+
+### `python cli.py phase-gate`
+Run weekly promotion gate (reliability + streak).
+
+### `python cli.py status-glance`
+Write one-line operator status files (`status_today.txt` and `status_today.json`).
+
+### `python cli.py dell-cutover-verify`
+Verify Dell cron cutover prerequisites and managed cron block.

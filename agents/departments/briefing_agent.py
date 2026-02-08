@@ -55,6 +55,8 @@ class BriefingAgent:
         email_summary = self._load_email_summary()
         health_summary = self._load_health_summary()
         social_summary = self._load_social_summary()
+        reception_summary = self._load_reception_summary()
+        operator_panel = self._load_operator_panel()
         system_health = self._load_system_health()
         documents_summary = self._load_documents_summary()
         focus_items = self._generate_focus(email_summary, health_summary, social_summary)
@@ -66,10 +68,12 @@ class BriefingAgent:
         ]
 
         notes.extend(self._section_system_status())
+        notes.extend(self._section_operator_panel(operator_panel))
         notes.extend(self._section_openclaw())
         notes.extend(self._section_email_summary(email_summary))
         notes.extend(self._section_health_summary(health_summary))
         notes.extend(self._section_social_summary(social_summary))
+        notes.extend(self._section_reception_summary(reception_summary))
         notes.extend(self._section_documents(documents_summary))
         notes.extend(self._section_focus(focus_items))
         notes.extend(self._section_system_health(system_health))
@@ -282,6 +286,60 @@ class BriefingAgent:
             "notifications": 0,
             "dms_pending": 0,
         }
+
+    def _load_reception_summary(self) -> Dict[str, Any]:
+        payload_path = self._latest_tool_payload("ari_reception")
+        if not payload_path:
+            return {"not_connected": True, "total_entries": 0, "open_entries": 0, "urgent_open_entries": 0}
+        payload = self._read_json(payload_path) or {}
+        return {
+            "not_connected": False,
+            "total_entries": int(payload.get("total_entries", 0)),
+            "open_entries": int(payload.get("open_entries", 0)),
+            "urgent_open_entries": int(payload.get("urgent_open_entries", 0)),
+        }
+
+    @staticmethod
+    def _candidate_storage_roots() -> List[Path]:
+        roots: List[Path] = []
+        from_env = os.getenv("PERMANENCE_STORAGE_ROOT")
+        if from_env:
+            roots.append(Path(os.path.expanduser(from_env)))
+        base_dir = Path(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+        roots.append(base_dir / "permanence_storage")
+        roots.append(Path("/Volumes/LaCie"))
+        roots.append(Path("/Volumes/LaCie_Permanence"))
+        dedup: List[Path] = []
+        seen = set()
+        for root in roots:
+            if str(root) in seen:
+                continue
+            seen.add(str(root))
+            dedup.append(root)
+        return dedup
+
+    def _load_operator_panel(self) -> Dict[str, Any]:
+        for root in self._candidate_storage_roots():
+            status_path = root / "logs" / "status_today.json"
+            if not status_path.exists():
+                continue
+            payload = self._read_json(status_path)
+            if not payload:
+                continue
+            report_candidates = sorted((root / "logs").glob("automation_report_*.md"), reverse=True)
+            latest_report = report_candidates[0].name if report_candidates else None
+            return {
+                "available": True,
+                "today_state": payload.get("today_state", "UNKNOWN"),
+                "slot_progress": payload.get("slot_progress", "0/0"),
+                "streak_current": (payload.get("streak") or {}).get("current", 0),
+                "streak_target": (payload.get("streak") or {}).get("target", 7),
+                "phase_gate": payload.get("phase_gate", "PENDING"),
+                "updated_at_utc": payload.get("updated_at_utc"),
+                "status_file": str(status_path),
+                "automation_report": latest_report,
+            }
+        return {"available": False}
 
     def _load_system_health(self) -> Dict[str, Any]:
         output_dir = os.getenv(
@@ -575,6 +633,33 @@ class BriefingAgent:
         lines.append(f"- Notifications: {summary.get('notifications', 0)}")
         lines.append(f"- DMs pending: {summary.get('dms_pending', 0)}")
         lines.append(f"- Draft queue: {summary.get('drafts_ready', 0)} ready")
+        lines.append("")
+        return lines
+
+    def _section_reception_summary(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## Ari Reception"]
+        if summary.get("not_connected"):
+            lines.append("- Ari queue not connected yet")
+            lines.append("")
+            return lines
+        lines.append(f"- Total entries: {summary.get('total_entries', 0)}")
+        lines.append(f"- Open entries: {summary.get('open_entries', 0)}")
+        lines.append(f"- Urgent open entries: {summary.get('urgent_open_entries', 0)}")
+        lines.append("")
+        return lines
+
+    def _section_operator_panel(self, panel: Dict[str, Any]) -> List[str]:
+        lines = ["## Operator Panel"]
+        if not panel.get("available"):
+            lines.append("- Status glance not available yet")
+            lines.append("")
+            return lines
+        lines.append(f"- Today gate: {panel.get('today_state')} ({panel.get('slot_progress')})")
+        lines.append(f"- Reliability streak: {panel.get('streak_current')}/{panel.get('streak_target')}")
+        lines.append(f"- Weekly phase gate: {panel.get('phase_gate')}")
+        lines.append(f"- Updated (UTC): {panel.get('updated_at_utc')}")
+        if panel.get("automation_report"):
+            lines.append(f"- Automation report: {panel.get('automation_report')}")
         lines.append("")
         return lines
 

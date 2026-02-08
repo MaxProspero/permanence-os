@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_PATH="/Users/paytonhicks/Documents/Permanence OS/permanence-os"
+REPO_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_DIR="$REPO_PATH/logs/automation"
 
 mkdir -p "$LOG_DIR"
+
+if [[ "$OSTYPE" != darwin* ]]; then
+  echo "setup_automation.sh configures macOS launchd only."
+  echo "Use automation/setup_dell_automation.sh on Linux."
+  exit 1
+fi
 
 PLIST_PATH="$HOME/Library/LaunchAgents/com.permanence.briefing.plist"
 
@@ -38,3 +44,4 @@ launchctl load "$PLIST_PATH"
 
 echo "Automation configured."
 echo "Logs: $LOG_DIR"
+python "$REPO_PATH/cli.py" automation-verify || true

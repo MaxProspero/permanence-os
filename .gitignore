@@ -4,6 +4,7 @@ __pycache__/
 logs/*.log
 logs/*.json
 logs/*.jsonl
+logs/automation/*.log
 memory/working/*
 memory/tool/*
 memory/episodic/*.json
@@ -11,4 +12,5 @@ memory/episodic/*.jsonl
 outputs/*.md
 outputs/*.txt
 outputs/*.json
+permanence_storage/
 .DS_Store

@@ -187,6 +187,17 @@ python cli.py test
 python cli.py queue list
 python cli.py hr-report
 python cli.py briefing
+python cli.py automation-report --days 1
+python cli.py reliability-watch --arm --days 7 --check-interval-minutes 30
+python cli.py reliability-watch --status
+python cli.py reliability-watch --disarm
+python cli.py reliability-gate --days 7
+python cli.py reliability-streak
+python cli.py phase-gate --days 7
+python cli.py status-glance
+python cli.py dell-cutover-verify
+python cli.py ari-reception --action summary
+python cli.py ari-reception --action intake --sender "Payton" --message "Need review of weekly phase gate" --channel discord
 python cli.py email-triage
 python cli.py gmail-ingest
 python cli.py health-summary
@@ -197,6 +208,20 @@ python cli.py snapshot
 python cli.py cleanup-weekly
 python cli.py git-autocommit
 ```
+
+Automation writes a one-line quick status file to storage logs:
+- `status_today.txt`
+- `status_today.json`
+
+Ari receptionist can run in automation mode:
+- set `PERMANENCE_ARI_ENABLED=1`
+- set `PERMANENCE_ARI_SLOT=19` (or `all`)
+
+Reliability watch can run in background for a fixed 7-day window:
+- `python cli.py reliability-watch --arm --days 7`
+- `python cli.py reliability-watch --status`
+- `python cli.py reliability-watch --disarm`
+- helper scripts: `bash automation/setup_reliability_watch.sh` and `bash automation/disable_reliability_watch.sh`
 
 ### OpenClaw Integration (Local)
 Set the OpenClaw CLI path (if not default):
@@ -439,6 +464,7 @@ The system is designed to fail cleanly:
 - `/docs/memory_system.md` - Memory architecture
 - `/docs/compression_framework.md` - Theoretical foundation
 - `/docs/canon_change_template.md` - Canon update ceremony template
+- `/docs/dell_cutover.md` - Linux (Dell) automation migration runbook
 - `/CHANGELOG.md` - Project change history
 - `/docs/sources_example.json` - Sources provenance example
 - `/identity_config.yaml` - Identity routing configuration

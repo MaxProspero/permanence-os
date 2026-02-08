@@ -62,8 +62,16 @@ def main() -> int:
             ]
         )
 
-    with open(out_path, "w") as f:
-        f.write("\n".join(lines).strip() + "\n")
+    try:
+        with open(out_path, "w") as f:
+            f.write("\n".join(lines).strip() + "\n")
+    except OSError:
+        fallback_dir = os.path.join(PROJECT_ROOT, "permanence_storage", "outputs", "digests")
+        os.makedirs(fallback_dir, exist_ok=True)
+        fallback_path = os.path.join(fallback_dir, os.path.basename(str(out_path)))
+        with open(fallback_path, "w") as f:
+            f.write("\n".join(lines).strip() + "\n")
+        out_path = fallback_path
 
     log(f"Sources digest written to {out_path}", level="INFO")
     print(f"Sources digest written to {out_path}")
