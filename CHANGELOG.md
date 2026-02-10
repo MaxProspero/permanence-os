@@ -40,6 +40,14 @@ All notable changes to this project will be documented in this file.
 - Added synthesis-brief command with draft approval flow
 - Added NotebookLM Drive sync script + CLI command
 - Added size-based split fallback for oversized NotebookLM Docs exports
+- Added Interface Agent intake gateway with sanitization, provenance tagging, and Ticket ID responses
+- Added Practice Squad scrimmage + hyper-sim modules with training insight write-back
+- Added Arcana Engine with 3-6-9 heuristic scan and looking-glass branch projection
+- Added Digital Twin `project_timeline()` method for Arcana branch compatibility
+- Added new CLI commands: `server`, `scrimmage`, `looking-glass`, `hyper-sim`, and `arcana scan`
+- Extended Zero Point memory types with `INTAKE`, `TRAINING`, and `FORECAST`
+- Added Polemarch intake polling + `assess_risk()` path for interface-driven routing
+- Added v0.4 tests: interface agent, practice squad, arcana engine, sibling dynamics
 
 ## [0.2.1] - 2026-02-03
 - Added HR Agent (The Shepherd) implementation with weekly health reporting

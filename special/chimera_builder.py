@@ -116,6 +116,42 @@ ANCESTRAL_REGISTRY = [
     },
 ]
 
+# v0.4 Sibling Dynamics extension.
+ARCHETYPE_FEMININE = [
+    {
+        "figure": "The Oracle",
+        "domain": "intuition",
+        "traits": {
+            "intuitive_foresight": "Early warning pattern sensing under uncertainty.",
+            "signal_discernment": "Separates weak but meaningful signals from noise."
+        },
+        "limitations": "Heuristic intuition must be validated by evidence.",
+        "extract_only": ["intuitive_foresight", "signal_discernment"],
+    },
+    {
+        "figure": "The Weaver",
+        "domain": "systems",
+        "traits": {
+            "interconnected_thinking": "Links distant domains into one coherent map.",
+            "holistic_synthesis": "Balances local optimization with whole-system stability."
+        },
+        "limitations": "Can over-link unrelated concepts if unguided.",
+        "extract_only": ["interconnected_thinking", "holistic_synthesis"],
+    },
+    {
+        "figure": "Sophia",
+        "domain": "wisdom",
+        "traits": {
+            "feminine_balance": "Balances action drive with reflective wisdom.",
+            "governance_temperance": "Prevents overreaction in high-pressure decisions."
+        },
+        "limitations": "Requires explicit task scope to avoid vague outputs.",
+        "extract_only": ["feminine_balance", "governance_temperance"],
+    },
+]
+
+ANCESTRAL_REGISTRY.extend(ARCHETYPE_FEMININE)
+
 
 class ChimeraBuilder:
     """

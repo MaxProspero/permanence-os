@@ -98,6 +98,10 @@ GLANCE_STATUS=0
 python cli.py status-glance >> "$LOG_FILE" 2>&1 || GLANCE_STATUS=$?
 echo "Glance Status: $GLANCE_STATUS" >> "$LOG_FILE"
 
+V04_SNAPSHOT_STATUS=0
+python cli.py v04-snapshot >> "$LOG_FILE" 2>&1 || V04_SNAPSHOT_STATUS=$?
+echo "V04 Snapshot Status: $V04_SNAPSHOT_STATUS" >> "$LOG_FILE"
+
 if [ $BRIEFING_STATUS -ne 0 ] || [ $DIGEST_STATUS -ne 0 ]; then
   exit 1
 fi

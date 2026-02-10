@@ -29,6 +29,7 @@ def test_briefing_includes_email_health_social_and_focus():
         os.environ["PERMANENCE_MEMORY_DIR"] = os.path.join(tmp, "memory")
         os.environ["PERMANENCE_STORAGE_ROOT"] = storage_root
         os.environ["PERMANENCE_SOURCES_PATH"] = os.path.join(tmp, "memory", "working", "sources.json")
+        os.environ["PERMANENCE_ZERO_POINT_PATH"] = os.path.join(tmp, "memory", "zero_point_store.json")
 
         _write_json(
             os.path.join(tool_dir, "email_triage_20260204-000000.json"),
@@ -99,6 +100,37 @@ def test_briefing_includes_email_health_social_and_focus():
                 indent=2,
             )
 
+        with open(os.environ["PERMANENCE_ZERO_POINT_PATH"], "w") as f:
+            json.dump(
+                {
+                    "entries": {
+                        "intake_1": {
+                            "entry_id": "intake_1",
+                            "memory_type": "INTAKE",
+                            "content": json.dumps({"malformed": False, "flags": []}),
+                            "author_agent": "INTERFACE_AGENT",
+                            "created_at": datetime.now(timezone.utc).isoformat(),
+                        },
+                        "train_1": {
+                            "entry_id": "train_1",
+                            "memory_type": "TRAINING",
+                            "content": json.dumps({"type": "scrimmage"}),
+                            "author_agent": "PRACTICE_SQUAD",
+                            "created_at": datetime.now(timezone.utc).isoformat(),
+                        },
+                        "forecast_1": {
+                            "entry_id": "forecast_1",
+                            "memory_type": "FORECAST",
+                            "content": json.dumps({"heuristic_source": "arcana_3_6_9", "alignment_count": 2}),
+                            "author_agent": "ARCANA",
+                            "created_at": datetime.now(timezone.utc).isoformat(),
+                        },
+                    }
+                },
+                f,
+                indent=2,
+            )
+
         from agents.departments.briefing_agent import BriefingAgent  # noqa: E402
 
         notes = BriefingAgent().execute({}).notes
@@ -115,6 +147,9 @@ def test_briefing_includes_email_health_social_and_focus():
         assert "Urgent open entries: 1" in content
         assert "## Operator Panel" in content
         assert "Today gate: PASS (3/3)" in content
+        assert "## V0.4 Telemetry" in content
+        assert "Practice Squad latest: scrimmage" in content
+        assert "Arcana latest: arcana_3_6_9" in content
         assert "## Documents" in content
         assert "doc excerpt" in content
         assert "## Today's Focus" in content

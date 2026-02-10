@@ -178,6 +178,11 @@ python cli.py ingest-docs --doc-dir memory/working/documents --output memory/wor
 python cli.py ingest-sources --adapter tool_memory --output memory/working/sources.json
 python cli.py ingest-sources --adapter url_fetch --urls https://example.com --output memory/working/sources.json
 python cli.py ingest-sources --adapter web_search --query "AI governance frameworks" --output memory/working/sources.json
+python cli.py server --host 127.0.0.1 --port 8000
+python cli.py scrimmage --last-hours 24 --replays 10
+python cli.py looking-glass "Test scenario"
+python cli.py hyper-sim --iterations 1000 --warp-speed
+python cli.py arcana scan --last 50
 python cli.py status
 python cli.py openclaw-status
 python cli.py openclaw-status --health
@@ -205,6 +210,7 @@ python cli.py social-summary
 python cli.py logos-gate
 python cli.py dashboard
 python cli.py snapshot
+python cli.py v04-snapshot
 python cli.py cleanup-weekly
 python cli.py git-autocommit
 ```
@@ -311,6 +317,8 @@ python cli.py dashboard
 ```bash
 python scripts/system_snapshot.py
 python cli.py snapshot
+python scripts/v04_snapshot.py
+python cli.py v04-snapshot
 ```
 
 ### Weekly Cleanup + Auto-Commit

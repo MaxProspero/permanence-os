@@ -386,6 +386,52 @@ class DigitalTwinSimulator:
 
         return (SimulationResult.SAFE.value, "PROCEED", None)
 
+    def project_timeline(self, decision: Dict[str, Any], branches: int = 3) -> Dict[str, Any]:
+        """
+        Project branch timelines for Arcana looking-glass mode.
+
+        Branches are heuristic what-if lanes, not executable plans.
+        """
+        branch_count = max(1, int(branches))
+        labels = ["standard", "chaos", "singularity"]
+        projected: List[Dict[str, Any]] = []
+
+        action = str(decision.get("action", "unknown_action"))
+        base_risk = str(decision.get("risk_tier", "LOW")).upper()
+        base_confidence = decision.get("confidence", "MEDIUM")
+
+        for idx in range(branch_count):
+            label = labels[idx] if idx < len(labels) else f"branch_{idx + 1}"
+            if label == "chaos":
+                outcome = "stress_path"
+                risk = "HIGH"
+                confidence = "LOW"
+            elif label == "singularity":
+                outcome = "abundance_path"
+                risk = "MEDIUM" if base_risk == "HIGH" else base_risk
+                confidence = "MEDIUM" if base_confidence == "LOW" else base_confidence
+            else:
+                outcome = "base_path"
+                risk = base_risk
+                confidence = base_confidence
+
+            projected.append(
+                {
+                    "branch": label,
+                    "outcome": outcome,
+                    "risk_tier": risk,
+                    "confidence": confidence,
+                    "summary": f"Heuristic branch for {action} under {label} conditions.",
+                }
+            )
+
+        return {
+            "decision": decision,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "branches": projected,
+            "signal_type": "heuristic",
+        }
+
     def get_simulation_summary(self) -> Dict:
         """Summary stats for all simulations."""
         total = len(self.simulation_history)

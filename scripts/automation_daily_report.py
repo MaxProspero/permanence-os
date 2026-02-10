@@ -23,6 +23,7 @@ from core.storage import storage  # noqa: E402
 STATUS_RE = re.compile(
     r"Briefing Status:\s*(\d+)\s*\|\s*Digest Status:\s*(\d+)\s*\|\s*NotebookLM Status:\s*(\d+)"
 )
+V04_SNAPSHOT_RE = re.compile(r"V04 Snapshot Status:\s*(\d+)")
 START_RE = re.compile(r"=== Briefing Run Started:\s*(.+)\s+===")
 
 
@@ -33,6 +34,7 @@ class RunSummary:
     briefing_status: int | None
     digest_status: int | None
     notebooklm_status: int | None
+    v04_snapshot_status: int | None
 
     @property
     def success(self) -> bool:
@@ -40,6 +42,7 @@ class RunSummary:
             self.briefing_status == 0
             and self.digest_status == 0
             and (self.notebooklm_status in (0, None))
+            and (self.v04_snapshot_status in (0, None))
         )
 
 
@@ -59,8 +62,10 @@ def _collect_runs(log_dir: Path) -> list[RunSummary]:
     for path in sorted(log_dir.glob("run_*.log"), reverse=True):
         text = path.read_text(errors="ignore")
         status_match = STATUS_RE.search(text)
+        v04_match = V04_SNAPSHOT_RE.search(text)
         start_match = START_RE.search(text)
         started_at = _parse_started_at(start_match.group(1).strip()) if start_match else None
+        v04_status = int(v04_match.group(1)) if v04_match else None
         if status_match:
             runs.append(
                 RunSummary(
@@ -69,6 +74,7 @@ def _collect_runs(log_dir: Path) -> list[RunSummary]:
                     briefing_status=int(status_match.group(1)),
                     digest_status=int(status_match.group(2)),
                     notebooklm_status=int(status_match.group(3)),
+                    v04_snapshot_status=v04_status,
                 )
             )
         else:
@@ -79,6 +85,7 @@ def _collect_runs(log_dir: Path) -> list[RunSummary]:
                     briefing_status=None,
                     digest_status=None,
                     notebooklm_status=None,
+                    v04_snapshot_status=v04_status,
                 )
             )
     return runs
@@ -103,6 +110,9 @@ def _build_report(runs: list[RunSummary], days: int, label: str) -> str:
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=days)
     in_window = [r for r in runs if (r.started_at and r.started_at >= cutoff) or not r.started_at]
+    # Keep the report informative even when there are no runs in the lookback window yet.
+    if not in_window and runs:
+        in_window = [runs[0]]
     successful = [r for r in in_window if r.success]
     failed = [r for r in in_window if not r.success]
     launchd_loaded = _check_launchd(label)
@@ -133,6 +143,7 @@ def _build_report(runs: list[RunSummary], days: int, label: str) -> str:
                 f"- Briefing status: {latest.briefing_status}",
                 f"- Digest status: {latest.digest_status}",
                 f"- NotebookLM status: {latest.notebooklm_status}",
+                f"- V04 snapshot status: {latest.v04_snapshot_status}",
             ]
         )
     else:
@@ -142,7 +153,8 @@ def _build_report(runs: list[RunSummary], days: int, label: str) -> str:
         lines.extend(["", "## Failures"])
         for run in failed[:10]:
             lines.append(
-                f"- {run.path.name}: briefing={run.briefing_status}, digest={run.digest_status}, notebooklm={run.notebooklm_status}"
+                f"- {run.path.name}: briefing={run.briefing_status}, digest={run.digest_status}, "
+                f"notebooklm={run.notebooklm_status}, v04_snapshot={run.v04_snapshot_status}"
             )
 
     return "\n".join(lines) + "\n"

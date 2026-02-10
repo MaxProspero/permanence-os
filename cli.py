@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, promote, promotion-review, queue, hr-report, briefing, ari-reception, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, promote, promotion-review, queue, hr-report, briefing, ari-reception, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, v04-snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -76,7 +76,12 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_openclaw_health_sync.py"),
         os.path.join(BASE_DIR, "tests", "test_briefing_run.py"),
         os.path.join(BASE_DIR, "tests", "test_v03_components.py"),
+        os.path.join(BASE_DIR, "tests", "test_interface_agent.py"),
+        os.path.join(BASE_DIR, "tests", "test_practice_squad.py"),
+        os.path.join(BASE_DIR, "tests", "test_arcana_engine.py"),
+        os.path.join(BASE_DIR, "tests", "test_sibling_dynamics.py"),
         os.path.join(BASE_DIR, "tests", "test_synthesis_brief.py"),
+        os.path.join(BASE_DIR, "tests", "test_v04_snapshot.py"),
         os.path.join(BASE_DIR, "tests", "test_automation_reporting.py"),
         os.path.join(BASE_DIR, "tests", "test_reliability_gate.py"),
         os.path.join(BASE_DIR, "tests", "test_reliability_streak.py"),
@@ -365,6 +370,98 @@ def main() -> int:
                 str(args.max_bytes),
                 "--split-max-chars",
                 str(args.split_max_chars),
+            ]
+        )
+    )
+
+    server_p = sub.add_parser("server", help="Start Interface Agent listener")
+    server_p.add_argument("--host", default="127.0.0.1", help="Bind host")
+    server_p.add_argument("--port", type=int, default=8000, help="Bind port")
+    server_p.add_argument("--max-payload-bytes", type=int, default=64_000, help="Payload cap")
+    server_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "interface_server.py"),
+                "--host",
+                args.host,
+                "--port",
+                str(args.port),
+                "--max-payload-bytes",
+                str(args.max_payload_bytes),
+            ]
+        )
+    )
+
+    scrimmage_p = sub.add_parser("scrimmage", help="Run Practice Squad scrimmage")
+    scrimmage_p.add_argument("--last-hours", type=int, default=24, help="Lookback window")
+    scrimmage_p.add_argument("--replays", type=int, default=10, help="Replay count per entry")
+    scrimmage_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "practice_squad_run.py"),
+                "--mode",
+                "scrimmage",
+                "--last-hours",
+                str(args.last_hours),
+                "--replays",
+                str(args.replays),
+            ]
+        )
+    )
+
+    looking_glass_p = sub.add_parser("looking-glass", help="Run Arcana looking-glass projection")
+    looking_glass_p.add_argument("query", nargs="?", help="Query/context text (positional)")
+    looking_glass_p.add_argument("--query", dest="query_flag", help="Query/context text (flag)")
+    looking_glass_p.add_argument("--branches", type=int, default=3, help="Branch count")
+    looking_glass_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "arcana_cli.py"),
+                "--mode",
+                "looking-glass",
+                "--query",
+                (args.query_flag or args.query or ""),
+                "--branches",
+                str(args.branches),
+            ]
+        )
+    )
+
+    hyper_sim_p = sub.add_parser("hyper-sim", help="Run Practice Squad hyper simulation")
+    hyper_sim_p.add_argument("--iterations", type=int, default=10000, help="Iteration count")
+    hyper_sim_p.add_argument("--last-hours", type=int, default=24, help="Lookback window")
+    hyper_sim_p.add_argument("--warp-speed", action="store_true", help="Enable warp speed")
+    hyper_sim_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "practice_squad_run.py"),
+                "--mode",
+                "hyper-sim",
+                "--iterations",
+                str(args.iterations),
+                "--last-hours",
+                str(args.last_hours),
+                *(["--warp-speed"] if args.warp_speed else []),
+            ]
+        )
+    )
+
+    arcana_p = sub.add_parser("arcana", help="Arcana Engine actions")
+    arcana_p.add_argument("action", choices=["scan"], help="Arcana action")
+    arcana_p.add_argument("--last", type=int, default=50, help="Entry count for scan")
+    arcana_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "arcana_cli.py"),
+                "--mode",
+                args.action,
+                "--last",
+                str(args.last),
             ]
         )
     )
@@ -813,6 +910,18 @@ def main() -> int:
     snap_p = sub.add_parser("snapshot", help="Generate aggregated system snapshot")
     snap_p.set_defaults(
         func=lambda _args: _run([sys.executable, os.path.join(BASE_DIR, "scripts", "system_snapshot.py")])
+    )
+
+    v04_snap_p = sub.add_parser("v04-snapshot", help="Generate v0.4 operational snapshot")
+    v04_snap_p.add_argument("--output", help="Output markdown path")
+    v04_snap_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "v04_snapshot.py"),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
     )
 
     oc_p = sub.add_parser("openclaw-status", help="Fetch OpenClaw status/health output")

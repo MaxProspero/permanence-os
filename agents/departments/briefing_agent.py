@@ -57,6 +57,7 @@ class BriefingAgent:
         social_summary = self._load_social_summary()
         reception_summary = self._load_reception_summary()
         operator_panel = self._load_operator_panel()
+        v04_telemetry = self._load_v04_telemetry()
         system_health = self._load_system_health()
         documents_summary = self._load_documents_summary()
         focus_items = self._generate_focus(email_summary, health_summary, social_summary)
@@ -69,6 +70,7 @@ class BriefingAgent:
 
         notes.extend(self._section_system_status())
         notes.extend(self._section_operator_panel(operator_panel))
+        notes.extend(self._section_v04_telemetry(v04_telemetry))
         notes.extend(self._section_openclaw())
         notes.extend(self._section_email_summary(email_summary))
         notes.extend(self._section_health_summary(health_summary))
@@ -340,6 +342,109 @@ class BriefingAgent:
                 "automation_report": latest_report,
             }
         return {"available": False}
+
+    @staticmethod
+    def _parse_iso(ts: Optional[str]) -> Optional[datetime]:
+        if not ts:
+            return None
+        try:
+            return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _zero_point_entries() -> List[Dict[str, Any]]:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        zp_path = os.getenv("PERMANENCE_ZERO_POINT_PATH", os.path.join(base_dir, "memory", "zero_point_store.json"))
+        path = Path(zp_path)
+        if not path.exists():
+            return []
+        try:
+            payload = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            return []
+        entries = payload.get("entries", {})
+        if not isinstance(entries, dict):
+            return []
+        out: List[Dict[str, Any]] = []
+        for data in entries.values():
+            if isinstance(data, dict):
+                out.append(data)
+        return out
+
+    def _load_v04_telemetry(self) -> Dict[str, Any]:
+        entries = self._zero_point_entries()
+        if not entries:
+            return {
+                "available": False,
+                "intake_24h": 0,
+                "malformed_24h": 0,
+                "latest_training_type": None,
+                "latest_training_at": None,
+                "latest_forecast_type": None,
+                "latest_forecast_at": None,
+                "latest_forecast_alignment_count": 0,
+                "latest_forecast_branches": 0,
+            }
+
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        intake_24h = 0
+        malformed_24h = 0
+        training_rows: List[Dict[str, Any]] = []
+        forecast_rows: List[Dict[str, Any]] = []
+
+        for entry in entries:
+            mem_type = str(entry.get("memory_type", "")).upper()
+            author = str(entry.get("author_agent", "")).upper()
+            created = self._parse_iso(entry.get("created_at") or entry.get("updated_at"))
+            content = {}
+            try:
+                content = json.loads(str(entry.get("content", "{}")))
+            except json.JSONDecodeError:
+                content = {}
+
+            if mem_type == "INTAKE" and created and created >= cutoff:
+                intake_24h += 1
+                if bool(content.get("malformed")) or bool(content.get("flags")):
+                    malformed_24h += 1
+
+            if mem_type == "TRAINING" and author == "PRACTICE_SQUAD":
+                training_rows.append(
+                    {
+                        "created_at": entry.get("created_at"),
+                        "type": content.get("type"),
+                    }
+                )
+
+            if mem_type == "FORECAST" and author == "ARCANA":
+                branches = content.get("branches")
+                branch_count = len(branches) if isinstance(branches, list) else 0
+                forecast_rows.append(
+                    {
+                        "created_at": entry.get("created_at"),
+                        "type": content.get("heuristic_source") or content.get("signal_type"),
+                        "alignment_count": int(content.get("alignment_count", 0) or 0),
+                        "branch_count": branch_count,
+                    }
+                )
+
+        floor_dt = datetime.min.replace(tzinfo=timezone.utc)
+        training_rows.sort(key=lambda r: self._parse_iso(r.get("created_at")) or floor_dt, reverse=True)
+        forecast_rows.sort(key=lambda r: self._parse_iso(r.get("created_at")) or floor_dt, reverse=True)
+        latest_training = training_rows[0] if training_rows else {}
+        latest_forecast = forecast_rows[0] if forecast_rows else {}
+
+        return {
+            "available": True,
+            "intake_24h": intake_24h,
+            "malformed_24h": malformed_24h,
+            "latest_training_type": latest_training.get("type"),
+            "latest_training_at": latest_training.get("created_at"),
+            "latest_forecast_type": latest_forecast.get("type"),
+            "latest_forecast_at": latest_forecast.get("created_at"),
+            "latest_forecast_alignment_count": latest_forecast.get("alignment_count", 0),
+            "latest_forecast_branches": latest_forecast.get("branch_count", 0),
+        }
 
     def _load_system_health(self) -> Dict[str, Any]:
         output_dir = os.getenv(
@@ -660,6 +765,31 @@ class BriefingAgent:
         lines.append(f"- Updated (UTC): {panel.get('updated_at_utc')}")
         if panel.get("automation_report"):
             lines.append(f"- Automation report: {panel.get('automation_report')}")
+        lines.append("")
+        return lines
+
+    def _section_v04_telemetry(self, telemetry: Dict[str, Any]) -> List[str]:
+        lines = ["## V0.4 Telemetry"]
+        if not telemetry.get("available"):
+            lines.append("- Zero Point telemetry not available yet")
+            lines.append("")
+            return lines
+        lines.append(
+            f"- Interface intake (24h): {telemetry.get('intake_24h', 0)} "
+            f"(malformed: {telemetry.get('malformed_24h', 0)})"
+        )
+        lines.append(
+            f"- Practice Squad latest: {telemetry.get('latest_training_type') or 'none'} "
+            f"at {telemetry.get('latest_training_at') or 'n/a'}"
+        )
+        lines.append(
+            f"- Arcana latest: {telemetry.get('latest_forecast_type') or 'none'} "
+            f"at {telemetry.get('latest_forecast_at') or 'n/a'}"
+        )
+        lines.append(
+            f"- Arcana detail: alignments={telemetry.get('latest_forecast_alignment_count', 0)} "
+            f"branches={telemetry.get('latest_forecast_branches', 0)}"
+        )
         lines.append("")
         return lines
 

@@ -79,7 +79,7 @@ def test_cmd_check_dedupes_failures_and_completes():
 
         state = {
             "started_at_local": datetime(day.year, day.month, day.day, 0, 0, 0).isoformat(),
-            "ends_at_local": (now - timedelta(minutes=1)).isoformat(),
+            "ends_at_local": datetime(day.year, day.month, day.day, 23, 59, 0).isoformat(),
             "days": 1,
             "slots": [7],
             "tolerance_minutes": 90,

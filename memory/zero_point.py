@@ -25,6 +25,9 @@ class MemoryType(Enum):
     FAILURE = "FAILURE"           # Documented failure mode
     INSIGHT = "INSIGHT"           # Cross-domain connection
     PROPOSAL = "PROPOSAL"         # Idea Agent output (pending)
+    INTAKE = "INTAKE"             # External intake via interface agent
+    TRAINING = "TRAINING"         # Practice squad training insights
+    FORECAST = "FORECAST"         # Arcana heuristic forecasts
 
 
 class ConfidenceLevel(Enum):

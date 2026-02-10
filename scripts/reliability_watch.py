@@ -326,11 +326,12 @@ def cmd_check(args: argparse.Namespace) -> int:
     now = datetime.now()
     start = datetime.fromisoformat(state["started_at_local"])
     end = datetime.fromisoformat(state["ends_at_local"])
+    window_end = min(now, end)
     slots = [int(x) for x in state.get("slots", [7, 12, 19])]
     tolerance = int(state.get("tolerance_minutes", 90))
 
-    runs = _collect_runs(log_dir, start, min(now, end))
-    summary, failures = _evaluate_window(runs, start, now, slots, tolerance)
+    runs = _collect_runs(log_dir, start, window_end)
+    summary, failures = _evaluate_window(runs, start, window_end, slots, tolerance)
 
     notified = set(state.get("notified_keys", []))
     for failure in failures:

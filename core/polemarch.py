@@ -13,10 +13,13 @@ v0.3 Updates:
 
 import yaml
 import os
+import json
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from enum import Enum
 from dataclasses import dataclass, field
+
+from memory.zero_point import MemoryType, ZeroPoint
 
 
 class RiskTier(Enum):
@@ -95,10 +98,12 @@ class Polemarch:
         "modify_canon", "act_without_logging"
     ]
 
-    def __init__(self, canon_path: str = "canon/"):
+    def __init__(self, canon_path: str = "canon/", zero_point: Optional[ZeroPoint] = None):
         self.canon_path = canon_path
         self.decisions: List[PolemarchDecision] = []
         self.canon_data: Dict = {}
+        self.zero_point = zero_point or ZeroPoint()
+        self._processed_intake_ids: set[str] = set()
         self._load_canon()
 
     def _load_canon(self):
@@ -295,3 +300,56 @@ class Polemarch:
             }
             for d in self.decisions
         ]
+
+    def assess_risk(self, intake_record: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Lightweight intake risk assessment for Interface Agent routing.
+        """
+        ticket_id = str(intake_record.get("ticket_id", "UNKNOWN"))
+        content = str(intake_record.get("content", ""))
+        task = {
+            "task_id": ticket_id,
+            "goal": content,
+            "action": content,
+            "type": content,
+            "irreversible": any(
+                key in content.lower() for key in ("send", "publish", "delete", "wire", "pay")
+            ),
+        }
+        risk_tier = self._assign_risk_tier(task)
+        route_to = self._determine_route(task, risk_tier)
+        decision = self._record_decision(
+            ticket_id,
+            "INTAKE_ASSESSED",
+            risk_tier.value,
+            "values/tradeoffs",
+            route_to,
+            "Interface intake assessed and routed.",
+            twin_required=risk_tier == RiskTier.HIGH,
+        )
+        return {
+            "ticket_id": ticket_id,
+            "risk_tier": risk_tier.value,
+            "route_to": route_to,
+            "decision": decision,
+        }
+
+    def poll_intake(self, limit: int = 25) -> List[Dict[str, Any]]:
+        """
+        Poll Zero Point for new INTAKE records and run assess_risk().
+        """
+        assessed: List[Dict[str, Any]] = []
+        entries = self.zero_point.search(memory_type=MemoryType.INTAKE, requesting_agent="POLEMARCH")
+        for entry in entries[: max(1, int(limit))]:
+            entry_id = str(entry.get("entry_id", ""))
+            if not entry_id or entry_id in self._processed_intake_ids:
+                continue
+            payload = {}
+            try:
+                payload = json.loads(entry.get("content", "{}"))
+            except Exception:
+                payload = {"ticket_id": entry_id, "content": entry.get("content", "")}
+            result = self.assess_risk(payload)
+            assessed.append(result)
+            self._processed_intake_ids.add(entry_id)
+        return assessed

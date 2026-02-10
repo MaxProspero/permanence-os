@@ -27,6 +27,7 @@ class StoragePaths:
     logs: Path
     outputs_briefings: Path
     outputs_digests: Path
+    outputs_snapshots: Path
     outputs_synthesis: Path
     outputs_synthesis_drafts: Path
     outputs_synthesis_final: Path
@@ -75,6 +76,7 @@ class StorageManager:
         logs = root / "logs"
         outputs_briefings = root / "outputs" / "briefings"
         outputs_digests = root / "outputs" / "digests"
+        outputs_snapshots = root / "outputs" / "snapshots"
         outputs_synthesis = root / "outputs" / "synthesis"
         outputs_synthesis_drafts = outputs_synthesis / "drafts"
         outputs_synthesis_final = outputs_synthesis / "final"
@@ -85,6 +87,7 @@ class StorageManager:
             logs,
             outputs_briefings,
             outputs_digests,
+            outputs_snapshots,
             outputs_synthesis,
             outputs_synthesis_drafts,
             outputs_synthesis_final,
@@ -111,6 +114,7 @@ class StorageManager:
             logs=logs,
             outputs_briefings=outputs_briefings,
             outputs_digests=outputs_digests,
+            outputs_snapshots=outputs_snapshots,
             outputs_synthesis=outputs_synthesis,
             outputs_synthesis_drafts=outputs_synthesis_drafts,
             outputs_synthesis_final=outputs_synthesis_final,
