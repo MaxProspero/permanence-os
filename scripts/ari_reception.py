@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run Ari receptionist intake/summary actions.
+Run receptionist intake/summary actions.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from agents.departments.reception_agent import ReceptionAgent  # noqa: E402
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Ari receptionist workflow")
+    parser = argparse.ArgumentParser(description="Run receptionist workflow")
     parser.add_argument("--action", choices=["intake", "summary"], default="summary", help="Reception action")
     parser.add_argument("--queue-dir", help="Queue directory override")
     parser.add_argument("--sender", help="Sender name/identifier (intake)")
@@ -25,6 +25,11 @@ def main() -> int:
     parser.add_argument("--source", help="Source system (intake)")
     parser.add_argument("--priority", choices=["urgent", "high", "normal", "low"], help="Priority override")
     parser.add_argument("--max-items", type=int, default=20, help="Max open items in summary")
+    parser.add_argument(
+        "--name",
+        default=os.getenv("PERMANENCE_RECEPTIONIST_NAME", "Ari"),
+        help="Receptionist display name",
+    )
     args = parser.parse_args()
 
     task = {
@@ -36,6 +41,7 @@ def main() -> int:
         "source": args.source,
         "priority": args.priority,
         "max_items": args.max_items,
+        "name": args.name,
     }
 
     agent = ReceptionAgent()

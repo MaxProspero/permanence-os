@@ -742,9 +742,10 @@ class BriefingAgent:
         return lines
 
     def _section_reception_summary(self, summary: Dict[str, Any]) -> List[str]:
-        lines = ["## Ari Reception"]
+        name = os.getenv("PERMANENCE_RECEPTIONIST_NAME", "Ari").strip() or "Ari"
+        lines = [f"## {name} Reception"]
         if summary.get("not_connected"):
-            lines.append("- Ari queue not connected yet")
+            lines.append(f"- {name} queue not connected yet")
             lines.append("")
             return lines
         lines.append(f"- Total entries: {summary.get('total_entries', 0)}")

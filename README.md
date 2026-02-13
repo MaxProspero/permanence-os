@@ -202,6 +202,7 @@ python cli.py phase-gate --days 7
 python cli.py status-glance
 python cli.py dell-cutover-verify
 python cli.py ari-reception --action summary
+python cli.py sandra-reception --action summary
 python cli.py ari-reception --action intake --sender "Payton" --message "Need review of weekly phase gate" --channel discord
 python cli.py email-triage
 python cli.py gmail-ingest
@@ -222,6 +223,12 @@ Automation writes a one-line quick status file to storage logs:
 Ari receptionist can run in automation mode:
 - set `PERMANENCE_ARI_ENABLED=1`
 - set `PERMANENCE_ARI_SLOT=19` (or `all`)
+
+Custom receptionist name/command can run in automation mode:
+- set `PERMANENCE_RECEPTIONIST_NAME=Sandra`
+- set `PERMANENCE_RECEPTIONIST_ENABLED=1`
+- set `PERMANENCE_RECEPTIONIST_SLOT=19` (or `all`)
+- optional command override: `PERMANENCE_RECEPTIONIST_COMMAND=sandra-reception` (defaults to `ari-reception`)
 
 Reliability watch can run in background for a fixed 7-day window:
 - `python cli.py reliability-watch --arm --days 7`
@@ -473,6 +480,7 @@ The system is designed to fail cleanly:
 - `/docs/compression_framework.md` - Theoretical foundation
 - `/docs/canon_change_template.md` - Canon update ceremony template
 - `/docs/dell_cutover.md` - Linux (Dell) automation migration runbook
+- `/docs/dell_cutover_powershell.md` - PowerShell + WSL Dell cutover workflow
 - `/CHANGELOG.md` - Project change history
 - `/docs/sources_example.json` - Sources provenance example
 - `/identity_config.yaml` - Identity routing configuration

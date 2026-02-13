@@ -2,6 +2,9 @@
 
 This runbook moves scheduled automation from Mac to Dell (Linux) with the same `7,12,19` cadence.
 
+If you are operating from Windows PowerShell on Dell, use
+`docs/dell_cutover_powershell.md` with `automation/dell_wsl_helpers.ps1`.
+
 ## 1. Prepare Dell
 
 ```bash

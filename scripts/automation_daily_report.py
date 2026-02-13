@@ -92,12 +92,16 @@ def _collect_runs(log_dir: Path) -> list[RunSummary]:
 
 
 def _check_launchd(label: str) -> bool:
-    proc = subprocess.run(
-        ["launchctl", "list"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        proc = subprocess.run(
+            ["launchctl", "list"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        # Non-macOS environments (e.g., Linux cron on Dell) won't have launchctl.
+        return False
     return proc.returncode == 0 and label in proc.stdout
 
 

@@ -29,9 +29,6 @@ def _load_sources(path: str) -> list[dict]:
 def main() -> int:
     sources_path = os.path.join(PROJECT_ROOT, "memory", "working", "sources.json")
     sources = _load_sources(sources_path)
-    if not sources:
-        print("No sources found.")
-        return 1
 
     now = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     out_path = storage.paths.outputs_digests / f"sources_digest_{now}.md"
@@ -45,22 +42,32 @@ def main() -> int:
         "",
     ]
 
-    for idx, src in enumerate(sources, 1):
-        title = src.get("title") or src.get("source") or "Untitled"
-        notes = src.get("notes") or ""
-        origin = src.get("origin") or "unknown"
-        ts = src.get("timestamp") or "unknown"
+    if not sources:
         lines.extend(
             [
-                f"## {idx}. {title}",
-                f"- Source: {src.get('source','')}",
-                f"- Origin: {origin}",
-                f"- Timestamp: {ts}",
+                "_No sources available yet._",
                 "",
-                notes.strip(),
+                "Add sources via `python cli.py add-source ...` or ingest commands.",
                 "",
             ]
         )
+    else:
+        for idx, src in enumerate(sources, 1):
+            title = src.get("title") or src.get("source") or "Untitled"
+            notes = src.get("notes") or ""
+            origin = src.get("origin") or "unknown"
+            ts = src.get("timestamp") or "unknown"
+            lines.extend(
+                [
+                    f"## {idx}. {title}",
+                    f"- Source: {src.get('source','')}",
+                    f"- Origin: {origin}",
+                    f"- Timestamp: {ts}",
+                    "",
+                    notes.strip(),
+                    "",
+                ]
+            )
 
     try:
         with open(out_path, "w") as f:
@@ -74,6 +81,8 @@ def main() -> int:
         out_path = fallback_path
 
     log(f"Sources digest written to {out_path}", level="INFO")
+    if not sources:
+        print("No sources found; wrote empty digest.")
     print(f"Sources digest written to {out_path}")
     return 0
 

@@ -131,6 +131,11 @@ Run Ari receptionist workflow.
 - `--action intake --sender "Name" --message "..."` appends to queue
 - `--action summary` writes latest receptionist summary report
 - `--queue-dir` override queue location
+
+### `python cli.py sandra-reception`
+Run receptionist workflow with display name set to Sandra.
+- Uses the same queue and actions as `ari-reception`
+- Useful when you want Sandra labels in reports/automation logs
 ## Maintenance Commands
 
 ### `python cli.py clean`
@@ -166,3 +171,15 @@ Write one-line operator status files (`status_today.txt` and `status_today.json`
 
 ### `python cli.py dell-cutover-verify`
 Verify Dell cron cutover prerequisites and managed cron block.
+
+### PowerShell + WSL helpers (Dell)
+For Windows-first operation on Dell, load:
+`automation/dell_wsl_helpers.ps1`
+
+Then use:
+- `perm-bootstrap <repo-url>`
+- `perm-test`
+- `perm-cutover`
+- `perm-run`
+
+Detailed runbook: `docs/dell_cutover_powershell.md`.

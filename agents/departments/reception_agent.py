@@ -41,6 +41,7 @@ class ReceptionAgent:
     forbidden_actions = ["external_send", "auto_reply"]
 
     def execute(self, task: Dict[str, Any]) -> AgentResult:
+        name = self._display_name(task)
         action = (task.get("action") or "summary").strip().lower()
         queue_dir = task.get("queue_dir") or os.getenv(
             "PERMANENCE_RECEPTION_QUEUE_DIR",
@@ -50,12 +51,12 @@ class ReceptionAgent:
         queue_path.mkdir(parents=True, exist_ok=True)
 
         if action == "intake":
-            return self._intake(queue_path, task)
+            return self._intake(queue_path, task, name)
         if action == "summary":
-            return self._summary(queue_path, int(task.get("max_items") or 20))
+            return self._summary(queue_path, int(task.get("max_items") or 20), name)
         return AgentResult(status="INVALID_ACTION", notes=[f"Unsupported action: {action}"])
 
-    def _intake(self, queue_dir: Path, task: Dict[str, Any]) -> AgentResult:
+    def _intake(self, queue_dir: Path, task: Dict[str, Any], name: str) -> AgentResult:
         sender = (task.get("sender") or "").strip()
         message = (task.get("message") or "").strip()
         if not sender or not message:
@@ -80,29 +81,29 @@ class ReceptionAgent:
         with inbox.open("a") as f:
             f.write(json.dumps(payload) + "\n")
 
-        log(f"Ari intake saved: {payload['id']}", level="INFO")
+        log(f"{name} intake saved: {payload['id']}", level="INFO")
         return AgentResult(
             status="INTAKE_SAVED",
-            notes=[f"Ari intake saved: {inbox}", f"Entry ID: {payload['id']}"],
+            notes=[f"{name} intake saved: {inbox}", f"Entry ID: {payload['id']}"],
             artifact=str(inbox),
         )
 
-    def _summary(self, queue_dir: Path, max_items: int) -> AgentResult:
+    def _summary(self, queue_dir: Path, max_items: int, name: str) -> AgentResult:
         entries = self._load_entries(queue_dir)
         if not entries:
-            return AgentResult(status="NO_ENTRIES", notes=[f"No Ari entries found in {queue_dir}"])
+            return AgentResult(status="NO_ENTRIES", notes=[f"No {name} entries found in {queue_dir}"])
 
         entries.sort(key=lambda e: e.get("created_at", ""), reverse=True)
         open_items = [e for e in entries if e.get("status", "open") == "open"]
         urgent = [e for e in open_items if e.get("priority") == "urgent"]
         latest = open_items[:max_items]
 
-        report = self._format_report(queue_dir, entries, open_items, urgent, latest)
+        report = self._format_report(queue_dir, entries, open_items, urgent, latest, name)
         output_path, tool_path = self._write_report(report, entries, open_items, urgent, latest)
-        log(f"Ari summary written: {output_path}", level="INFO")
+        log(f"{name} summary written: {output_path}", level="INFO")
         return AgentResult(
             status="SUMMARY",
-            notes=[f"Ari summary written: {output_path}", f"Tool memory: {tool_path}"],
+            notes=[f"{name} summary written: {output_path}", f"Tool memory: {tool_path}"],
             artifact=output_path,
         )
 
@@ -160,9 +161,10 @@ class ReceptionAgent:
         open_items: List[Dict[str, Any]],
         urgent: List[Dict[str, Any]],
         latest: List[Dict[str, Any]],
+        name: str,
     ) -> str:
         lines = [
-            "# Ari Reception Summary",
+            f"# {name} Reception Summary",
             "",
             f"Queue: {queue_dir}",
             f"Total entries: {len(entries)}",
@@ -220,3 +222,8 @@ class ReceptionAgent:
                 indent=2,
             )
         return output_path, tool_path
+
+    @staticmethod
+    def _display_name(task: Dict[str, Any]) -> str:
+        value = str(task.get("name") or os.getenv("PERMANENCE_RECEPTIONIST_NAME") or "Ari").strip()
+        return value if value else "Ari"

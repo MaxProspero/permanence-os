@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, promote, promotion-review, queue, hr-report, briefing, ari-reception, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, v04-snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, v04-snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -798,6 +798,35 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "ari_reception.py"),
                 "--action",
                 args.action,
+                *(["--queue-dir", args.queue_dir] if args.queue_dir else []),
+                *(["--sender", args.sender] if args.sender else []),
+                *(["--message", args.message] if args.message else []),
+                *(["--channel", args.channel] if args.channel else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--priority", args.priority] if args.priority else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
+            ]
+        )
+    )
+
+    sandra_p = sub.add_parser("sandra-reception", help="Run Sandra receptionist intake/summary")
+    sandra_p.add_argument("--action", choices=["intake", "summary"], default="summary", help="Sandra action")
+    sandra_p.add_argument("--queue-dir", help="Queue directory override")
+    sandra_p.add_argument("--sender", help="Sender (intake)")
+    sandra_p.add_argument("--message", help="Message body (intake)")
+    sandra_p.add_argument("--channel", help="Channel (intake)")
+    sandra_p.add_argument("--source", help="Source system (intake)")
+    sandra_p.add_argument("--priority", choices=["urgent", "high", "normal", "low"], help="Priority override")
+    sandra_p.add_argument("--max-items", type=int, default=20, help="Max items in summary")
+    sandra_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ari_reception.py"),
+                "--action",
+                args.action,
+                "--name",
+                "Sandra",
                 *(["--queue-dir", args.queue_dir] if args.queue_dir else []),
                 *(["--sender", args.sender] if args.sender else []),
                 *(["--message", args.message] if args.message else []),

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added PowerShell + WSL Dell helper script (`automation/dell_wsl_helpers.ps1`)
+- Added PowerShell-specific Dell cutover runbook (`docs/dell_cutover_powershell.md`)
+- Automation runner now prefers `.venv/bin/python` with `python`/`python3` fallback
+- Automation report now handles non-macOS hosts without `launchctl`
+- Sources digest now writes an empty digest (status 0) when sources.json is empty
+- Added `sandra-reception` CLI alias and configurable receptionist naming for automation logs/briefing
 - Added url_fetch adapter for Researcher ingestion
 - Improved Executor compiled output format (spec-bound sections)
 - Expanded evaluation harness coverage (canon conflict, placeholders, tool failure)
