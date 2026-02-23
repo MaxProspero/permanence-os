@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added Canon Amendment CA-013 brand identity context (`canon/brand_identity.yaml`)
+- Added root-level brand context loader (`context_loader.py`) with task-aware context injection helpers
+- Executor now conditionally applies CA-013 brand voice context for communication/content tasks
+- Added brand reference docs under `docs/brand/`
 - Added `dell-remote` bridge command (`scripts/dell_remote.py`) for Mac->Dell SSH execution and code sync
 - Added tests for Dell remote bridge helpers (`tests/test_dell_remote.py`)
 - Added `organize-files` CLI command and safe quarantine workflow (`scripts/file_organizer.py`)

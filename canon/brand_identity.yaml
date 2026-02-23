@@ -1,0 +1,261 @@
+# brand_identity.yaml
+# Canon Reference: Brand, Identity & Aesthetic Architecture
+# Source: Permanence Systems Brand System v1.0 + Identity Synthesis v1.0
+# Added: 2026-02
+# Human Authority: Payton Hicks
+# Status: READ-ONLY to all agents
+
+# ─── SYSTEM IDENTITY ───────────────────────────────────────────────────────────
+
+system:
+  company: Permanence Systems
+  tagline: "Intelligence without governance breaks."
+  founding_year: 2026
+  founder_public: Payton Hicks
+  founder_internal: Kael Dax
+  domain: permanencesystems.com
+
+# ─── CORE IDENTITY TRAITS ──────────────────────────────────────────────────────
+# These are the traits that define how the brand communicates, how the founder
+# operates, and how all external-facing content should feel.
+# Agents referencing voice or tone should consult this section.
+
+identity_traits:
+  - name: Cool
+    definition: >
+      Moves without announcing. Doesn't perform confidence — embodies it.
+      Nothing is loud. The clothes are right, the scent is right, the 
+      handshake is precise. Presence without theater.
+    anti_pattern: Performing coolness to get recognition
+
+  - name: Confident
+    definition: >
+      Speaks from a position, not from need. Doesn't over-explain. 
+      Comfortable with silence. Makes decisions. Confidence that comes 
+      from internal work, not external validation.
+    anti_pattern: Hedging out of fear, seeking approval before stating positions
+
+  - name: Leader
+    definition: >
+      Leads through structure, not volume. Sets the tone, lets the room 
+      follow. People feel organized in proximity — not controlled, shown how.
+    anti_pattern: Commanding through loudness or status performance
+
+  - name: Well_Spoken
+    definition: >
+      Every word considered before delivery. Deliberate, not slow. 
+      Compression over verbosity: says more with less. The pause before 
+      the point is itself a signal.
+    anti_pattern: Rambling, over-explaining, performing intelligence
+
+  - name: Considerate
+    definition: >
+      Reads the room before entering it. Thinks about impact before action.
+      Thoughtful execution — not passive. The difference between considerate 
+      and soft is follow-through.
+    anti_pattern: Impulsive action, ignoring second-order effects
+
+  - name: Intelligent
+    definition: >
+      Non-performative intelligence. The kind you notice after the 
+      conversation ends — they left you with something and you didn't 
+      notice the transfer happening.
+    anti_pattern: Using complexity to signal intelligence
+
+  - name: Wise
+    definition: >
+      Has failed, documented the failure, updated the system. Wisdom is 
+      not age — it is the compression of experience into principle. Has 
+      run the 2 AM test on themselves.
+    anti_pattern: Repeating failures without updating the Canon
+
+  - name: Socially_Intelligent
+    definition: >
+      Knows when to be warm and when to be professional. Reads power 
+      dynamics without getting caught in them. Makes every table function 
+      better by being at it.
+    anti_pattern: Misreading context, performing social fluency
+
+  - name: Empathetic
+    definition: >
+      Feels things without apology. The warmth is not a vulnerability — 
+      it's a frequency that makes people trust you with the real version 
+      of what they're thinking.
+    anti_pattern: Suppressing emotional intelligence to appear more "governed"
+
+  - name: Controlled_Fire
+    definition: >
+      The energy is present and detectable. It doesn't activate in every 
+      interaction — which is exactly why it lands when it does. When 
+      activated: clarifying, not chaotic. Governed, not extinguished.
+    activation_triggers:
+      - Something or someone important is at risk
+      - An idea needs to be defended with rigorous precision
+      - The room needs to shift and no one else will do it
+      - The work demands a push past comfortable into correct
+    anti_pattern: Constant intensity, emotional volatility, fire as performance
+
+# ─── BRAND VOICE ───────────────────────────────────────────────────────────────
+# All Executor Agent outputs, social content, essays, and external communications
+# must align with these voice rules.
+
+brand_voice:
+  principles:
+    - "Density over length — one sentence with three ideas beats three sentences with one each"
+    - "Confidence without arrogance — state positions, don't hedge endlessly"
+    - "Warmth that isn't soft — care and precision simultaneously"
+    - "Cultural fluency without try — references are genuine, not researched"
+    - "The pause before the point — deliberateness is itself a signal"
+
+  forbidden:
+    - "Motivational language or cheerleading"
+    - "Hedging out of fear: 'I think maybe this could possibly be...'"
+    - "Performing intelligence through vocabulary complexity"
+    - "Apologizing for substance"
+    - "Excessive enthusiasm or exclamation marks"
+    - "Vague inspirational metaphors without concrete mechanisms"
+
+  preferred_constructions:
+    - "This works because..."
+    - "The constraint is..."
+    - "Pattern: X appears when Y"
+    - "Trade-off: gain X, lose Y"
+    - "Failure mode: ..."
+    - "Under these conditions..."
+
+# ─── AESTHETIC SYSTEM ──────────────────────────────────────────────────────────
+
+aesthetic:
+  color_palette:
+    neutrals:
+      charcoal: "#2C2C2C"
+      bone: "#F5F0E8"
+      steel: "#8A9BAA"
+    authority_accent:
+      governance_gold: "#B8962E"
+      usage: "Crest details, foil stamps, embroidery, dashboard accents — earned authority signal"
+    seasonal_accents:
+      platform_blue: "#1A3A5C"
+      platform_blue_usage: "Daily platform, trust, infrastructure, staff uniforms — always available"
+      signal_orange: "#E85D26"
+      signal_orange_usage: "Drops, limited capsules, cultural moments — seasonal and finite"
+
+  room_aesthetic:
+    description: "White, grey, tan, khaki brown — cold clean"
+    note: "Personal space mirrors brand palette. The brand is an extension of natural environment organization."
+
+  materials:
+    - "Raw oak and walnut — warm, structural, honest"
+    - "Chrome and brushed steel — precision, tech credibility"
+    - "Living plants and greenery — organic counterweight"
+    - "Concrete — weight and permanence"
+    - "Glass — transparency as governance metaphor"
+
+  lighting: "Dark-comfortable — low ambient, precise spots on product, warm pools at seating. Intentional, not romantic."
+
+# ─── FRAGRANCE ARCHITECTURE ────────────────────────────────────────────────────
+# Three-tier governance system for scent.
+
+fragrance_system:
+  tiers:
+    platform:
+      description: "Daily rotation — always correct, never wrong"
+      scents:
+        - name: "Acqua di Gio"
+          house: "Giorgio Armani"
+          signal: "Cultural fluency — universally understood, casually confident"
+        - name: "Vanilla Skin"
+          house: "Phlur"
+          signal: "The 2 AM scent — still correct when you're not trying"
+
+    authority:
+      description: "Reserved for governance moments — presentations, high-stakes contexts"
+      scents:
+        - name: "Platinum Égoïste"
+          house: "Chanel"
+          signal: "Governance scent — structured, cold-clean, architectural"
+        - name: "Acqua di Gio Profumo"
+          house: "Giorgio Armani"
+          signal: "Elevated familiar — same foundation, more gravity"
+
+    intimate:
+      description: "Private context — close relationships, rest, recovery, creative work"
+      scents:
+        - name: "Missing Person"
+          house: "Phlur"
+          signal: "The trust scent — designed to smell like someone you love"
+        - name: "Heavy Cream"
+          house: "Phlur"
+          signal: "Recovery and focus — quiet mornings, deep work sessions"
+        - name: "The Ranger Station"
+          house: "Indie/Clean"
+          signal: "Geographic grounding — NWA cold morning, outdoor structure"
+
+  governance_rule: >
+    The right scent at the wrong moment is a governance failure. 
+    Match tier to context. Never mix platform and intimate registers 
+    in high-stakes environments.
+
+# ─── CULTURAL DNA ──────────────────────────────────────────────────────────────
+
+cultural_dna:
+  geographic_roots:
+    - "Northwest Arkansas — Bentonville, Crystal Bridges, Fayetteville coffee shops"
+    - "Mullins Library quiet and focused ambition"
+    - "Dickson Street old-row energy"
+    - "NWA hype store community intimacy"
+
+  sonic_identity:
+    drake: "Compression and precision — emotional density in minimal words"
+    frank_ocean: "Patience as quality signal — the work isn't ready until it's ready"
+    bounce_nola: "Joy as infrastructure — discipline and delight are not opposites"
+    veeze: "Regional authenticity — the specific sound of where you're from"
+
+  fashion_references:
+    - "Virgil Abloh — the permission to be rigorous and alive simultaneously"
+    - "OBEY — ubiquity through single mark repetition"
+    - "Justin Bieber current era — the reclaim arc, performance becoming permanence"
+
+  object_references:
+    - "David Yurman — constraint as ornament, structural jewelry"
+    - "Van Cleef — craft at institutional level, coded for those who know"
+    - "Flipper Zero — practitioner relationship with technology, not consumer"
+    - "Iron Man / Jarvis — the governed intelligence archetype, human as final authority"
+
+# ─── BRAND EXTENSIONS ──────────────────────────────────────────────────────────
+
+brand_extensions:
+  parent: "Permanence Systems"
+  clothing_sub_brand: "CHENAL"
+  chenal_concept: >
+    'Chenal on sale is still expensive — know your worth.'
+    Elevated luxury streetwear label sold at PS stores. 
+    Positions as distinct label, not just a product line.
+  ophtxn_designation: >
+    OPHTXN reserved for tech/agent system identity — the product layer.
+    Not assigned to clothing. Keeps technical credibility clean and separate.
+
+# ─── APPAREL SYSTEM ────────────────────────────────────────────────────────────
+
+apparel_lines:
+  core_uniforms:
+    description: "Always in stock. Daily wear. 2 AM test: would someone actually wear this on a low-motivation Tuesday?"
+    colors: ["Charcoal", "Bone", "Deep Blue"]
+    mark: "PS Ligature — minimal placement"
+
+  governance_series:
+    description: "Quiet flex. Seasonal restock. Coded — 'if you know, you know.'"
+    marks: ["Institutional Seal", "Zero Point", "Canon Bracket", "3-6-9 Triad"]
+
+  seasonal_drops:
+    description: "Limited. Culture signal. Signal Orange or seasonal accent."
+    marks: ["Full Seal", "Graphic treatment"]
+    examples:
+      - "Compression Coach — 'Intelligence without governance breaks' back graphic"
+      - "Vintage Arkansas Edit — governance gold, cultural roots made explicit"
+      - "City Drop Hoodie — season-specific, city-coded editions"
+
+# ─── END OF CANON SECTION ──────────────────────────────────────────────────────
+# This file is READ-ONLY to all agents.
+# Modifications require Canon Change Ceremony: rationale, impact, rollback plan, version bump, human approval.
+# Amendment ID for this addition: CA-013 (Brand Identity Canon)
