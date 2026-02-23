@@ -360,11 +360,22 @@ class ResearcherAgent:
 
         creds = None
         if os.path.exists(token_path):
-            creds = Credentials.from_authorized_user_file(token_path, scopes)
+            try:
+                creds = Credentials.from_authorized_user_file(token_path, scopes)
+            except Exception as exc:
+                log(f"Invalid Google Docs token file, reauth required: {exc}", level="WARNING")
+                creds = None
         if not creds or not creds.valid:
+            refresh_failed = False
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
+                try:
+                    creds.refresh(Request())
+                except Exception as exc:
+                    # Common when refresh token was revoked/expired.
+                    log(f"Google Docs token refresh failed, starting reauth: {exc}", level="WARNING")
+                    refresh_failed = True
+                    creds = None
+            if not creds or refresh_failed:
                 flow = InstalledAppFlow.from_client_secrets_file(credentials_path, scopes)
                 creds = flow.run_local_server(port=0)
             with open(token_path, "w") as token:
@@ -502,11 +513,22 @@ class ResearcherAgent:
 
         creds = None
         if os.path.exists(token_path):
-            creds = Credentials.from_authorized_user_file(token_path, scopes)
+            try:
+                creds = Credentials.from_authorized_user_file(token_path, scopes)
+            except Exception as exc:
+                log(f"Invalid Google Drive token file, reauth required: {exc}", level="WARNING")
+                creds = None
         if not creds or not creds.valid:
+            refresh_failed = False
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
+                try:
+                    creds.refresh(Request())
+                except Exception as exc:
+                    # Common when refresh token was revoked/expired.
+                    log(f"Google Drive token refresh failed, starting reauth: {exc}", level="WARNING")
+                    refresh_failed = True
+                    creds = None
+            if not creds or refresh_failed:
                 flow = InstalledAppFlow.from_client_secrets_file(credentials_path, scopes)
                 creds = flow.run_local_server(port=0)
             with open(token_path, "w") as token:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, v04-snapshot, openclaw-status, openclaw-sync, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -88,6 +88,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_phase_gate.py"),
         os.path.join(BASE_DIR, "tests", "test_status_glance.py"),
         os.path.join(BASE_DIR, "tests", "test_dell_cutover_verify.py"),
+        os.path.join(BASE_DIR, "tests", "test_dell_remote.py"),
         os.path.join(BASE_DIR, "tests", "test_ari_reception.py"),
         os.path.join(BASE_DIR, "tests", "test_email_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_health_agent.py"),
@@ -98,6 +99,8 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_researcher_drive_pdfs.py"),
         os.path.join(BASE_DIR, "tests", "test_ingest_sources_append.py"),
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_research_inbox.py"),
+        os.path.join(BASE_DIR, "tests", "test_file_organizer.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -725,6 +728,51 @@ def main() -> int:
         )
     )
 
+    dell_remote_p = sub.add_parser(
+        "dell-remote",
+        help="Mac->Dell bridge for SSH command execution and code sync",
+    )
+    dell_remote_p.add_argument(
+        "--action",
+        choices=["configure", "show", "test", "run", "sync-code"],
+        default="show",
+        help="Bridge action",
+    )
+    dell_remote_p.add_argument("--config", help="Config JSON path")
+    dell_remote_p.add_argument("--host", help="Dell host or IP")
+    dell_remote_p.add_argument("--user", help="Dell SSH user")
+    dell_remote_p.add_argument("--repo-path", help="Repo path on Dell")
+    dell_remote_p.add_argument("--port", type=int, help="SSH port")
+    dell_remote_p.add_argument("--key-path", help="SSH private key path")
+    dell_remote_p.add_argument("--cmd", help="Remote command for run action")
+    dell_remote_p.add_argument("--no-repo", action="store_true", help="Do not cd into repo before run")
+    dell_remote_p.add_argument("--no-venv", action="store_true", help="Do not auto-activate .venv")
+    dell_remote_p.add_argument("--local-path", help="Local path for sync-code")
+    dell_remote_p.add_argument("--dry-run", action="store_true", help="Dry run for sync-code")
+    dell_remote_p.add_argument("--print-cmd", action="store_true", help="Print underlying SSH/rsync command")
+    dell_remote_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "dell_remote.py"),
+                "--action",
+                args.action,
+                *(["--config", args.config] if args.config else []),
+                *(["--host", args.host] if args.host else []),
+                *(["--user", args.user] if args.user else []),
+                *(["--repo-path", args.repo_path] if args.repo_path else []),
+                *(["--port", str(args.port)] if args.port else []),
+                *(["--key-path", args.key_path] if args.key_path else []),
+                *(["--cmd", args.cmd] if args.cmd else []),
+                *(["--no-repo"] if args.no_repo else []),
+                *(["--no-venv"] if args.no_venv else []),
+                *(["--local-path", args.local_path] if args.local_path else []),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--print-cmd"] if args.print_cmd else []),
+            ]
+        )
+    )
+
     promote_p = sub.add_parser("promote", help="Generate Canon change draft from episodic memory")
     promote_p.add_argument("--since", help="ISO date/time filter (UTC)")
     promote_p.add_argument("--count", type=int, help="Limit to N most recent episodes")
@@ -834,6 +882,48 @@ def main() -> int:
                 *(["--source", args.source] if args.source else []),
                 *(["--priority", args.priority] if args.priority else []),
                 *(["--max-items", str(args.max_items)] if args.max_items else []),
+            ]
+        )
+    )
+
+    research_inbox_p = sub.add_parser(
+        "research-inbox",
+        help="Capture links/text and ingest into sources via URL fetch",
+    )
+    research_inbox_p.add_argument("--action", choices=["add", "process", "status"], default="process")
+    research_inbox_p.add_argument("--text", help="Text payload for add action")
+    research_inbox_p.add_argument("--source", help="Capture source id (for add)")
+    research_inbox_p.add_argument("--channel", help="Capture channel id (for add)")
+    research_inbox_p.add_argument("--inbox-path", help="Inbox JSONL path")
+    research_inbox_p.add_argument("--state-path", help="State JSON path")
+    research_inbox_p.add_argument("--sources-path", help="sources.json path")
+    research_inbox_p.add_argument("--output-dir", help="Report output directory")
+    research_inbox_p.add_argument("--max-sources", type=int, default=30, help="Max URL sources per run")
+    research_inbox_p.add_argument("--excerpt", type=int, default=280, help="Excerpt chars")
+    research_inbox_p.add_argument("--timeout", type=int, default=15, help="URL fetch timeout seconds")
+    research_inbox_p.add_argument("--max-bytes", type=int, default=1_000_000, help="Max bytes per URL fetch")
+    research_inbox_p.add_argument("--user-agent", help="HTTP user agent override")
+    research_inbox_p.add_argument("--tool-dir", help="Tool memory output directory")
+    research_inbox_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "research_inbox.py"),
+                "--action",
+                args.action,
+                *(["--text", args.text] if args.text else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--channel", args.channel] if args.channel else []),
+                *(["--inbox-path", args.inbox_path] if args.inbox_path else []),
+                *(["--state-path", args.state_path] if args.state_path else []),
+                *(["--sources-path", args.sources_path] if args.sources_path else []),
+                *(["--output-dir", args.output_dir] if args.output_dir else []),
+                *(["--max-sources", str(args.max_sources)] if args.max_sources else []),
+                *(["--excerpt", str(args.excerpt)] if args.excerpt else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--max-bytes", str(args.max_bytes)] if args.max_bytes else []),
+                *(["--user-agent", args.user_agent] if args.user_agent else []),
+                *(["--tool-dir", args.tool_dir] if args.tool_dir else []),
             ]
         )
     )
@@ -977,6 +1067,46 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "openclaw_health_sync.py"),
                 *(["--interval", str(args.interval)] if args.interval else []),
                 *(["--once"] if args.once else []),
+            ]
+        )
+    )
+
+    organizer_p = sub.add_parser(
+        "organize-files",
+        help="Safe file organizer: scan/apply quarantine plan or open Storage settings",
+    )
+    organizer_p.add_argument("--action", choices=["scan", "apply", "open-storage"], default="scan")
+    organizer_p.add_argument("--roots", nargs="*", help="Roots to scan")
+    organizer_p.add_argument("--stale-days", type=int, default=30, help="Stale threshold in days")
+    organizer_p.add_argument("--min-large-mb", type=int, default=500, help="Min size for large-file report")
+    organizer_p.add_argument("--top-large", type=int, default=40, help="Top large files to include")
+    organizer_p.add_argument("--duplicate-min-kb", type=int, default=64, help="Min size for duplicate hash scan")
+    organizer_p.add_argument("--max-stale-actions", type=int, default=500, help="Max stale move candidates in plan")
+    organizer_p.add_argument("--quarantine-root", help="Quarantine root directory")
+    organizer_p.add_argument("--output-dir", help="Output directory for plan/report")
+    organizer_p.add_argument("--plan", help="Plan path for apply action")
+    organizer_p.add_argument("--dry-run", action="store_true", help="Simulate apply")
+    organizer_p.add_argument("--confirm", action="store_true", help="Required for non-dry-run apply")
+    organizer_p.add_argument("--limit", type=int, default=0, help="Apply only first N actions")
+    organizer_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "file_organizer.py"),
+                "--action",
+                args.action,
+                *(["--roots"] + args.roots if args.roots else []),
+                *(["--stale-days", str(args.stale_days)] if args.stale_days else []),
+                *(["--min-large-mb", str(args.min_large_mb)] if args.min_large_mb else []),
+                *(["--top-large", str(args.top_large)] if args.top_large else []),
+                *(["--duplicate-min-kb", str(args.duplicate_min_kb)] if args.duplicate_min_kb else []),
+                *(["--max-stale-actions", str(args.max_stale_actions)] if args.max_stale_actions else []),
+                *(["--quarantine-root", args.quarantine_root] if args.quarantine_root else []),
+                *(["--output-dir", args.output_dir] if args.output_dir else []),
+                *(["--plan", args.plan] if args.plan else []),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--confirm"] if args.confirm else []),
+                *(["--limit", str(args.limit)] if args.limit else []),
             ]
         )
     )

@@ -136,6 +136,15 @@ Run Ari receptionist workflow.
 Run receptionist workflow with display name set to Sandra.
 - Uses the same queue and actions as `ari-reception`
 - Useful when you want Sandra labels in reports/automation logs
+
+### `python cli.py research-inbox`
+Capture links/text and process them into `sources.json` via URL fetch.
+- Add capture:
+`python cli.py research-inbox --action add --text "watch https://youtube.com/... and https://x.com/..."`
+- Process captures:
+`python cli.py research-inbox --action process`
+- View queue status:
+`python cli.py research-inbox --action status`
 ## Maintenance Commands
 
 ### `python cli.py clean`
@@ -171,6 +180,26 @@ Write one-line operator status files (`status_today.txt` and `status_today.json`
 
 ### `python cli.py dell-cutover-verify`
 Verify Dell cron cutover prerequisites and managed cron block.
+
+### `python cli.py dell-remote`
+Mac->Dell bridge for SSH execution and code sync (no terminal copy/paste).
+- Configure once:
+`python cli.py dell-remote --action configure --host DELL_HOST --user DELL_USER --repo-path ~/permanence-os --port 22 --key-path ~/.ssh/id_ed25519`
+- Test SSH:
+`python cli.py dell-remote --action test`
+- Run a Dell command in repo + venv:
+`python cli.py dell-remote --action run --cmd "python cli.py status"`
+- Sync local code to Dell repo:
+`python cli.py dell-remote --action sync-code`
+
+### `python cli.py organize-files`
+Safe file organizer for cleanup acceleration.
+- Scan and generate plan/report (no file moves):
+`python cli.py organize-files --action scan --roots ~/Downloads ~/Desktop --max-stale-actions 300`
+- Apply plan by moving files into quarantine (never hard delete):
+`python cli.py organize-files --action apply --plan outputs/file_organizer_plan_YYYYMMDD-HHMMSS.json --confirm`
+- Open macOS Storage settings:
+`python cli.py organize-files --action open-storage`
 
 ### PowerShell + WSL helpers (Dell)
 For Windows-first operation on Dell, load:

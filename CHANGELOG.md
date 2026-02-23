@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added `dell-remote` bridge command (`scripts/dell_remote.py`) for Mac->Dell SSH execution and code sync
+- Added tests for Dell remote bridge helpers (`tests/test_dell_remote.py`)
+- Added `organize-files` CLI command and safe quarantine workflow (`scripts/file_organizer.py`)
+- Added `research-inbox` CLI command for link capture + URL ingest into `sources.json`
+- Added tests for file organizer and research inbox workflows
+- Google Docs/Drive ingest now falls back to interactive OAuth when token refresh is revoked/expired
 - Added PowerShell + WSL Dell helper script (`automation/dell_wsl_helpers.ps1`)
 - Added PowerShell-specific Dell cutover runbook (`docs/dell_cutover_powershell.md`)
 - Automation runner now prefers `.venv/bin/python` with `python`/`python3` fallback
