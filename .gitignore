@@ -9,8 +9,10 @@ memory/working/*
 memory/tool/*
 memory/episodic/*.json
 memory/episodic/*.jsonl
+memory/approvals.json
 outputs/*.md
 outputs/*.txt
 outputs/*.json
+outputs/horizon/*.json
 permanence_storage/
 .DS_Store
