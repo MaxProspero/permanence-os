@@ -210,6 +210,8 @@ python cli.py health-summary
 python cli.py social-summary
 python cli.py logos-gate
 python cli.py dashboard
+python cli.py command-center
+python cli.py command-center --run-horizon --demo-horizon
 python cli.py snapshot
 python cli.py v04-snapshot
 python cli.py cleanup-weekly

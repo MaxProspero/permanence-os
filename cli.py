@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit
 """
 
 import argparse
@@ -1022,6 +1022,33 @@ def main() -> int:
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "dashboard_report.py"),
                 *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    cc_p = sub.add_parser(
+        "command-center",
+        help="Run live dashboard API and command center UI",
+    )
+    cc_p.add_argument("--host", default="127.0.0.1", help="Bind host")
+    cc_p.add_argument("--port", type=int, default=8000, help="Bind port")
+    cc_p.add_argument("--no-open", action="store_true", help="Do not auto-open browser")
+    cc_p.add_argument("--run-horizon", action="store_true", help="Run Horizon Agent before boot")
+    cc_p.add_argument(
+        "--demo-horizon",
+        action="store_true",
+        help="Use deterministic mock signals with --run-horizon",
+    )
+    cc_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "command_center.py"),
+                *(["--host", args.host] if args.host else []),
+                *(["--port", str(args.port)] if args.port else []),
+                *(["--no-open"] if args.no_open else []),
+                *(["--run-horizon"] if args.run_horizon else []),
+                *(["--demo-horizon"] if args.demo_horizon else []),
             ]
         )
     )

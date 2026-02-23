@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Permanence OS — Command Center</title>
+  <style>
+    /* ─── DESIGN SYSTEM ─────────────────────────────────────────── */
+    :root {
+      --black:     #0A0A0A;
+      --dark:      #111111;
+      --surface:   #161616;
+      --border:    #242424;
+      --dim:       #333333;
+      --muted:     #666666;
+      --text:      #E8E4DC;
+      --text-sub:  #8A8680;
+      --accent:    #C9B77A;    /* gold — for authority */
+      --alert:     #C25B4E;    /* red — for attention */
+      --safe:      #5B8C5A;    /* green — for confirmed */
+      --info:      #4A7A9B;    /* blue — for information */
+      --font:      'Inter', 'SF Pro Display', system-ui, sans-serif;
+      --mono:      'JetBrains Mono', 'SF Mono', 'Courier New', monospace;
+      --radius:    6px;
+      --transition: 150ms ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── LAYOUT ─────────────────────────────────────────────────── */
+    .shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      grid-template-rows: 52px 1fr;
+      height: 100vh;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .nav {
+      background: var(--dark);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .main {
+      overflow-y: auto;
+      padding: 32px;
+      background: var(--black);
+    }
+
+    /* ─── TOPBAR ─────────────────────────────────────────────────── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid var(--accent);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-mark svg { width: 12px; height: 12px; }
+
+    .brand-name {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .brand-version {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-sub);
+      font-family: var(--mono);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--safe);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .time-display {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ─── NAV ────────────────────────────────────────────────────── */
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 20px 8px;
+      margin-top: 16px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      font-size: 13px;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: var(--transition);
+      border-left: 2px solid transparent;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(201, 183, 122, 0.06);
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--alert);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-family: var(--mono);
+    }
+
+    /* ─── VIEWS ──────────────────────────────────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ─── PAGE HEADER ────────────────────────────────────────────── */
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    /* ─── GRID ───────────────────────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+    /* ─── CARD ───────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--mono);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    /* ─── STAT CARDS ─────────────────────────────────────────────── */
+    .stat-alert .card-value { color: var(--alert); }
+    .stat-safe  .card-value { color: var(--safe); }
+    .stat-gold  .card-value { color: var(--accent); }
+
+    /* ─── AGENT STATUS ───────────────────────────────────────────── */
+    .agent-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .agent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .agent-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .agent-role {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .agent-status-badge {
+      font-size: 10px;
+      font-family: var(--mono);
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-active   { background: rgba(91,140,90,0.15); color: var(--safe); border: 1px solid rgba(91,140,90,0.3); }
+    .badge-pending  { background: rgba(201,183,122,0.1); color: var(--accent); border: 1px solid rgba(201,183,122,0.25); }
+    .badge-offline  { background: rgba(102,102,102,0.1); color: var(--muted); border: 1px solid var(--dim); }
+    .badge-alert    { background: rgba(194,91,78,0.12); color: var(--alert); border: 1px solid rgba(194,91,78,0.3); }
+
+    /* ─── APPROVAL QUEUE ─────────────────────────────────────────── */
+    .approval-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .approval-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      border-left: 3px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .approval-card.high    { border-left-color: var(--alert); }
+    .approval-card.medium  { border-left-color: var(--accent); }
+    .approval-card.low     { border-left-color: var(--info); }
+
+    .approval-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .approval-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .approval-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .approval-body {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .approval-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ─── BUTTONS ────────────────────────────────────────────────── */
+    .btn {
+      padding: 7px 16px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition);
+      font-family: var(--font);
+    }
+
+    .btn-approve {
+      background: rgba(91,140,90,0.15);
+      color: var(--safe);
+      border-color: rgba(91,140,90,0.3);
+    }
+    .btn-approve:hover { background: rgba(91,140,90,0.25); }
+
+    .btn-reject {
+      background: rgba(194,91,78,0.08);
+      color: var(--alert);
+      border-color: rgba(194,91,78,0.25);
+    }
+    .btn-reject:hover { background: rgba(194,91,78,0.15); }
+
+    .btn-view {
+      background: transparent;
+      color: var(--text-sub);
+      border-color: var(--border);
+    }
+    .btn-view:hover { color: var(--text); border-color: var(--dim); }
+
+    .priority-tag {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--mono);
+      padding: 2px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.08em;
+    }
+
+    .p-high   { background: rgba(194,91,78,0.12); color: var(--alert); }
+    .p-medium { background: rgba(201,183,122,0.1); color: var(--accent); }
+    .p-low    { background: rgba(74,122,155,0.12); color: var(--info); }
+
+    /* ─── BRIEFING ───────────────────────────────────────────────── */
+    .briefing-content {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.8;
+    }
+
+    .briefing-section { margin-bottom: 24px; }
+
+    .briefing-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .briefing-item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(36,36,36,0.6);
+      color: var(--text);
+    }
+
+    .briefing-source {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* ─── CANON VIEWER ───────────────────────────────────────────── */
+    .canon-viewer {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .canon-locked {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      background: rgba(201,183,122,0.05);
+      border: 1px solid rgba(201,183,122,0.15);
+      border-radius: 4px;
+    }
+
+    .canon-content {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-sub);
+      white-space: pre-wrap;
+      line-height: 1.7;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    /* ─── LOG VIEWER ─────────────────────────────────────────────── */
+    .log-stream {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-sub);
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      max-height: 500px;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+
+    .log-entry { border-bottom: 1px solid rgba(36,36,36,0.4); padding: 4px 0; }
+    .log-time  { color: var(--muted); }
+    .log-agent { color: var(--accent); }
+    .log-msg   { color: var(--text-sub); }
+
+    /* ─── HORIZON ────────────────────────────────────────────────── */
+    .elevation-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+
+    .elevation-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .elevation-body {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .elevation-scope {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 10px;
+      font-family: var(--mono);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: rgba(74,122,155,0.12);
+      color: var(--info);
+      border: 1px solid rgba(74,122,155,0.25);
+    }
+
+    /* ─── EMPTY STATE ────────────────────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+
+    /* ─── DIVIDER ────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* ─── SCROLLBAR ──────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 12 12" fill="none">
+          <rect x="1" y="1" width="4" height="4" stroke="#C9B77A" stroke-width="1.2"/>
+          <rect x="7" y="1" width="4" height="4" stroke="#C9B77A" stroke-width="1.2" opacity="0.5"/>
+          <rect x="1" y="7" width="4" height="4" stroke="#C9B77A" stroke-width="1.2" opacity="0.5"/>
+          <rect x="7" y="7" width="4" height="4" stroke="#C9B77A" stroke-width="1.2" opacity="0.3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Permanence OS</div>
+      </div>
+      <div class="brand-version">v0.4</div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill">
+        <div class="dot"></div>
+        <span id="system-status-text">SYSTEM ACTIVE</span>
+      </div>
+      <div class="time-display" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-section-label">Command</div>
+    <div class="nav-item active" data-view="overview" onclick="switchView('overview', this)">
+      <span>⬡</span> Overview
+    </div>
+    <div class="nav-item" data-view="approvals" onclick="switchView('approvals', this)">
+      <span>◈</span> Approvals
+      <span class="nav-badge" id="approval-badge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-view="briefing" onclick="switchView('briefing', this)">
+      <span>◉</span> Briefing
+    </div>
+
+    <div class="nav-section-label">Intelligence</div>
+    <div class="nav-item" data-view="horizon" onclick="switchView('horizon', this)">
+      <span>◎</span> Horizon
+    </div>
+    <div class="nav-item" data-view="memory" onclick="switchView('memory', this)">
+      <span>◫</span> Memory
+    </div>
+
+    <div class="nav-section-label">Governance</div>
+    <div class="nav-item" data-view="canon" onclick="switchView('canon', this)">
+      <span>⬟</span> Canon
+    </div>
+    <div class="nav-item" data-view="logs" onclick="switchView('logs', this)">
+      <span>◱</span> Audit Log
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="view active" id="view-overview">
+      <div class="page-header">
+        <div class="page-title">Overview</div>
+        <div class="page-subtitle">System state at a glance</div>
+      </div>
+
+      <div class="grid-4">
+        <div class="card stat-alert" id="stat-approvals">
+          <div class="card-label">Pending Approvals</div>
+          <div class="card-value" id="stat-approvals-val">—</div>
+          <div class="card-sub">Require your decision</div>
+        </div>
+        <div class="card stat-safe" id="stat-tests">
+          <div class="card-label">Tests Passing</div>
+          <div class="card-value" id="stat-tests-val">—</div>
+          <div class="card-sub">Canon fidelity confirmed</div>
+        </div>
+        <div class="card stat-gold">
+          <div class="card-label">Canon Version</div>
+          <div class="card-value" id="stat-canon-ver" style="font-size:18px">—</div>
+          <div class="card-sub">Constitutional law</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Horizon Reports</div>
+          <div class="card-value" id="stat-horizon-val">—</div>
+          <div class="card-sub">Elevation proposals</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Agent Status</div>
+          <div class="agent-list" id="agent-list">
+            <div class="empty">Loading agents...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Architecture</div>
+          <div style="font-size:12px; color: var(--text-sub); font-family: var(--mono); line-height: 2;">
+            <div style="color: var(--text)">Layer 0 — Human (Payton) · Final Authority</div>
+            <div>Layer 1 — Base Canon · Constitutional Law</div>
+            <div>Layer 2 — Polemarch · Governor & Router</div>
+            <div>Layer 3 — Executive Bots · Strategy</div>
+            <div>Layer 4 — Department Bots · Specialized Work</div>
+            <div>Layer 5 — Audit Loop · Evolution & Learning</div>
+            <div style="margin-top:12px; color: var(--muted)">+ Horizon Agent · Landscape Observer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── APPROVALS ── -->
+    <div class="view" id="view-approvals">
+      <div class="page-header">
+        <div class="page-title">Approval Queue</div>
+        <div class="page-subtitle">Human authority is final. All HIGH risk actions wait here.</div>
+      </div>
+      <div class="approval-list" id="approval-list">
+        <div class="empty">
+          <div class="empty-icon">◈</div>
+          Loading approval queue...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BRIEFING ── -->
+    <div class="view" id="view-briefing">
+      <div class="page-header">
+        <div class="page-title">Daily Briefing</div>
+        <div class="page-subtitle">Intelligence summary — compressed, sourced, actionable</div>
+      </div>
+      <div class="card">
+        <div class="briefing-content" id="briefing-content">
+          <div class="empty">Loading briefing...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HORIZON ── -->
+    <div class="view" id="view-horizon">
+      <div class="page-header">
+        <div class="page-title">Horizon Agent</div>
+        <div class="page-subtitle">Landscape observation. Elevation proposals. You decide what becomes law.</div>
+      </div>
+      <div id="horizon-content">
+        <div class="empty">
+          <div class="empty-icon">◎</div>
+          Loading horizon reports...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MEMORY ── -->
+    <div class="view" id="view-memory">
+      <div class="page-header">
+        <div class="page-title">Episodic Memory</div>
+        <div class="page-subtitle">What happened. What worked. What failed. Append-only.</div>
+      </div>
+      <div class="card">
+        <div id="memory-list">
+          <div class="empty">Loading memory entries...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CANON ── -->
+    <div class="view" id="view-canon">
+      <div class="page-header">
+        <div class="page-title">The Canon</div>
+        <div class="page-subtitle">Constitutional law. Read-only here. Modify only through ceremony.</div>
+      </div>
+      <div class="canon-viewer">
+        <div class="canon-locked">
+          <span>⬟</span>
+          LOCKED — This interface is read-only. Canon amendments require human ceremony and direct file edit.
+        </div>
+        <div class="canon-content" id="canon-content">Loading Canon...</div>
+      </div>
+    </div>
+
+    <!-- ── LOGS ── -->
+    <div class="view" id="view-logs">
+      <div class="page-header">
+        <div class="page-title">Audit Log</div>
+        <div class="page-subtitle">Append-only. Every decision recorded. Nothing hidden.</div>
+      </div>
+      <div class="log-stream" id="log-stream">Loading logs...</div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const API_BASE = window.location.protocol.startsWith("http")
+  ? `${window.location.origin}/api`
+  : "http://127.0.0.1:8000/api";
+let refreshInterval = null;
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function switchView(viewId, el) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById(`view-${viewId}`).classList.add("active");
+  if (el) el.classList.add("active");
+  loadView(viewId);
+}
+
+function loadView(viewId) {
+  switch(viewId) {
+    case "overview":  loadOverview(); break;
+    case "approvals": loadApprovals(); break;
+    case "briefing":  loadBriefing(); break;
+    case "horizon":   loadHorizon(); break;
+    case "memory":    loadMemory(); break;
+    case "canon":     loadCanon(); break;
+    case "logs":      loadLogs(); break;
+  }
+}
+
+// ─────────────────────────────────────────────
+// CLOCK
+// ─────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleTimeString("en-US", { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────
+async function apiFetch(endpoint) {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch(e) {
+    return null;
+  }
+}
+
+async function apiPost(endpoint, body) {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return await res.json();
+  } catch(e) {
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────
+// OVERVIEW
+// ─────────────────────────────────────────────
+async function loadOverview() {
+  const data = await apiFetch("/status");
+  if (!data) {
+    document.getElementById("system-status-text").textContent = "API OFFLINE";
+    return;
+  }
+
+  // Stats
+  const pending = data.queue?.pending_approvals ?? 0;
+  document.getElementById("stat-approvals-val").textContent = pending;
+  document.getElementById("stat-tests-val").textContent =
+    data.tests?.passing !== undefined ? `${data.tests.passing}` : "—";
+  document.getElementById("stat-canon-ver").textContent =
+    data.canon?.version ?? "—";
+  document.getElementById("stat-horizon-val").textContent =
+    data.horizon?.reports_generated ?? 0;
+
+  // Badge
+  const badge = document.getElementById("approval-badge");
+  if (pending > 0) {
+    badge.textContent = pending;
+    badge.style.display = "block";
+  } else {
+    badge.style.display = "none";
+  }
+
+  // Agents
+  const agents = data.agents ?? {};
+  const agentDefs = [
+    { key: "polemarch",  label: "Polemarch",  role: "Governor & Router" },
+    { key: "researcher", label: "Researcher", role: "Data Gatherer" },
+    { key: "planner",    label: "Planner",    role: "Task Specification" },
+    { key: "executor",   label: "Executor",   role: "Output Producer" },
+    { key: "reviewer",   label: "Reviewer",   role: "Quality Evaluator" },
+    { key: "horizon",    label: "Horizon",    role: "Landscape Observer" },
+  ];
+
+  document.getElementById("agent-list").innerHTML = agentDefs.map(a => {
+    const info = agents[a.key] ?? {};
+    const status = info.status ?? "NOT_YET_RUN";
+    const badgeClass = {
+      "ACTIVE": "badge-active",
+      "NOT_YET_RUN": "badge-offline",
+      "ERROR": "badge-alert",
+    }[status] ?? "badge-offline";
+    const lastActive = info.last_active
+      ? new Date(info.last_active).toLocaleString()
+      : "Never";
+
+    return `
+      <div class="agent-row">
+        <div>
+          <div class="agent-name">${a.label}</div>
+          <div class="agent-role">${a.role} · ${lastActive}</div>
+        </div>
+        <span class="agent-status-badge ${badgeClass}">${status}</span>
+      </div>`;
+  }).join("");
+}
+
+// ─────────────────────────────────────────────
+// APPROVALS
+// ─────────────────────────────────────────────
+async function loadApprovals() {
+  const data = await apiFetch("/approvals");
+  const list = document.getElementById("approval-list");
+
+  if (!data || data.total_pending === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">◈</div>
+        No pending approvals. System is in balance.
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = data.approvals.map(a => {
+    const priority = (a.priority ?? "MEDIUM").toLowerCase();
+    const pClass = { high: "p-high", medium: "p-medium", low: "p-low" }[priority] ?? "p-medium";
+    const id = a.proposal_id ?? a.id ?? a.approval_id ?? "unknown";
+
+    return `
+      <div class="approval-card ${priority}" id="approval-${id}">
+        <div class="approval-header">
+          <div>
+            <div class="approval-title">${a.title ?? "Pending Action"}</div>
+            <div class="approval-meta">
+              ${a.implementation_scope ?? "review"} · Created ${a.created_at ? new Date(a.created_at).toLocaleDateString() : "—"}
+            </div>
+          </div>
+          <span class="priority-tag ${pClass}">${(a.priority ?? "MEDIUM").toUpperCase()}</span>
+        </div>
+        <div class="approval-body">
+          ${a.finding_summary ?? a.proposed_change ?? "See full report for details."}
+        </div>
+        ${a.draft_codex_task ? `<div class="approval-body" style="font-size:11px; color: var(--muted); margin-bottom: 10px;">
+          Codex task: ${a.draft_codex_task}
+        </div>` : ""}
+        <div class="approval-actions">
+          <button class="btn btn-approve" onclick="approveItem('${id}')">Approve</button>
+          <button class="btn btn-reject" onclick="rejectItem('${id}')">Reject</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+async function approveItem(id) {
+  const notes = prompt("Add notes (optional):", "") ?? "";
+  const result = await apiPost(`/approvals/${id}/approve`, { notes });
+  if (result) {
+    const el = document.getElementById(`approval-${id}`);
+    if (el) {
+      el.style.opacity = "0.4";
+      el.style.pointerEvents = "none";
+      el.querySelector(".approval-actions").innerHTML =
+        `<span style="color: var(--safe); font-size: 12px; font-family: var(--mono);">✓ APPROVED · ${new Date().toLocaleTimeString()}</span>`;
+    }
+  }
+}
+
+async function rejectItem(id) {
+  const reason = prompt("Rejection reason (required):");
+  if (!reason) return;
+  const result = await apiPost(`/approvals/${id}/reject`, { reason });
+  if (result) {
+    const el = document.getElementById(`approval-${id}`);
+    if (el) {
+      el.style.opacity = "0.4";
+      el.style.pointerEvents = "none";
+      el.querySelector(".approval-actions").innerHTML =
+        `<span style="color: var(--alert); font-size: 12px; font-family: var(--mono);">✗ REJECTED · ${new Date().toLocaleTimeString()}</span>`;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// BRIEFING
+// ─────────────────────────────────────────────
+async function loadBriefing() {
+  const data = await apiFetch("/briefings/latest");
+  const el = document.getElementById("briefing-content");
+
+  if (!data) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◉</div>No briefing found. Run the Briefing Agent to generate one.</div>`;
+    return;
+  }
+
+  // Render briefing data — adapt to your actual briefing JSON structure
+  const sections = data.sections ?? data.categories ?? { "Briefing": [data] };
+  el.innerHTML = Object.entries(sections).map(([title, items]) => `
+    <div class="briefing-section">
+      <div class="briefing-section-title">${title}</div>
+      ${Array.isArray(items) ? items.map(item => `
+        <div class="briefing-item">
+          ${item.summary ?? item.content ?? JSON.stringify(item).slice(0, 200)}
+          ${item.source ? `<div class="briefing-source">${item.source}</div>` : ""}
+        </div>`).join("") : `<div class="briefing-item">${JSON.stringify(items)}</div>`}
+    </div>`).join("");
+}
+
+// ─────────────────────────────────────────────
+// HORIZON
+// ─────────────────────────────────────────────
+async function loadHorizon() {
+  const data = await apiFetch("/horizon/latest");
+  const el = document.getElementById("horizon-content");
+
+  if (!data) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◎</div>No horizon report found. Run <span style="font-family:var(--mono)">python horizon_agent.py</span> to generate one.</div>`;
+    return;
+  }
+
+  const proposals = data.proposals ?? [];
+  const aheads = data.ahead_confirmations ?? [];
+
+  el.innerHTML = `
+    <div class="grid-3" style="margin-bottom: 20px;">
+      <div class="card">
+        <div class="card-label">Signals Observed</div>
+        <div class="card-value">${data.signals_observed ?? 0}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Signals Filtered</div>
+        <div class="card-value" style="color: var(--muted)">${data.signals_filtered ?? 0}</div>
+      </div>
+      <div class="card stat-gold">
+        <div class="card-label">Proposals</div>
+        <div class="card-value">${proposals.length}</div>
+      </div>
+    </div>
+
+    ${aheads.length ? `
+    <div class="card" style="margin-bottom:16px; border-left: 3px solid var(--safe);">
+      <div class="card-title" style="color: var(--safe)">Where We're Ahead</div>
+      ${aheads.map(a => `<div style="font-size:12px; color: var(--text-sub); padding: 6px 0; border-bottom: 1px solid var(--border);">${a}</div>`).join("")}
+    </div>` : ""}
+
+    <div style="font-size:13px; font-weight:600; color: var(--text); margin-bottom: 12px;">Elevation Proposals</div>
+    ${proposals.length === 0
+      ? `<div class="empty">No proposals this cycle. System is current.</div>`
+      : proposals.map(p => `
+        <div class="elevation-card">
+          <div class="elevation-title">${p.title}</div>
+          <div class="elevation-body">${p.finding_summary}</div>
+          <div class="elevation-body" style="margin-top:8px; color: var(--text);">
+            <strong>Proposed:</strong> ${p.proposed_change}
+          </div>
+          <div class="elevation-body" style="margin-top:4px;">
+            <strong>Risk if ignored:</strong> ${p.risk_if_ignored}
+          </div>
+          <span class="elevation-scope">${p.implementation_scope ?? "review"}</span>
+        </div>`).join("")
+    }`;
+}
+
+// ─────────────────────────────────────────────
+// MEMORY
+// ─────────────────────────────────────────────
+async function loadMemory() {
+  const data = await apiFetch("/memory/episodic?limit=20");
+  const el = document.getElementById("memory-list");
+
+  if (!data || data.count === 0) {
+    el.innerHTML = `<div class="empty">No episodic memory entries yet.</div>`;
+    return;
+  }
+
+  el.innerHTML = data.entries.map(e => `
+    <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+      <div style="font-size:13px; font-weight:500; color: var(--text); margin-bottom:4px;">
+        ${e.task_id ?? "Unknown Task"}
+      </div>
+      <div style="font-size:12px; color: var(--text-sub);">${e.action_taken ?? "—"}</div>
+      <div style="font-size:11px; color: var(--muted); margin-top:4px; font-family: var(--mono)">
+        ${e.timestamp ?? ""} · ${e.review_result ?? "—"}
+      </div>
+    </div>`).join("");
+}
+
+// ─────────────────────────────────────────────
+// CANON
+// ─────────────────────────────────────────────
+async function loadCanon() {
+  const data = await apiFetch("/canon");
+  const el = document.getElementById("canon-content");
+
+  if (!data) {
+    el.textContent = "Could not load Canon. Check that the API is running.";
+    return;
+  }
+
+  const files = data.files ?? {};
+  if (Object.keys(files).length === 0) {
+    el.textContent = "No Canon files found at " + (data.path ?? "canon/");
+    return;
+  }
+
+  el.textContent = Object.entries(files).map(([name, content]) =>
+    `\n${"─".repeat(60)}\n// ${name}\n${"─".repeat(60)}\n\n${content}`
+  ).join("\n\n");
+}
+
+// ─────────────────────────────────────────────
+// LOGS
+// ─────────────────────────────────────────────
+async function loadLogs() {
+  const data = await apiFetch("/logs?limit=100");
+  const el = document.getElementById("log-stream");
+
+  if (!data || data.count === 0) {
+    el.innerHTML = `<div class="empty">No log entries found.</div>`;
+    return;
+  }
+
+  el.innerHTML = data.entries.map(line => {
+    const match = line.match(/\[(.+?)\] \[(.+?)\] (.+)/);
+    if (match) {
+      return `<div class="log-entry">
+        <span class="log-time">${match[1].slice(11,19)}</span>
+        <span style="color: var(--dim)"> │ </span>
+        <span class="log-agent">${match[2]}</span>
+        <span style="color: var(--dim)"> │ </span>
+        <span class="log-msg">${match[3]}</span>
+      </div>`;
+    }
+    return `<div class="log-entry log-msg">${line}</div>`;
+  }).join("");
+
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+loadOverview();
+// Auto-refresh every 30 seconds
+setInterval(() => {
+  const active = document.querySelector(".nav-item.active")?.dataset?.view;
+  if (active) loadView(active);
+}, 30000);
+</script>
+</body>
+</html>
