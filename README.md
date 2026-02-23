@@ -220,6 +220,9 @@ python cli.py git-autocommit
 
 Automation writes a one-line quick status file to storage logs:
 - `status_today.txt`
+
+One-click desktop launcher:
+- `/Users/paytonhicks/Desktop/Start_Permanence_Command_Center.command`
 - `status_today.json`
 
 Ari receptionist can run in automation mode:

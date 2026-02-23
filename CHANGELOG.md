@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Added live command center stack files at repo root: `dashboard_api.py`, `dashboard_index.html`, and `horizon_agent.py`
 - Added `scripts/command_center.py` one-command launcher for dashboard API + UI (optional Horizon pre-run)
+- Added `scripts/launch_command_center.sh` helper for one-click local startup
 - Added `command-center` CLI command with host/port, auto-open, and Horizon demo flags
 - Dashboard API host/port now support env overrides via `PERMANENCE_DASHBOARD_HOST` and `PERMANENCE_DASHBOARD_PORT`
 - Added Canon Amendment CA-013 brand identity context (`canon/brand_identity.yaml`)
