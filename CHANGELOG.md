@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
   - `scripts/chronicle_capture.py`
   - `scripts/chronicle_report.py`
   - shared helpers in `scripts/chronicle_common.py`
+- `git-autocommit`/`git-sync` now append chronicle events for commit/push actions
 - Added CLI commands: `chronicle-backfill`, `chronicle-capture`, and `chronicle-report`
 - Added `git-sync` CLI command for one-step commit + push during active development
 - Added `--push`, `--remote`, and `--branch` options to `git-autocommit`

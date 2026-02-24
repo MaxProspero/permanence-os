@@ -348,6 +348,7 @@ python cli.py git-autocommit
 python cli.py git-autocommit --push
 python cli.py git-sync
 ```
+`git-autocommit` and `git-sync` now append a chronicle event when they create and/or push a commit.
 
 ### Chronicle (History + Book References)
 Generate timestamped history reports from local artifacts and keep ongoing session logs:
