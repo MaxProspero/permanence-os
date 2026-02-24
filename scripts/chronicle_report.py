@@ -76,6 +76,7 @@ def _build_md(report: dict[str, Any]) -> str:
             f"- Issue hits: {report['signal_totals']['issue_hits']}",
             f"- Log error hits: {report['signal_totals']['log_error_hits']}",
             f"- Log warning hits: {report['signal_totals']['log_warning_hits']}",
+            f"- Backfill records analyzed: {report['signal_totals']['backfill_records_analyzed']}",
             "",
             "## Timeline",
         ]
@@ -147,6 +148,10 @@ def main() -> int:
     issue_hits = 0
     log_error_hits = 0
     log_warning_hits = 0
+    backfill_direction_hits = 0
+    backfill_frustration_hits = 0
+    backfill_issue_hits = 0
+    backfill_records_analyzed = 0
     timeline: list[dict[str, str]] = []
     direction_events: list[dict[str, str]] = []
     issue_events: list[dict[str, str]] = []
@@ -190,6 +195,26 @@ def main() -> int:
             if isinstance(value, str) and value:
                 source_artifacts.append(value)
 
+        if et == "backfill_scan":
+            snapshot_json = ev.get("snapshot_json")
+            if isinstance(snapshot_json, str) and snapshot_json:
+                snapshot_path = Path(snapshot_json)
+                if snapshot_path.exists():
+                    try:
+                        data = json.loads(snapshot_path.read_text(encoding="utf-8"))
+                    except Exception:
+                        data = {}
+                    records = data.get("records")
+                    if isinstance(records, list):
+                        for rec in records:
+                            if not isinstance(rec, dict):
+                                continue
+                            sig = rec.get("signals") or {}
+                            backfill_direction_hits += int(sig.get("direction_hits", 0))
+                            backfill_frustration_hits += int(sig.get("frustration_hits", 0))
+                            backfill_issue_hits += int(sig.get("issue_hits", 0))
+                            backfill_records_analyzed += 1
+
     source_artifacts = sorted(set(source_artifacts))
 
     report = {
@@ -199,11 +224,12 @@ def main() -> int:
         "commit_count": len(commits),
         "event_type_counts": dict(event_type_counts),
         "signal_totals": {
-            "direction_hits": direction_hits,
-            "frustration_hits": frustration_hits,
-            "issue_hits": issue_hits,
+            "direction_hits": direction_hits + backfill_direction_hits,
+            "frustration_hits": frustration_hits + backfill_frustration_hits,
+            "issue_hits": issue_hits + backfill_issue_hits,
             "log_error_hits": log_error_hits,
             "log_warning_hits": log_warning_hits,
+            "backfill_records_analyzed": backfill_records_analyzed,
         },
         "timeline": timeline,
         "direction_events": direction_events[-80:],
