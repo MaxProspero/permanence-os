@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report
 """
 
 import argparse
@@ -1192,6 +1192,75 @@ def main() -> int:
                 *(["--message", args.message] if args.message else []),
                 *(["--remote", args.remote] if args.remote else []),
                 *(["--branch", args.branch] if args.branch else []),
+            ]
+        )
+    )
+
+    chronicle_backfill_p = sub.add_parser(
+        "chronicle-backfill",
+        help="Backfill timeline artifacts from local folders",
+    )
+    chronicle_backfill_p.add_argument("--roots", nargs="*", help="Roots to scan")
+    chronicle_backfill_p.add_argument("--since-days", type=int, help="Lookback window in days")
+    chronicle_backfill_p.add_argument("--max-files", type=int, default=4000, help="Maximum files to process")
+    chronicle_backfill_p.add_argument("--sample-chars", type=int, default=1200, help="Excerpt chars for signal scan")
+    chronicle_backfill_p.add_argument("--output", help="Output markdown path")
+    chronicle_backfill_p.add_argument("--no-events", action="store_true", help="Do not append event entry")
+    chronicle_backfill_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_backfill.py"),
+                *(["--roots"] + args.roots if args.roots else []),
+                *(["--since-days", str(args.since_days)] if args.since_days else []),
+                *(["--max-files", str(args.max_files)] if args.max_files else []),
+                *(["--sample-chars", str(args.sample_chars)] if args.sample_chars else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--no-events"] if args.no_events else []),
+            ]
+        )
+    )
+
+    chronicle_capture_p = sub.add_parser(
+        "chronicle-capture",
+        help="Capture current session state into chronicle log",
+    )
+    chronicle_capture_p.add_argument("--note", default="", help="Session note")
+    chronicle_capture_p.add_argument("--chat-file", help="Optional chat export/text file path")
+    chronicle_capture_p.add_argument("--tag", action="append", default=[], help="Tag (repeatable)")
+    chronicle_capture_p.add_argument("--max-log-lines", type=int, default=200, help="Recent lines per log file")
+    chronicle_capture_p.add_argument("--sample-chars", type=int, default=1200, help="Excerpt chars for chat signal scan")
+    chronicle_capture_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_capture.py"),
+                *(["--note", args.note] if args.note else []),
+                *(["--chat-file", args.chat_file] if args.chat_file else []),
+                *([arg for tag in args.tag for arg in ("--tag", tag)] if args.tag else []),
+                *(["--max-log-lines", str(args.max_log_lines)] if args.max_log_lines else []),
+                *(["--sample-chars", str(args.sample_chars)] if args.sample_chars else []),
+            ]
+        )
+    )
+
+    chronicle_report_p = sub.add_parser(
+        "chronicle-report",
+        help="Generate timeline report from chronicle + git history",
+    )
+    chronicle_report_p.add_argument("--days", type=int, default=180, help="Lookback window in days")
+    chronicle_report_p.add_argument("--max-events", type=int, default=400, help="Maximum timeline events")
+    chronicle_report_p.add_argument("--max-commits", type=int, default=120, help="Maximum commits")
+    chronicle_report_p.add_argument("--output", help="Output markdown path")
+    chronicle_report_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_report.py"),
+                *(["--days", str(args.days)] if args.days else []),
+                *(["--max-events", str(args.max_events)] if args.max_events else []),
+                *(["--max-commits", str(args.max_commits)] if args.max_commits else []),
+                *(["--output", args.output] if args.output else []),
             ]
         )
     )

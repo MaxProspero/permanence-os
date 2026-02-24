@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added chronicle system for historical backfill and ongoing timeline reporting:
+  - `scripts/chronicle_backfill.py`
+  - `scripts/chronicle_capture.py`
+  - `scripts/chronicle_report.py`
+  - shared helpers in `scripts/chronicle_common.py`
+- Added CLI commands: `chronicle-backfill`, `chronicle-capture`, and `chronicle-report`
 - Added `git-sync` CLI command for one-step commit + push during active development
 - Added `--push`, `--remote`, and `--branch` options to `git-autocommit`
 - Added live command center stack files at repo root: `dashboard_api.py`, `dashboard_index.html`, and `horizon_agent.py`

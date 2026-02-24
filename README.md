@@ -218,6 +218,9 @@ python cli.py cleanup-weekly
 python cli.py git-autocommit
 python cli.py git-autocommit --push
 python cli.py git-sync
+python cli.py chronicle-backfill
+python cli.py chronicle-capture --note "session summary"
+python cli.py chronicle-report --days 365
 ```
 
 Automation writes a one-line quick status file to storage logs:
@@ -345,6 +348,24 @@ python cli.py git-autocommit
 python cli.py git-autocommit --push
 python cli.py git-sync
 ```
+
+### Chronicle (History + Book References)
+Generate timestamped history reports from local artifacts and keep ongoing session logs:
+```bash
+python scripts/chronicle_backfill.py
+python scripts/chronicle_capture.py --note "what changed today"
+python scripts/chronicle_report.py --days 365
+python cli.py chronicle-backfill
+python cli.py chronicle-capture --note "what changed today"
+python cli.py chronicle-report --days 365
+```
+
+Outputs:
+- `outputs/chronicle/chronicle_backfill_*.md` and `.json`
+- `outputs/chronicle/chronicle_report_*.md` and `.json`
+- `memory/chronicle/events.jsonl`
+
+Note: private chat platforms (ChatGPT/Claude/Gemini/Grok) are only ingested when their exports are saved locally and provided as files.
 
 ### Canon Change Draft (Memory Promotion)
 ```bash

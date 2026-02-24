@@ -10,9 +10,13 @@ memory/tool/*
 memory/episodic/*.json
 memory/episodic/*.jsonl
 memory/approvals.json
+memory/chronicle/events.jsonl
+memory/chronicle/backfill_index.json
 outputs/*.md
 outputs/*.txt
 outputs/*.json
 outputs/horizon/*.json
+outputs/chronicle/*.md
+outputs/chronicle/*.json
 permanence_storage/
 .DS_Store
