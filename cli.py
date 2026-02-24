@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -769,6 +769,27 @@ def main() -> int:
                 *(["--local-path", args.local_path] if args.local_path else []),
                 *(["--dry-run"] if args.dry_run else []),
                 *(["--print-cmd"] if args.print_cmd else []),
+            ]
+        )
+    )
+
+    remote_ready_p = sub.add_parser(
+        "remote-ready",
+        help="Check away-mode readiness (Tailscale, SSH, awake, automation)",
+    )
+    remote_ready_p.add_argument(
+        "--skip-awake-check",
+        action="store_true",
+        help="Do not require caffeinate keep-awake for readiness",
+    )
+    remote_ready_p.add_argument("--json-output", help="Optional path to write JSON result")
+    remote_ready_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "remote_ready.py"),
+                *(["--skip-awake-check"] if args.skip_awake_check else []),
+                *(["--json-output", args.json_output] if args.json_output else []),
             ]
         )
     )

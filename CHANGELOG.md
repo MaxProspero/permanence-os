@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
   - optional Drive mirror and SMTP email delivery
 - Automation runner (`automation/run_briefing.sh`) now supports chronicle auto-capture/report/publish on schedule via `PERMANENCE_CHRONICLE_AUTOPUBLISH`
 - Added `chronicle-publish` CLI command
+- Added `scripts/remote_ready.py` and `remote-ready` CLI command for away-mode checks (Tailscale + SSH + awake + automation)
 - Added chronicle context loader/injection in `context_loader.py` for self-improvement tasks
 - Executor now can inject chronicle context in addition to brand voice context
 - Horizon Agent now reads latest chronicle context and can generate chronicle-driven refinement proposals

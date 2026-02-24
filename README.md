@@ -203,6 +203,7 @@ python cli.py status-glance
 python cli.py dell-cutover-verify
 python cli.py ari-reception --action summary
 python cli.py sandra-reception --action summary
+python cli.py remote-ready
 python cli.py ari-reception --action intake --sender "Payton" --message "Need review of weekly phase gate" --channel discord
 python cli.py email-triage
 python cli.py gmail-ingest
@@ -386,6 +387,18 @@ Google Drive/iPad visibility:
 
 Email delivery:
 - `chronicle-publish` supports SMTP flags (`--email-to`, `--smtp-host`, `--smtp-user`, `--smtp-password`, `--smtp-from`) for sending the latest summary/report attachments.
+
+### Away Mode (iPad / Remote)
+Use one command to verify if the Mac is ready for remote operation:
+```bash
+python cli.py remote-ready
+python cli.py remote-ready --json-output outputs/remote_ready.json
+```
+
+One-time setup if `remote-ready` reports SSH as OFF:
+- macOS: `System Settings > General > Sharing > Remote Login` -> ON
+- keep Tailscale running
+- keep `caffeinate` running when away for long sessions
 
 ### Canon Change Draft (Memory Promotion)
 ```bash
