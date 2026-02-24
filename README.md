@@ -367,6 +367,8 @@ Outputs:
 - `memory/chronicle/events.jsonl`
 
 Note: private chat platforms (ChatGPT/Claude/Gemini/Grok) are only ingested when their exports are saved locally and provided as files.
+Recommended drop zone for chat exports:
+- `memory/chronicle/chat_exports/`
 
 ### Canon Change Draft (Memory Promotion)
 ```bash
