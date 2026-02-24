@@ -216,6 +216,8 @@ python cli.py snapshot
 python cli.py v04-snapshot
 python cli.py cleanup-weekly
 python cli.py git-autocommit
+python cli.py git-autocommit --push
+python cli.py git-sync
 ```
 
 Automation writes a one-line quick status file to storage logs:
@@ -337,8 +339,11 @@ python cli.py v04-snapshot
 ```bash
 python scripts/cleanup_weekly.py
 python scripts/git_autocommit.py
+python scripts/git_autocommit.py --push
 python cli.py cleanup-weekly
 python cli.py git-autocommit
+python cli.py git-autocommit --push
+python cli.py git-sync
 ```
 
 ### Canon Change Draft (Memory Promotion)

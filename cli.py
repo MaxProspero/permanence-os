@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync
 """
 
 import argparse
@@ -1159,6 +1159,9 @@ def main() -> int:
 
     git_auto_p = sub.add_parser("git-autocommit", help="Auto-commit tracked changes")
     git_auto_p.add_argument("--message", help="Commit message")
+    git_auto_p.add_argument("--push", action="store_true", help="Push after commit")
+    git_auto_p.add_argument("--remote", default="origin", help="Remote name for push")
+    git_auto_p.add_argument("--branch", help="Branch name override for push")
     git_auto_p.set_defaults(
         func=lambda args: _run(
             [
@@ -1167,6 +1170,28 @@ def main() -> int:
                 "--repo",
                 BASE_DIR,
                 *(["--message", args.message] if args.message else []),
+                *(["--push"] if args.push else []),
+                *(["--remote", args.remote] if args.remote else []),
+                *(["--branch", args.branch] if args.branch else []),
+            ]
+        )
+    )
+
+    git_sync_p = sub.add_parser("git-sync", help="Auto-commit and push to remote")
+    git_sync_p.add_argument("--message", help="Commit message")
+    git_sync_p.add_argument("--remote", default="origin", help="Remote name for push")
+    git_sync_p.add_argument("--branch", help="Branch name override for push")
+    git_sync_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "git_autocommit.py"),
+                "--repo",
+                BASE_DIR,
+                "--push",
+                *(["--message", args.message] if args.message else []),
+                *(["--remote", args.remote] if args.remote else []),
+                *(["--branch", args.branch] if args.branch else []),
             ]
         )
     )

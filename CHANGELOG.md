@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added `git-sync` CLI command for one-step commit + push during active development
+- Added `--push`, `--remote`, and `--branch` options to `git-autocommit`
 - Added live command center stack files at repo root: `dashboard_api.py`, `dashboard_index.html`, and `horizon_agent.py`
 - Added `scripts/command_center.py` one-command launcher for dashboard API + UI (optional Horizon pre-run)
 - Added `scripts/launch_command_center.sh` helper for one-click local startup
