@@ -221,6 +221,7 @@ python cli.py git-sync
 python cli.py chronicle-backfill
 python cli.py chronicle-capture --note "session summary"
 python cli.py chronicle-report --days 365
+python cli.py chronicle-publish --docx
 ```
 
 Automation writes a one-line quick status file to storage logs:
@@ -245,6 +246,10 @@ Reliability watch can run in background for a fixed 7-day window:
 - `python cli.py reliability-watch --status`
 - `python cli.py reliability-watch --disarm`
 - helper scripts: `bash automation/setup_reliability_watch.sh` and `bash automation/disable_reliability_watch.sh`
+
+Chronicle auto-publish in automation runs:
+- `automation/run_briefing.sh` now runs `chronicle-capture`, `chronicle-report`, and `chronicle-publish` when `PERMANENCE_CHRONICLE_AUTOPUBLISH=1` (default).
+- Optional env vars: `PERMANENCE_CHRONICLE_DAYS` and `PERMANENCE_CHRONICLE_DRIVE_DIR`.
 
 ### OpenClaw Integration (Local)
 Set the OpenClaw CLI path (if not default):
@@ -356,19 +361,31 @@ Generate timestamped history reports from local artifacts and keep ongoing sessi
 python scripts/chronicle_backfill.py
 python scripts/chronicle_capture.py --note "what changed today"
 python scripts/chronicle_report.py --days 365
+python scripts/chronicle_publish.py --docx
 python cli.py chronicle-backfill
 python cli.py chronicle-capture --note "what changed today"
 python cli.py chronicle-report --days 365
+python cli.py chronicle-publish --docx
 ```
 
 Outputs:
 - `outputs/chronicle/chronicle_backfill_*.md` and `.json`
 - `outputs/chronicle/chronicle_report_*.md` and `.json`
 - `memory/chronicle/events.jsonl`
+- `memory/chronicle/shared/chronicle_latest.json`
+- `memory/chronicle/shared/chronicle_latest.md`
+- `memory/chronicle/shared/chronicle_latest_summary.md`
+- `memory/chronicle/shared/chronicle_latest_manifest.json`
 
 Note: private chat platforms (ChatGPT/Claude/Gemini/Grok) are only ingested when their exports are saved locally and provided as files.
 Recommended drop zone for chat exports:
 - `memory/chronicle/chat_exports/`
+
+Google Drive/iPad visibility:
+- Use `python cli.py chronicle-publish --drive-dir "/path/to/Google Drive/folder"` to mirror shareable files into a synced Drive folder.
+
+Email delivery:
+- `chronicle-publish` supports SMTP flags (`--email-to`, `--smtp-host`, `--smtp-user`, `--smtp-password`, `--smtp-from`) for sending the latest summary/report attachments.
 
 ### Canon Change Draft (Memory Promotion)
 ```bash

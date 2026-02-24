@@ -1264,6 +1264,45 @@ def main() -> int:
             ]
         )
     )
+
+    chronicle_publish_p = sub.add_parser(
+        "chronicle-publish",
+        help="Publish latest chronicle report for agents, Drive mirror, and optional email",
+    )
+    chronicle_publish_p.add_argument("--report-json", help="Chronicle report JSON path")
+    chronicle_publish_p.add_argument("--report-md", help="Chronicle report markdown path")
+    chronicle_publish_p.add_argument("--output-dir", help="Shared output directory")
+    chronicle_publish_p.add_argument("--drive-dir", help="Optional Google Drive desktop-sync destination")
+    chronicle_publish_p.add_argument("--docx", action="store_true", help="Also export summary as DOCX")
+    chronicle_publish_p.add_argument("--email-to", action="append", default=[], help="Email recipient (repeatable)")
+    chronicle_publish_p.add_argument("--email-subject", help="Email subject")
+    chronicle_publish_p.add_argument("--smtp-host", help="SMTP host")
+    chronicle_publish_p.add_argument("--smtp-port", type=int, help="SMTP port")
+    chronicle_publish_p.add_argument("--smtp-user", help="SMTP username")
+    chronicle_publish_p.add_argument("--smtp-password", help="SMTP password")
+    chronicle_publish_p.add_argument("--smtp-from", help="SMTP sender address")
+    chronicle_publish_p.add_argument("--no-starttls", action="store_true", help="Disable SMTP STARTTLS")
+    chronicle_publish_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_publish.py"),
+                *(["--report-json", args.report_json] if args.report_json else []),
+                *(["--report-md", args.report_md] if args.report_md else []),
+                *(["--output-dir", args.output_dir] if args.output_dir else []),
+                *(["--drive-dir", args.drive_dir] if args.drive_dir else []),
+                *(["--docx"] if args.docx else []),
+                *([arg for recipient in args.email_to for arg in ("--email-to", recipient)] if args.email_to else []),
+                *(["--email-subject", args.email_subject] if args.email_subject else []),
+                *(["--smtp-host", args.smtp_host] if args.smtp_host else []),
+                *(["--smtp-port", str(args.smtp_port)] if args.smtp_port else []),
+                *(["--smtp-user", args.smtp_user] if args.smtp_user else []),
+                *(["--smtp-password", args.smtp_password] if args.smtp_password else []),
+                *(["--smtp-from", args.smtp_from] if args.smtp_from else []),
+                *(["--no-starttls"] if args.no_starttls else []),
+            ]
+        )
+    )
     args = parser.parse_args()
     return args.func(args)
 

@@ -12,9 +12,20 @@ import re
 
 from agents.utils import log, BASE_DIR
 try:
-    from context_loader import inject_brand_context_if_needed
+    from context_loader import (
+        inject_brand_context_if_needed,
+        inject_chronicle_context_if_needed,
+    )
 except Exception:  # pragma: no cover - fallback when brand context is unavailable
     def inject_brand_context_if_needed(task_goal: str, base_system_prompt: str, level: str = "voice") -> str:
+        return base_system_prompt
+
+    def inject_chronicle_context_if_needed(
+        task_goal: str,
+        base_system_prompt: str,
+        max_direction_events: int = 3,
+        max_issue_events: int = 3,
+    ) -> str:
         return base_system_prompt
 
 OUTPUT_DIR = os.getenv("PERMANENCE_OUTPUT_DIR", os.path.join(BASE_DIR, "outputs"))
@@ -55,9 +66,12 @@ class ExecutorAgent:
         inputs = inputs or {}
         task_goal = str(spec.get("goal", ""))
         executor_prompt = self._build_system_prompt(task_goal)
-        brand_context_loaded = executor_prompt != EXECUTOR_BASE_PROMPT
+        brand_context_loaded = "BRAND VOICE" in executor_prompt
+        chronicle_context_loaded = "CHRONICLE CONTEXT" in executor_prompt
         if brand_context_loaded:
             log("Executor loaded brand voice context (CA-013)", level="INFO")
+        if chronicle_context_loaded:
+            log("Executor loaded chronicle context (self-improvement signals)", level="INFO")
 
         sources = inputs.get("sources", [])
         draft_text = self._load_draft(inputs)
@@ -68,6 +82,8 @@ class ExecutorAgent:
             notes = ["Final output created from provided draft."]
             if brand_context_loaded:
                 notes.append("Brand voice context applied for this task.")
+            if chronicle_context_loaded:
+                notes.append("Chronicle context applied for this task.")
             return ExecutionResult(
                 status="FINAL_CREATED",
                 artifact=artifact_path,
@@ -80,6 +96,8 @@ class ExecutorAgent:
         notes = ["Compiled output created from sources without additional claims."]
         if brand_context_loaded:
             notes.append("Brand voice context applied for this task.")
+        if chronicle_context_loaded:
+            notes.append("Chronicle context applied for this task.")
         return ExecutionResult(
             status="AUTO_COMPOSED",
             artifact=artifact_path,
@@ -89,15 +107,26 @@ class ExecutorAgent:
 
     def _build_system_prompt(self, task_goal: str) -> str:
         """Build the Executor prompt and inject brand voice context when task semantics require it."""
+        prompt = EXECUTOR_BASE_PROMPT
         try:
-            return inject_brand_context_if_needed(
+            prompt = inject_brand_context_if_needed(
                 task_goal=task_goal,
-                base_system_prompt=EXECUTOR_BASE_PROMPT,
+                base_system_prompt=prompt,
                 level="voice",
             )
         except Exception as exc:  # pragma: no cover - keep executor alive on loader failure
             log(f"Executor brand context loader fallback: {exc}", level="WARNING")
-            return EXECUTOR_BASE_PROMPT
+            prompt = EXECUTOR_BASE_PROMPT
+
+        try:
+            prompt = inject_chronicle_context_if_needed(
+                task_goal=task_goal,
+                base_system_prompt=prompt,
+            )
+        except Exception as exc:  # pragma: no cover - keep executor alive on loader failure
+            log(f"Executor chronicle context loader fallback: {exc}", level="WARNING")
+
+        return prompt
 
     def _load_draft(self, inputs: Dict[str, Any]) -> Optional[str]:
         draft_text = inputs.get("draft_text")

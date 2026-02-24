@@ -42,6 +42,8 @@ PATHS = {
     "canon":    os.path.join(BASE_DIR, "canon"),
     "logs":     os.path.join(BASE_DIR, "logs"),
     "outputs":  os.path.join(BASE_DIR, "outputs"),
+    "chronicle": os.path.join(BASE_DIR, "outputs", "chronicle"),
+    "chronicle_shared": os.path.join(BASE_DIR, "memory", "chronicle", "shared"),
     "episodic": os.path.join(BASE_DIR, "memory", "episodic"),
     "horizon":  os.path.join(BASE_DIR, "outputs", "horizon"),
     "briefings":os.path.join(BASE_DIR, "outputs", "briefings"),
@@ -110,6 +112,7 @@ def system_status():
     last_briefing = _get_last_briefing_time()
     test_stats = _get_test_stats()
     horizon_reports = _count_horizon_reports()
+    chronicle_last_generated = _get_last_chronicle_time()
 
     return jsonify({
         "system": "Permanence OS",
@@ -138,6 +141,9 @@ def system_status():
         "tests": test_stats,
         "horizon": {
             "reports_generated": horizon_reports,
+        },
+        "chronicle": {
+            "last_generated": chronicle_last_generated,
         },
     })
 
@@ -278,6 +284,34 @@ def get_latest_horizon():
 
 
 # ─────────────────────────────────────────────
+# CHRONICLE REPORTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/chronicle", methods=["GET"])
+def get_chronicle_reports():
+    """Returns list of chronicle timeline reports."""
+    log_api_call("GET", "/api/chronicle")
+
+    reports = _list_chronicle_reports()
+    return jsonify({
+        "count": len(reports),
+        "reports": reports,
+    })
+
+
+@app.route("/api/chronicle/latest", methods=["GET"])
+def get_latest_chronicle():
+    """Returns latest chronicle report, preferring shared stable copy."""
+    log_api_call("GET", "/api/chronicle/latest")
+
+    report = _load_latest_chronicle_report()
+    if not report:
+        return jsonify({"error": "No chronicle reports found"}), 404
+
+    return jsonify(report)
+
+
+# ─────────────────────────────────────────────
 # CANON VIEWER (Read-Only)
 # ─────────────────────────────────────────────
 
@@ -374,6 +408,16 @@ def _count_horizon_reports() -> int:
     return len(glob.glob(os.path.join(PATHS["horizon"], "*.json")))
 
 
+def _get_last_chronicle_time() -> Optional[str]:
+    shared_latest = os.path.join(PATHS["chronicle_shared"], "chronicle_latest.json")
+    if os.path.exists(shared_latest):
+        return timestamp_to_utc_iso(os.path.getmtime(shared_latest))
+    files = sorted(glob.glob(os.path.join(PATHS["chronicle"], "chronicle_report_*.json")), reverse=True)
+    if not files:
+        return None
+    return timestamp_to_utc_iso(os.path.getmtime(files[0]))
+
+
 def _agent_status(agent_name: str) -> dict:
     """Check if an agent has logged activity recently."""
     log_file = os.path.join(PATHS["logs"], f"{agent_name}_agent.log")
@@ -462,6 +506,41 @@ def _load_latest_horizon_report() -> Optional[dict]:
         return None
     with open(files[0]) as f:
         return json.load(f)
+
+
+def _list_chronicle_reports() -> list:
+    files = sorted(glob.glob(os.path.join(PATHS["chronicle"], "chronicle_report_*.json")), reverse=True)
+    result = []
+    for f in files[:10]:
+        with open(f) as fp:
+            data = json.load(fp)
+        result.append({
+            "generated_at": data.get("generated_at"),
+            "events_count": data.get("events_count", 0),
+            "commit_count": data.get("commit_count", 0),
+            "path": f,
+        })
+    return result
+
+
+def _load_latest_chronicle_report() -> Optional[dict]:
+    shared_latest = os.path.join(PATHS["chronicle_shared"], "chronicle_latest.json")
+    if os.path.exists(shared_latest):
+        with open(shared_latest) as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            data["source_path"] = shared_latest
+            return data
+
+    files = sorted(glob.glob(os.path.join(PATHS["chronicle"], "chronicle_report_*.json")), reverse=True)
+    if not files:
+        return None
+    with open(files[0]) as f:
+        data = json.load(f)
+    if isinstance(data, dict):
+        data["source_path"] = files[0]
+        return data
+    return None
 
 
 def _load_canon_files() -> dict:

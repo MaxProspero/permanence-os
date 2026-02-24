@@ -19,6 +19,7 @@ import hashlib
 import datetime
 import os
 import argparse
+import glob
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 from enum import Enum
@@ -32,6 +33,8 @@ HORIZON_VERSION = "0.1.0"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.environ.get("PERMANENCE_BASE_DIR", APP_DIR)
 REPORT_OUTPUT_DIR = os.path.join(BASE_DIR, "outputs", "horizon")
+CHRONICLE_REPORT_DIR = os.path.join(BASE_DIR, "outputs", "chronicle")
+CHRONICLE_SHARED_LATEST = os.path.join(BASE_DIR, "memory", "chronicle", "shared", "chronicle_latest.json")
 LOG_PATH = os.path.join(BASE_DIR, "logs", "horizon_agent.log")
 APPROVAL_QUEUE_PATH = os.path.join(BASE_DIR, "memory", "approvals.json")
 CANON_DEFAULT_PATH = os.path.join(BASE_DIR, "canon", "base_canon.yaml")
@@ -169,6 +172,7 @@ class HorizonReport:
     raw_findings: list[ProcessedFinding]
     ahead_confirmations: list[str]  # Areas where POS is already leading
     audit_log: list[str]
+    chronicle_context: Optional[dict] = None
 
 
 # ─────────────────────────────────────────────
@@ -200,6 +204,7 @@ class HorizonAgent:
         self.raw_signals: list[RawSignal] = []
         self.findings: list[ProcessedFinding] = []
         self.proposals: list[ElevationProposal] = []
+        self.chronicle_context: Optional[dict] = self._load_chronicle_context()
         self.signals_filtered = 0
 
         self._log(f"HORIZON AGENT INITIALIZED | session={self.session_id} | version={HORIZON_VERSION}")
@@ -207,6 +212,16 @@ class HorizonAgent:
         self._log(f"Canon path: {self.canon_path}")
         self._log(f"Approval queue: {self.approvals_path}")
         self._log(f"Signal sources loaded: {len(SIGNAL_SOURCES)} categories")
+        if self.chronicle_context:
+            totals = self.chronicle_context.get("signal_totals") or {}
+            self._log(
+                "Chronicle context loaded "
+                f"(direction={totals.get('direction_hits', 0)} "
+                f"issues={totals.get('issue_hits', 0)} "
+                f"friction={totals.get('frustration_hits', 0)})"
+            )
+        else:
+            self._log("Chronicle context not available yet")
 
     # ── PHASE 1: OBSERVE ──────────────────────────────────────────────
 
@@ -326,6 +341,14 @@ class HorizonAgent:
                 self.proposals.append(proposal)
                 self._log(f"  PROPOSAL CREATED: id={proposal.proposal_id} scope={proposal.implementation_scope}")
 
+        chronicle_proposal = self._create_proposal_from_chronicle()
+        if chronicle_proposal:
+            self.proposals.append(chronicle_proposal)
+            self._log(
+                f"  PROPOSAL CREATED: id={chronicle_proposal.proposal_id} "
+                f"scope={chronicle_proposal.implementation_scope} (chronicle)"
+            )
+
         self._log(f"COMPRESS COMPLETE | proposals={len(self.proposals)}")
         return self.proposals
 
@@ -353,6 +376,7 @@ class HorizonAgent:
             proposals=self.proposals,
             raw_findings=self.findings,
             ahead_confirmations=ahead_confirmations,
+            chronicle_context=self.chronicle_context,
             audit_log=self.audit_log,
         )
 
@@ -394,6 +418,7 @@ class HorizonAgent:
         self.raw_signals = []
         self.findings = []
         self.proposals = []
+        self.chronicle_context = self._load_chronicle_context()
         self.signals_filtered = 0
 
     def _analyze_signal(self, signal: RawSignal) -> ProcessedFinding:
@@ -488,6 +513,63 @@ class HorizonAgent:
             priority=ElevationPriority.LOW,
         )
 
+    def _create_proposal_from_chronicle(self) -> Optional[ElevationProposal]:
+        """
+        Convert internal chronicle trends into an explicit improvement proposal so
+        the self-improving loop uses lived system evidence, not only external signals.
+        """
+        report = self.chronicle_context
+        if not report:
+            return None
+
+        totals = report.get("signal_totals") or {}
+        direction_hits = self._safe_int(totals.get("direction_hits", 0))
+        frustration_hits = self._safe_int(totals.get("frustration_hits", 0))
+        issue_hits = self._safe_int(totals.get("issue_hits", 0))
+        log_error_hits = self._safe_int(totals.get("log_error_hits", 0))
+
+        if direction_hits + frustration_hits + issue_hits + log_error_hits == 0:
+            return None
+
+        if issue_hits + log_error_hits >= 8:
+            priority = ElevationPriority.HIGH
+        elif issue_hits + log_error_hits >= 3 or direction_hits >= 5:
+            priority = ElevationPriority.MEDIUM
+        else:
+            priority = ElevationPriority.LOW
+
+        direction_events = report.get("direction_events") or []
+        issue_events = report.get("issue_events") or []
+        source_tokens = []
+        for item in direction_events[-2:]:
+            source_tokens.append(f"direction:{item.get('timestamp', 'unknown')}")
+        for item in issue_events[-2:]:
+            source_tokens.append(f"issue:{item.get('timestamp', 'unknown')}")
+
+        return ElevationProposal(
+            proposal_id=f"EP-CHRONICLE-{utc_stamp('%Y%m%d%H%M%S')}",
+            title="Chronicle-Guided System Refinement",
+            finding_summary=(
+                f"Internal chronicle signals indicate direction={direction_hits}, "
+                f"frustration={frustration_hits}, issues={issue_hits}, log_errors={log_error_hits}."
+            ),
+            current_state="Chronicle reports exist but updates may not be routed consistently to active sprint decisions.",
+            proposed_change=(
+                "Review latest chronicle direction/issue events and convert high-signal items into "
+                "explicit backlog tasks or Canon amendment candidates."
+            ),
+            expected_benefit="Improvement cycle uses real execution history, reducing repeated friction and missed priorities.",
+            risk_if_ignored="The system repeats known errors or drifts from proven direction signals despite having the evidence.",
+            implementation_scope="agent_update",
+            draft_canon_amendment=None,
+            draft_codex_task=(
+                "Use latest chronicle report to draft top 3 backlog updates and 1 Canon check item. "
+                "Require human approval before execution."
+            ),
+            source_findings=source_tokens,
+            priority=priority,
+        )
+
     def _check_banned_patterns(self, content: str) -> Optional[str]:
         """Returns the matched banned pattern, or None if clean."""
         content_lower = content.lower()
@@ -500,6 +582,40 @@ class HorizonAgent:
         return hashlib.sha256(
             utc_iso().encode()
         ).hexdigest()[:12]
+
+    def _load_chronicle_context(self) -> Optional[dict]:
+        """
+        Load the latest chronicle report so Horizon can correlate external trends
+        with internal system performance and friction signals.
+        """
+        candidates: list[str] = []
+        if os.path.exists(CHRONICLE_SHARED_LATEST):
+            candidates.append(CHRONICLE_SHARED_LATEST)
+
+        report_glob = sorted(
+            glob.glob(os.path.join(CHRONICLE_REPORT_DIR, "chronicle_report_*.json")),
+            key=lambda p: os.path.getmtime(p),
+            reverse=True,
+        )
+        candidates.extend(report_glob)
+
+        for path in candidates:
+            try:
+                with open(path) as f:
+                    data = json.load(f)
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(data, dict):
+                data["_source_path"] = path
+                return data
+        return None
+
+    @staticmethod
+    def _safe_int(value: object, default: int = 0) -> int:
+        try:
+            return int(value)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return default
 
     def _log(self, message: str):
         """Append-only. Every log entry timestamped."""
@@ -608,6 +724,7 @@ class HorizonAgent:
             "signals_filtered": report.signals_filtered,
             "findings_count": report.findings_count,
             "ahead_confirmations": report.ahead_confirmations,
+            "chronicle_context": report.chronicle_context,
             "proposals": [asdict(p) for p in report.proposals],
             "raw_findings": [asdict(f) for f in report.raw_findings],
             "audit_log": report.audit_log,

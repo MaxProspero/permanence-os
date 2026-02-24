@@ -60,6 +60,7 @@ class BriefingAgent:
         v04_telemetry = self._load_v04_telemetry()
         system_health = self._load_system_health()
         documents_summary = self._load_documents_summary()
+        chronicle_summary = self._load_chronicle_summary()
         focus_items = self._generate_focus(email_summary, health_summary, social_summary)
         notes: List[str] = [
             "# Daily Briefing",
@@ -77,6 +78,7 @@ class BriefingAgent:
         notes.extend(self._section_social_summary(social_summary))
         notes.extend(self._section_reception_summary(reception_summary))
         notes.extend(self._section_documents(documents_summary))
+        notes.extend(self._section_chronicle(chronicle_summary))
         notes.extend(self._section_focus(focus_items))
         notes.extend(self._section_system_health(system_health))
         notes.extend(self._section_outputs())
@@ -533,6 +535,66 @@ class BriefingAgent:
             "excerpts": excerpt_items,
         }
 
+    def _load_chronicle_summary(self) -> Dict[str, Any]:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        shared_path = Path(
+            os.getenv(
+                "PERMANENCE_CHRONICLE_SHARED_PATH",
+                str(Path(base_dir) / "memory" / "chronicle" / "shared" / "chronicle_latest.json"),
+            )
+        )
+        chronicle_output = Path(
+            os.getenv(
+                "PERMANENCE_CHRONICLE_OUTPUT_DIR",
+                str(Path(base_dir) / "outputs" / "chronicle"),
+            )
+        )
+
+        candidates: List[Path] = []
+        if shared_path.exists():
+            candidates.append(shared_path)
+        if chronicle_output.exists():
+            candidates.extend(
+                sorted(
+                    chronicle_output.glob("chronicle_report_*.json"),
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True,
+                )
+            )
+
+        selected: Optional[Path] = None
+        payload: Optional[Dict[str, Any]] = None
+        for candidate in candidates:
+            try:
+                data = json.loads(candidate.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(data, dict):
+                selected = candidate
+                payload = data
+                break
+
+        if not payload:
+            return {"available": False}
+
+        totals = payload.get("signal_totals") or {}
+        direction_events = payload.get("direction_events") or []
+        issue_events = payload.get("issue_events") or []
+        return {
+            "available": True,
+            "path": str(selected) if selected else None,
+            "generated_at": payload.get("generated_at"),
+            "days": payload.get("days"),
+            "events_count": payload.get("events_count", 0),
+            "commit_count": payload.get("commit_count", 0),
+            "direction_hits": int(totals.get("direction_hits", 0) or 0),
+            "frustration_hits": int(totals.get("frustration_hits", 0) or 0),
+            "issue_hits": int(totals.get("issue_hits", 0) or 0),
+            "log_error_hits": int(totals.get("log_error_hits", 0) or 0),
+            "direction_events": direction_events[-3:],
+            "issue_events": issue_events[-3:],
+        }
+
     @staticmethod
     def _count_episodic_entries_24h() -> int:
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -810,6 +872,43 @@ class BriefingAgent:
             lines.append("- Top excerpts:")
             for title, note in excerpts:
                 lines.append(f"  - {title}: {note}")
+        lines.append("")
+        return lines
+
+    def _section_chronicle(self, summary: Dict[str, Any]) -> List[str]:
+        lines = ["## Chronicle Intelligence"]
+        if not summary.get("available"):
+            lines.append("- No chronicle report found")
+            lines.append("")
+            return lines
+
+        lines.append(
+            f"- Window: {summary.get('days')}d | Events: {summary.get('events_count')} "
+            f"| Commits: {summary.get('commit_count')}"
+        )
+        lines.append(
+            f"- Signals: direction={summary.get('direction_hits')} "
+            f"frustration={summary.get('frustration_hits')} "
+            f"issues={summary.get('issue_hits')} "
+            f"log_errors={summary.get('log_error_hits')}"
+        )
+        if summary.get("generated_at"):
+            lines.append(f"- Report generated: {summary.get('generated_at')}")
+        if summary.get("path"):
+            lines.append(f"- Source: {summary.get('path')}")
+
+        direction_events = summary.get("direction_events") or []
+        if direction_events:
+            lines.append("- Direction shifts:")
+            for item in direction_events:
+                lines.append(f"  - {item.get('timestamp', 'unknown')}: {item.get('summary', '')}")
+
+        issue_events = summary.get("issue_events") or []
+        if issue_events:
+            lines.append("- Friction events:")
+            for item in issue_events:
+                lines.append(f"  - {item.get('timestamp', 'unknown')}: {item.get('summary', '')}")
+
         lines.append("")
         return lines
 

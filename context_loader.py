@@ -25,16 +25,20 @@ Canon Reference: brand_identity.yaml (CA-013)
 Governance: READ operation only — this loader never modifies Canon files.
 """
 
-import yaml
 import os
+import json
 from pathlib import Path
 from typing import Optional
+
+import yaml
 
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
 
 CANON_DIR = Path(__file__).parent / "canon"
 BRAND_IDENTITY_PATH = CANON_DIR / "brand_identity.yaml"
+CHRONICLE_OUTPUT_DIR = Path(__file__).parent / "outputs" / "chronicle"
+CHRONICLE_SHARED_LATEST = Path(__file__).parent / "memory" / "chronicle" / "shared" / "chronicle_latest.json"
 
 # Tasks containing these keywords trigger brand context injection
 BRAND_CONTEXT_TRIGGERS = [
@@ -43,6 +47,25 @@ BRAND_CONTEXT_TRIGGERS = [
     "communicate", "brand", "voice", "tone", "publish",
     "announce", "release", "description", "bio", "about",
     "marketing", "campaign", "pitch", "present"
+]
+
+# Tasks containing these keywords trigger chronicle context injection
+CHRONICLE_CONTEXT_TRIGGERS = [
+    "improve",
+    "improvement",
+    "upgrade",
+    "update",
+    "research",
+    "study",
+    "roadmap",
+    "priority",
+    "next step",
+    "agent",
+    "system",
+    "governance",
+    "issue",
+    "error",
+    "friction",
 ]
 
 
@@ -212,6 +235,101 @@ class BrandContextLoader:
         return self._data.get("apparel_lines", {})
 
 
+# ─── CHRONICLE LOADER ─────────────────────────────────────────────────────────
+
+class ChronicleContextLoader:
+    """
+    Loads latest chronicle timeline report and provides compressed system-learning
+    context for self-improving workflows.
+    """
+
+    def __init__(self, chronicle_output_dir: Optional[Path] = None):
+        self.chronicle_output_dir = chronicle_output_dir or CHRONICLE_OUTPUT_DIR
+
+    def task_requires_chronicle_context(self, task_goal: str) -> bool:
+        task_lower = task_goal.lower()
+        return any(trigger in task_lower for trigger in CHRONICLE_CONTEXT_TRIGGERS)
+
+    def _latest_report_path(self) -> Optional[Path]:
+        if CHRONICLE_SHARED_LATEST.exists():
+            return CHRONICLE_SHARED_LATEST
+
+        if not self.chronicle_output_dir.exists():
+            return None
+
+        candidates = sorted(
+            self.chronicle_output_dir.glob("chronicle_report_*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        return candidates[0] if candidates else None
+
+    def load_latest_report(self) -> Optional[dict]:
+        path = self._latest_report_path()
+        if not path:
+            return None
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                return data
+        except (OSError, json.JSONDecodeError):
+            return None
+        return None
+
+    def get_chronicle_context(
+        self,
+        max_direction_events: int = 3,
+        max_issue_events: int = 3,
+    ) -> str:
+        report = self.load_latest_report()
+        if not report:
+            return "\n".join(
+                [
+                    "═══ CHRONICLE CONTEXT ═══",
+                    "No chronicle report found.",
+                    "Run: python cli.py chronicle-report",
+                    "═════════════════════════",
+                ]
+            )
+
+        totals = report.get("signal_totals") or {}
+        direction_events = report.get("direction_events") or []
+        issue_events = report.get("issue_events") or []
+        source_artifacts = report.get("source_artifacts") or []
+
+        lines = [
+            "═══ CHRONICLE CONTEXT ═══",
+            f"Generated: {report.get('generated_at', 'unknown')}",
+            f"Window days: {report.get('days', 'unknown')}",
+            f"Events: {report.get('events_count', 0)}",
+            f"Commits: {report.get('commit_count', 0)}",
+            "",
+            "SIGNAL TOTALS:",
+            f"  - Direction hits: {totals.get('direction_hits', 0)}",
+            f"  - Frustration hits: {totals.get('frustration_hits', 0)}",
+            f"  - Issue hits: {totals.get('issue_hits', 0)}",
+            f"  - Log errors: {totals.get('log_error_hits', 0)}",
+            "",
+            "DIRECTION EVENTS:",
+        ]
+        for item in direction_events[-max_direction_events:]:
+            lines.append(f"  - {item.get('timestamp', 'unknown')}: {item.get('summary', '')}")
+        if not direction_events:
+            lines.append("  - none")
+
+        lines.extend(["", "ISSUE EVENTS:"])
+        for item in issue_events[-max_issue_events:]:
+            lines.append(f"  - {item.get('timestamp', 'unknown')}: {item.get('summary', '')}")
+        if not issue_events:
+            lines.append("  - none")
+
+        if source_artifacts:
+            lines.extend(["", f"Artifacts tracked: {len(source_artifacts)}"])
+        lines.append("═════════════════════════")
+        return "\n".join(lines)
+
+
 # ─── AGENT INJECTION HELPER ────────────────────────────────────────────────────
 
 def inject_brand_context_if_needed(
@@ -249,6 +367,27 @@ def inject_brand_context_if_needed(
     return f"{base_system_prompt}\n\n{context}"
 
 
+def inject_chronicle_context_if_needed(
+    task_goal: str,
+    base_system_prompt: str,
+    max_direction_events: int = 3,
+    max_issue_events: int = 3,
+) -> str:
+    """
+    Checks if task semantics indicate self-improvement/system-learning context
+    should be injected and returns augmented prompt if so.
+    """
+    loader = ChronicleContextLoader()
+    if not loader.task_requires_chronicle_context(task_goal):
+        return base_system_prompt
+
+    context = loader.get_chronicle_context(
+        max_direction_events=max_direction_events,
+        max_issue_events=max_issue_events,
+    )
+    return f"{base_system_prompt}\n\n{context}"
+
+
 # ─── CLI (for testing) ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -271,8 +410,18 @@ if __name__ == "__main__":
             result = loader.task_requires_brand_context(task)
             print(f"Task: '{task}'")
             print(f"Needs brand context: {result}")
+        elif command == "chronicle":
+            print(ChronicleContextLoader().get_chronicle_context())
+        elif command == "chronicle-check":
+            task = " ".join(sys.argv[2:])
+            result = ChronicleContextLoader().task_requires_chronicle_context(task)
+            print(f"Task: '{task}'")
+            print(f"Needs chronicle context: {result}")
         else:
-            print("Unknown command. Use: voice | identity | dna | full | check <task>")
+            print(
+                "Unknown command. Use: voice | identity | dna | full | check <task> "
+                "| chronicle | chronicle-check <task>"
+            )
     else:
         # Default: show voice context
         print(loader.get_voice_context())

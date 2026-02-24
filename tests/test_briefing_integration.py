@@ -17,11 +17,15 @@ def test_briefing_includes_email_health_social_and_focus():
         output_dir = os.path.join(tmp, "outputs")
         tool_dir = os.path.join(tmp, "memory", "tool")
         episodic_dir = os.path.join(tmp, "memory", "episodic")
+        chronicle_dir = os.path.join(output_dir, "chronicle")
+        chronicle_shared = os.path.join(tmp, "memory", "chronicle", "shared")
         storage_root = os.path.join(tmp, "storage")
         storage_logs = os.path.join(storage_root, "logs")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(tool_dir, exist_ok=True)
         os.makedirs(episodic_dir, exist_ok=True)
+        os.makedirs(chronicle_dir, exist_ok=True)
+        os.makedirs(chronicle_shared, exist_ok=True)
         os.makedirs(storage_logs, exist_ok=True)
 
         os.environ["PERMANENCE_OUTPUT_DIR"] = output_dir
@@ -30,6 +34,10 @@ def test_briefing_includes_email_health_social_and_focus():
         os.environ["PERMANENCE_STORAGE_ROOT"] = storage_root
         os.environ["PERMANENCE_SOURCES_PATH"] = os.path.join(tmp, "memory", "working", "sources.json")
         os.environ["PERMANENCE_ZERO_POINT_PATH"] = os.path.join(tmp, "memory", "zero_point_store.json")
+        os.environ["PERMANENCE_CHRONICLE_OUTPUT_DIR"] = chronicle_dir
+        os.environ["PERMANENCE_CHRONICLE_SHARED_PATH"] = os.path.join(
+            chronicle_shared, "chronicle_latest.json"
+        )
 
         _write_json(
             os.path.join(tool_dir, "email_triage_20260204-000000.json"),
@@ -79,6 +87,23 @@ def test_briefing_includes_email_health_social_and_focus():
             f.write("# report\n")
         with open(os.path.join(output_dir, "weekly_system_health_report.md"), "w") as f:
             f.write("PATTERNS DETECTED\n  1. [LOW] test\nLOGOS PRAKTIKOS STATUS\nReady: NO\n")
+        _write_json(
+            os.path.join(chronicle_dir, "chronicle_report_20260204_120000.json"),
+            {
+                "generated_at": "2026-02-04T12:00:00Z",
+                "days": 180,
+                "events_count": 15,
+                "commit_count": 20,
+                "signal_totals": {
+                    "direction_hits": 6,
+                    "frustration_hits": 3,
+                    "issue_hits": 2,
+                    "log_error_hits": 1,
+                },
+                "direction_events": [{"timestamp": "2026-02-04T11:00:00Z", "summary": "priority shift"}],
+                "issue_events": [{"timestamp": "2026-02-04T10:00:00Z", "summary": "disconnect issue"}],
+            },
+        )
 
         episodic_path = os.path.join(episodic_dir, "episodic_2026-02-04.jsonl")
         with open(episodic_path, "w") as f:
@@ -152,5 +177,7 @@ def test_briefing_includes_email_health_social_and_focus():
         assert "Arcana latest: arcana_3_6_9" in content
         assert "## Documents" in content
         assert "doc excerpt" in content
+        assert "## Chronicle Intelligence" in content
+        assert "direction=6" in content
         assert "## Today's Focus" in content
         assert "## System Health" in content

@@ -12,6 +12,8 @@ memory/episodic/*.jsonl
 memory/approvals.json
 memory/chronicle/events.jsonl
 memory/chronicle/backfill_index.json
+memory/chronicle/shared/*
+!memory/chronicle/shared/.gitkeep
 outputs/*.md
 outputs/*.txt
 outputs/*.json

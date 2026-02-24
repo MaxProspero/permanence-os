@@ -115,6 +115,24 @@ HEALTH_STATUS=$?
 "$PYTHON_BIN" cli.py automation-report --days 1 >> "$LOG_FILE" 2>&1
 REPORT_STATUS=$?
 
+CHRONICLE_CAPTURE_STATUS=0
+CHRONICLE_REPORT_STATUS=0
+CHRONICLE_PUBLISH_STATUS=0
+if [[ "${PERMANENCE_CHRONICLE_AUTOPUBLISH:-1}" == "1" ]]; then
+  "$PYTHON_BIN" cli.py chronicle-capture \
+    --note "automation briefing run $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --tag automation \
+    --tag briefing >> "$LOG_FILE" 2>&1 || CHRONICLE_CAPTURE_STATUS=$?
+
+  "$PYTHON_BIN" cli.py chronicle-report --days "${PERMANENCE_CHRONICLE_DAYS:-365}" >> "$LOG_FILE" 2>&1 || CHRONICLE_REPORT_STATUS=$?
+
+  if [[ -n "${PERMANENCE_CHRONICLE_DRIVE_DIR:-}" ]]; then
+    "$PYTHON_BIN" cli.py chronicle-publish --docx --drive-dir "$PERMANENCE_CHRONICLE_DRIVE_DIR" >> "$LOG_FILE" 2>&1 || CHRONICLE_PUBLISH_STATUS=$?
+  else
+    "$PYTHON_BIN" cli.py chronicle-publish --docx >> "$LOG_FILE" 2>&1 || CHRONICLE_PUBLISH_STATUS=$?
+  fi
+fi
+
 DAILY_GATE_STATUS=2
 STREAK_STATUS=0
 if [[ "$CURRENT_HOUR" -ge 19 ]]; then
@@ -136,6 +154,9 @@ echo "=== Briefing Run Completed: $(date) ===" >> "$LOG_FILE"
 echo "Briefing Status: $BRIEFING_STATUS | Digest Status: $DIGEST_STATUS | NotebookLM Status: $NOTEBOOKLM_STATUS" >> "$LOG_FILE"
 echo "${RECEPTIONIST_NAME} Status: $RECEPTIONIST_STATUS" >> "$LOG_FILE"
 echo "Health Status: $HEALTH_STATUS | Report Status: $REPORT_STATUS" >> "$LOG_FILE"
+if [[ "${PERMANENCE_CHRONICLE_AUTOPUBLISH:-1}" == "1" ]]; then
+  echo "Chronicle Capture: $CHRONICLE_CAPTURE_STATUS | Chronicle Report: $CHRONICLE_REPORT_STATUS | Chronicle Publish: $CHRONICLE_PUBLISH_STATUS" >> "$LOG_FILE"
+fi
 if [[ "$DAILY_GATE_STATUS" -ne 2 ]]; then
   echo "Daily Gate Status: $DAILY_GATE_STATUS | Streak Status: $STREAK_STATUS" >> "$LOG_FILE"
 fi
@@ -151,6 +172,6 @@ V04_SNAPSHOT_STATUS=0
 "$PYTHON_BIN" cli.py v04-snapshot >> "$LOG_FILE" 2>&1 || V04_SNAPSHOT_STATUS=$?
 echo "V04 Snapshot Status: $V04_SNAPSHOT_STATUS" >> "$LOG_FILE"
 
-if [ $BRIEFING_STATUS -ne 0 ] || [ $DIGEST_STATUS -ne 0 ]; then
+if [ $BRIEFING_STATUS -ne 0 ] || [ $DIGEST_STATUS -ne 0 ] || [ $CHRONICLE_CAPTURE_STATUS -ne 0 ] || [ $CHRONICLE_REPORT_STATUS -ne 0 ] || [ $CHRONICLE_PUBLISH_STATUS -ne 0 ]; then
   exit 1
 fi
