@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -25,7 +26,12 @@ def _changed_files_from_status(porcelain: str) -> list[str]:
     for line in porcelain.splitlines():
         if not line:
             continue
-        path = line[3:].strip()
+        match = re.match(r"^[ MARCUD?!]{2}\s(.+)$", line)
+        if not match:
+            continue
+        path = match.group(1).strip()
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1].strip()
         if path:
             files.append(path)
     return files
