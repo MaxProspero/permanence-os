@@ -392,6 +392,20 @@
       line-height: 1.8;
     }
 
+    .briefing-markdown {
+      white-space: pre-wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-sub);
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      max-height: 620px;
+      overflow-y: auto;
+    }
+
     .briefing-section { margin-bottom: 24px; }
 
     .briefing-section-title {
@@ -640,6 +654,16 @@
           </div>
         </div>
       </div>
+
+      <div class="card" id="latest-task-card">
+        <div class="card-title">Latest Task Routing</div>
+        <div style="font-size:13px; color: var(--text); margin-bottom: 6px;" id="latest-task-goal">Loading latest task...</div>
+        <div style="font-size:11px; color: var(--text-sub); margin-bottom: 12px; font-family: var(--mono);" id="latest-task-meta">—</div>
+        <div style="font-size:11px; color: var(--muted); margin-bottom: 12px; font-family: var(--mono);" id="latest-task-promotion">promotion: —</div>
+        <div id="latest-task-routes" style="display: grid; gap: 6px;">
+          <div style="font-size:12px; color: var(--muted);">No routing data yet.</div>
+        </div>
+      </div>
     </div>
 
     <!-- ── APPROVALS ── -->
@@ -792,6 +816,15 @@ async function apiPost(endpoint, body) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // ─────────────────────────────────────────────
 // OVERVIEW
 // ─────────────────────────────────────────────
@@ -853,6 +886,58 @@ async function loadOverview() {
         <span class="agent-status-badge ${badgeClass}">${status}</span>
       </div>`;
   }).join("");
+
+  // Latest task + model routes
+  const latest = data.latest_task ?? null;
+  const promotion = data.promotion ?? {};
+  const goalEl = document.getElementById("latest-task-goal");
+  const metaEl = document.getElementById("latest-task-meta");
+  const promotionEl = document.getElementById("latest-task-promotion");
+  const routesEl = document.getElementById("latest-task-routes");
+
+  const promotionParts = [
+    promotion.queue_items !== undefined ? `queue=${promotion.queue_items}` : null,
+    promotion.glance_gate ? `glance=${promotion.glance_gate}` : null,
+    promotion.phase_gate ? `phase=${promotion.phase_gate}` : null,
+  ].filter(Boolean);
+  const promotionText = promotionParts.join(" | ") || "promotion: —";
+  let reviewText = "";
+  if (promotion.review_last_generated) {
+    const reviewDate = new Date(promotion.review_last_generated);
+    if (!Number.isNaN(reviewDate.getTime())) {
+      reviewText = ` | review=${reviewDate.toLocaleString()}`;
+    }
+  }
+  promotionEl.textContent = promotionText + reviewText;
+
+  if (!latest) {
+    goalEl.textContent = "No episodic task found yet.";
+    metaEl.textContent = "—";
+    routesEl.innerHTML = `<div style="font-size:12px; color: var(--muted);">No routing data yet.</div>`;
+    return;
+  }
+
+  goalEl.textContent = latest.goal ?? "Unknown task goal";
+  const parts = [
+    latest.task_id ? `task=${latest.task_id}` : null,
+    latest.stage ? `stage=${latest.stage}` : null,
+    latest.status ? `status=${latest.status}` : null,
+    latest.risk_tier ? `risk=${latest.risk_tier}` : null,
+  ].filter(Boolean);
+  metaEl.textContent = parts.join(" | ") || "—";
+
+  const routes = latest.model_routes ?? {};
+  const routeKeys = Object.keys(routes);
+  if (routeKeys.length === 0) {
+    routesEl.innerHTML = `<div style="font-size:12px; color: var(--muted);">No model routes recorded for this task.</div>`;
+    return;
+  }
+  routesEl.innerHTML = routeKeys.map(k => `
+    <div style="display:flex; justify-content:space-between; gap:12px; padding:7px 10px; background:var(--dark); border:1px solid var(--border); border-radius:4px;">
+      <span style="font-size:11px; color:var(--text-sub); text-transform:uppercase; letter-spacing:0.06em;">${escapeHtml(k)}</span>
+      <span style="font-size:11px; color:var(--accent); font-family:var(--mono);">${escapeHtml(routes[k])}</span>
+    </div>
+  `).join("");
 }
 
 // ─────────────────────────────────────────────
@@ -939,6 +1024,16 @@ async function loadBriefing() {
 
   if (!data) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">◉</div>No briefing found. Run the Briefing Agent to generate one.</div>`;
+    return;
+  }
+
+  if (data.format === "markdown" && data.content_markdown) {
+    el.innerHTML = `
+      <div style="font-size:11px; color: var(--muted); margin-bottom: 10px; font-family: var(--mono);">
+        ${escapeHtml(data.filename ?? "briefing.md")} · ${escapeHtml(data.generated_at ?? "")}
+      </div>
+      <div class="briefing-markdown">${escapeHtml(data.content_markdown)}</div>
+    `;
     return;
   }
 

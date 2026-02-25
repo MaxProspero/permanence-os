@@ -23,6 +23,7 @@ cat > "$PLIST_PATH" <<EOF
     <string>com.permanence.briefing</string>
     <key>ProgramArguments</key>
     <array>
+        <string>/bin/bash</string>
         <string>$REPO_PATH/automation/run_briefing.sh</string>
     </array>
     <key>StartCalendarInterval</key>

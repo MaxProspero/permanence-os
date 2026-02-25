@@ -57,12 +57,18 @@ Generate Canon change draft from episodic memory.
 ### `python cli.py promotion-review`
 Generate promotion review checklist.
 
+### `python cli.py promotion-daily`
+Run the daily promotion cycle (gated `queue auto` + `promotion-review`).
+- Daytime-friendly policy example: `python cli.py promotion-daily --phase-policy auto --phase-enforce-hour 19`
+
 ### `python cli.py queue`
 Manage promotion queue.
 
 Queue subcommands:
 - `python scripts/promotion_queue.py add --task-id T-... --reason "..." --pattern "..."`  
 - `python scripts/promotion_queue.py audit --prune`
+- `python scripts/promotion_queue.py auto --dry-run`
+- `python scripts/promotion_queue.py auto --since-hours 24 --max-add 5`
 
 ## Ingestion Commands
 

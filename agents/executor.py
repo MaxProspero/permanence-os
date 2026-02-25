@@ -12,6 +12,10 @@ import re
 
 from agents.utils import log, BASE_DIR
 try:
+    from core.model_router import ModelRouter
+except Exception:  # pragma: no cover - optional dependency
+    ModelRouter = None
+try:
     from context_loader import (
         inject_brand_context_if_needed,
         inject_chronicle_context_if_needed,
@@ -53,6 +57,15 @@ class ExecutorAgent:
     - Cannot alter Canon or governance rules
     """
 
+    def __init__(self, model_router: Optional["ModelRouter"] = None):
+        self.model_router = model_router or (ModelRouter() if ModelRouter else None)
+        self.enable_model_assist = os.getenv("PERMANENCE_ENABLE_MODEL_ASSIST", "").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
     def execute(self, spec: Optional[Dict[str, Any]], inputs: Optional[Dict[str, Any]] = None) -> ExecutionResult:
         if not spec:
             log("Executor refused: missing task specification", level="WARNING")
@@ -75,17 +88,25 @@ class ExecutorAgent:
 
         sources = inputs.get("sources", [])
         draft_text = self._load_draft(inputs)
+        model_drafted = False
+        if not draft_text and self.enable_model_assist:
+            draft_text = self._generate_draft_with_model(spec=spec, sources=sources, system_prompt=executor_prompt)
+            model_drafted = bool(draft_text)
 
         if draft_text:
             artifact_path = self._write_final(spec, sources, draft_text)
             log(f"Executor created final artifact: {artifact_path}", level="INFO")
             notes = ["Final output created from provided draft."]
+            status = "FINAL_CREATED"
+            if model_drafted:
+                status = "MODEL_COMPOSED"
+                notes = ["Final output created from model draft."]
             if brand_context_loaded:
                 notes.append("Brand voice context applied for this task.")
             if chronicle_context_loaded:
                 notes.append("Chronicle context applied for this task.")
             return ExecutionResult(
-                status="FINAL_CREATED",
+                status=status,
                 artifact=artifact_path,
                 notes=notes,
                 created_at=datetime.now(timezone.utc).isoformat(),
@@ -104,6 +125,54 @@ class ExecutorAgent:
             notes=notes,
             created_at=datetime.now(timezone.utc).isoformat(),
         )
+
+    def _generate_draft_with_model(
+        self,
+        spec: Dict[str, Any],
+        sources: List[Dict[str, Any]],
+        system_prompt: str,
+    ) -> Optional[str]:
+        if not self.model_router:
+            return None
+        model = self.model_router.get_model("execution")
+        if not model:
+            return None
+
+        goal = str(spec.get("goal", "")).strip()
+        deliverables = [str(d).strip() for d in spec.get("deliverables", []) if str(d).strip()]
+        constraints = [str(c).strip() for c in spec.get("constraints", []) if str(c).strip()]
+        evidence_lines: List[str] = []
+        for src in sources[:12]:
+            source = str(src.get("source", "unknown")).strip()
+            ts = str(src.get("timestamp", "unknown")).strip()
+            conf = str(src.get("confidence", "unknown")).strip()
+            notes = str(src.get("notes", "")).strip()
+            evidence_lines.append(f"- {source} | {ts} | {conf} | {notes}")
+
+        prompt_lines = [
+            "Task: Produce final markdown output only from evidence provided.",
+            f"Goal: {goal}",
+            "Deliverables:",
+            *([f"- {d}" for d in deliverables] or ["- Structured response"]),
+            "Constraints:",
+            *([f"- {c}" for c in constraints] or ["- Respect Canon constraints"]),
+            "",
+            "Evidence:",
+            *evidence_lines,
+            "",
+            "Requirements:",
+            "- Include a '## Sources (Provenance)' section with source|timestamp|confidence.",
+            "- Do not invent facts beyond evidence lines.",
+            "- Keep output concise and spec-bound.",
+        ]
+        prompt = "\n".join(prompt_lines)
+        try:
+            response = model.generate(prompt=prompt, system=system_prompt)
+            text = response.text.strip()
+            return text or None
+        except Exception as exc:
+            log(f"Executor model assist failed: {exc}", level="WARNING")
+            return None
 
     def _build_system_prompt(self, task_goal: str) -> str:
         """Build the Executor prompt and inject brand voice context when task semantics require it."""

@@ -5,8 +5,18 @@ Converts human goals into structured, bounded task specifications
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 from datetime import datetime, timezone
+import json
+import os
+import re
+
+from agents.utils import log
+
+try:
+    from core.model_router import ModelRouter
+except Exception:  # pragma: no cover - keep planner import-safe in minimal environments
+    ModelRouter = None
 
 
 @dataclass
@@ -46,8 +56,15 @@ class PlannerAgent:
     - Plans must be falsifiable
     """
 
-    def __init__(self, canon: Dict):
+    def __init__(self, canon: Dict, model_router: Optional["ModelRouter"] = None):
         self.canon = canon
+        self.model_router = model_router or (ModelRouter() if ModelRouter else None)
+        self.enable_model_assist = os.getenv("PERMANENCE_ENABLE_MODEL_ASSIST", "").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
 
     def create_plan(self, goal: str, context: Optional[Dict] = None) -> TaskSpecification:
         """
@@ -66,6 +83,25 @@ class PlannerAgent:
 
         # Check if falsifiable
         falsifiable = self._check_falsifiability(success_criteria)
+
+        # Optional model-assisted planning (off by default, deterministic fallback preserved).
+        if self.enable_model_assist:
+            assisted = self._model_assisted_fields(goal=goal, context=context)
+            if assisted:
+                if assisted.get("deliverables"):
+                    deliverables = assisted["deliverables"]
+                if assisted.get("success_criteria"):
+                    success_criteria = assisted["success_criteria"]
+                if assisted.get("constraints"):
+                    constraints = self._merge_unique(constraints, assisted["constraints"])
+                if assisted.get("required_resources"):
+                    resources = self._merge_unique(resources, assisted["required_resources"])
+                if isinstance(assisted.get("estimated_steps"), int):
+                    estimated_steps = max(1, min(12, assisted["estimated_steps"]))
+                if isinstance(assisted.get("estimated_tool_calls"), int):
+                    estimated_tool_calls = max(1, min(5, assisted["estimated_tool_calls"]))
+                if isinstance(assisted.get("falsifiable"), bool):
+                    falsifiable = assisted["falsifiable"]
 
         task_spec = TaskSpecification(
             task_id=f"SPEC-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}",
@@ -198,6 +234,80 @@ class PlannerAgent:
 
         # All criteria should be specific
         return len(success_criteria) > 0
+
+    def _model_assisted_fields(self, goal: str, context: Optional[Dict]) -> Optional[Dict[str, Any]]:
+        if not self.model_router:
+            return None
+        model = self.model_router.get_model("planning")
+        if not model:
+            return None
+
+        prompt = "\n".join(
+            [
+                "Create a bounded task plan as strict JSON only.",
+                "Do not include markdown code fences.",
+                "Use this JSON schema:",
+                '{"deliverables":[str], "success_criteria":[str], "constraints":[str], '
+                '"required_resources":[str], "estimated_steps":int, '
+                '"estimated_tool_calls":int, "falsifiable":bool}',
+                "",
+                f"Goal: {goal}",
+                f"Context: {json.dumps(context or {}, ensure_ascii=True)}",
+            ]
+        )
+        try:
+            response = model.generate(prompt=prompt)
+        except Exception as exc:
+            log(f"Planner model assist unavailable: {exc}", level="WARNING")
+            return None
+
+        parsed = self._extract_json_dict(response.text)
+        if not parsed:
+            return None
+        return {
+            "deliverables": self._coerce_str_list(parsed.get("deliverables")),
+            "success_criteria": self._coerce_str_list(parsed.get("success_criteria")),
+            "constraints": self._coerce_str_list(parsed.get("constraints")),
+            "required_resources": self._coerce_str_list(parsed.get("required_resources")),
+            "estimated_steps": self._coerce_int(parsed.get("estimated_steps")),
+            "estimated_tool_calls": self._coerce_int(parsed.get("estimated_tool_calls")),
+            "falsifiable": parsed.get("falsifiable") if isinstance(parsed.get("falsifiable"), bool) else None,
+        }
+
+    def _extract_json_dict(self, text: str) -> Optional[Dict[str, Any]]:
+        if not text:
+            return None
+        match = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL | re.IGNORECASE)
+        candidate = match.group(1) if match else text.strip()
+        if not match:
+            obj_match = re.search(r"(\{.*\})", candidate, re.DOTALL)
+            candidate = obj_match.group(1) if obj_match else candidate
+        try:
+            parsed = json.loads(candidate)
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            return None
+
+    def _coerce_str_list(self, value: Any) -> List[str]:
+        if not isinstance(value, list):
+            return []
+        return [str(item).strip() for item in value if str(item).strip()]
+
+    def _coerce_int(self, value: Any) -> Optional[int]:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _merge_unique(self, base: List[str], extra: List[str]) -> List[str]:
+        seen = set()
+        merged: List[str] = []
+        for item in [*base, *extra]:
+            if item in seen:
+                continue
+            seen.add(item)
+            merged.append(item)
+        return merged
 
 
 # Example usage

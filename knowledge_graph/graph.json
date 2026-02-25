@@ -1,0 +1,192 @@
+{
+  "nodes": {
+    "bookmark_c30c7543": {
+      "id": "bookmark_c30c7543",
+      "type": "bookmark",
+      "attributes": {
+        "text": "how to build ai native vertical saas",
+        "author": "Greg Isenberg",
+        "handle": "gregisenberg",
+        "url": "https://x.com/gregisenberg/status/2026665189765005433",
+        "captured_at": "2026-02-25",
+        "topic_tags": [
+          "saas",
+          "ai-native",
+          "product"
+        ],
+        "action": "review",
+        "signal_score": 0
+      },
+      "provenance": {
+        "source": "https://x.com/gregisenberg/status/2026665189765005433",
+        "timestamp": "2026-02-25T19:11:13.539172+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_a9710705": {
+      "id": "bookmark_a9710705",
+      "type": "bookmark",
+      "attributes": {
+        "text": "every company needs a well structured company knowledge graph for agents \u2014 context repository",
+        "author": "Heinrich",
+        "handle": "arscontexta",
+        "url": "https://x.com/arscontexta/status/2026619782598955041",
+        "captured_at": "2026-02-25",
+        "topic_tags": [
+          "knowledge-graph",
+          "agents",
+          "architecture",
+          "context"
+        ],
+        "action": "review",
+        "signal_score": 3
+      },
+      "provenance": {
+        "source": "https://x.com/arscontexta/status/2026619782598955041",
+        "timestamp": "2026-02-25T19:11:13.540329+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_3dee5dfb": {
+      "id": "bookmark_3dee5dfb",
+      "type": "bookmark",
+      "attributes": {
+        "text": "Agents Don't Need Databases",
+        "author": "Eli Mernit",
+        "handle": "mernit",
+        "url": "https://x.com/mernit/status/2026438688297644503",
+        "captured_at": "2026-02-23",
+        "topic_tags": [
+          "agents",
+          "architecture",
+          "memory"
+        ],
+        "action": "review",
+        "signal_score": 1
+      },
+      "provenance": {
+        "source": "https://x.com/mernit/status/2026438688297644503",
+        "timestamp": "2026-02-25T19:11:13.540519+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_894e4b72": {
+      "id": "bookmark_894e4b72",
+      "type": "bookmark",
+      "attributes": {
+        "text": "Planning Is the New Coding",
+        "author": "Kenneth Auchenberg",
+        "handle": "auchenberg",
+        "url": "https://x.com/auchenberg/status/2026382482271047789",
+        "captured_at": "2026-02-23",
+        "topic_tags": [
+          "planning",
+          "agents",
+          "workflow"
+        ],
+        "action": "review",
+        "signal_score": 0
+      },
+      "provenance": {
+        "source": "https://x.com/auchenberg/status/2026382482271047789",
+        "timestamp": "2026-02-25T19:11:13.540681+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_ef546c37": {
+      "id": "bookmark_ef546c37",
+      "type": "bookmark",
+      "attributes": {
+        "text": "Delete your CLAUDE.md. Delete your AGENTS.md.",
+        "author": "Theo",
+        "handle": "theo",
+        "url": "https://x.com/theo/status/2025900730847232409",
+        "captured_at": "2026-02-23",
+        "topic_tags": [
+          "agents",
+          "critique",
+          "architecture"
+        ],
+        "action": "review",
+        "signal_score": 1
+      },
+      "provenance": {
+        "source": "https://x.com/theo/status/2025900730847232409",
+        "timestamp": "2026-02-25T19:11:13.540841+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_339ca98e": {
+      "id": "bookmark_339ca98e",
+      "type": "bookmark",
+      "attributes": {
+        "text": "New in Claude Code: Remote Control",
+        "author": "claudeai",
+        "handle": "claudeai",
+        "url": "https://x.com/claudeai/status/2026418433911603668",
+        "captured_at": "2026-02-24",
+        "topic_tags": [
+          "claude",
+          "tooling",
+          "remote-control"
+        ],
+        "action": "review",
+        "signal_score": 0
+      },
+      "provenance": {
+        "source": "https://x.com/claudeai/status/2026418433911603668",
+        "timestamp": "2026-02-25T19:11:13.541016+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_1ee1ffc5": {
+      "id": "bookmark_1ee1ffc5",
+      "type": "bookmark",
+      "attributes": {
+        "text": "watched another agentic ai project crash \u2014 poor architecture \u2014 here is the 10-step checklist",
+        "author": "Rohit",
+        "handle": "rohit4verse",
+        "url": "https://x.com/rohit4verse/status/2026359771427991764",
+        "captured_at": "2026-02-24",
+        "topic_tags": [
+          "architecture",
+          "failure-modes",
+          "agents",
+          "checklist"
+        ],
+        "action": "review",
+        "signal_score": 2
+      },
+      "provenance": {
+        "source": "https://x.com/rohit4verse/status/2026359771427991764",
+        "timestamp": "2026-02-25T19:11:13.541503+00:00",
+        "confidence": "MEDIUM"
+      }
+    },
+    "bookmark_c35470a3": {
+      "id": "bookmark_c35470a3",
+      "type": "bookmark",
+      "attributes": {
+        "text": "how to use obsidian + claude code \u2014 24/7 personal operating system",
+        "author": "Greg Isenberg",
+        "handle": "gregisenberg",
+        "url": "https://x.com/gregisenberg/status/2026036464287412412",
+        "captured_at": "2026-02-23",
+        "topic_tags": [
+          "obsidian",
+          "claude",
+          "personal-os",
+          "workflow"
+        ],
+        "action": "review",
+        "signal_score": 0
+      },
+      "provenance": {
+        "source": "https://x.com/gregisenberg/status/2026036464287412412",
+        "timestamp": "2026-02-25T19:11:13.541779+00:00",
+        "confidence": "MEDIUM"
+      }
+    }
+  },
+  "edges": []
+}

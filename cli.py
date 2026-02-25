@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -70,7 +70,9 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_researcher_documents.py"),
         os.path.join(BASE_DIR, "tests", "test_memory_promotion.py"),
         os.path.join(BASE_DIR, "tests", "test_promotion_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_promotion_queue_auto.py"),
         os.path.join(BASE_DIR, "tests", "test_promotion_review.py"),
+        os.path.join(BASE_DIR, "tests", "test_promotion_daily.py"),
         os.path.join(BASE_DIR, "tests", "test_hr_agent.py"),
         os.path.join(BASE_DIR, "tests", "test_episodic_memory.py"),
         os.path.join(BASE_DIR, "tests", "test_openclaw_health_sync.py"),
@@ -814,6 +816,67 @@ def main() -> int:
                 *(["--output", args.output] if args.output else []),
                 *(["--min-count", str(args.min_count)] if args.min_count else []),
                 *(["--rubric", args.rubric] if args.rubric else []),
+            ]
+        )
+    )
+
+    daily_p = sub.add_parser("promotion-daily", help="Run daily queue auto + promotion review")
+    daily_p.add_argument("--since-hours", type=int, default=24, help="Window for queue auto candidates")
+    daily_p.add_argument("--max-add", type=int, default=5, help="Maximum episodes to add to queue")
+    daily_p.add_argument(
+        "--reason",
+        default="auto: daily gated promotion candidate",
+        help="Reason text for queue entries",
+    )
+    daily_p.add_argument("--pattern", default="automation_success", help="Pattern label for queue entries")
+    daily_p.add_argument("--allow-medium-risk", action="store_true", help="Allow MEDIUM-risk episodes")
+    daily_p.add_argument("--min-sources", type=int, default=2, help="Minimum source count required")
+    daily_p.add_argument("--no-require-glance-pass", action="store_true", help="Do not require status_today PASS")
+    daily_p.add_argument("--no-require-phase-pass", action="store_true", help="Do not require latest phase gate PASS")
+    daily_p.add_argument(
+        "--phase-policy",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="Phase gate policy (auto requires phase at/after enforce hour)",
+    )
+    daily_p.add_argument(
+        "--phase-enforce-hour",
+        type=int,
+        default=19,
+        help="Local hour when auto phase policy enforces phase gate",
+    )
+    daily_p.add_argument("--dry-run", action="store_true", help="Show queue candidates without writing")
+    daily_p.add_argument("--output", help="Promotion review output path")
+    daily_p.add_argument("--min-count", type=int, default=2, help="Minimum queue size target in review")
+    daily_p.add_argument("--rubric", help="Rubric path")
+    daily_p.add_argument("--strict-gates", action="store_true", help="Fail when queue auto is blocked by gates")
+    daily_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "promotion_daily.py"),
+                "--since-hours",
+                str(args.since_hours),
+                "--max-add",
+                str(args.max_add),
+                "--reason",
+                args.reason,
+                "--pattern",
+                args.pattern,
+                "--min-sources",
+                str(args.min_sources),
+                *(["--allow-medium-risk"] if args.allow_medium_risk else []),
+                *(["--no-require-glance-pass"] if args.no_require_glance_pass else []),
+                *(["--no-require-phase-pass"] if args.no_require_phase_pass else []),
+                "--phase-policy",
+                args.phase_policy,
+                "--phase-enforce-hour",
+                str(args.phase_enforce_hour),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--min-count", str(args.min_count)] if args.min_count else []),
+                *(["--rubric", args.rubric] if args.rubric else []),
+                *(["--strict-gates"] if args.strict_gates else []),
             ]
         )
     )

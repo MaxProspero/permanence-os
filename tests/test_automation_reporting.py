@@ -54,6 +54,40 @@ def test_collect_runs_and_write_report():
                 assert "Launchd loaded: yes" in report
                 assert "Successful runs: 1" in report
                 assert "briefing_20260207-023756.md" in report
+                assert "Promotion daily status: n/a" in report
         finally:
             report_mod.storage = original_storage
 
+
+def test_collect_runs_marks_fail_on_promotion_daily_error():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        log_dir = tmp_path / "automation"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        run_log = log_dir / "run_20260207-190000.log"
+        run_log.write_text(
+            "=== Briefing Run Started: Fri Feb  6 20:37:45 2026 ===\n"
+            "Briefing Status: 0 | Digest Status: 0 | NotebookLM Status: 0\n"
+            "Ari Status: 0\n"
+            "Health Status: 0 | Report Status: 0\n"
+            "Chronicle Capture: 0 | Chronicle Report: 0 | Chronicle Publish: 0\n"
+            "Promotion Daily Status: 3\n"
+            "Glance Status: 0\n"
+            "V04 Snapshot Status: 0\n"
+        )
+
+        dummy = _DummyStorage(tmp_path)
+        original_storage = report_mod.storage
+        try:
+            report_mod.storage = dummy
+            with patch.object(report_mod, "_check_launchd", return_value=True):
+                runs = report_mod._collect_runs(log_dir)
+                assert len(runs) == 1
+                assert runs[0].promotion_daily_status == 3
+                assert runs[0].success is False
+
+                report = report_mod._build_report(runs, days=1, label="com.permanence.briefing")
+                assert "Failed/incomplete runs: 1" in report
+                assert "promotion_daily=3" in report
+        finally:
+            report_mod.storage = original_storage

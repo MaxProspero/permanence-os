@@ -251,6 +251,18 @@ Reliability watch can run in background for a fixed 7-day window:
 Chronicle auto-publish in automation runs:
 - `automation/run_briefing.sh` now runs `chronicle-capture`, `chronicle-report`, and `chronicle-publish` when `PERMANENCE_CHRONICLE_AUTOPUBLISH=1` (default).
 - Optional env vars: `PERMANENCE_CHRONICLE_DAYS` and `PERMANENCE_CHRONICLE_DRIVE_DIR`.
+- If Drive mirror copy is blocked by macOS permissions in launchd context, automation retries local-only Chronicle publish.
+
+Promotion daily automation in briefing runs:
+- `automation/run_briefing.sh` runs `python cli.py promotion-daily` at slot `19` by default.
+- Optional env vars:
+  - `PERMANENCE_PROMOTION_DAILY_ENABLED=1|0`
+  - `PERMANENCE_PROMOTION_DAILY_SLOT=19|all`
+  - `PERMANENCE_PROMOTION_DAILY_STRICT=0|1`
+  - `PERMANENCE_PROMOTION_DAILY_SINCE_HOURS=24`
+  - `PERMANENCE_PROMOTION_DAILY_MAX_ADD=5`
+  - `PERMANENCE_PROMOTION_DAILY_PHASE_POLICY=auto|always|never`
+  - `PERMANENCE_PROMOTION_DAILY_PHASE_ENFORCE_HOUR=19`
 
 ### OpenClaw Integration (Local)
 Set the OpenClaw CLI path (if not default):
@@ -412,6 +424,9 @@ Promotion drafts include `docs/promotion_rubric.md` by default (override with `P
 ```bash
 python cli.py queue list
 python cli.py queue add --latest --reason "pattern repeat"
+python cli.py queue auto --dry-run
+python cli.py queue auto --since-hours 24 --max-add 5
+python cli.py promotion-daily
 python cli.py queue clear
 python cli.py promotion-review --output outputs/promotion_review.md
 ```
@@ -425,6 +440,8 @@ python tests/test_researcher_ingest.py
 python tests/test_researcher_documents.py
 python tests/test_memory_promotion.py
 python tests/test_promotion_queue.py
+python tests/test_promotion_queue_auto.py
+python tests/test_promotion_daily.py
 python tests/test_promotion_review.py
 python tests/test_hr_agent.py
 ```
