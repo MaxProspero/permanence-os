@@ -147,13 +147,22 @@ def main() -> int:
         print(f"Missing credentials file: {args.credentials}")
         return 2
 
-    ingest_gmail(
-        credentials_path=args.credentials,
-        token_path=args.token,
-        output_path=args.output,
-        max_messages=args.max,
-        query=args.query,
-    )
+    try:
+        ingest_gmail(
+            credentials_path=args.credentials,
+            token_path=args.token,
+            output_path=args.output,
+            max_messages=args.max,
+            query=args.query,
+        )
+    except Exception as exc:
+        message = str(exc)
+        if "invalid_grant" in message.lower():
+            print("Gmail token is invalid or expired. Re-run `python cli.py gmail-ingest` to re-authorize.")
+            return 3
+        print(f"Gmail ingest failed: {message}")
+        return 1
+
     print(f"Gmail inbox written to {args.output}")
     return 0
 

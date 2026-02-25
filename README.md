@@ -213,6 +213,8 @@ python cli.py logos-gate
 python cli.py dashboard
 python cli.py command-center
 python cli.py command-center --run-horizon --demo-horizon
+python scripts/revenue_action_queue.py
+bash scripts/run_money_loop.sh
 python cli.py snapshot
 python cli.py v04-snapshot
 python cli.py cleanup-weekly
@@ -230,6 +232,7 @@ Automation writes a one-line quick status file to storage logs:
 
 One-click desktop launcher:
 - `/Users/paytonhicks/Desktop/Start_Permanence_Command_Center.command`
+- `/Users/paytonhicks/Desktop/Run_Permanence_Money_Loop.command`
 - `status_today.json`
 
 Ari receptionist can run in automation mode:
@@ -314,10 +317,28 @@ python cli.py email-triage
 ### Gmail Ingest (Read-only)
 1) Create OAuth credentials in Google Cloud (Gmail API enabled).
 2) Save credentials to `memory/working/google/credentials.json`.
-3) Run:
+3) Run once interactively to generate token:
 ```bash
 python cli.py gmail-ingest --max 50
 ```
+This creates `memory/working/google/token.json` for future non-interactive runs.
+
+### Money Loop (Revenue Ops)
+Run one command to refresh inbox intelligence and produce a 7-action queue:
+```bash
+bash scripts/run_money_loop.sh
+python scripts/revenue_action_queue.py
+```
+Desktop launcher:
+- `/Users/paytonhicks/Desktop/Run_Permanence_Money_Loop.command`
+
+Optional env vars:
+- `PERMANENCE_MONEY_LOOP_GMAIL_INGEST=1|0`
+- `PERMANENCE_MONEY_LOOP_GMAIL_MAX=100`
+- `PERMANENCE_MONEY_LOOP_GMAIL_QUERY="newer_than:14d -category:social -category:promotions"`
+- `PERMANENCE_MONEY_LOOP_TRIAGE_MAX_ITEMS=40`
+- `PERMANENCE_GMAIL_CREDENTIALS=~/.../credentials.json` (if not using default path)
+- `PERMANENCE_GMAIL_TOKEN=~/.../token.json` (required for non-interactive automation)
 
 ### Health Summary
 Store health JSON/JSONL in `memory/working/health/` and run:
