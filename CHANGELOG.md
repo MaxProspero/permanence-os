@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added revenue operations expansion:
+  - `scripts/revenue_execution_board.py` daily execution board output + tool payload
+  - new CLI commands: `money-loop`, `revenue-action-queue`, `revenue-architecture`, `revenue-execution-board`, `sales-pipeline`, `foundation-site`
+  - dashboard revenue endpoint: `/api/revenue/latest`
+  - Command Center Revenue Ops view in `dashboard_index.html`
+  - local FOUNDATION site preview server: `scripts/foundation_site.py`
+  - tests for revenue execution board generation and dashboard revenue snapshot parsing
 - Added chronicle distribution pipeline:
   - `scripts/chronicle_publish.py`
   - shared publish outputs under `memory/chronicle/shared/`

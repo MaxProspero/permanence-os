@@ -47,6 +47,8 @@ PATHS = {
     "canon":    os.path.join(BASE_DIR, "canon"),
     "logs":     os.path.join(BASE_DIR, "logs"),
     "outputs":  OUTPUT_ROOT,
+    "working":  os.environ.get("PERMANENCE_WORKING_DIR", os.path.join(BASE_DIR, "memory", "working")),
+    "tool":     os.environ.get("PERMANENCE_TOOL_DIR", os.path.join(BASE_DIR, "memory", "tool")),
     "chronicle": os.path.join(OUTPUT_ROOT, "chronicle"),
     "chronicle_shared": os.path.join(BASE_DIR, "memory", "chronicle", "shared"),
     "episodic": os.path.join(BASE_DIR, "memory", "episodic"),
@@ -265,6 +267,17 @@ def get_latest_briefing():
 
 
 # ─────────────────────────────────────────────
+# REVENUE OPS
+# ─────────────────────────────────────────────
+
+@app.route("/api/revenue/latest", methods=["GET"])
+def get_latest_revenue():
+    """Returns latest revenue queue, execution board, and pipeline metrics."""
+    log_api_call("GET", "/api/revenue/latest")
+    return jsonify(_load_revenue_snapshot())
+
+
+# ─────────────────────────────────────────────
 # HORIZON REPORTS
 # ─────────────────────────────────────────────
 
@@ -383,6 +396,238 @@ def get_logs():
 # ─────────────────────────────────────────────
 # INTERNAL HELPERS
 # ─────────────────────────────────────────────
+
+REVENUE_STAGE_PROB = {
+    "lead": 0.10,
+    "qualified": 0.25,
+    "call_scheduled": 0.40,
+    "proposal_sent": 0.60,
+    "negotiation": 0.75,
+    "won": 1.00,
+    "lost": 0.00,
+}
+
+
+def _candidate_output_dirs() -> list[str]:
+    raw_candidates = [
+        PATHS["outputs"],
+        os.path.join(BASE_DIR, "outputs"),
+        os.path.join(BASE_DIR, "permanence_storage", "outputs"),
+    ]
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for candidate in raw_candidates:
+        normalized = os.path.abspath(os.path.expanduser(candidate))
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        deduped.append(normalized)
+    return deduped
+
+
+def _latest_output_file(pattern: str) -> Optional[str]:
+    files: list[str] = []
+    for output_dir in _candidate_output_dirs():
+        files.extend(glob.glob(os.path.join(output_dir, pattern)))
+    if not files:
+        return None
+    return max(files, key=os.path.getmtime)
+
+
+def _read_text_file(path: Optional[str]) -> str:
+    if not path or not os.path.exists(path):
+        return ""
+    try:
+        with open(path) as f:
+            return f.read()
+    except OSError:
+        return ""
+
+
+def _first_existing_output_file(filename: str) -> Optional[str]:
+    for output_dir in _candidate_output_dirs():
+        candidate = os.path.join(output_dir, filename)
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+
+def _extract_markdown_section(lines: list[str], heading: str) -> list[str]:
+    section: list[str] = []
+    in_section = False
+    for raw in lines:
+        line = raw.rstrip("\n")
+        if line.startswith("## "):
+            if line == heading:
+                in_section = True
+                continue
+            if in_section:
+                break
+        if in_section:
+            section.append(line)
+    return section
+
+
+def _parse_revenue_queue_actions(markdown: str) -> list[str]:
+    if not markdown:
+        return []
+    actions: list[str] = []
+    for line in markdown.splitlines():
+        text = line.strip()
+        if not text or ". [" not in text:
+            continue
+        prefix, body = text.split(". ", 1) if ". " in text else ("", "")
+        if not prefix.isdigit() or "] " not in body or not body.startswith("["):
+            continue
+        actions.append(body)
+    return actions
+
+
+def _parse_revenue_board(markdown: str) -> dict:
+    lines = markdown.splitlines() if markdown else []
+    non_negotiables: list[str] = []
+    urgent_actions: list[str] = []
+    inbox = {"P0": 0, "P1": 0, "P2": 0, "P3": 0}
+
+    for line in _extract_markdown_section(lines, "## Today's Non-Negotiables"):
+        text = line.strip()
+        if text.startswith(tuple(f"{n}." for n in range(1, 11))) and ". " in text:
+            non_negotiables.append(text.split(". ", 1)[1])
+
+    for line in _extract_markdown_section(lines, "## Pipeline Urgent Actions (<=24h)"):
+        text = line.strip()
+        if text.startswith("- "):
+            urgent_actions.append(text[2:])
+
+    for line in lines:
+        text = line.strip()
+        if not text.startswith("- P0:"):
+            continue
+        parts = [p.strip() for p in text[2:].split("|")]
+        for part in parts:
+            if ":" not in part:
+                continue
+            key, value = [s.strip() for s in part.split(":", 1)]
+            if key in inbox:
+                try:
+                    inbox[key] = int(value)
+                except ValueError:
+                    inbox[key] = 0
+        break
+
+    return {
+        "non_negotiables": non_negotiables,
+        "urgent_actions": urgent_actions,
+        "inbox_pressure": inbox,
+    }
+
+
+def _pipeline_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_SALES_PIPELINE_PATH",
+        os.path.join(PATHS["working"], "sales_pipeline.json"),
+    )
+
+
+def _load_pipeline_snapshot() -> dict:
+    pipeline_path = _pipeline_path()
+    if not os.path.exists(pipeline_path):
+        return {
+            "path": pipeline_path,
+            "total": 0,
+            "open_count": 0,
+            "open_value": 0.0,
+            "weighted_value": 0.0,
+            "urgent_count": 0,
+            "updated_at": None,
+        }
+
+    try:
+        with open(pipeline_path) as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        payload = []
+
+    rows = [row for row in payload if isinstance(row, dict)] if isinstance(payload, list) else []
+    open_rows = [row for row in rows if str(row.get("stage")) not in {"won", "lost"}]
+    open_value = 0.0
+    weighted_value = 0.0
+    for row in open_rows:
+        try:
+            est = float(row.get("est_value", 0) or 0)
+        except (TypeError, ValueError):
+            est = 0.0
+        stage = str(row.get("stage", "lead"))
+        open_value += est
+        weighted_value += est * REVENUE_STAGE_PROB.get(stage, 0.0)
+
+    cutoff = (datetime.datetime.now().date() + datetime.timedelta(days=1)).isoformat()
+    urgent_count = 0
+    for row in open_rows:
+        due = str(row.get("next_action_due") or "")
+        if due and due <= cutoff:
+            urgent_count += 1
+
+    return {
+        "path": pipeline_path,
+        "total": len(rows),
+        "open_count": len(open_rows),
+        "open_value": open_value,
+        "weighted_value": weighted_value,
+        "urgent_count": urgent_count,
+        "updated_at": timestamp_to_utc_iso(os.path.getmtime(pipeline_path)),
+    }
+
+
+def _load_revenue_snapshot() -> dict:
+    queue_path = _latest_output_file("revenue_action_queue_*.md")
+
+    arch_path = _first_existing_output_file("revenue_architecture_latest.md")
+    if arch_path is None:
+        arch_path = _latest_output_file("revenue_architecture_*.md") or ""
+
+    board_path = _first_existing_output_file("revenue_execution_board_latest.md")
+    if board_path is None:
+        board_path = _latest_output_file("revenue_execution_board_*.md") or ""
+
+    queue_markdown = _read_text_file(queue_path)
+    board_markdown = _read_text_file(board_path)
+    architecture_markdown = _read_text_file(arch_path)
+
+    queue_actions = _parse_revenue_queue_actions(queue_markdown)
+    board_data = _parse_revenue_board(board_markdown)
+    pipeline = _load_pipeline_snapshot()
+
+    return {
+        "generated_at": utc_iso(),
+        "sources": {
+            "queue": queue_path,
+            "architecture": arch_path or None,
+            "execution_board": board_path or None,
+            "pipeline": pipeline["path"],
+        },
+        "queue": {
+            "count": len(queue_actions),
+            "actions": queue_actions[:7],
+            "content_markdown": queue_markdown,
+        },
+        "board": {
+            "non_negotiables": board_data["non_negotiables"][:7],
+            "urgent_actions": board_data["urgent_actions"][:10],
+            "inbox_pressure": board_data["inbox_pressure"],
+            "content_markdown": board_markdown,
+        },
+        "pipeline": {
+            "total": pipeline["total"],
+            "open_count": pipeline["open_count"],
+            "open_value": pipeline["open_value"],
+            "weighted_value": pipeline["weighted_value"],
+            "urgent_count": pipeline["urgent_count"],
+            "updated_at": pipeline["updated_at"],
+        },
+        "architecture_excerpt": architecture_markdown[:4000],
+    }
+
 
 def _read_canon_version() -> str:
     changelog = os.path.join(PATHS["canon"], "CHANGELOG.md")

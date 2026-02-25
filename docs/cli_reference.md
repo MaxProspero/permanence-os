@@ -29,6 +29,32 @@ Evaluate Logos Praktikos activation tiers.
 ### `python cli.py dashboard`
 Generate a consolidated dashboard report.
 
+### `python cli.py money-loop`
+Run the full revenue money loop (`scripts/run_money_loop.sh`) end-to-end.
+
+### `python cli.py revenue-action-queue`
+Generate the latest 7-action revenue queue from email/social outputs.
+
+### `python cli.py revenue-architecture`
+Generate Revenue Architecture v1 scorecard and pipeline snapshot.
+
+### `python cli.py revenue-execution-board`
+Generate the daily revenue execution board.
+
+### `python cli.py sales-pipeline ...`
+Forward pipeline commands to `scripts/sales_pipeline.py`.
+Examples:
+- `python cli.py sales-pipeline init`
+- `python cli.py sales-pipeline add --name "Lead" --source "X DM" --est-value 1500`
+- `python cli.py sales-pipeline list --open-only`
+
+### `python cli.py foundation-site`
+Serve `site/foundation/index.html` locally.
+- `--host` bind host (default `127.0.0.1`)
+- `--port` bind port (default `8787`)
+- `--no-open` disable auto-open browser
+- `--site-dir` override site root
+
 ### `python cli.py snapshot`
 Generate a system snapshot with status + OpenClaw + HR + briefing.
 

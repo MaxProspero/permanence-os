@@ -213,10 +213,12 @@ python cli.py logos-gate
 python cli.py dashboard
 python cli.py command-center
 python cli.py command-center --run-horizon --demo-horizon
-python scripts/revenue_action_queue.py
-bash scripts/run_money_loop.sh
-python scripts/revenue_architecture_report.py
-python scripts/sales_pipeline.py list --open-only
+python cli.py money-loop
+python cli.py revenue-action-queue
+python cli.py revenue-architecture
+python cli.py revenue-execution-board
+python cli.py sales-pipeline list --open-only
+python cli.py foundation-site
 python cli.py snapshot
 python cli.py v04-snapshot
 python cli.py cleanup-weekly
@@ -326,10 +328,17 @@ python cli.py gmail-ingest --max 50
 This creates `memory/working/google/token.json` for future non-interactive runs.
 
 ### Money Loop (Revenue Ops)
-Run one command to refresh inbox intelligence and produce a 7-action queue:
+Run one command to refresh inbox intelligence and generate:
+- email triage
+- social summary
+- revenue action queue
+- revenue architecture scorecard
+- revenue execution board
+
 ```bash
-bash scripts/run_money_loop.sh
-python scripts/revenue_action_queue.py
+python cli.py money-loop
+python cli.py revenue-action-queue
+python cli.py revenue-execution-board
 ```
 Desktop launcher:
 - `/Users/paytonhicks/Desktop/Run_Permanence_Money_Loop.command`
@@ -345,21 +354,31 @@ Optional env vars:
 ### Revenue Architecture v1 (Pipeline + KPI Scorecard)
 Generate report:
 ```bash
-python scripts/revenue_architecture_report.py
+python cli.py revenue-architecture
 ```
 Manage sales pipeline:
 ```bash
-python scripts/sales_pipeline.py init
-python scripts/sales_pipeline.py add --name "Lead Name" --source "X DM" --est-value 1500 --next-action "Book fit call" --next-action-due 2026-02-26
-python scripts/sales_pipeline.py list --open-only
-python scripts/sales_pipeline.py update --lead-id L-YYYYMMDD-HHMMSS --stage call_scheduled --next-action "Run discovery call" --next-action-due 2026-02-27
-python scripts/sales_pipeline.py close --lead-id L-YYYYMMDD-HHMMSS --result won --actual-value 1500
+python cli.py sales-pipeline init
+python cli.py sales-pipeline add --name "Lead Name" --source "X DM" --est-value 1500 --next-action "Book fit call" --next-action-due 2026-02-26
+python cli.py sales-pipeline list --open-only
+python cli.py sales-pipeline update --lead-id L-YYYYMMDD-HHMMSS --stage call_scheduled --next-action "Run discovery call" --next-action-due 2026-02-27
+python cli.py sales-pipeline close --lead-id L-YYYYMMDD-HHMMSS --result won --actual-value 1500
 ```
 Files created/used:
 - `memory/working/revenue_targets.json`
 - `memory/working/revenue_streams.json`
 - `memory/working/sales_pipeline.json`
 - `outputs/revenue_architecture_latest.md`
+- `outputs/revenue_execution_board_latest.md`
+
+Revenue data is also visible in Command Center under **Revenue Ops**.
+
+### FOUNDATION Landing Page (Local Preview)
+Serve the local offer page:
+```bash
+python cli.py foundation-site
+```
+Then open: `http://127.0.0.1:8787/`
 
 ### Health Summary
 Store health JSON/JSONL in `memory/working/health/` and run:

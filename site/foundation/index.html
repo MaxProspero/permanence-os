@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Permanence OS Foundation Setup</title>
+  <meta name="description" content="7-day governed AI operating system setup for Mac operators.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1115;
+      --bg-elev: #111a20;
+      --ink: #e7ecef;
+      --muted: #9db0bb;
+      --line: rgba(255, 255, 255, 0.14);
+      --accent: #4de2c0;
+      --accent-2: #f5bb5a;
+      --danger: #ff6b6b;
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(1200px 700px at 10% -10%, #1d2b32 0%, transparent 60%),
+                  radial-gradient(1000px 600px at 100% 0%, #2d2920 0%, transparent 55%),
+                  var(--bg);
+      color: var(--ink);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      min-height: 100%;
+    }
+
+    body {
+      line-height: 1.45;
+    }
+
+    .shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: 28px 0 72px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      animation: rise 420ms ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .cta-link {
+      font-family: "Space Mono", monospace;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(77, 226, 192, 0.45);
+      padding-bottom: 2px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 26px;
+      margin-bottom: 26px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      animation: rise 520ms ease both;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(30px, 5vw, 56px);
+      line-height: 0.98;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .kicker {
+      color: var(--accent-2);
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hero-points {
+      list-style: none;
+      margin: 16px 0 20px;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .hero-points li {
+      border-left: 3px solid rgba(77, 226, 192, 0.65);
+      padding-left: 10px;
+      color: #cdd9df;
+      font-size: 15px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #3bcfb0);
+      color: #03231d;
+    }
+
+    .btn-alt {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(11, 17, 21, 0.5);
+    }
+
+    .metric .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .metric .value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .tier {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--bg-elev);
+    }
+
+    .tier h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .tier .price {
+      font-family: "Space Mono", monospace;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .tier ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .checklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .checklist li {
+      padding-left: 20px;
+      position: relative;
+      color: #c8d4da;
+    }
+
+    .checklist li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
+      font-family: "Space Mono", monospace;
+      font-weight: 700;
+    }
+
+    form {
+      display: grid;
+      gap: 10px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ink);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+
+    footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @keyframes rise {
+      from {
+        transform: translateY(10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      .split {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <div class="badge"><span class="dot"></span> Foundation Setup | 7-Day Delivery</div>
+      <a class="cta-link" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20Intake">hello@permanencesystems.com</a>
+    </div>
+
+    <section class="hero">
+      <article class="panel">
+        <div class="kicker">Permanence Systems</div>
+        <h1>Install a governed AI operating system on your Mac in 7 days.</h1>
+        <p>You stop juggling disconnected tools. We wire your command center, automations, money loop, and governance so execution is daily, traceable, and controlled.</p>
+        <ul class="hero-points">
+          <li>Local command center + live operator dashboard</li>
+          <li>Daily automation cadence (7 / 12 / 19 local)</li>
+          <li>Revenue loop: inbox triage, action queue, execution board</li>
+          <li>Governance gates + audit trail for every run</li>
+        </ul>
+        <div class="row">
+          <a class="btn btn-primary" href="#intake">Start Intake</a>
+          <a class="btn btn-alt" href="#packages">See Packages</a>
+        </div>
+        <p class="small" style="margin-top:12px">Locked weekly CTA: <strong>DM "FOUNDATION"</strong></p>
+      </article>
+
+      <aside class="panel">
+        <h2>What You Get</h2>
+        <div class="stack">
+          <div class="metric">
+            <span class="label">Delivery Window</span>
+            <span class="value">7 Days</span>
+          </div>
+          <div class="metric">
+            <span class="label">Setup Surface</span>
+            <span class="value">App + Ops Loop</span>
+          </div>
+          <div class="metric">
+            <span class="label">Primary Outcome</span>
+            <span class="value">Daily Executable System</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="packages" class="grid-3">
+      <article class="tier">
+        <h3>Pilot</h3>
+        <div class="price">$750</div>
+        <ul>
+          <li>Single-machine baseline setup</li>
+          <li>Core command center wiring</li>
+          <li>Basic runbook</li>
+        </ul>
+      </article>
+      <article class="tier">
+        <h3>Core</h3>
+        <div class="price">$1,500</div>
+        <ul>
+          <li>Pilot + full money loop</li>
+          <li>Governance tuning + verification</li>
+          <li>Daily execution board</li>
+        </ul>
+      </article>
+      <article class="tier">
+        <h3>Operator</h3>
+        <div class="price">$3,000</div>
+        <ul>
+          <li>Core + custom workflows</li>
+          <li>Two-week support window</li>
+          <li>Higher-leverage conversion stack</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="split">
+      <article class="panel">
+        <h2>Qualification</h2>
+        <ul class="checklist">
+          <li>Mac as primary operating machine</li>
+          <li>At least one workflow to automate now</li>
+          <li>Willing to run daily cadence and close loops</li>
+        </ul>
+      </article>
+      <article class="panel">
+        <h2>Process</h2>
+        <ul class="checklist">
+          <li>Intake + 20-minute fit call</li>
+          <li>Scope lock and same-day invoice</li>
+          <li>7-day implementation sprint</li>
+          <li>Handoff with launchers + playbook</li>
+        </ul>
+      </article>
+    </section>
+
+    <section id="intake" class="panel">
+      <h2>FOUNDATION Intake</h2>
+      <p style="margin-bottom:14px">Fill this quickly and send it. We use this to decide fit, package, and kickoff date.</p>
+      <form id="intakeForm">
+        <label>Name
+          <input name="name" required>
+        </label>
+        <label>Email
+          <input type="email" name="email" required>
+        </label>
+        <label>Top workflow to improve first
+          <select name="workflow">
+            <option value="Content">Content</option>
+            <option value="Research">Research</option>
+            <option value="Operations">Operations</option>
+            <option value="All three">All three</option>
+          </select>
+        </label>
+        <label>Preferred package
+          <select name="package">
+            <option value="Pilot">Pilot</option>
+            <option value="Core" selected>Core</option>
+            <option value="Operator">Operator</option>
+          </select>
+        </label>
+        <label>Biggest blocker
+          <textarea name="blocker" placeholder="What is wasting your time right now?"></textarea>
+        </label>
+        <div class="row">
+          <button class="btn btn-primary" type="submit">Send Intake</button>
+          <a class="btn btn-alt" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20DM">DM FOUNDATION</a>
+        </div>
+      </form>
+      <p class="small" style="margin-top:12px">No autopublish or auto-send happens without human approval.</p>
+      <p class="small danger">This page is a lead-capture surface, not legal or financial advice.</p>
+    </section>
+
+    <footer>
+      Permanence Systems | FOUNDATION | Governance-first operator infrastructure
+    </footer>
+  </main>
+  <script>
+    const form = document.getElementById("intakeForm");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const lines = [
+        "FOUNDATION Intake",
+        "",
+        `Name: ${data.get("name") || ""}`,
+        `Email: ${data.get("email") || ""}`,
+        `Workflow: ${data.get("workflow") || ""}`,
+        `Package: ${data.get("package") || ""}`,
+        `Blocker: ${data.get("blocker") || ""}`,
+      ];
+      const subject = encodeURIComponent("FOUNDATION Intake");
+      const body = encodeURIComponent(lines.join("\n"));
+      window.location.href = `mailto:hello@permanencesystems.com?subject=${subject}&body=${body}`;
+    });
+  </script>
+</body>
+</html>

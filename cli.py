@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -103,6 +103,8 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
         os.path.join(BASE_DIR, "tests", "test_research_inbox.py"),
         os.path.join(BASE_DIR, "tests", "test_file_organizer.py"),
+        os.path.join(BASE_DIR, "tests", "test_dashboard_api_helpers.py"),
+        os.path.join(BASE_DIR, "tests", "test_revenue_execution_board.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -1106,6 +1108,100 @@ def main() -> int:
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "dashboard_report.py"),
                 *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    money_loop_p = sub.add_parser(
+        "money-loop",
+        help="Run the end-to-end revenue money loop script",
+    )
+    money_loop_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                "/bin/bash",
+                os.path.join(BASE_DIR, "scripts", "run_money_loop.sh"),
+            ]
+        )
+    )
+
+    revenue_queue_p = sub.add_parser(
+        "revenue-action-queue",
+        help="Generate the revenue action queue from latest agent outputs",
+    )
+    revenue_queue_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_action_queue.py"),
+            ]
+        )
+    )
+
+    revenue_arch_p = sub.add_parser(
+        "revenue-architecture",
+        help="Generate Revenue Architecture v1 scorecard + pipeline report",
+    )
+    revenue_arch_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_architecture_report.py"),
+            ]
+        )
+    )
+
+    revenue_board_p = sub.add_parser(
+        "revenue-execution-board",
+        help="Generate the daily revenue execution board",
+    )
+    revenue_board_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_execution_board.py"),
+            ]
+        )
+    )
+
+    sales_pipeline_p = sub.add_parser(
+        "sales-pipeline",
+        help="Forward sales pipeline subcommands to scripts/sales_pipeline.py",
+    )
+    sales_pipeline_p.add_argument(
+        "pipeline_args",
+        nargs=argparse.REMAINDER,
+        help="Args for sales_pipeline.py (e.g. add --name \"Lead\" ...)",
+    )
+    sales_pipeline_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "sales_pipeline.py"),
+                *args.pipeline_args,
+            ]
+        )
+    )
+
+    foundation_site_p = sub.add_parser(
+        "foundation-site",
+        help="Serve the local FOUNDATION landing page",
+    )
+    foundation_site_p.add_argument("--host", default="127.0.0.1", help="Bind host")
+    foundation_site_p.add_argument("--port", type=int, default=8787, help="Bind port")
+    foundation_site_p.add_argument("--no-open", action="store_true", help="Do not auto-open browser")
+    foundation_site_p.add_argument("--site-dir", help="Override site directory")
+    foundation_site_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "foundation_site.py"),
+                "--host",
+                args.host,
+                "--port",
+                str(args.port),
+                *(["--no-open"] if args.no_open else []),
+                *(["--site-dir", args.site_dir] if args.site_dir else []),
             ]
         )
     )

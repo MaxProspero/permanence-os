@@ -582,6 +582,9 @@
     <div class="nav-item" data-view="briefing" onclick="switchView('briefing', this)">
       <span>◉</span> Briefing
     </div>
+    <div class="nav-item" data-view="revenue" onclick="switchView('revenue', this)">
+      <span>¤</span> Revenue Ops
+    </div>
 
     <div class="nav-section-label">Intelligence</div>
     <div class="nav-item" data-view="horizon" onclick="switchView('horizon', this)">
@@ -693,6 +696,58 @@
       </div>
     </div>
 
+    <!-- ── REVENUE ── -->
+    <div class="view" id="view-revenue">
+      <div class="page-header">
+        <div class="page-title">Revenue Ops</div>
+        <div class="page-subtitle">Daily execution board, queue actions, and live pipeline metrics</div>
+      </div>
+
+      <div class="grid-4">
+        <div class="card stat-gold">
+          <div class="card-label">Queue Actions</div>
+          <div class="card-value" id="revenue-queue-count">—</div>
+          <div class="card-sub">Next 7 actions generated</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Open Leads</div>
+          <div class="card-value" id="revenue-open-leads">—</div>
+          <div class="card-sub">Current pipeline open count</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Weighted Pipeline</div>
+          <div class="card-value" id="revenue-weighted">$—</div>
+          <div class="card-sub">Probability-adjusted value</div>
+        </div>
+        <div class="card stat-alert">
+          <div class="card-label">Urgent Due (24h)</div>
+          <div class="card-value" id="revenue-urgent-count">—</div>
+          <div class="card-sub">Pipeline actions due now</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Today's Non-Negotiables</div>
+          <div id="revenue-non-negotiables"><div class="empty">Loading board...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Queue Actions</div>
+          <div id="revenue-queue-actions"><div class="empty">Loading queue...</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Urgent Pipeline Actions</div>
+        <div id="revenue-urgent-actions"><div class="empty">Loading urgent actions...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Data Sources</div>
+        <div id="revenue-sources"><div class="empty">Loading source paths...</div></div>
+      </div>
+    </div>
+
     <!-- ── HORIZON ── -->
     <div class="view" id="view-horizon">
       <div class="page-header">
@@ -772,6 +827,7 @@ function loadView(viewId) {
     case "overview":  loadOverview(); break;
     case "approvals": loadApprovals(); break;
     case "briefing":  loadBriefing(); break;
+    case "revenue":   loadRevenue(); break;
     case "horizon":   loadHorizon(); break;
     case "memory":    loadMemory(); break;
     case "canon":     loadCanon(); break;
@@ -823,6 +879,12 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function formatCurrency(value) {
+  const numeric = Number(value ?? 0);
+  if (!Number.isFinite(numeric)) return "$0";
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(numeric);
 }
 
 // ─────────────────────────────────────────────
@@ -1048,6 +1110,71 @@ async function loadBriefing() {
           ${item.source ? `<div class="briefing-source">${item.source}</div>` : ""}
         </div>`).join("") : `<div class="briefing-item">${JSON.stringify(items)}</div>`}
     </div>`).join("");
+}
+
+// ─────────────────────────────────────────────
+// REVENUE OPS
+// ─────────────────────────────────────────────
+async function loadRevenue() {
+  const data = await apiFetch("/revenue/latest");
+
+  if (!data) {
+    document.getElementById("revenue-queue-count").textContent = "—";
+    document.getElementById("revenue-open-leads").textContent = "—";
+    document.getElementById("revenue-weighted").textContent = "$—";
+    document.getElementById("revenue-urgent-count").textContent = "—";
+    document.getElementById("revenue-non-negotiables").innerHTML = `<div class="empty">No revenue data available yet.</div>`;
+    document.getElementById("revenue-queue-actions").innerHTML = `<div class="empty">No queue data available yet.</div>`;
+    document.getElementById("revenue-urgent-actions").innerHTML = `<div class="empty">No urgent actions available yet.</div>`;
+    document.getElementById("revenue-sources").innerHTML = `<div class="empty">Run money loop to generate data sources.</div>`;
+    return;
+  }
+
+  const queue = data.queue ?? {};
+  const board = data.board ?? {};
+  const pipeline = data.pipeline ?? {};
+  const sources = data.sources ?? {};
+
+  document.getElementById("revenue-queue-count").textContent = queue.count ?? 0;
+  document.getElementById("revenue-open-leads").textContent = pipeline.open_count ?? 0;
+  document.getElementById("revenue-weighted").textContent = formatCurrency(pipeline.weighted_value ?? 0);
+  document.getElementById("revenue-urgent-count").textContent = pipeline.urgent_count ?? 0;
+
+  const nonNegotiables = Array.isArray(board.non_negotiables) ? board.non_negotiables : [];
+  document.getElementById("revenue-non-negotiables").innerHTML = nonNegotiables.length
+    ? nonNegotiables.map((item, index) => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text-sub);">
+        <span style="color:var(--accent); font-family:var(--mono); margin-right:8px;">${index + 1}.</span>${escapeHtml(item)}
+      </div>`).join("")
+    : `<div class="empty">No non-negotiables found. Generate an execution board.</div>`;
+
+  const queueActions = Array.isArray(queue.actions) ? queue.actions : [];
+  document.getElementById("revenue-queue-actions").innerHTML = queueActions.length
+    ? queueActions.map(action => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text-sub);">
+        ${escapeHtml(action)}
+      </div>`).join("")
+    : `<div class="empty">No queue actions found. Run revenue action queue.</div>`;
+
+  const urgent = Array.isArray(board.urgent_actions) ? board.urgent_actions : [];
+  document.getElementById("revenue-urgent-actions").innerHTML = urgent.length
+    ? urgent.map(item => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text-sub);">
+        ${escapeHtml(item)}
+      </div>`).join("")
+    : `<div class="empty">No urgent pipeline actions due.</div>`;
+
+  const inbox = board.inbox_pressure ?? {};
+  const sourceRows = [
+    `Queue source: ${sources.queue ?? "none"}`,
+    `Architecture source: ${sources.architecture ?? "none"}`,
+    `Execution board source: ${sources.execution_board ?? "none"}`,
+    `Pipeline source: ${sources.pipeline ?? "none"}`,
+    `Inbox pressure: P0=${inbox.P0 ?? 0} | P1=${inbox.P1 ?? 0} | P2=${inbox.P2 ?? 0} | P3=${inbox.P3 ?? 0}`,
+  ];
+  document.getElementById("revenue-sources").innerHTML = sourceRows
+    .map(row => `<div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--muted); font-family:var(--mono);">${escapeHtml(row)}</div>`)
+    .join("");
 }
 
 // ─────────────────────────────────────────────
