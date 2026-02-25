@@ -44,14 +44,26 @@ normalize_int() {
 if [[ -n "${PERMANENCE_STORAGE_ROOT:-}" ]]; then
   TARGET_ROOT="$PERMANENCE_STORAGE_ROOT"
   PROBE_FILE="$TARGET_ROOT/outputs/briefings/.permanence_probe"
-  if ! mkdir -p "$TARGET_ROOT/outputs/briefings" "$TARGET_ROOT/outputs/digests" >> "$LOG_FILE" 2>&1 \
-    || ! ( : > "$PROBE_FILE" ) >> "$LOG_FILE" 2>&1; then
+  TARGET_READY=1
+  if [[ -e "$TARGET_ROOT" ]] && [[ ! -w "$TARGET_ROOT" ]]; then
+    TARGET_READY=0
+  fi
+  if [[ ! -e "$TARGET_ROOT" ]]; then
+    TARGET_PARENT="$(dirname "$TARGET_ROOT")"
+    if [[ ! -w "$TARGET_PARENT" ]]; then
+      TARGET_READY=0
+    fi
+  fi
+
+  if [[ "$TARGET_READY" -eq 1 ]] \
+    && mkdir -p "$TARGET_ROOT/outputs/briefings" "$TARGET_ROOT/outputs/digests" >> "$LOG_FILE" 2>&1 \
+    && ( : > "$PROBE_FILE" ) >> "$LOG_FILE" 2>&1; then
+    rm -f "$PROBE_FILE" >> "$LOG_FILE" 2>&1 || true
+  else
     FALLBACK_ROOT="$REPO_PATH/permanence_storage"
     mkdir -p "$FALLBACK_ROOT"
     export PERMANENCE_STORAGE_ROOT="$FALLBACK_ROOT"
     echo "[WARN] Storage root not writable in automation context. Falling back to $FALLBACK_ROOT" >> "$LOG_FILE"
-  else
-    rm -f "$PROBE_FILE" >> "$LOG_FILE" 2>&1 || true
   fi
 fi
 
