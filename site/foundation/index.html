@@ -307,6 +307,10 @@
       color: var(--danger);
     }
 
+    .success {
+      color: var(--accent);
+    }
+
     footer {
       margin-top: 18px;
       text-align: center;
@@ -465,6 +469,7 @@
           <a class="btn btn-alt" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20DM">DM FOUNDATION</a>
         </div>
       </form>
+      <p id="intakeStatus" class="small" style="margin-top:12px"></p>
       <p class="small" style="margin-top:12px">No autopublish or auto-send happens without human approval.</p>
       <p class="small danger">This page is a lead-capture surface, not legal or financial advice.</p>
     </section>
@@ -475,20 +480,71 @@
   </main>
   <script>
     const form = document.getElementById("intakeForm");
-    form.addEventListener("submit", (event) => {
+    const statusEl = document.getElementById("intakeStatus");
+    const intakeEndpoints = [
+      `${window.location.origin}/api/revenue/intake`,
+      "http://127.0.0.1:8000/api/revenue/intake",
+      "http://localhost:8000/api/revenue/intake",
+    ];
+
+    async function submitToApi(payload) {
+      for (const endpoint of intakeEndpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) continue;
+          const result = await response.json();
+          if (String(result.status || "").toUpperCase() === "CAPTURED") {
+            return result;
+          }
+        } catch (_error) {
+          continue;
+        }
+      }
+      return null;
+    }
+
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = new FormData(form);
+      const payload = {
+        name: String(data.get("name") || "").trim(),
+        email: String(data.get("email") || "").trim(),
+        workflow: String(data.get("workflow") || ""),
+        package: String(data.get("package") || ""),
+        blocker: String(data.get("blocker") || ""),
+        source: "foundation_site",
+        create_lead: true,
+      };
+
+      statusEl.textContent = "Submitting intake...";
+      statusEl.className = "small";
+
+      const apiResult = await submitToApi(payload);
+      if (apiResult) {
+        const leadId = apiResult.lead_id ? ` | lead ${apiResult.lead_id}` : "";
+        statusEl.textContent = `Intake captured in local Revenue Ops${leadId}.`;
+        statusEl.className = "small success";
+        form.reset();
+        return;
+      }
+
       const lines = [
         "FOUNDATION Intake",
         "",
-        `Name: ${data.get("name") || ""}`,
-        `Email: ${data.get("email") || ""}`,
-        `Workflow: ${data.get("workflow") || ""}`,
-        `Package: ${data.get("package") || ""}`,
-        `Blocker: ${data.get("blocker") || ""}`,
+        `Name: ${payload.name}`,
+        `Email: ${payload.email}`,
+        `Workflow: ${payload.workflow}`,
+        `Package: ${payload.package}`,
+        `Blocker: ${payload.blocker}`,
       ];
       const subject = encodeURIComponent("FOUNDATION Intake");
       const body = encodeURIComponent(lines.join("\n"));
+      statusEl.textContent = "Could not reach local API. Opening email fallback...";
+      statusEl.className = "small danger";
       window.location.href = `mailto:hello@permanencesystems.com?subject=${subject}&body=${body}`;
     });
   </script>

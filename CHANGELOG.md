@@ -7,8 +7,11 @@ All notable changes to this project will be documented in this file.
   - `scripts/revenue_execution_board.py` daily execution board output + tool payload
   - new CLI commands: `money-loop`, `revenue-action-queue`, `revenue-architecture`, `revenue-execution-board`, `sales-pipeline`, `foundation-site`
   - dashboard revenue endpoint: `/api/revenue/latest`
+  - dashboard revenue write/read endpoints: `/api/revenue/intake`, `/api/revenue/pipeline`, `/api/revenue/pipeline/lead`, `/api/revenue/pipeline/<lead_id>`
   - Command Center Revenue Ops view in `dashboard_index.html`
+  - Revenue Ops now shows open pipeline rows and latest intake submissions
   - local FOUNDATION site preview server: `scripts/foundation_site.py`
+  - FOUNDATION intake form now submits to local API first and falls back to mailto
   - tests for revenue execution board generation and dashboard revenue snapshot parsing
 - Added chronicle distribution pipeline:
   - `scripts/chronicle_publish.py`

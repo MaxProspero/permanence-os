@@ -742,6 +742,17 @@
         <div id="revenue-urgent-actions"><div class="empty">Loading urgent actions...</div></div>
       </div>
 
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Open Pipeline (Top 10)</div>
+          <div id="revenue-open-rows"><div class="empty">Loading open pipeline...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Latest Intake Submissions</div>
+          <div id="revenue-intake-rows"><div class="empty">Loading intake submissions...</div></div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title">Data Sources</div>
         <div id="revenue-sources"><div class="empty">Loading source paths...</div></div>
@@ -1126,6 +1137,8 @@ async function loadRevenue() {
     document.getElementById("revenue-non-negotiables").innerHTML = `<div class="empty">No revenue data available yet.</div>`;
     document.getElementById("revenue-queue-actions").innerHTML = `<div class="empty">No queue data available yet.</div>`;
     document.getElementById("revenue-urgent-actions").innerHTML = `<div class="empty">No urgent actions available yet.</div>`;
+    document.getElementById("revenue-open-rows").innerHTML = `<div class="empty">No open leads found yet.</div>`;
+    document.getElementById("revenue-intake-rows").innerHTML = `<div class="empty">No intake submissions found yet.</div>`;
     document.getElementById("revenue-sources").innerHTML = `<div class="empty">Run money loop to generate data sources.</div>`;
     return;
   }
@@ -1133,6 +1146,7 @@ async function loadRevenue() {
   const queue = data.queue ?? {};
   const board = data.board ?? {};
   const pipeline = data.pipeline ?? {};
+  const intake = data.intake ?? {};
   const sources = data.sources ?? {};
 
   document.getElementById("revenue-queue-count").textContent = queue.count ?? 0;
@@ -1164,12 +1178,30 @@ async function loadRevenue() {
       </div>`).join("")
     : `<div class="empty">No urgent pipeline actions due.</div>`;
 
+  const openRows = Array.isArray(pipeline.open_rows) ? pipeline.open_rows : [];
+  document.getElementById("revenue-open-rows").innerHTML = openRows.length
+    ? openRows.map(row => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub); font-family:var(--mono);">
+        ${escapeHtml(row.lead_id ?? "unknown")} | ${escapeHtml(row.name ?? "unknown")} | stage=${escapeHtml(row.stage ?? "lead")} | est=${escapeHtml(formatCurrency(row.est_value ?? 0))} | due=${escapeHtml(row.next_action_due ?? "-")}
+      </div>`).join("")
+    : `<div class="empty">No open leads found yet.</div>`;
+
+  const intakeRows = Array.isArray(intake.rows) ? intake.rows : [];
+  document.getElementById("revenue-intake-rows").innerHTML = intakeRows.length
+    ? intakeRows.map(row => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
+        <div style="font-family:var(--mono); color:var(--text);">${escapeHtml(row.name ?? "unknown")} · ${escapeHtml(row.email ?? "unknown")}</div>
+        <div>workflow=${escapeHtml(row.workflow ?? "-")} | package=${escapeHtml(row.package ?? "-")}</div>
+      </div>`).join("")
+    : `<div class="empty">No intake submissions found yet.</div>`;
+
   const inbox = board.inbox_pressure ?? {};
   const sourceRows = [
     `Queue source: ${sources.queue ?? "none"}`,
     `Architecture source: ${sources.architecture ?? "none"}`,
     `Execution board source: ${sources.execution_board ?? "none"}`,
     `Pipeline source: ${sources.pipeline ?? "none"}`,
+    `Intake source: ${intake.path ?? "none"}`,
     `Inbox pressure: P0=${inbox.P0 ?? 0} | P1=${inbox.P1 ?? 0} | P2=${inbox.P2 ?? 0} | P3=${inbox.P3 ?? 0}`,
   ];
   document.getElementById("revenue-sources").innerHTML = sourceRows

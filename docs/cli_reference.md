@@ -54,6 +54,7 @@ Serve `site/foundation/index.html` locally.
 - `--port` bind port (default `8787`)
 - `--no-open` disable auto-open browser
 - `--site-dir` override site root
+- Intake form posts to local Command Center API (`/api/revenue/intake`) when available, otherwise falls back to email.
 
 ### `python cli.py snapshot`
 Generate a system snapshot with status + OpenClaw + HR + briefing.

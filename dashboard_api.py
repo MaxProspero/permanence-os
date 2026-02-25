@@ -30,7 +30,16 @@ from typing import Optional
 
 app = Flask(__name__)
 if CORS is not None:
-    CORS(app, origins=["http://localhost:3000", "http://localhost:5173", "https://permanencesystems.com"])
+    CORS(
+        app,
+        origins=[
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:8787",
+            "http://localhost:8787",
+            "https://permanencesystems.com",
+        ],
+    )
 
 # ─────────────────────────────────────────────
 # CONFIG
@@ -277,6 +286,145 @@ def get_latest_revenue():
     return jsonify(_load_revenue_snapshot())
 
 
+@app.route("/api/revenue/pipeline", methods=["GET"])
+def get_revenue_pipeline():
+    """Return sales pipeline rows for Revenue Ops view."""
+    open_only = request.args.get("open_only", "0") in {"1", "true", "yes"}
+    limit = max(1, min(100, request.args.get("limit", 50, type=int)))
+    log_api_call("GET", "/api/revenue/pipeline", {"open_only": open_only, "limit": limit})
+    rows = _pipeline_rows(open_only=open_only, limit=limit)
+    return jsonify(
+        {
+            "count": len(rows),
+            "rows": rows,
+            "path": _pipeline_path(),
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/pipeline/lead", methods=["POST"])
+def create_revenue_lead():
+    """Create a lead in sales pipeline from dashboard or intake capture."""
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/pipeline/lead", payload)
+    name = str(payload.get("name") or "").strip()
+    if not name:
+        log_api_call("POST", "/api/revenue/pipeline/lead", payload, "INVALID_NAME")
+        abort(400, description="Lead name is required.")
+
+    created = _pipeline_add_lead(
+        {
+            "name": name,
+            "source": str(payload.get("source") or "dashboard"),
+            "stage": str(payload.get("stage") or "lead"),
+            "offer": str(payload.get("offer") or "Permanence OS Foundation Setup"),
+            "est_value": payload.get("est_value", 1500),
+            "next_action": str(payload.get("next_action") or "Send intake + book fit call"),
+            "next_action_due": str(payload.get("next_action_due") or ""),
+            "notes": str(payload.get("notes") or ""),
+        }
+    )
+    return jsonify(
+        {
+            "status": "CREATED",
+            "lead_id": created.get("lead_id"),
+            "lead": created,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/pipeline/<lead_id>", methods=["POST"])
+def update_revenue_lead(lead_id: str):
+    """Update a lead stage/action in the pipeline."""
+    payload = request.get_json() or {}
+    log_api_call("POST", f"/api/revenue/pipeline/{lead_id}", payload)
+    updated = _pipeline_update_lead(lead_id, payload)
+    if updated is None:
+        log_api_call("POST", f"/api/revenue/pipeline/{lead_id}", payload, "NOT_FOUND")
+        abort(404, description="Lead not found.")
+    return jsonify(
+        {
+            "status": "UPDATED",
+            "lead_id": lead_id,
+            "lead": updated,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/intake", methods=["GET", "POST"])
+def foundation_intake():
+    """Capture and list FOUNDATION intake submissions."""
+    if request.method == "GET":
+        limit = max(1, min(100, request.args.get("limit", 20, type=int)))
+        log_api_call("GET", "/api/revenue/intake", {"limit": limit})
+        rows = _load_intake_rows(limit=limit)
+        return jsonify(
+            {
+                "count": len(rows),
+                "rows": rows,
+                "path": _intake_path(),
+                "timestamp": utc_iso(),
+            }
+        )
+
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/intake", payload)
+    name = str(payload.get("name") or "").strip()
+    email = str(payload.get("email") or "").strip()
+    if not name or "@" not in email:
+        log_api_call("POST", "/api/revenue/intake", payload, "INVALID_INPUT")
+        abort(400, description="Name and valid email are required.")
+
+    workflow = str(payload.get("workflow") or "")
+    package = str(payload.get("package") or "Core")
+    blocker = str(payload.get("blocker") or "")
+    source = str(payload.get("source") or "foundation_site")
+    created_at = utc_iso()
+
+    entry = {
+        "intake_id": f"I-{utc_now().strftime('%Y%m%d-%H%M%S%f')}",
+        "name": name,
+        "email": email,
+        "workflow": workflow,
+        "package": package,
+        "blocker": blocker,
+        "source": source,
+        "created_at": created_at,
+    }
+    _append_jsonl(_intake_path(), entry)
+
+    create_lead = payload.get("create_lead", True) is not False
+    lead_id: Optional[str] = None
+    if create_lead:
+        package_value = {"pilot": 750, "core": 1500, "operator": 3000}.get(package.strip().lower(), 1500)
+        tomorrow = (utc_now().date() + datetime.timedelta(days=1)).isoformat()
+        lead = _pipeline_add_lead(
+            {
+                "name": name,
+                "source": f"{source}:{email}",
+                "stage": "lead",
+                "offer": "Permanence OS Foundation Setup",
+                "est_value": package_value,
+                "next_action": "Send intake + book fit call",
+                "next_action_due": tomorrow,
+                "notes": f"workflow={workflow}; package={package}; blocker={blocker}; email={email}",
+            }
+        )
+        lead_id = str(lead.get("lead_id") or "")
+
+    return jsonify(
+        {
+            "status": "CAPTURED",
+            "intake": entry,
+            "lead_id": lead_id,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
 # ─────────────────────────────────────────────
 # HORIZON REPORTS
 # ─────────────────────────────────────────────
@@ -408,6 +556,150 @@ REVENUE_STAGE_PROB = {
 }
 
 
+def _intake_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_INTAKE_PATH",
+        os.path.join(PATHS["working"], "revenue_intake.jsonl"),
+    )
+
+
+def _append_jsonl(path: str, payload: dict) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a") as f:
+        f.write(json.dumps(payload) + "\n")
+
+
+def _load_intake_rows(limit: int = 20) -> list[dict]:
+    path = _intake_path()
+    if not os.path.exists(path):
+        return []
+    rows: list[dict] = []
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(item, dict):
+                    rows.append(item)
+    except OSError:
+        return []
+    rows.sort(key=lambda r: str(r.get("created_at", "")), reverse=True)
+    return rows[:limit]
+
+
+def _coerce_float(value: object, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _validate_stage(value: str) -> str:
+    stage = str(value or "lead").strip().lower()
+    if stage not in REVENUE_STAGE_PROB:
+        return "lead"
+    return stage
+
+
+def _pipeline_load() -> list[dict]:
+    path = _pipeline_path()
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path) as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not isinstance(payload, list):
+        return []
+    return [row for row in payload if isinstance(row, dict)]
+
+
+def _pipeline_save(rows: list[dict]) -> None:
+    path = _pipeline_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(rows, f, indent=2)
+        f.write("\n")
+
+
+def _pipeline_rows(*, open_only: bool = False, limit: int = 50) -> list[dict]:
+    rows = _pipeline_load()
+    if open_only:
+        rows = [row for row in rows if str(row.get("stage")) not in {"won", "lost"}]
+    rows.sort(key=lambda r: str(r.get("updated_at", "")), reverse=True)
+    return rows[:limit]
+
+
+def _new_lead_id() -> str:
+    return f"L-{utc_now().strftime('%Y%m%d-%H%M%S%f')}"
+
+
+def _pipeline_add_lead(payload: dict) -> dict:
+    rows = _pipeline_load()
+    row = {
+        "lead_id": _new_lead_id(),
+        "name": str(payload.get("name") or "Unknown").strip(),
+        "source": str(payload.get("source") or "api").strip(),
+        "stage": _validate_stage(str(payload.get("stage") or "lead")),
+        "offer": str(payload.get("offer") or "Permanence OS Foundation Setup").strip(),
+        "est_value": _coerce_float(payload.get("est_value"), 1500.0),
+        "actual_value": None,
+        "next_action": str(payload.get("next_action") or "").strip(),
+        "next_action_due": str(payload.get("next_action_due") or "").strip(),
+        "notes": str(payload.get("notes") or "").strip(),
+        "created_at": utc_iso(),
+        "updated_at": utc_iso(),
+        "closed_at": None,
+    }
+    rows.append(row)
+    _pipeline_save(rows)
+    return row
+
+
+def _pipeline_update_lead(lead_id: str, payload: dict) -> Optional[dict]:
+    rows = _pipeline_load()
+    target: Optional[dict] = None
+    for row in rows:
+        if str(row.get("lead_id")) == lead_id:
+            target = row
+            break
+    if target is None:
+        return None
+
+    if "stage" in payload:
+        target["stage"] = _validate_stage(str(payload.get("stage")))
+        if target["stage"] in {"won", "lost"}:
+            target["closed_at"] = target.get("closed_at") or utc_iso()
+            if target["stage"] == "won" and target.get("actual_value") is None:
+                target["actual_value"] = _coerce_float(target.get("est_value"), 0.0)
+        else:
+            target["closed_at"] = None
+
+    if "offer" in payload:
+        target["offer"] = str(payload.get("offer") or "")
+    if "est_value" in payload:
+        target["est_value"] = _coerce_float(payload.get("est_value"), _coerce_float(target.get("est_value"), 0.0))
+    if "actual_value" in payload:
+        target["actual_value"] = _coerce_float(
+            payload.get("actual_value"), _coerce_float(target.get("actual_value"), 0.0)
+        )
+    if "next_action" in payload:
+        target["next_action"] = str(payload.get("next_action") or "")
+    if "next_action_due" in payload:
+        target["next_action_due"] = str(payload.get("next_action_due") or "")
+    if "notes" in payload:
+        target["notes"] = str(payload.get("notes") or "")
+    target["updated_at"] = utc_iso()
+    _pipeline_save(rows)
+    return target
+
+
 def _candidate_output_dirs() -> list[str]:
     raw_candidates = [
         PATHS["outputs"],
@@ -531,7 +823,8 @@ def _pipeline_path() -> str:
 
 def _load_pipeline_snapshot() -> dict:
     pipeline_path = _pipeline_path()
-    if not os.path.exists(pipeline_path):
+    rows = _pipeline_load()
+    if not rows:
         return {
             "path": pipeline_path,
             "total": 0,
@@ -540,23 +833,13 @@ def _load_pipeline_snapshot() -> dict:
             "weighted_value": 0.0,
             "urgent_count": 0,
             "updated_at": None,
+            "open_rows": [],
         }
-
-    try:
-        with open(pipeline_path) as f:
-            payload = json.load(f)
-    except (OSError, json.JSONDecodeError):
-        payload = []
-
-    rows = [row for row in payload if isinstance(row, dict)] if isinstance(payload, list) else []
     open_rows = [row for row in rows if str(row.get("stage")) not in {"won", "lost"}]
     open_value = 0.0
     weighted_value = 0.0
     for row in open_rows:
-        try:
-            est = float(row.get("est_value", 0) or 0)
-        except (TypeError, ValueError):
-            est = 0.0
+        est = _coerce_float(row.get("est_value"), 0.0)
         stage = str(row.get("stage", "lead"))
         open_value += est
         weighted_value += est * REVENUE_STAGE_PROB.get(stage, 0.0)
@@ -575,7 +858,8 @@ def _load_pipeline_snapshot() -> dict:
         "open_value": open_value,
         "weighted_value": weighted_value,
         "urgent_count": urgent_count,
-        "updated_at": timestamp_to_utc_iso(os.path.getmtime(pipeline_path)),
+        "updated_at": timestamp_to_utc_iso(os.path.getmtime(pipeline_path)) if os.path.exists(pipeline_path) else None,
+        "open_rows": sorted(open_rows, key=lambda r: str(r.get("updated_at", "")), reverse=True)[:10],
     }
 
 
@@ -597,6 +881,7 @@ def _load_revenue_snapshot() -> dict:
     queue_actions = _parse_revenue_queue_actions(queue_markdown)
     board_data = _parse_revenue_board(board_markdown)
     pipeline = _load_pipeline_snapshot()
+    intake_rows = _load_intake_rows(limit=10)
 
     return {
         "generated_at": utc_iso(),
@@ -624,6 +909,12 @@ def _load_revenue_snapshot() -> dict:
             "weighted_value": pipeline["weighted_value"],
             "urgent_count": pipeline["urgent_count"],
             "updated_at": pipeline["updated_at"],
+            "open_rows": pipeline["open_rows"],
+        },
+        "intake": {
+            "count": len(intake_rows),
+            "rows": intake_rows,
+            "path": _intake_path(),
         },
         "architecture_excerpt": architecture_markdown[:4000],
     }

@@ -379,6 +379,10 @@ Serve the local offer page:
 python cli.py foundation-site
 ```
 Then open: `http://127.0.0.1:8787/`
+- If Command Center API is running on `http://127.0.0.1:8000`, intake submissions are captured automatically to:
+  - `memory/working/revenue_intake.jsonl`
+  - `memory/working/sales_pipeline.json` (new lead created)
+- If API is unreachable, the page falls back to `mailto:` intake.
 
 ### Health Summary
 Store health JSON/JSONL in `memory/working/health/` and run:

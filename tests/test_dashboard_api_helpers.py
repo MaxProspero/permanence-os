@@ -222,9 +222,79 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
                 os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = original_pipeline_path
 
 
+def test_revenue_intake_endpoint_creates_lead_and_persists_rows():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+
+        intake_path = working_dir / "revenue_intake.jsonl"
+        pipeline_path = working_dir / "sales_pipeline.json"
+        pipeline_path.write_text("[]\n", encoding="utf-8")
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
+        original_intake_path = os.environ.get("PERMANENCE_REVENUE_INTAKE_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = str(pipeline_path)
+            os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = str(intake_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/intake",
+                json={
+                    "name": "Alex Founder",
+                    "email": "alex@example.com",
+                    "workflow": "Operations",
+                    "package": "Core",
+                    "blocker": "No daily operating cadence",
+                    "source": "foundation_site",
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "CAPTURED"
+            assert payload.get("lead_id")
+
+            intake_rows = dashboard_api._load_intake_rows(limit=10)
+            assert len(intake_rows) == 1
+            assert intake_rows[0]["email"] == "alex@example.com"
+
+            pipeline_rows = dashboard_api._pipeline_rows(open_only=False, limit=10)
+            assert len(pipeline_rows) == 1
+            assert pipeline_rows[0]["name"] == "Alex Founder"
+            assert pipeline_rows[0]["stage"] == "lead"
+
+            pipeline_response = client.get("/api/revenue/pipeline?open_only=1&limit=10")
+            assert pipeline_response.status_code == 200
+            pipeline_payload = pipeline_response.get_json() or {}
+            assert pipeline_payload.get("count") == 1
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_pipeline_path is None:
+                os.environ.pop("PERMANENCE_SALES_PIPELINE_PATH", None)
+            else:
+                os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = original_pipeline_path
+            if original_intake_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_INTAKE_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = original_intake_path
+
+
 if __name__ == "__main__":
     test_load_latest_task_summary_includes_model_routes()
     test_load_latest_briefing_supports_markdown()
     test_load_promotion_status_reads_storage_log_fallback()
     test_load_revenue_snapshot_includes_pipeline_and_board()
+    test_revenue_intake_endpoint_creates_lead_and_persists_rows()
     print("✓ Dashboard API helper tests passed")
