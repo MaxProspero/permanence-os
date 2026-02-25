@@ -833,6 +833,18 @@ def main() -> int:
     daily_p.add_argument("--min-sources", type=int, default=2, help="Minimum source count required")
     daily_p.add_argument("--no-require-glance-pass", action="store_true", help="Do not require status_today PASS")
     daily_p.add_argument("--no-require-phase-pass", action="store_true", help="Do not require latest phase gate PASS")
+    daily_p.add_argument(
+        "--phase-policy",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="Phase gate policy (auto requires phase at/after enforce hour)",
+    )
+    daily_p.add_argument(
+        "--phase-enforce-hour",
+        type=int,
+        default=19,
+        help="Local hour when auto phase policy enforces phase gate",
+    )
     daily_p.add_argument("--dry-run", action="store_true", help="Show queue candidates without writing")
     daily_p.add_argument("--output", help="Promotion review output path")
     daily_p.add_argument("--min-count", type=int, default=2, help="Minimum queue size target in review")
@@ -856,6 +868,10 @@ def main() -> int:
                 *(["--allow-medium-risk"] if args.allow_medium_risk else []),
                 *(["--no-require-glance-pass"] if args.no_require_glance_pass else []),
                 *(["--no-require-phase-pass"] if args.no_require_phase_pass else []),
+                "--phase-policy",
+                args.phase_policy,
+                "--phase-enforce-hour",
+                str(args.phase_enforce_hour),
                 *(["--dry-run"] if args.dry_run else []),
                 *(["--output", args.output] if args.output else []),
                 *(["--min-count", str(args.min_count)] if args.min_count else []),

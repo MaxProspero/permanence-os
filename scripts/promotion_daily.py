@@ -5,6 +5,7 @@ import argparse
 import os
 import subprocess
 import sys
+from datetime import datetime
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -23,6 +24,21 @@ def _run(cmd: list[str]) -> int:
     return proc.returncode
 
 
+def _should_require_phase_gate(
+    *,
+    phase_policy: str,
+    phase_enforce_hour: int,
+    no_require_phase_pass: bool,
+) -> bool:
+    if no_require_phase_pass:
+        return False
+    if phase_policy == "always":
+        return True
+    if phase_policy == "never":
+        return False
+    return datetime.now().hour >= phase_enforce_hour
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run daily queue auto + promotion review")
     parser.add_argument("--since-hours", type=int, default=24, help="Window for queue auto candidates")
@@ -37,6 +53,18 @@ def main() -> int:
     parser.add_argument("--min-sources", type=int, default=2, help="Minimum source count required")
     parser.add_argument("--no-require-glance-pass", action="store_true", help="Do not require status_today PASS")
     parser.add_argument("--no-require-phase-pass", action="store_true", help="Do not require latest phase gate PASS")
+    parser.add_argument(
+        "--phase-policy",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="Phase gate policy for queue auto",
+    )
+    parser.add_argument(
+        "--phase-enforce-hour",
+        type=int,
+        default=19,
+        help="Local hour when auto phase policy begins requiring phase gate",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Show queue candidates without writing")
     parser.add_argument("--output", help="Promotion review output path")
     parser.add_argument("--min-count", type=int, default=2, help="Minimum queue size target in review")
@@ -48,6 +76,21 @@ def main() -> int:
     )
 
     args = parser.parse_args()
+    if args.phase_enforce_hour < 0 or args.phase_enforce_hour > 23:
+        parser.error("--phase-enforce-hour must be between 0 and 23")
+
+    require_glance_pass = not args.no_require_glance_pass
+    require_phase_pass = _should_require_phase_gate(
+        phase_policy=args.phase_policy,
+        phase_enforce_hour=args.phase_enforce_hour,
+        no_require_phase_pass=args.no_require_phase_pass,
+    )
+    print(
+        "promotion-daily: gate policy "
+        f"glance={'required' if require_glance_pass else 'waived'} | "
+        f"phase={'required' if require_phase_pass else 'waived'} "
+        f"(policy={args.phase_policy}, enforce_hour={args.phase_enforce_hour})"
+    )
 
     queue_cmd = [
         sys.executable,
@@ -64,8 +107,8 @@ def main() -> int:
         "--min-sources",
         str(args.min_sources),
         *(["--allow-medium-risk"] if args.allow_medium_risk else []),
-        *(["--no-require-glance-pass"] if args.no_require_glance_pass else []),
-        *(["--no-require-phase-pass"] if args.no_require_phase_pass else []),
+        *(["--no-require-glance-pass"] if not require_glance_pass else []),
+        *(["--no-require-phase-pass"] if not require_phase_pass else []),
         *(["--dry-run"] if args.dry_run else []),
     ]
     queue_rc = _run(queue_cmd)

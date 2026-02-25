@@ -128,3 +128,71 @@ def test_promotion_daily_strict_gates_fails_when_blocked():
         assert result.returncode == 3
         assert "strict mode" in result.stdout
         assert not (output_dir / "promotion_review.md").exists()
+
+
+def test_promotion_daily_auto_phase_policy_allows_daytime_queue_with_glance_pass():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        memory_dir = root / "memory"
+        episodic_dir = memory_dir / "episodic"
+        working_dir = memory_dir / "working"
+        log_dir = root / "logs"
+        output_dir = root / "outputs"
+        episodic_dir.mkdir(parents=True, exist_ok=True)
+        working_dir.mkdir(parents=True, exist_ok=True)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        _write_episode(episodic_dir / "T-DAILY-AUTO-PHASE.json", "T-DAILY-AUTO-PHASE")
+        (log_dir / "status_today.json").write_text(json.dumps({"today_state": "PASS"}), encoding="utf-8")
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                SCRIPT,
+                "--phase-policy",
+                "auto",
+                "--phase-enforce-hour",
+                "23",
+                "--since-hours",
+                "0",
+            ],
+            env=_env(memory_dir, log_dir, output_dir),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        assert "phase=waived" in result.stdout
+        queue = json.loads((memory_dir / "working" / "promotion_queue.json").read_text())
+        assert len(queue) == 1
+        assert queue[0]["task_id"] == "T-DAILY-AUTO-PHASE"
+
+
+def test_promotion_daily_phase_policy_always_requires_phase_gate():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        memory_dir = root / "memory"
+        episodic_dir = memory_dir / "episodic"
+        working_dir = memory_dir / "working"
+        log_dir = root / "logs"
+        output_dir = root / "outputs"
+        episodic_dir.mkdir(parents=True, exist_ok=True)
+        working_dir.mkdir(parents=True, exist_ok=True)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        _write_episode(episodic_dir / "T-DAILY-PHASE-ALWAYS.json", "T-DAILY-PHASE-ALWAYS")
+        (log_dir / "status_today.json").write_text(json.dumps({"today_state": "PASS"}), encoding="utf-8")
+
+        result = subprocess.run(
+            [sys.executable, SCRIPT, "--phase-policy", "always"],
+            env=_env(memory_dir, log_dir, output_dir),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        assert "phase=required" in result.stdout
+        assert "queue auto skipped by governance gates" in result.stdout
+        assert not (memory_dir / "working" / "promotion_queue.json").exists()

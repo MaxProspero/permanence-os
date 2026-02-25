@@ -261,6 +261,8 @@ Promotion daily automation in briefing runs:
   - `PERMANENCE_PROMOTION_DAILY_STRICT=0|1`
   - `PERMANENCE_PROMOTION_DAILY_SINCE_HOURS=24`
   - `PERMANENCE_PROMOTION_DAILY_MAX_ADD=5`
+  - `PERMANENCE_PROMOTION_DAILY_PHASE_POLICY=auto|always|never`
+  - `PERMANENCE_PROMOTION_DAILY_PHASE_ENFORCE_HOUR=19`
 
 ### OpenClaw Integration (Local)
 Set the OpenClaw CLI path (if not default):

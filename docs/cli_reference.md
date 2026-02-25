@@ -59,6 +59,7 @@ Generate promotion review checklist.
 
 ### `python cli.py promotion-daily`
 Run the daily promotion cycle (gated `queue auto` + `promotion-review`).
+- Daytime-friendly policy example: `python cli.py promotion-daily --phase-policy auto --phase-enforce-hour 19`
 
 ### `python cli.py queue`
 Manage promotion queue.
