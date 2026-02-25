@@ -217,6 +217,7 @@ python cli.py money-loop
 python cli.py revenue-action-queue
 python cli.py revenue-architecture
 python cli.py revenue-execution-board
+python cli.py revenue-weekly-summary
 python cli.py sales-pipeline list --open-only
 python cli.py foundation-site
 python cli.py snapshot
@@ -373,6 +374,15 @@ Files created/used:
 
 Revenue data is also visible in Command Center under **Revenue Ops**.
 
+### Revenue Weekly Summary
+Generate the weekly operator scorecard:
+```bash
+python cli.py revenue-weekly-summary
+```
+Outputs:
+- `outputs/revenue_weekly_summary_latest.md`
+- `memory/tool/revenue_weekly_summary_*.json`
+
 ### FOUNDATION Landing Page (Local Preview)
 Serve the local offer page:
 ```bash
@@ -383,6 +393,16 @@ Then open: `http://127.0.0.1:8787/`
   - `memory/working/revenue_intake.jsonl`
   - `memory/working/sales_pipeline.json` (new lead created)
 - If API is unreachable, the page falls back to `mailto:` intake.
+
+### Money Loop Automation Schedule
+Schedule money loop at 07:15, 12:15, 19:15 local time:
+```bash
+bash automation/setup_money_loop_automation.sh
+```
+Disable schedule:
+```bash
+bash automation/disable_money_loop_automation.sh
+```
 
 ### Health Summary
 Store health JSON/JSONL in `memory/working/health/` and run:

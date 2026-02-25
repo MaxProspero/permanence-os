@@ -372,6 +372,25 @@
     }
     .btn-view:hover { color: var(--text); border-color: var(--dim); }
 
+    .inline-form {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .inline-form input,
+    .inline-form select {
+      width: 100%;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      padding: 7px 8px;
+      font-size: 12px;
+      font-family: var(--font);
+    }
+
     .priority-tag {
       font-size: 10px;
       font-weight: 700;
@@ -726,6 +745,34 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Quick Add Lead</div>
+        <form id="revenueLeadForm" onsubmit="createRevenueLead(event)">
+          <div class="inline-form">
+            <input name="name" placeholder="Lead name" required>
+            <input name="source" placeholder="Source (e.g. X DM)" value="dashboard">
+            <select name="stage">
+              <option value="lead" selected>lead</option>
+              <option value="qualified">qualified</option>
+              <option value="call_scheduled">call_scheduled</option>
+              <option value="proposal_sent">proposal_sent</option>
+              <option value="negotiation">negotiation</option>
+            </select>
+            <input name="est_value" type="number" step="1" min="0" value="1500" placeholder="Estimated value">
+          </div>
+          <div class="inline-form">
+            <input name="next_action" placeholder="Next action" value="Send intake + book fit call">
+            <input name="next_action_due" type="date">
+            <input name="offer" placeholder="Offer" value="Permanence OS Foundation Setup">
+            <input name="notes" placeholder="Notes (optional)">
+          </div>
+          <div class="approval-actions">
+            <button class="btn btn-approve" type="submit">Add Lead</button>
+            <span id="revenueLeadStatus" style="font-size:11px; color:var(--muted); font-family:var(--mono);"></span>
+          </div>
+        </form>
+      </div>
+
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Today's Non-Negotiables</div>
@@ -896,6 +943,90 @@ function formatCurrency(value) {
   const numeric = Number(value ?? 0);
   if (!Number.isFinite(numeric)) return "$0";
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(numeric);
+}
+
+const REVENUE_STAGE_ORDER = ["lead", "qualified", "call_scheduled", "proposal_sent", "negotiation", "won"];
+
+function nextRevenueStage(currentStage) {
+  const normalized = String(currentStage || "lead").toLowerCase();
+  const index = REVENUE_STAGE_ORDER.indexOf(normalized);
+  if (index < 0 || index >= REVENUE_STAGE_ORDER.length - 1) return null;
+  return REVENUE_STAGE_ORDER[index + 1];
+}
+
+async function createRevenueLead(event) {
+  event.preventDefault();
+  const form = event.target;
+  const statusEl = document.getElementById("revenueLeadStatus");
+  const data = new FormData(form);
+  const payload = {
+    name: String(data.get("name") || "").trim(),
+    source: String(data.get("source") || "dashboard").trim(),
+    stage: String(data.get("stage") || "lead"),
+    offer: String(data.get("offer") || "Permanence OS Foundation Setup").trim(),
+    est_value: Number(data.get("est_value") || 1500),
+    next_action: String(data.get("next_action") || "").trim(),
+    next_action_due: String(data.get("next_action_due") || "").trim(),
+    notes: String(data.get("notes") || "").trim(),
+  };
+  if (!payload.name) {
+    statusEl.textContent = "Name is required.";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+  statusEl.textContent = "Adding lead...";
+  statusEl.style.color = "var(--muted)";
+  const result = await apiPost("/revenue/pipeline/lead", payload);
+  if (!result || String(result.status || "").toUpperCase() !== "CREATED") {
+    statusEl.textContent = "Failed to add lead.";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+  statusEl.textContent = `Lead added: ${result.lead_id ?? "unknown"}`;
+  statusEl.style.color = "var(--safe)";
+  form.reset();
+  const stageField = form.querySelector("select[name='stage']");
+  if (stageField) stageField.value = "lead";
+  const estField = form.querySelector("input[name='est_value']");
+  if (estField) estField.value = "1500";
+  const offerField = form.querySelector("input[name='offer']");
+  if (offerField) offerField.value = "Permanence OS Foundation Setup";
+  const sourceField = form.querySelector("input[name='source']");
+  if (sourceField) sourceField.value = "dashboard";
+  const nextActionField = form.querySelector("input[name='next_action']");
+  if (nextActionField) nextActionField.value = "Send intake + book fit call";
+  await loadRevenue();
+}
+
+async function setRevenueLeadStage(leadId, stage) {
+  const payload = { stage: String(stage || "").toLowerCase() };
+  if (payload.stage !== "won" && payload.stage !== "lost") {
+    const nextAction = prompt("Next action (optional):", "Follow up on pipeline action");
+    if (nextAction !== null) payload.next_action = nextAction;
+    const defaultDue = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const due = prompt("Next action due (YYYY-MM-DD, optional):", defaultDue);
+    if (due !== null) payload.next_action_due = due.trim();
+  } else if (payload.stage === "won") {
+    const valueText = prompt("Actual value for won deal (optional):", "");
+    if (valueText !== null && valueText.trim() !== "" && !Number.isNaN(Number(valueText))) {
+      payload.actual_value = Number(valueText);
+    }
+  }
+  const result = await apiPost(`/revenue/pipeline/${leadId}`, payload);
+  if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
+    alert("Could not update lead stage.");
+    return;
+  }
+  await loadRevenue();
+}
+
+async function advanceRevenueLead(leadId, currentStage) {
+  const next = nextRevenueStage(currentStage);
+  if (!next) {
+    alert("No next stage available for this lead.");
+    return;
+  }
+  await setRevenueLeadStage(leadId, next);
 }
 
 // ─────────────────────────────────────────────
@@ -1181,8 +1312,15 @@ async function loadRevenue() {
   const openRows = Array.isArray(pipeline.open_rows) ? pipeline.open_rows : [];
   document.getElementById("revenue-open-rows").innerHTML = openRows.length
     ? openRows.map(row => `
-      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub); font-family:var(--mono);">
-        ${escapeHtml(row.lead_id ?? "unknown")} | ${escapeHtml(row.name ?? "unknown")} | stage=${escapeHtml(row.stage ?? "lead")} | est=${escapeHtml(formatCurrency(row.est_value ?? 0))} | due=${escapeHtml(row.next_action_due ?? "-")}
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
+        <div style="font-family:var(--mono); margin-bottom:6px;">
+          ${escapeHtml(row.lead_id ?? "unknown")} | ${escapeHtml(row.name ?? "unknown")} | stage=${escapeHtml(row.stage ?? "lead")} | est=${escapeHtml(formatCurrency(row.est_value ?? 0))} | due=${escapeHtml(row.next_action_due ?? "-")}
+        </div>
+        <div class="approval-actions">
+          <button class="btn btn-view" onclick="advanceRevenueLead('${String(row.lead_id || "").replace(/'/g, "\\'")}', '${String(row.stage || "lead").replace(/'/g, "\\'")}')">Advance</button>
+          <button class="btn btn-approve" onclick="setRevenueLeadStage('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'won')">Won</button>
+          <button class="btn btn-reject" onclick="setRevenueLeadStage('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'lost')">Lost</button>
+        </div>
       </div>`).join("")
     : `<div class="empty">No open leads found yet.</div>`;
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -105,6 +105,7 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_file_organizer.py"),
         os.path.join(BASE_DIR, "tests", "test_dashboard_api_helpers.py"),
         os.path.join(BASE_DIR, "tests", "test_revenue_execution_board.py"),
+        os.path.join(BASE_DIR, "tests", "test_revenue_weekly_summary.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -1160,6 +1161,19 @@ def main() -> int:
             [
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "revenue_execution_board.py"),
+            ]
+        )
+    )
+
+    revenue_weekly_p = sub.add_parser(
+        "revenue-weekly-summary",
+        help="Generate weekly revenue summary report",
+    )
+    revenue_weekly_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_weekly_summary.py"),
             ]
         )
     )

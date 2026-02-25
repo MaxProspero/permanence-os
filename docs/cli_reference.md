@@ -41,6 +41,9 @@ Generate Revenue Architecture v1 scorecard and pipeline snapshot.
 ### `python cli.py revenue-execution-board`
 Generate the daily revenue execution board.
 
+### `python cli.py revenue-weekly-summary`
+Generate a weekly revenue scorecard from pipeline + intake + latest queue.
+
 ### `python cli.py sales-pipeline ...`
 Forward pipeline commands to `scripts/sales_pipeline.py`.
 Examples:
