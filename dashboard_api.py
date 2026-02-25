@@ -38,15 +38,20 @@ if CORS is not None:
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.environ.get("PERMANENCE_BASE_DIR", APP_DIR)
+OUTPUT_ROOT = os.environ.get("PERMANENCE_OUTPUT_DIR", os.path.join(BASE_DIR, "outputs"))
+if not os.path.exists(os.path.join(OUTPUT_ROOT, "briefings")):
+    storage_output_root = os.path.join(BASE_DIR, "permanence_storage", "outputs")
+    if os.path.exists(storage_output_root):
+        OUTPUT_ROOT = storage_output_root
 PATHS = {
     "canon":    os.path.join(BASE_DIR, "canon"),
     "logs":     os.path.join(BASE_DIR, "logs"),
-    "outputs":  os.path.join(BASE_DIR, "outputs"),
-    "chronicle": os.path.join(BASE_DIR, "outputs", "chronicle"),
+    "outputs":  OUTPUT_ROOT,
+    "chronicle": os.path.join(OUTPUT_ROOT, "chronicle"),
     "chronicle_shared": os.path.join(BASE_DIR, "memory", "chronicle", "shared"),
     "episodic": os.path.join(BASE_DIR, "memory", "episodic"),
-    "horizon":  os.path.join(BASE_DIR, "outputs", "horizon"),
-    "briefings":os.path.join(BASE_DIR, "outputs", "briefings"),
+    "horizon":  os.path.join(OUTPUT_ROOT, "horizon"),
+    "briefings":os.path.join(OUTPUT_ROOT, "briefings"),
     "approvals":os.path.join(BASE_DIR, "memory", "approvals.json"),
     "api_log":  os.path.join(BASE_DIR, "logs", "dashboard_api.log"),
 }
@@ -113,6 +118,8 @@ def system_status():
     test_stats = _get_test_stats()
     horizon_reports = _count_horizon_reports()
     chronicle_last_generated = _get_last_chronicle_time()
+    latest_task = _load_latest_task_summary()
+    promotion = _load_promotion_status()
 
     return jsonify({
         "system": "Permanence OS",
@@ -145,6 +152,8 @@ def system_status():
         "chronicle": {
             "last_generated": chronicle_last_generated,
         },
+        "promotion": promotion,
+        "latest_task": latest_task,
     })
 
 
@@ -390,7 +399,7 @@ def _count_pending_approvals() -> int:
 
 
 def _get_last_briefing_time() -> Optional[str]:
-    files = sorted(glob.glob(os.path.join(PATHS["briefings"], "*.json")), reverse=True)
+    files = _list_briefing_files()
     if not files:
         return None
     return timestamp_to_utc_iso(os.path.getmtime(files[0]))
@@ -416,6 +425,141 @@ def _get_last_chronicle_time() -> Optional[str]:
     if not files:
         return None
     return timestamp_to_utc_iso(os.path.getmtime(files[0]))
+
+
+def _candidate_log_dirs() -> list[str]:
+    status_json_path = os.environ.get(
+        "PERMANENCE_STATUS_TODAY_JSON",
+        os.path.join(PATHS["logs"], "status_today.json"),
+    )
+    storage_root = os.environ.get("PERMANENCE_STORAGE_ROOT", os.path.join(BASE_DIR, "permanence_storage"))
+    raw_candidates = [
+        PATHS["logs"],
+        os.path.dirname(status_json_path),
+        os.path.join(os.path.expanduser(storage_root), "logs"),
+        os.path.join(BASE_DIR, "permanence_storage", "logs"),
+    ]
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for candidate in raw_candidates:
+        normalized = os.path.abspath(os.path.expanduser(candidate))
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        deduped.append(normalized)
+    return deduped
+
+
+def _latest_glance_gate() -> dict:
+    status_json_path = os.environ.get(
+        "PERMANENCE_STATUS_TODAY_JSON",
+        os.path.join(PATHS["logs"], "status_today.json"),
+    )
+    candidates = [os.path.abspath(os.path.expanduser(status_json_path))]
+    for log_dir in _candidate_log_dirs():
+        candidate = os.path.join(log_dir, "status_today.json")
+        if candidate not in candidates:
+            candidates.append(candidate)
+
+    latest: Optional[tuple[float, str, str]] = None
+    for path in candidates:
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path) as f:
+                payload = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        state = str(payload.get("today_state", "")).upper()
+        if not state:
+            continue
+        mtime = os.path.getmtime(path)
+        if latest is None or mtime > latest[0]:
+            latest = (mtime, state, path)
+    if latest is None:
+        return {"state": "PENDING", "path": None, "updated_at": None}
+    return {"state": latest[1], "path": latest[2], "updated_at": timestamp_to_utc_iso(latest[0])}
+
+
+def _latest_phase_gate() -> dict:
+    latest: Optional[tuple[float, str, str]] = None
+    for log_dir in _candidate_log_dirs():
+        if not os.path.isdir(log_dir):
+            continue
+        for name in os.listdir(log_dir):
+            if not (name.startswith("phase_gate_") and name.endswith(".md")):
+                continue
+            path = os.path.join(log_dir, name)
+            try:
+                with open(path) as f:
+                    text = f.read()
+            except OSError:
+                continue
+            if "- Phase gate: PASS" in text:
+                state = "PASS"
+            elif "- Phase gate: FAIL" in text:
+                state = "FAIL"
+            else:
+                state = "PENDING"
+            mtime = os.path.getmtime(path)
+            if latest is None or mtime > latest[0]:
+                latest = (mtime, state, path)
+    if latest is None:
+        return {"state": "PENDING", "path": None, "updated_at": None}
+    return {"state": latest[1], "path": latest[2], "updated_at": timestamp_to_utc_iso(latest[0])}
+
+
+def _promotion_queue_path() -> str:
+    memory_dir = os.environ.get("PERMANENCE_MEMORY_DIR", os.path.join(BASE_DIR, "memory"))
+    return os.environ.get(
+        "PERMANENCE_PROMOTION_QUEUE",
+        os.path.join(memory_dir, "working", "promotion_queue.json"),
+    )
+
+
+def _count_promotion_queue_items() -> int:
+    queue_path = _promotion_queue_path()
+    if not os.path.exists(queue_path):
+        return 0
+    try:
+        with open(queue_path) as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return 0
+    return len(payload) if isinstance(payload, list) else 0
+
+
+def _get_last_promotion_review_time() -> Optional[str]:
+    review_path = os.environ.get(
+        "PERMANENCE_PROMOTION_REVIEW_OUTPUT",
+        os.path.join(PATHS["outputs"], "promotion_review.md"),
+    )
+    candidates = [
+        os.path.abspath(os.path.expanduser(review_path)),
+        os.path.join(PATHS["outputs"], "promotion_review.md"),
+        os.path.join(BASE_DIR, "outputs", "promotion_review.md"),
+        os.path.join(BASE_DIR, "permanence_storage", "outputs", "promotion_review.md"),
+    ]
+    existing = [path for path in candidates if os.path.exists(path)]
+    if not existing:
+        return None
+    latest = max(existing, key=os.path.getmtime)
+    return timestamp_to_utc_iso(os.path.getmtime(latest))
+
+
+def _load_promotion_status() -> dict:
+    glance = _latest_glance_gate()
+    phase = _latest_phase_gate()
+    return {
+        "queue_items": _count_promotion_queue_items(),
+        "glance_gate": glance["state"],
+        "phase_gate": phase["state"],
+        "glance_updated_at": glance["updated_at"],
+        "phase_updated_at": phase["updated_at"],
+        "review_last_generated": _get_last_promotion_review_time(),
+    }
 
 
 def _agent_status(agent_name: str) -> dict:
@@ -466,23 +610,52 @@ def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
 
 
 def _list_briefings() -> list:
-    files = sorted(glob.glob(os.path.join(PATHS["briefings"], "*.json")), reverse=True)
+    files = _list_briefing_files()
     result = []
     for f in files[:10]:
         result.append({
             "filename": os.path.basename(f),
             "generated_at": timestamp_to_utc_iso(os.path.getmtime(f)),
             "path": f,
+            "format": "json" if f.endswith(".json") else "markdown",
         })
     return result
 
 
 def _load_latest_briefing() -> Optional[dict]:
-    files = sorted(glob.glob(os.path.join(PATHS["briefings"], "*.json")), reverse=True)
+    files = _list_briefing_files()
     if not files:
         return None
-    with open(files[0]) as f:
-        return json.load(f)
+    latest = files[0]
+    if latest.endswith(".json"):
+        with open(latest) as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            data.setdefault("format", "json")
+            data.setdefault("source_path", latest)
+            return data
+        return {"format": "json", "source_path": latest, "payload": data}
+
+    with open(latest) as f:
+        markdown = f.read()
+    return {
+        "format": "markdown",
+        "source_path": latest,
+        "filename": os.path.basename(latest),
+        "generated_at": timestamp_to_utc_iso(os.path.getmtime(latest)),
+        "content_markdown": markdown,
+    }
+
+
+def _list_briefing_files() -> list:
+    patterns = [
+        os.path.join(PATHS["briefings"], "*.json"),
+        os.path.join(PATHS["briefings"], "*.md"),
+    ]
+    files: list[str] = []
+    for pattern in patterns:
+        files.extend(glob.glob(pattern))
+    return sorted(files, key=lambda p: os.path.getmtime(p), reverse=True)
 
 
 def _list_horizon_reports() -> list:
@@ -563,6 +736,31 @@ def _load_episodic_memory(limit: int) -> list:
         with open(f) as fp:
             entries.append(json.load(fp))
     return entries
+
+
+def _load_latest_task_summary() -> Optional[dict]:
+    pattern = os.path.join(PATHS["episodic"], "*.json")
+    files = sorted(glob.glob(pattern), key=lambda p: os.path.getmtime(p), reverse=True)
+    if not files:
+        return None
+    try:
+        with open(files[0]) as f:
+            state = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+    artifacts = state.get("artifacts", {}) if isinstance(state.get("artifacts"), dict) else {}
+    model_routes = artifacts.get("model_routes")
+    if not isinstance(model_routes, dict):
+        model_routes = None
+    return {
+        "task_id": state.get("task_id"),
+        "stage": state.get("stage"),
+        "status": state.get("status"),
+        "risk_tier": state.get("risk_tier"),
+        "goal": state.get("task_goal"),
+        "model_routes": model_routes,
+    }
 
 
 def _load_log_entries(agent: Optional[str], limit: int) -> list:

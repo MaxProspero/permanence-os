@@ -128,6 +128,11 @@ if [[ "${PERMANENCE_CHRONICLE_AUTOPUBLISH:-1}" == "1" ]]; then
 
   if [[ -n "${PERMANENCE_CHRONICLE_DRIVE_DIR:-}" ]]; then
     "$PYTHON_BIN" cli.py chronicle-publish --docx --drive-dir "$PERMANENCE_CHRONICLE_DRIVE_DIR" >> "$LOG_FILE" 2>&1 || CHRONICLE_PUBLISH_STATUS=$?
+    if [[ "$CHRONICLE_PUBLISH_STATUS" -ne 0 ]]; then
+      echo "[WARN] Chronicle Drive publish failed (status $CHRONICLE_PUBLISH_STATUS). Retrying local publish only." >> "$LOG_FILE"
+      CHRONICLE_PUBLISH_STATUS=0
+      env -u PERMANENCE_CHRONICLE_DRIVE_DIR "$PYTHON_BIN" cli.py chronicle-publish --docx >> "$LOG_FILE" 2>&1 || CHRONICLE_PUBLISH_STATUS=$?
+    fi
   else
     "$PYTHON_BIN" cli.py chronicle-publish --docx >> "$LOG_FILE" 2>&1 || CHRONICLE_PUBLISH_STATUS=$?
   fi
@@ -148,6 +153,35 @@ if [[ "$CURRENT_HOUR" -ge 19 && "$CURRENT_DOW" -eq "$PHASE_GATE_DOW" ]]; then
   "$PYTHON_BIN" cli.py phase-gate --days 7 >> "$LOG_FILE" 2>&1
   WEEKLY_PHASE_GATE_STATUS=$?
 fi
+
+PROMOTION_DAILY_STATUS=2
+PROMOTION_DAILY_ENABLED="${PERMANENCE_PROMOTION_DAILY_ENABLED:-1}"
+PROMOTION_DAILY_SLOT="${PERMANENCE_PROMOTION_DAILY_SLOT:-19}"
+PROMOTION_DAILY_STRICT="${PERMANENCE_PROMOTION_DAILY_STRICT:-0}"
+PROMOTION_DAILY_SINCE_HOURS="${PERMANENCE_PROMOTION_DAILY_SINCE_HOURS:-24}"
+PROMOTION_DAILY_MAX_ADD="${PERMANENCE_PROMOTION_DAILY_MAX_ADD:-5}"
+if [[ "$PROMOTION_DAILY_ENABLED" == "1" ]]; then
+  PROMOTION_DAILY_SLOT_MATCH=0
+  if [[ "$PROMOTION_DAILY_SLOT" == "all" ]]; then
+    PROMOTION_DAILY_SLOT_MATCH=1
+  else
+    PROMOTION_DAILY_SLOT_NUM="$(normalize_int "$PROMOTION_DAILY_SLOT" || echo -1)"
+    if [[ "$PROMOTION_DAILY_SLOT_NUM" -ge 0 ]] && [[ "$CURRENT_HOUR" -eq "$PROMOTION_DAILY_SLOT_NUM" ]]; then
+      PROMOTION_DAILY_SLOT_MATCH=1
+    fi
+  fi
+  if [[ "$PROMOTION_DAILY_SLOT_MATCH" -eq 1 ]]; then
+    PROMOTION_DAILY_CMD=(
+      "$PYTHON_BIN" cli.py promotion-daily
+      --since-hours "$PROMOTION_DAILY_SINCE_HOURS"
+      --max-add "$PROMOTION_DAILY_MAX_ADD"
+    )
+    if [[ "$PROMOTION_DAILY_STRICT" == "1" ]]; then
+      PROMOTION_DAILY_CMD+=(--strict-gates)
+    fi
+    "${PROMOTION_DAILY_CMD[@]}" >> "$LOG_FILE" 2>&1 || PROMOTION_DAILY_STATUS=$?
+  fi
+fi
 set -e
 
 echo "=== Briefing Run Completed: $(date) ===" >> "$LOG_FILE"
@@ -163,6 +197,9 @@ fi
 if [[ "$WEEKLY_PHASE_GATE_STATUS" -ne 2 ]]; then
   echo "Weekly Phase Gate Status: $WEEKLY_PHASE_GATE_STATUS" >> "$LOG_FILE"
 fi
+if [[ "$PROMOTION_DAILY_STATUS" -ne 2 ]]; then
+  echo "Promotion Daily Status: $PROMOTION_DAILY_STATUS" >> "$LOG_FILE"
+fi
 
 GLANCE_STATUS=0
 "$PYTHON_BIN" cli.py status-glance >> "$LOG_FILE" 2>&1 || GLANCE_STATUS=$?
@@ -172,6 +209,6 @@ V04_SNAPSHOT_STATUS=0
 "$PYTHON_BIN" cli.py v04-snapshot >> "$LOG_FILE" 2>&1 || V04_SNAPSHOT_STATUS=$?
 echo "V04 Snapshot Status: $V04_SNAPSHOT_STATUS" >> "$LOG_FILE"
 
-if [ $BRIEFING_STATUS -ne 0 ] || [ $DIGEST_STATUS -ne 0 ] || [ $CHRONICLE_CAPTURE_STATUS -ne 0 ] || [ $CHRONICLE_REPORT_STATUS -ne 0 ] || [ $CHRONICLE_PUBLISH_STATUS -ne 0 ]; then
+if [ $BRIEFING_STATUS -ne 0 ] || [ $DIGEST_STATUS -ne 0 ] || [ $CHRONICLE_CAPTURE_STATUS -ne 0 ] || [ $CHRONICLE_REPORT_STATUS -ne 0 ] || [ $CHRONICLE_PUBLISH_STATUS -ne 0 ] || { [ $PROMOTION_DAILY_STATUS -ne 0 ] && [ $PROMOTION_DAILY_STATUS -ne 2 ]; }; then
   exit 1
 fi

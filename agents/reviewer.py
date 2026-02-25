@@ -10,6 +10,10 @@ from datetime import datetime, timezone
 import os
 
 from agents.utils import log
+try:
+    from core.model_router import ModelRouter
+except Exception:  # pragma: no cover - optional dependency
+    ModelRouter = None
 
 
 @dataclass
@@ -29,8 +33,18 @@ class ReviewerAgent:
     - Must provide explicit pass/fail and reasons
     """
 
+    def __init__(self, model_router: Optional["ModelRouter"] = None):
+        self.model_router = model_router or (ModelRouter() if ModelRouter else None)
+        self.enable_model_assist = os.getenv("PERMANENCE_ENABLE_MODEL_ASSIST", "").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
     def review(self, output: Optional[str], spec: Optional[Dict[str, Any]]) -> ReviewResult:
         issues: List[str] = []
+        audit_notes: List[str] = []
         content: Optional[str] = None
         sources_data: List[Dict[str, Any]] = []
 
@@ -63,14 +77,49 @@ class ReviewerAgent:
         if not spec or not spec.get("deliverables"):
             issues.append("Missing or incomplete task specification (deliverables).")
 
+        if self.enable_model_assist and content:
+            observation = self._model_secondary_observation(content=content, spec=spec)
+            if observation:
+                audit_notes.append(f"Model audit note: {observation}")
+
         approved = len(issues) == 0
         log("Reviewer completed evaluation", level="INFO")
+        notes = issues if issues else ["Meets minimal rubric."]
+        if audit_notes:
+            notes.extend(audit_notes)
         return ReviewResult(
             approved=approved,
-            notes=issues if issues else ["Meets minimal rubric."],
+            notes=notes,
             required_changes=issues,
             created_at=datetime.now(timezone.utc).isoformat(),
         )
+
+    def _model_secondary_observation(self, content: str, spec: Optional[Dict[str, Any]]) -> Optional[str]:
+        if not self.model_router:
+            return None
+        model = self.model_router.get_model("review")
+        if not model:
+            return None
+
+        prompt = "\n".join(
+            [
+                "Review this output for governance and evidence quality.",
+                "Respond with one short line: either 'OK' or a concise issue.",
+                f"Deliverables: {spec.get('deliverables', []) if isinstance(spec, dict) else []}",
+                "",
+                "Output:",
+                content[:5000],
+            ]
+        )
+        try:
+            response = model.generate(prompt=prompt)
+            text = response.text.strip()
+            if not text or text.upper() == "OK":
+                return None
+            return text
+        except Exception as exc:
+            log(f"Reviewer model assist failed: {exc}", level="WARNING")
+            return None
 
     def _missing_evidence_sections(self, content: str, spec: Optional[Dict[str, Any]]) -> List[str]:
         deliverables = (spec or {}).get("deliverables", [])

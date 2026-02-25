@@ -22,6 +22,10 @@ from agents.compliance_gate import ComplianceGate
 from agents.identity import select_identity_for_goal
 from agents.utils import log, BASE_DIR
 from core.memory import log_task_episode
+try:
+    from core.model_router import ModelRouter
+except Exception:  # pragma: no cover - optional dependency
+    ModelRouter = None
 from scripts.openclaw_status import capture_openclaw_status
 
 MEMORY_DIR = os.getenv("PERMANENCE_MEMORY_DIR", os.path.join(BASE_DIR, "memory"))
@@ -85,6 +89,7 @@ def run_task(
     openclaw_state = _capture_openclaw_snapshot()
     agents_involved: List[str] = []
     risk: Optional[RiskTier] = None
+    model_router = ModelRouter() if ModelRouter else None
 
     def _log_episode(
         status: str,
@@ -156,12 +161,16 @@ def run_task(
     polemarch.transition_stage(Stage.PLANNING)
     polemarch.route_to_agent("planner")
     agents_involved.append("planner")
+    if model_router:
+        planned_model = model_router.route("planning", {"stage": Stage.PLANNING.value})
+        if state:
+            state.artifacts.setdefault("model_routes", {})["planning"] = planned_model
     budget_check = polemarch.check_budgets()
     if not budget_check["within_budget"]:
         polemarch.halt("Budget exceeded during planning")
         _log_episode("error", message="Budget exceeded during planning")
         return 1
-    planner = PlannerAgent(polemarch.canon)
+    planner = PlannerAgent(polemarch.canon, model_router=model_router)
     spec = planner.create_plan(goal)
     spec_dict = asdict(spec)
 
@@ -173,12 +182,16 @@ def run_task(
     polemarch.transition_stage(Stage.RESEARCH)
     polemarch.route_to_agent("researcher")
     agents_involved.append("researcher")
+    if model_router:
+        research_model = model_router.route("research_synthesis", {"stage": Stage.RESEARCH.value})
+        if state:
+            state.artifacts.setdefault("model_routes", {})["research"] = research_model
     budget_check = polemarch.check_budgets()
     if not budget_check["within_budget"]:
         polemarch.halt("Budget exceeded during research")
         _log_episode("error", message="Budget exceeded during research")
         return 1
-    researcher = ResearcherAgent()
+    researcher = ResearcherAgent(model_router=model_router)
     try:
         sources = _load_sources(sources_path)
     except (ValueError, json.JSONDecodeError) as exc:
@@ -220,12 +233,16 @@ def run_task(
     polemarch.transition_stage(Stage.EXECUTION)
     polemarch.route_to_agent("executor")
     agents_involved.append("executor")
+    if model_router:
+        execution_model = model_router.route("execution", {"stage": Stage.EXECUTION.value})
+        if state:
+            state.artifacts.setdefault("model_routes", {})["execution"] = execution_model
     budget_check = polemarch.check_budgets()
     if not budget_check["within_budget"]:
         polemarch.halt("Budget exceeded during execution")
         _log_episode("error", message="Budget exceeded during execution")
         return 1
-    executor = ExecutorAgent()
+    executor = ExecutorAgent(model_router=model_router)
     inputs: Dict[str, Any] = {"sources": sources}
     if os.path.exists(draft_path):
         inputs["draft_path"] = draft_path
@@ -238,12 +255,16 @@ def run_task(
     polemarch.transition_stage(Stage.OUTPUT_REVIEW)
     polemarch.route_to_agent("reviewer")
     agents_involved.append("reviewer")
+    if model_router:
+        review_model = model_router.route("review", {"stage": Stage.OUTPUT_REVIEW.value})
+        if state:
+            state.artifacts.setdefault("model_routes", {})["review"] = review_model
     budget_check = polemarch.check_budgets()
     if not budget_check["within_budget"]:
         polemarch.halt("Budget exceeded during review")
         _log_episode("error", message="Budget exceeded during review")
         return 1
-    reviewer = ReviewerAgent()
+    reviewer = ReviewerAgent(model_router=model_router)
     review_result = reviewer.review(exec_result.artifact, spec_dict)
 
     if review_result.approved:
@@ -288,12 +309,16 @@ def run_task(
     polemarch.transition_stage(Stage.CONCILIATION)
     polemarch.route_to_agent("conciliator")
     agents_involved.append("conciliator")
+    if model_router:
+        conciliation_model = model_router.route("conciliation", {"stage": Stage.CONCILIATION.value})
+        if state:
+            state.artifacts.setdefault("model_routes", {})["conciliation"] = conciliation_model
     budget_check = polemarch.check_budgets()
     if not budget_check["within_budget"]:
         polemarch.halt("Budget exceeded during conciliation")
         _log_episode("error", message="Budget exceeded during conciliation")
         return 1
-    conciliator = ConciliatorAgent()
+    conciliator = ConciliatorAgent(model_router=model_router)
     decision = conciliator.decide(review_result, retry_count=0, max_retries=2)
 
     if decision.decision == "ACCEPT" and review_result.approved:

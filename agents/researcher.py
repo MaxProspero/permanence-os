@@ -17,6 +17,10 @@ import time
 from urllib.parse import urlparse
 
 from agents.utils import log, BASE_DIR
+try:
+    from core.model_router import ModelRouter
+except Exception:  # pragma: no cover - optional dependency
+    ModelRouter = None
 
 TOOL_DIR = os.getenv("PERMANENCE_TOOL_DIR", os.path.join(BASE_DIR, "memory", "tool"))
 DOC_DIR = os.getenv(
@@ -48,6 +52,15 @@ class ResearcherAgent:
     - Cannot generate final content
     """
 
+    def __init__(self, model_router: Optional["ModelRouter"] = None):
+        self.model_router = model_router or (ModelRouter() if ModelRouter else None)
+        self.enable_model_assist = os.getenv("PERMANENCE_ENABLE_MODEL_ASSIST", "").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
     def validate_sources(self, sources: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Validate that all sources include provenance fields."""
         if not sources:
@@ -67,15 +80,59 @@ class ResearcherAgent:
         log("Researcher validation complete", level="INFO")
         return {"ok": ok, "errors": errors}
 
-    def compile_sources(self, _query: str) -> None:
+    def compile_sources(self, query: str) -> List[Dict[str, Any]]:
         """
-        Placeholder for external research.
-        Explicitly unimplemented to avoid unsourced claims.
+        Default source compiler. Uses web search adapter when configured.
         """
-        log("Researcher compile_sources called without tools", level="WARNING")
-        raise NotImplementedError(
-            "ResearcherAgent.compile_sources requires external tools and is not implemented."
+        if os.getenv("TAVILY_API_KEY"):
+            return self.compile_sources_from_web_search(query=query)
+        log("Researcher compile_sources unavailable: missing TAVILY_API_KEY", level="WARNING")
+        raise NotImplementedError("Set TAVILY_API_KEY or use a specific source adapter.")
+
+    def synthesize_sources(
+        self,
+        query: str,
+        sources: List[Dict[str, Any]],
+        max_sources: int = 12,
+    ) -> Optional[str]:
+        """
+        Optional model-assisted synthesis over provided sources.
+        Disabled unless PERMANENCE_ENABLE_MODEL_ASSIST is true.
+        """
+        if not self.enable_model_assist or not self.model_router:
+            return None
+        model = self.model_router.get_model("research_synthesis")
+        if not model:
+            return None
+
+        evidence_lines: List[str] = []
+        for src in sources[:max_sources]:
+            source = str(src.get("source", "unknown")).strip()
+            timestamp = str(src.get("timestamp", "unknown")).strip()
+            confidence = str(src.get("confidence", "unknown")).strip()
+            notes = str(src.get("notes", "")).strip()
+            evidence_lines.append(f"- {source} | {timestamp} | {confidence} | {notes}")
+
+        prompt = "\n".join(
+            [
+                f"Question: {query}",
+                "Use only the evidence below.",
+                "Output format:",
+                "- Findings (bullet list with source labels)",
+                "- Gaps/limitations",
+                "- Confidence (HIGH/MEDIUM/LOW)",
+                "",
+                "Evidence:",
+                *evidence_lines,
+            ]
         )
+        try:
+            response = model.generate(prompt=prompt)
+            text = response.text.strip()
+            return text or None
+        except Exception as exc:
+            log(f"Research synthesis model assist failed: {exc}", level="WARNING")
+            return None
 
     def compile_sources_from_tool_memory(
         self,
