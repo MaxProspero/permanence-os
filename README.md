@@ -215,6 +215,8 @@ python cli.py command-center
 python cli.py command-center --run-horizon --demo-horizon
 python scripts/revenue_action_queue.py
 bash scripts/run_money_loop.sh
+python scripts/revenue_architecture_report.py
+python scripts/sales_pipeline.py list --open-only
 python cli.py snapshot
 python cli.py v04-snapshot
 python cli.py cleanup-weekly
@@ -339,6 +341,25 @@ Optional env vars:
 - `PERMANENCE_MONEY_LOOP_TRIAGE_MAX_ITEMS=40`
 - `PERMANENCE_GMAIL_CREDENTIALS=~/.../credentials.json` (if not using default path)
 - `PERMANENCE_GMAIL_TOKEN=~/.../token.json` (required for non-interactive automation)
+
+### Revenue Architecture v1 (Pipeline + KPI Scorecard)
+Generate report:
+```bash
+python scripts/revenue_architecture_report.py
+```
+Manage sales pipeline:
+```bash
+python scripts/sales_pipeline.py init
+python scripts/sales_pipeline.py add --name "Lead Name" --source "X DM" --est-value 1500 --next-action "Book fit call" --next-action-due 2026-02-26
+python scripts/sales_pipeline.py list --open-only
+python scripts/sales_pipeline.py update --lead-id L-YYYYMMDD-HHMMSS --stage call_scheduled --next-action "Run discovery call" --next-action-due 2026-02-27
+python scripts/sales_pipeline.py close --lead-id L-YYYYMMDD-HHMMSS --result won --actual-value 1500
+```
+Files created/used:
+- `memory/working/revenue_targets.json`
+- `memory/working/revenue_streams.json`
+- `memory/working/sales_pipeline.json`
+- `outputs/revenue_architecture_latest.md`
 
 ### Health Summary
 Store health JSON/JSONL in `memory/working/health/` and run:
