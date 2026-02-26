@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
   - dashboard revenue write/read endpoints: `/api/revenue/intake`, `/api/revenue/pipeline`, `/api/revenue/pipeline/lead`, `/api/revenue/pipeline/<lead_id>`
   - Command Center Revenue Ops view in `dashboard_index.html`
   - Revenue Ops now supports quick lead add + inline stage updates and shows open pipeline rows + latest intake submissions
+  - Revenue Ops now shows conversion funnel metrics and auto-detected bottleneck recommendations
   - local FOUNDATION site preview server: `scripts/foundation_site.py`
   - FOUNDATION intake form now submits to local API first and falls back to mailto
   - added automation scripts for money-loop scheduling:

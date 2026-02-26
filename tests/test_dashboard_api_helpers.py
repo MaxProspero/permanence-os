@@ -198,13 +198,29 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             ),
             encoding="utf-8",
         )
+        intake_path = working_dir / "revenue_intake.jsonl"
+        intake_path.write_text(
+            json.dumps(
+                {
+                    "name": "Intake Lead",
+                    "email": "intake@example.com",
+                    "workflow": "Operations",
+                    "package": "Core",
+                    "created_at": "2026-02-25T10:00:00Z",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
         original_paths = dict(dashboard_api.PATHS)
         original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
+        original_intake_path = os.environ.get("PERMANENCE_REVENUE_INTAKE_PATH")
         try:
             dashboard_api.PATHS["outputs"] = str(outputs_dir)
             dashboard_api.PATHS["working"] = str(working_dir)
             os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = str(pipeline_path)
+            os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = str(intake_path)
 
             snapshot = dashboard_api._load_revenue_snapshot()
             assert snapshot["queue"]["count"] == 2
@@ -214,12 +230,20 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             assert snapshot["pipeline"]["open_count"] == 1
             assert snapshot["pipeline"]["weighted_value"] == 375.0
             assert snapshot["pipeline"]["urgent_count"] >= 0
+            assert snapshot["intake"]["count"] == 1
+            assert snapshot["funnel"]["pipeline_total"] == 2
+            assert len(snapshot["funnel"]["segments"]) >= 4
+            assert snapshot["funnel"]["bottleneck"] is not None
         finally:
             dashboard_api.PATHS.update(original_paths)
             if original_pipeline_path is None:
                 os.environ.pop("PERMANENCE_SALES_PIPELINE_PATH", None)
             else:
                 os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = original_pipeline_path
+            if original_intake_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_INTAKE_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = original_intake_path
 
 
 def test_revenue_intake_endpoint_creates_lead_and_persists_rows():

@@ -373,6 +373,7 @@ Files created/used:
 - `outputs/revenue_execution_board_latest.md`
 
 Revenue data is also visible in Command Center under **Revenue Ops**.
+- Revenue Ops now includes a live conversion funnel and automatic bottleneck detection (Intake -> Lead -> Qualified -> Call -> Proposal -> Won).
 
 ### Revenue Weekly Summary
 Generate the weekly operator scorecard:

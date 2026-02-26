@@ -589,6 +589,8 @@ def _load_intake_rows(limit: int = 20) -> list[dict]:
     except OSError:
         return []
     rows.sort(key=lambda r: str(r.get("created_at", "")), reverse=True)
+    if limit <= 0:
+        return rows
     return rows[:limit]
 
 
@@ -814,6 +816,145 @@ def _parse_revenue_board(markdown: str) -> dict:
     }
 
 
+def _parse_iso_datetime(raw: object) -> Optional[datetime.datetime]:
+    text = str(raw or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _week_window_local(today: Optional[datetime.date] = None) -> tuple[datetime.date, datetime.date]:
+    today = today or datetime.datetime.now().date()
+    start = today - datetime.timedelta(days=today.weekday())
+    end = start + datetime.timedelta(days=6)
+    return start, end
+
+
+def _in_window(dt: Optional[datetime.datetime], start: datetime.date, end: datetime.date) -> bool:
+    if dt is None:
+        return False
+    day = dt.date()
+    return start <= day <= end
+
+
+def _safe_rate(numerator: int, denominator: int) -> Optional[float]:
+    if denominator <= 0:
+        return None
+    return numerator / denominator
+
+
+def _build_revenue_funnel(pipeline_rows: list[dict], intake_rows: list[dict]) -> dict:
+    week_start, week_end = _week_window_local()
+
+    intake_week = 0
+    for row in intake_rows:
+        created = _parse_iso_datetime(row.get("created_at"))
+        if _in_window(created, week_start, week_end):
+            intake_week += 1
+
+    leads_week = 0
+    won_week = 0
+    for row in pipeline_rows:
+        created = _parse_iso_datetime(row.get("created_at"))
+        closed = _parse_iso_datetime(row.get("closed_at"))
+        stage = str(row.get("stage") or "lead")
+        if _in_window(created, week_start, week_end):
+            leads_week += 1
+        if stage == "won" and _in_window(closed, week_start, week_end):
+            won_week += 1
+
+    total = len(pipeline_rows)
+    qualified_plus = sum(
+        1 for row in pipeline_rows if str(row.get("stage") or "lead") in {"qualified", "call_scheduled", "proposal_sent", "negotiation", "won"}
+    )
+    call_plus = sum(
+        1 for row in pipeline_rows if str(row.get("stage") or "lead") in {"call_scheduled", "proposal_sent", "negotiation", "won"}
+    )
+    proposal_plus = sum(
+        1 for row in pipeline_rows if str(row.get("stage") or "lead") in {"proposal_sent", "negotiation", "won"}
+    )
+    won_total = sum(1 for row in pipeline_rows if str(row.get("stage") or "lead") == "won")
+
+    segments = [
+        {
+            "key": "intake_to_lead",
+            "label": "Intake -> Lead",
+            "numerator": leads_week,
+            "denominator": intake_week,
+            "rate": _safe_rate(leads_week, intake_week),
+        },
+        {
+            "key": "lead_to_qualified",
+            "label": "Lead -> Qualified",
+            "numerator": qualified_plus,
+            "denominator": total,
+            "rate": _safe_rate(qualified_plus, total),
+        },
+        {
+            "key": "qualified_to_call",
+            "label": "Qualified -> Call",
+            "numerator": call_plus,
+            "denominator": qualified_plus,
+            "rate": _safe_rate(call_plus, qualified_plus),
+        },
+        {
+            "key": "call_to_proposal",
+            "label": "Call -> Proposal",
+            "numerator": proposal_plus,
+            "denominator": call_plus,
+            "rate": _safe_rate(proposal_plus, call_plus),
+        },
+        {
+            "key": "proposal_to_won",
+            "label": "Proposal -> Won",
+            "numerator": won_total,
+            "denominator": proposal_plus,
+            "rate": _safe_rate(won_total, proposal_plus),
+        },
+    ]
+
+    bottleneck: Optional[dict] = None
+    for segment in segments:
+        rate = segment.get("rate")
+        denominator = int(segment.get("denominator") or 0)
+        if rate is None or denominator <= 0:
+            continue
+        candidate = {
+            "key": segment["key"],
+            "label": segment["label"],
+            "rate": rate,
+            "numerator": segment["numerator"],
+            "denominator": denominator,
+        }
+        if bottleneck is None or float(rate) < float(bottleneck["rate"]):
+            bottleneck = candidate
+
+    suggestions = {
+        "intake_to_lead": "Close intake loop same day: respond + schedule fit call within 2 hours.",
+        "lead_to_qualified": "Tighten qualifier questions in outreach and intake to pre-filter faster.",
+        "qualified_to_call": "Increase call conversion: send direct calendar link + 2 reminder touches.",
+        "call_to_proposal": "Ship proposals within 24 hours after calls with one clear CTA.",
+        "proposal_to_won": "Improve close rate: add urgency, objection handling, and 48h follow-up cadence.",
+    }
+    if bottleneck is not None:
+        bottleneck["recommendation"] = suggestions.get(bottleneck["key"], "Focus this stage with stronger follow-up discipline.")
+
+    return {
+        "week_start": week_start.isoformat(),
+        "week_end": week_end.isoformat(),
+        "cta_responses_week": intake_week,
+        "intake_week": intake_week,
+        "leads_created_week": leads_week,
+        "wins_week": won_week,
+        "pipeline_total": total,
+        "segments": segments,
+        "bottleneck": bottleneck,
+    }
+
+
 def _pipeline_path() -> str:
     return os.environ.get(
         "PERMANENCE_SALES_PIPELINE_PATH",
@@ -881,7 +1022,10 @@ def _load_revenue_snapshot() -> dict:
     queue_actions = _parse_revenue_queue_actions(queue_markdown)
     board_data = _parse_revenue_board(board_markdown)
     pipeline = _load_pipeline_snapshot()
-    intake_rows = _load_intake_rows(limit=10)
+    pipeline_rows = _pipeline_load()
+    intake_rows_all = _load_intake_rows(limit=0)
+    intake_rows_preview = intake_rows_all[:10]
+    funnel = _build_revenue_funnel(pipeline_rows, intake_rows_all)
 
     return {
         "generated_at": utc_iso(),
@@ -912,10 +1056,11 @@ def _load_revenue_snapshot() -> dict:
             "open_rows": pipeline["open_rows"],
         },
         "intake": {
-            "count": len(intake_rows),
-            "rows": intake_rows,
+            "count": len(intake_rows_all),
+            "rows": intake_rows_preview,
             "path": _intake_path(),
         },
+        "funnel": funnel,
         "architecture_excerpt": architecture_markdown[:4000],
     }
 
