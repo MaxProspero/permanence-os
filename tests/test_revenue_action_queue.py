@@ -202,6 +202,7 @@ def test_revenue_action_queue_filters_non_revenue_email_noise():
                     "- [30] Your Apple Account was used to sign in to iCloud on an iPad",
                     "- [28] Weekly digest from Coinbase Bytes",
                     "- [27] 10 Books to Help You Enter the Top 1% of Entrepreneurs Worldwide",
+                    "- [26] TAKE ACTION: You're leaving money behind. We can help. Call 877-902-0006. — Fidelity Investments <Fidelity.Investments@mail.fidelity.com>",
                     "## P1 (0)",
                     "## P2 (0)",
                     "## P3 (0)",
@@ -255,6 +256,7 @@ def test_revenue_action_queue_filters_non_revenue_email_noise():
         assert "icloud" not in joined_actions
         assert "coinbase bytes" not in joined_actions
         assert "books to help you enter" not in joined_actions
+        assert "fidelity investments" not in joined_actions
 
 
 if __name__ == "__main__":

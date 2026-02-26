@@ -60,6 +60,10 @@ REVENUE_EMAIL_EXCLUDE = {
     "marketing update",
     "promo",
     "promotion",
+    "fidelity investments",
+    "mail.fidelity.com",
+    "investment alert",
+    "you're leaving money behind",
     "unsubscribe",
 }
 
