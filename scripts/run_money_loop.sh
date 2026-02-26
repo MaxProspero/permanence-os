@@ -60,10 +60,13 @@ run_step "health-summary" "$PYTHON_BIN" cli.py health-summary
 run_step "briefing" "$PYTHON_BIN" cli.py briefing
 run_step "dashboard" "$PYTHON_BIN" cli.py dashboard
 run_step "status-glance" "$PYTHON_BIN" cli.py status-glance
+run_step "integration-readiness" "$PYTHON_BIN" cli.py integration-readiness
 run_step "revenue-action-queue" "$PYTHON_BIN" scripts/revenue_action_queue.py
 run_step "revenue-architecture" "$PYTHON_BIN" scripts/revenue_architecture_report.py
 run_step "revenue-execution-board" "$PYTHON_BIN" scripts/revenue_execution_board.py
 run_step "revenue-outreach-pack" "$PYTHON_BIN" scripts/revenue_outreach_pack.py
+run_step "revenue-followup-queue" "$PYTHON_BIN" scripts/revenue_followup_queue.py
+run_step "revenue-eval" "$PYTHON_BIN" scripts/revenue_eval.py
 
 LATEST_QUEUE="$(ls -t "$BASE_DIR"/outputs/revenue_action_queue_*.md 2>/dev/null | head -n 1 || true)"
 if [[ -n "$LATEST_QUEUE" ]]; then
@@ -80,6 +83,14 @@ fi
 LATEST_OUTREACH="$(ls -t "$BASE_DIR"/outputs/revenue_outreach_pack_*.md 2>/dev/null | head -n 1 || true)"
 if [[ -n "$LATEST_OUTREACH" ]]; then
   echo "Latest revenue outreach pack: $LATEST_OUTREACH" | tee -a "$LOG_FILE"
+fi
+LATEST_FOLLOWUP="$(ls -t "$BASE_DIR"/outputs/revenue_followup_queue_*.md 2>/dev/null | head -n 1 || true)"
+if [[ -n "$LATEST_FOLLOWUP" ]]; then
+  echo "Latest revenue follow-up queue: $LATEST_FOLLOWUP" | tee -a "$LOG_FILE"
+fi
+LATEST_EVAL="$(ls -t "$BASE_DIR"/outputs/revenue_eval_*.md 2>/dev/null | head -n 1 || true)"
+if [[ -n "$LATEST_EVAL" ]]; then
+  echo "Latest revenue eval: $LATEST_EVAL" | tee -a "$LOG_FILE"
 fi
 echo "Money loop completed (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$LOG_FILE"
 echo "Log: $LOG_FILE"

@@ -29,6 +29,9 @@ Evaluate Logos Praktikos activation tiers.
 ### `python cli.py dashboard`
 Generate a consolidated dashboard report.
 
+### `python cli.py integration-readiness`
+Check credential/integration readiness and write latest readiness report.
+
 ### `python cli.py money-loop`
 Run the full revenue money loop (`scripts/run_money_loop.sh`) end-to-end.
 
@@ -46,6 +49,15 @@ Generate a weekly revenue scorecard from pipeline + intake + latest queue.
 
 ### `python cli.py revenue-outreach-pack`
 Generate outreach message drafts from prioritized open leads.
+
+### `python cli.py revenue-followup-queue`
+Generate outreach follow-up queue from sent/not-replied records.
+
+### `python cli.py revenue-eval`
+Run revenue artifact/data-contract evaluation checks.
+
+### `python cli.py revenue-backup`
+Create timestamped backup archive for revenue working state + latest outputs.
 
 ### `python cli.py revenue-playbook ...`
 Manage locked offer + CTA playbook.

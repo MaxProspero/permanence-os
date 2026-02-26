@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, operator-surface, setup-launchers, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-playbook, revenue-targets, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, command-center, operator-surface, setup-launchers, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -1113,6 +1113,19 @@ def main() -> int:
         )
     )
 
+    integration_p = sub.add_parser(
+        "integration-readiness",
+        help="Check integration/credential readiness and write a readiness report",
+    )
+    integration_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "integration_readiness.py"),
+            ]
+        )
+    )
+
     money_loop_p = sub.add_parser(
         "money-loop",
         help="Run the end-to-end revenue money loop script",
@@ -1187,6 +1200,47 @@ def main() -> int:
             [
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "revenue_outreach_pack.py"),
+            ]
+        )
+    )
+
+    revenue_followup_p = sub.add_parser(
+        "revenue-followup-queue",
+        help="Generate outreach follow-up queue from sent/replied status",
+    )
+    revenue_followup_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_followup_queue.py"),
+            ]
+        )
+    )
+
+    revenue_eval_p = sub.add_parser(
+        "revenue-eval",
+        help="Run Revenue Ops evaluation harness",
+    )
+    revenue_eval_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_eval.py"),
+            ]
+        )
+    )
+
+    revenue_backup_p = sub.add_parser(
+        "revenue-backup",
+        help="Create timestamped revenue backup bundle",
+    )
+    revenue_backup_p.add_argument("--dest-dir", help="Backup destination directory")
+    revenue_backup_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_backup.py"),
+                *(["--dest-dir", args.dest_dir] if args.dest_dir else []),
             ]
         )
     )

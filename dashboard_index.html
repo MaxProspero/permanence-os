@@ -911,6 +911,54 @@
         <div id="revenue-outreach-pack"><div class="empty">Loading outreach drafts...</div></div>
       </div>
 
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Follow-up Queue</div>
+        <div id="revenue-followup-summary" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+          Loading follow-up queue...
+        </div>
+        <div id="revenue-followup-rows"><div class="empty">Loading follow-up actions...</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Deal Flow Events</div>
+        <div id="revenue-deal-summary" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+          Loading deal metrics...
+        </div>
+        <form id="revenueDealEventForm" onsubmit="recordRevenueDealEvent(event)">
+          <div class="inline-form">
+            <input name="lead_id" placeholder="Lead ID (e.g. L-20260226-...)">
+            <select name="event_type">
+              <option value="proposal_sent">proposal_sent</option>
+              <option value="invoice_sent">invoice_sent</option>
+              <option value="payment_received">payment_received</option>
+              <option value="kickoff_scheduled">kickoff_scheduled</option>
+            </select>
+            <input name="amount_usd" type="number" min="0" step="1" placeholder="Amount USD (optional)">
+            <input name="notes" placeholder="Notes">
+          </div>
+          <div class="approval-actions">
+            <button class="btn btn-approve" type="submit">Log Deal Event</button>
+            <span id="revenueDealEventStatus" style="font-size:11px; color:var(--muted); font-family:var(--mono);"></span>
+          </div>
+        </form>
+        <div id="revenue-deal-events"><div class="empty">Loading deal events...</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Site Funnel Telemetry</div>
+        <div id="revenue-site-summary" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+          Loading site telemetry...
+        </div>
+        <div id="revenue-site-events"><div class="empty">Loading site events...</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Revenue Eval Gate</div>
+        <div id="revenue-eval-summary" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+          Loading revenue eval status...
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title">Data Sources</div>
         <div id="revenue-sources"><div class="empty">Loading source paths...</div></div>
@@ -1194,6 +1242,61 @@ async function saveRevenueTargets(event) {
   }
   statusEl.textContent = "Saved.";
   statusEl.style.color = "var(--safe)";
+  await loadRevenue();
+}
+
+async function recordRevenueDealEvent(event) {
+  event.preventDefault();
+  const form = event.target;
+  const statusEl = document.getElementById("revenueDealEventStatus");
+  const data = new FormData(form);
+  const payload = {
+    lead_id: String(data.get("lead_id") || "").trim(),
+    event_type: String(data.get("event_type") || "").trim(),
+    amount_usd: String(data.get("amount_usd") || "").trim(),
+    notes: String(data.get("notes") || "").trim(),
+    source: "dashboard",
+    actor: "human",
+  };
+  if (!payload.lead_id) {
+    statusEl.textContent = "Lead ID required.";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+  statusEl.textContent = "Logging event...";
+  statusEl.style.color = "var(--muted)";
+  const result = await apiPost("/revenue/deal-event", payload);
+  if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
+    statusEl.textContent = "Could not log deal event.";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+  statusEl.textContent = `Logged ${payload.event_type}.`;
+  statusEl.style.color = "var(--safe)";
+  const notesField = form.querySelector("input[name='notes']");
+  const amountField = form.querySelector("input[name='amount_usd']");
+  if (notesField) notesField.value = "";
+  if (amountField) amountField.value = "";
+  await loadRevenue();
+}
+
+async function recordRevenueDealEventQuick(leadId, eventType) {
+  const payload = {
+    lead_id: String(leadId || "").trim(),
+    event_type: String(eventType || "").trim(),
+    source: "dashboard",
+    actor: "human",
+  };
+  if (payload.event_type === "payment_received") {
+    const amountRaw = window.prompt(`Payment amount for ${payload.lead_id} (USD):`, "1500");
+    if (amountRaw === null) return;
+    payload.amount_usd = Number(amountRaw || 0);
+  }
+  const result = await apiPost("/revenue/deal-event", payload);
+  if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
+    alert("Could not log deal event.");
+    return;
+  }
   await loadRevenue();
 }
 
@@ -1538,6 +1641,10 @@ async function loadRevenue() {
     if (targetsStatusEl) {
       targetsStatusEl.textContent = "";
     }
+    const dealEventStatusEl = document.getElementById("revenueDealEventStatus");
+    if (dealEventStatusEl) {
+      dealEventStatusEl.textContent = "";
+    }
     document.getElementById("revenue-playbook-summary").textContent = "No playbook loaded.";
     document.getElementById("revenue-targets-summary").textContent = "No targets loaded.";
     document.getElementById("revenue-queue-count").textContent = "—";
@@ -1556,6 +1663,13 @@ async function loadRevenue() {
     document.getElementById("revenue-intake-rows").innerHTML = `<div class="empty">No intake submissions found yet.</div>`;
     document.getElementById("revenue-outreach-summary").textContent = "No outreach status available.";
     document.getElementById("revenue-outreach-pack").innerHTML = `<div class="empty">No outreach drafts available yet.</div>`;
+    document.getElementById("revenue-followup-summary").textContent = "No follow-up queue available.";
+    document.getElementById("revenue-followup-rows").innerHTML = `<div class="empty">No follow-up actions available.</div>`;
+    document.getElementById("revenue-deal-summary").textContent = "No deal event metrics available.";
+    document.getElementById("revenue-deal-events").innerHTML = `<div class="empty">No deal events found.</div>`;
+    document.getElementById("revenue-site-summary").textContent = "No site telemetry available.";
+    document.getElementById("revenue-site-events").innerHTML = `<div class="empty">No site events found.</div>`;
+    document.getElementById("revenue-eval-summary").textContent = "Revenue eval pending.";
     document.getElementById("revenue-sources").innerHTML = `<div class="empty">Run money loop to generate data sources.</div>`;
     return;
   }
@@ -1570,6 +1684,11 @@ async function loadRevenue() {
   const targets = targetsBlock.data ?? {};
   const targetProgress = targetsBlock.progress ?? {};
   const outreach = data.outreach ?? {};
+  const followups = data.followups ?? {};
+  const dealEvents = data.deal_events ?? {};
+  const site = data.site ?? {};
+  const evalBlock = data.eval ?? {};
+  const integration = data.integration ?? {};
   const sources = data.sources ?? {};
 
   document.getElementById("revenue-queue-count").textContent = queue.count ?? 0;
@@ -1705,6 +1824,9 @@ async function loadRevenue() {
         </div>
         <div class="approval-actions">
           <button class="btn btn-view" onclick="advanceRevenueLead('${String(row.lead_id || "").replace(/'/g, "\\'")}', '${String(row.stage || "lead").replace(/'/g, "\\'")}')">Advance</button>
+          <button class="btn btn-view" onclick="recordRevenueDealEventQuick('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'proposal_sent')">Proposal</button>
+          <button class="btn btn-view" onclick="recordRevenueDealEventQuick('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'invoice_sent')">Invoice</button>
+          <button class="btn btn-approve" onclick="recordRevenueDealEventQuick('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'payment_received')">Paid</button>
           <button class="btn btn-approve" onclick="setRevenueLeadStage('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'won')">Won</button>
           <button class="btn btn-reject" onclick="setRevenueLeadStage('${String(row.lead_id || "").replace(/'/g, "\\'")}', 'lost')">Lost</button>
         </div>
@@ -1754,6 +1876,60 @@ async function loadRevenue() {
     }).join("")
     : `<div class="empty">No outreach drafts found. Run revenue outreach pack.</div>`;
 
+  const followupItems = Array.isArray(followups.items) ? followups.items : [];
+  document.getElementById("revenue-followup-summary").textContent =
+    `due=${followups.count ?? followupItems.length ?? 0} | source=${followups.source ?? "none"}`;
+  document.getElementById("revenue-followup-rows").innerHTML = followupItems.length
+    ? followupItems.map((item) => {
+      const keyToken = encodeActionToken(item.message_key ?? item.lead_id ?? "");
+      const leadToken = encodeActionToken(item.lead_id ?? "");
+      const hasMessageKey = Boolean(item.message_key || item.lead_id);
+      return `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
+        <div style="font-family:var(--mono); color:var(--text);">${escapeHtml(item.lead_name ?? item.lead_id ?? "Lead")}</div>
+        <div>priority=${escapeHtml(item.priority ?? "normal")} | due=${escapeHtml(item.due_at ?? "-")} | channel=${escapeHtml(item.channel ?? "-")}</div>
+        <div style="color:var(--muted); margin-top:4px;">${escapeHtml(item.reason ?? item.action ?? "Follow up")}</div>
+        ${
+          hasMessageKey
+            ? `<div class="approval-actions" style="margin-top:6px;">
+                <button class="btn btn-approve" onclick="setRevenueOutreachStatus('${keyToken}', 'replied', '${leadToken}')">Mark Replied</button>
+              </div>`
+            : ""
+        }
+      </div>`;
+    }).join("")
+    : `<div class="empty">No follow-up actions due right now.</div>`;
+
+  const dealSummary = dealEvents.summary ?? {};
+  const dealCounts = dealSummary.counts ?? {};
+  document.getElementById("revenue-deal-summary").textContent =
+    `proposal=${dealCounts.proposal_sent ?? 0} | invoice=${dealCounts.invoice_sent ?? 0} | paid=${dealCounts.payment_received ?? 0} | week_paid=${formatCurrency(dealSummary.payment_week_total ?? 0)} | total_paid=${formatCurrency(dealSummary.payment_total ?? 0)}`;
+  const recentDeals = Array.isArray(dealEvents.recent) ? dealEvents.recent : [];
+  document.getElementById("revenue-deal-events").innerHTML = recentDeals.length
+    ? recentDeals.slice(0, 12).map((evt) => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
+        <div style="font-family:var(--mono); color:var(--text);">${escapeHtml(evt.lead_id ?? "-")} | ${escapeHtml(evt.event_type ?? "-")} | ${escapeHtml(evt.timestamp ?? "-")}</div>
+        <div>amount=${escapeHtml(formatCurrency(evt.amount_usd ?? 0))} | source=${escapeHtml(evt.source ?? "-")}</div>
+      </div>
+    `).join("")
+    : `<div class="empty">No deal events logged yet.</div>`;
+
+  const siteSummary = site.summary ?? {};
+  const siteWeek = siteSummary.week_counts ?? {};
+  document.getElementById("revenue-site-summary").textContent =
+    `sessions_week=${siteSummary.sessions_week ?? 0} | views=${siteWeek.page_view ?? 0} | cta_clicks=${siteWeek.cta_click ?? 0} (${formatPercent(siteSummary.cta_rate_week)}) | submits=${siteWeek.intake_submit ?? 0} (${formatPercent(siteSummary.intake_submit_rate_week)}) | captured=${siteWeek.intake_captured ?? 0} (${formatPercent(siteSummary.intake_capture_rate_week)})`;
+  const recentSite = Array.isArray(site.recent) ? site.recent : [];
+  document.getElementById("revenue-site-events").innerHTML = recentSite.length
+    ? recentSite.slice(0, 12).map((evt) => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
+        <div style="font-family:var(--mono); color:var(--text);">${escapeHtml(evt.event_type ?? "-")} | ${escapeHtml(evt.channel ?? "-")} | ${escapeHtml(evt.timestamp ?? "-")}</div>
+      </div>
+    `).join("")
+    : `<div class="empty">No site telemetry events captured yet.</div>`;
+
+  document.getElementById("revenue-eval-summary").textContent =
+    `eval=${evalBlock.status ?? "PENDING"} | integrations=${integration.status ?? "PENDING"} | eval_source=${evalBlock.source ?? "none"}`;
+
   const inbox = board.inbox_pressure ?? {};
   const sourceRows = [
     `Queue source: ${sources.queue ?? "none"}`,
@@ -1762,8 +1938,14 @@ async function loadRevenue() {
     `Outreach pack source: ${sources.outreach_pack ?? "none"}`,
     `Outreach tool source: ${sources.outreach_tool ?? "none"}`,
     `Outreach status source: ${sources.outreach_status ?? "none"}`,
+    `Follow-up queue source: ${sources.followup_queue ?? "none"}`,
+    `Follow-up tool source: ${sources.followup_tool ?? "none"}`,
+    `Revenue eval source: ${sources.revenue_eval ?? "none"}`,
+    `Integration readiness source: ${sources.integration_readiness ?? "none"}`,
     `Playbook source: ${sources.playbook ?? "none"}`,
     `Targets source: ${sources.targets ?? "none"}`,
+    `Deal events source: ${sources.deal_events ?? "none"}`,
+    `Site events source: ${sources.site_events ?? "none"}`,
     `Pipeline source: ${sources.pipeline ?? "none"}`,
     `Intake source: ${intake.path ?? "none"}`,
     `Inbox pressure: P0=${inbox.P0 ?? 0} | P1=${inbox.P1 ?? 0} | P2=${inbox.P2 ?? 0} | P3=${inbox.P3 ?? 0}`,

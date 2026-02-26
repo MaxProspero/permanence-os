@@ -598,6 +598,144 @@ def update_revenue_outreach_status():
     )
 
 
+@app.route("/api/revenue/deal-event", methods=["POST"])
+def create_revenue_deal_event():
+    """Record a deal event and synchronize lead stage/value."""
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/deal-event", payload)
+
+    lead_id = str(payload.get("lead_id") or "").strip()
+    event_type = str(payload.get("event_type") or "").strip().lower()
+    if not lead_id:
+        log_api_call("POST", "/api/revenue/deal-event", payload, "MISSING_LEAD_ID")
+        abort(400, description="lead_id is required.")
+    if event_type not in REVENUE_DEAL_EVENT_TYPES:
+        log_api_call("POST", "/api/revenue/deal-event", payload, "INVALID_EVENT_TYPE")
+        abort(400, description="event_type must be one of: proposal_sent, invoice_sent, payment_received, kickoff_scheduled")
+
+    amount = payload.get("amount_usd")
+    amount_usd = None if amount is None or str(amount).strip() == "" else _coerce_float(amount, 0.0)
+    source = str(payload.get("source") or "dashboard").strip()
+    actor = str(payload.get("actor") or "human").strip()
+    notes = str(payload.get("notes") or "").strip()
+    event = _record_revenue_deal_event(
+        lead_id=lead_id,
+        event_type=event_type,
+        amount_usd=amount_usd,
+        source=source,
+        actor=actor,
+        notes=notes,
+    )
+
+    tomorrow = (utc_now().date() + datetime.timedelta(days=1)).isoformat()
+    update_payload: dict = {}
+    if event_type == "proposal_sent":
+        update_payload = {
+            "stage": "proposal_sent",
+            "next_action": "Follow up on proposal response",
+            "next_action_due": tomorrow,
+        }
+    elif event_type == "invoice_sent":
+        update_payload = {
+            "stage": "negotiation",
+            "next_action": "Confirm invoice receipt and payment timeline",
+            "next_action_due": tomorrow,
+        }
+    elif event_type == "payment_received":
+        update_payload = {
+            "stage": "won",
+            "next_action": "Kickoff scheduled",
+            "next_action_due": "",
+        }
+        if amount_usd is not None:
+            update_payload["actual_value"] = amount_usd
+    elif event_type == "kickoff_scheduled":
+        update_payload = {
+            "next_action": "Execute kickoff and delivery plan",
+            "next_action_due": "",
+        }
+
+    updated = _pipeline_update_lead(lead_id, update_payload)
+    if updated is None:
+        log_api_call("POST", "/api/revenue/deal-event", payload, "LEAD_NOT_FOUND")
+        abort(404, description="Lead not found.")
+
+    return jsonify(
+        {
+            "status": "UPDATED",
+            "event": event,
+            "lead": updated,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/deal-events", methods=["GET"])
+def list_revenue_deal_events():
+    """List recent deal events."""
+    limit = max(1, min(200, request.args.get("limit", 50, type=int)))
+    log_api_call("GET", "/api/revenue/deal-events", {"limit": limit})
+    rows = _load_revenue_deal_events(limit=limit)
+    return jsonify(
+        {
+            "status": "OK",
+            "count": len(rows),
+            "rows": rows,
+            "path": _revenue_deal_events_path(),
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/site-event", methods=["POST"])
+def create_revenue_site_event():
+    """Capture site funnel telemetry event from FOUNDATION surface."""
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/site-event", payload)
+
+    event_type = str(payload.get("event_type") or "").strip().lower()
+    if event_type not in REVENUE_SITE_EVENT_TYPES:
+        log_api_call("POST", "/api/revenue/site-event", payload, "INVALID_EVENT_TYPE")
+        abort(400, description="event_type must be one of: page_view, cta_click, intake_submit, intake_captured, intake_fallback")
+    source = str(payload.get("source") or "foundation_site").strip()
+    session_id = str(payload.get("session_id") or "").strip()
+    channel = str(payload.get("channel") or "").strip()
+    meta = payload.get("meta", {})
+    if not isinstance(meta, dict):
+        meta = {}
+    entry = _record_revenue_site_event(
+        event_type=event_type,
+        source=source,
+        session_id=session_id,
+        channel=channel,
+        meta=meta,
+    )
+    return jsonify(
+        {
+            "status": "CAPTURED",
+            "entry": entry,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/site-events", methods=["GET"])
+def list_revenue_site_events():
+    """List recent site telemetry events."""
+    limit = max(1, min(500, request.args.get("limit", 100, type=int)))
+    log_api_call("GET", "/api/revenue/site-events", {"limit": limit})
+    rows = _load_revenue_site_events(limit=limit)
+    return jsonify(
+        {
+            "status": "OK",
+            "count": len(rows),
+            "rows": rows,
+            "path": _revenue_site_events_path(),
+            "timestamp": utc_iso(),
+        }
+    )
+
+
 @app.route("/api/revenue/run-loop", methods=["POST"])
 def run_revenue_loop():
     """Run revenue loop commands from dashboard (full loop or queue refresh)."""
@@ -619,6 +757,8 @@ def run_revenue_loop():
             [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-architecture"],
             [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-execution-board"],
             [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-outreach-pack"],
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-followup-queue"],
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-eval"],
         ]
 
     started = utc_now()
@@ -777,6 +917,8 @@ REVENUE_STAGE_PROB = {
     "lost": 0.00,
 }
 REVENUE_OUTREACH_STATUSES = {"pending", "sent", "replied"}
+REVENUE_DEAL_EVENT_TYPES = {"proposal_sent", "invoice_sent", "payment_received", "kickoff_scheduled"}
+REVENUE_SITE_EVENT_TYPES = {"page_view", "cta_click", "intake_submit", "intake_captured", "intake_fallback"}
 
 
 def _intake_path() -> str:
@@ -797,6 +939,20 @@ def _revenue_targets_path() -> str:
     return os.environ.get(
         "PERMANENCE_REVENUE_TARGETS_PATH",
         os.path.join(PATHS["working"], "revenue_targets.json"),
+    )
+
+
+def _revenue_deal_events_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_DEAL_EVENTS_PATH",
+        os.path.join(PATHS["working"], "revenue_deal_events.jsonl"),
+    )
+
+
+def _revenue_site_events_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_SITE_EVENTS_PATH",
+        os.path.join(PATHS["working"], "revenue_site_events.jsonl"),
     )
 
 
@@ -1322,6 +1478,187 @@ def _apply_outreach_status(messages: list[dict]) -> dict:
     }
 
 
+def _load_revenue_deal_events(limit: int = 200) -> list[dict]:
+    path = _revenue_deal_events_path()
+    if not os.path.exists(path):
+        return []
+    rows: list[dict] = []
+    try:
+        with open(path) as f:
+            for raw in f:
+                line = raw.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(item, dict):
+                    rows.append(item)
+    except OSError:
+        return []
+    rows.sort(key=lambda row: str(row.get("timestamp") or ""), reverse=True)
+    if limit > 0:
+        return rows[:limit]
+    return rows
+
+
+def _record_revenue_deal_event(
+    *,
+    lead_id: str,
+    event_type: str,
+    amount_usd: Optional[float],
+    source: str,
+    actor: str,
+    notes: str,
+) -> dict:
+    entry = {
+        "event_id": f"RD-{utc_now().strftime('%Y%m%d-%H%M%S%f')}",
+        "timestamp": utc_iso(),
+        "lead_id": lead_id,
+        "event_type": event_type,
+        "amount_usd": amount_usd,
+        "source": source,
+        "actor": actor,
+        "notes": notes,
+    }
+    _append_jsonl(_revenue_deal_events_path(), entry)
+    return entry
+
+
+def _summarize_revenue_deal_events(events: list[dict], *, week_start: datetime.date, week_end: datetime.date) -> dict:
+    counts = {event_type: 0 for event_type in sorted(REVENUE_DEAL_EVENT_TYPES)}
+    week_counts = {event_type: 0 for event_type in sorted(REVENUE_DEAL_EVENT_TYPES)}
+    payment_total = 0.0
+    payment_week_total = 0.0
+    for event in events:
+        event_type = str(event.get("event_type") or "").strip().lower()
+        if event_type not in counts:
+            continue
+        counts[event_type] += 1
+        amount = _coerce_float(event.get("amount_usd"), 0.0)
+        if event_type == "payment_received":
+            payment_total += amount
+        ts = _parse_iso_datetime(event.get("timestamp"))
+        if _in_window(ts, week_start, week_end):
+            week_counts[event_type] += 1
+            if event_type == "payment_received":
+                payment_week_total += amount
+    return {
+        "counts": counts,
+        "week_counts": week_counts,
+        "payment_total": payment_total,
+        "payment_week_total": payment_week_total,
+        "path": _revenue_deal_events_path(),
+    }
+
+
+def _load_revenue_site_events(limit: int = 1000) -> list[dict]:
+    path = _revenue_site_events_path()
+    if not os.path.exists(path):
+        return []
+    rows: list[dict] = []
+    try:
+        with open(path) as f:
+            for raw in f:
+                line = raw.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(item, dict):
+                    rows.append(item)
+    except OSError:
+        return []
+    rows.sort(key=lambda row: str(row.get("timestamp") or ""), reverse=True)
+    if limit > 0:
+        return rows[:limit]
+    return rows
+
+
+def _record_revenue_site_event(
+    *,
+    event_type: str,
+    source: str,
+    session_id: str,
+    channel: str,
+    meta: dict,
+) -> dict:
+    entry = {
+        "event_id": f"RS-{utc_now().strftime('%Y%m%d-%H%M%S%f')}",
+        "timestamp": utc_iso(),
+        "event_type": event_type,
+        "source": source,
+        "session_id": session_id or None,
+        "channel": channel or None,
+        "meta": meta,
+    }
+    _append_jsonl(_revenue_site_events_path(), entry)
+    return entry
+
+
+def _summarize_revenue_site_events(events: list[dict], *, week_start: datetime.date, week_end: datetime.date) -> dict:
+    counts = {event_type: 0 for event_type in sorted(REVENUE_SITE_EVENT_TYPES)}
+    week_counts = {event_type: 0 for event_type in sorted(REVENUE_SITE_EVENT_TYPES)}
+    session_ids: set[str] = set()
+    week_session_ids: set[str] = set()
+    for event in events:
+        event_type = str(event.get("event_type") or "").strip().lower()
+        if event_type in counts:
+            counts[event_type] += 1
+        session_id = str(event.get("session_id") or "").strip()
+        if session_id:
+            session_ids.add(session_id)
+        ts = _parse_iso_datetime(event.get("timestamp"))
+        if not _in_window(ts, week_start, week_end):
+            continue
+        if event_type in week_counts:
+            week_counts[event_type] += 1
+        if session_id:
+            week_session_ids.add(session_id)
+    return {
+        "counts": counts,
+        "week_counts": week_counts,
+        "sessions_total": len(session_ids),
+        "sessions_week": len(week_session_ids),
+        "cta_rate_week": _safe_rate(week_counts.get("cta_click", 0), week_counts.get("page_view", 0)),
+        "intake_submit_rate_week": _safe_rate(week_counts.get("intake_submit", 0), week_counts.get("cta_click", 0)),
+        "intake_capture_rate_week": _safe_rate(week_counts.get("intake_captured", 0), week_counts.get("intake_submit", 0)),
+        "path": _revenue_site_events_path(),
+    }
+
+
+def _load_followup_queue_payload() -> tuple[list[dict], Optional[str], Optional[str]]:
+    tool_path = _latest_tool_file("revenue_followup_queue_*.json")
+    if tool_path and os.path.exists(tool_path):
+        try:
+            with open(tool_path) as f:
+                payload = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            payload = {}
+        if isinstance(payload, dict):
+            items = payload.get("followups")
+            if isinstance(items, list):
+                rows = [item for item in items if isinstance(item, dict)]
+                markdown_path = str(payload.get("latest_markdown") or "") or None
+                return rows, markdown_path, tool_path
+    markdown_path = _first_existing_output_file("revenue_followup_queue_latest.md")
+    if not markdown_path:
+        markdown_path = _latest_output_file("revenue_followup_queue_*.md")
+    rows: list[dict] = []
+    markdown = _read_text_file(markdown_path)
+    for line in markdown.splitlines():
+        text = line.strip()
+        if not text or ". [" not in text:
+            continue
+        if not text.split(". ", 1)[0].isdigit():
+            continue
+        rows.append({"action": text.split(". ", 1)[1]})
+    return rows, markdown_path, tool_path
+
+
 def _parse_revenue_board(markdown: str) -> dict:
     lines = markdown.splitlines() if markdown else []
     non_negotiables: list[str] = []
@@ -1716,17 +2053,30 @@ def _load_revenue_snapshot() -> dict:
     outreach_path = _first_existing_output_file("revenue_outreach_pack_latest.md")
     if outreach_path is None:
         outreach_path = _latest_output_file("revenue_outreach_pack_*.md") or ""
+    followup_path = _first_existing_output_file("revenue_followup_queue_latest.md")
+    if followup_path is None:
+        followup_path = _latest_output_file("revenue_followup_queue_*.md") or ""
+    eval_path = _first_existing_output_file("revenue_eval_latest.md")
+    if eval_path is None:
+        eval_path = _latest_output_file("revenue_eval_*.md") or ""
+    integration_path = _first_existing_output_file("integration_readiness_latest.md")
+    if integration_path is None:
+        integration_path = _latest_output_file("integration_readiness_*.md") or ""
 
     queue_markdown = _read_text_file(queue_path)
     board_markdown = _read_text_file(board_path)
     architecture_markdown = _read_text_file(arch_path)
     outreach_markdown = _read_text_file(outreach_path)
+    followup_markdown = _read_text_file(followup_path)
+    eval_markdown = _read_text_file(eval_path)
+    integration_markdown = _read_text_file(integration_path)
 
     queue_actions = _parse_revenue_queue_actions(queue_markdown)
     queue_progress = _build_queue_progress(queue_actions)
     board_data = _parse_revenue_board(board_markdown)
     outreach_messages, outreach_tool_path = _load_outreach_messages(outreach_markdown)
     outreach_status = _apply_outreach_status(outreach_messages)
+    followup_items, followup_markdown_path, followup_tool_path = _load_followup_queue_payload()
     pipeline = _load_pipeline_snapshot()
     pipeline_rows = _pipeline_load()
     intake_rows_all = _load_intake_rows(limit=0)
@@ -1735,6 +2085,11 @@ def _load_revenue_snapshot() -> dict:
     playbook = _load_revenue_playbook()
     targets = _load_revenue_targets()
     target_progress = _build_revenue_target_progress(pipeline_rows, targets)
+    deal_events = _load_revenue_deal_events(limit=200)
+    site_events = _load_revenue_site_events(limit=1000)
+    week_start, week_end = _week_window_local()
+    deal_summary = _summarize_revenue_deal_events(deal_events, week_start=week_start, week_end=week_end)
+    site_summary = _summarize_revenue_site_events(site_events, week_start=week_start, week_end=week_end)
 
     return {
         "generated_at": utc_iso(),
@@ -1745,9 +2100,15 @@ def _load_revenue_snapshot() -> dict:
             "outreach_pack": outreach_path or None,
             "outreach_tool": outreach_tool_path,
             "outreach_status": outreach_status["status_path"],
+            "followup_queue": followup_markdown_path or followup_path or None,
+            "followup_tool": followup_tool_path,
+            "revenue_eval": eval_path or None,
+            "integration_readiness": integration_path or None,
             "pipeline": pipeline["path"],
             "playbook": _revenue_playbook_path(),
             "targets": _revenue_targets_path(),
+            "deal_events": _revenue_deal_events_path(),
+            "site_events": _revenue_site_events_path(),
         },
         "queue": {
             "count": len(queue_actions),
@@ -1800,6 +2161,35 @@ def _load_revenue_snapshot() -> dict:
             "completion_rate": outreach_status["completion_rate"],
             "messages": outreach_status["messages"],
             "content_markdown": outreach_markdown[:6000],
+        },
+        "followups": {
+            "count": len(followup_items),
+            "items": followup_items[:14],
+            "source": followup_markdown_path or followup_path or None,
+            "tool_source": followup_tool_path,
+            "content_markdown": followup_markdown[:6000],
+        },
+        "deal_events": {
+            "path": _revenue_deal_events_path(),
+            "count": len(deal_events),
+            "recent": deal_events[:25],
+            "summary": deal_summary,
+        },
+        "site": {
+            "path": _revenue_site_events_path(),
+            "count": len(site_events),
+            "summary": site_summary,
+            "recent": site_events[:25],
+        },
+        "eval": {
+            "source": eval_path or None,
+            "status": "PASS" if "- Result: PASS" in eval_markdown else ("FAIL" if "- Result: FAIL" in eval_markdown else "PENDING"),
+            "content_markdown": eval_markdown[:4000],
+        },
+        "integration": {
+            "source": integration_path or None,
+            "status": "BLOCKED" if "Overall status: BLOCKED" in integration_markdown else ("READY" if "Overall status: READY" in integration_markdown else "PENDING"),
+            "content_markdown": integration_markdown[:4000],
         },
         "architecture_excerpt": architecture_markdown[:4000],
     }

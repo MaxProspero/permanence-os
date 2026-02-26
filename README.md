@@ -342,10 +342,14 @@ python cli.py money-loop
 python cli.py revenue-action-queue
 python cli.py revenue-execution-board
 python cli.py revenue-outreach-pack
+python cli.py revenue-followup-queue
+python cli.py revenue-eval
 python cli.py revenue-playbook show
 python cli.py revenue-playbook set --offer-name "Permanence OS Foundation Setup" --cta-keyword FOUNDATION --cta-public 'DM me "FOUNDATION".' --pricing-tier Core --price-usd 1500
 python cli.py revenue-targets show
 python cli.py revenue-targets set --weekly-revenue-target 5000 --monthly-revenue-target 20000 --daily-outreach-target 12
+python cli.py integration-readiness
+python cli.py revenue-backup
 ```
 `revenue-action-queue` now prioritizes from live pipeline/intake/funnel signals first (urgent leads + bottleneck), then fills remaining slots with template actions.
 Desktop launcher:
@@ -388,6 +392,7 @@ Revenue data is also visible in Command Center under **Revenue Ops**.
 - Revenue Ops now displays the latest Outreach Draft Pack inside the dashboard.
 - Outreach drafts now support status tracking in-dashboard (pending/sent/replied) plus one-click copy for subject/body.
 - Revenue Ops now includes editable Revenue Targets lock (weekly/monthly revenue, funnel targets, outreach target) with live progress percentages.
+- Revenue Ops now includes follow-up queue rendering, deal-event logging (proposal/invoice/payment), site funnel telemetry, and a revenue eval status panel.
 
 ### Revenue Weekly Summary
 Generate the weekly operator scorecard:
@@ -439,6 +444,24 @@ bash automation/setup_money_loop_automation.sh
 Disable schedule:
 ```bash
 bash automation/disable_money_loop_automation.sh
+```
+
+### Revenue Ops Automation + Services
+Schedule nightly revenue maintenance (integration readiness, revenue eval, weekly summary, backup):
+```bash
+bash automation/setup_revenue_ops_automation.sh
+```
+Disable:
+```bash
+bash automation/disable_revenue_ops_automation.sh
+```
+Run operator surface as an always-on service (launchd/@reboot):
+```bash
+bash automation/setup_operator_surface_service.sh
+```
+Disable:
+```bash
+bash automation/disable_operator_surface_service.sh
 ```
 
 ### Health Summary

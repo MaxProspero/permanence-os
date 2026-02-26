@@ -346,7 +346,7 @@
   <main class="shell">
     <div class="topbar">
       <div class="badge"><span class="dot"></span> Foundation Setup | 7-Day Delivery</div>
-      <a class="cta-link" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20Intake">hello@permanencesystems.com</a>
+      <a class="cta-link" data-track-event="cta_click" data-track-channel="email_topbar" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20Intake">hello@permanencesystems.com</a>
     </div>
 
     <section class="hero">
@@ -361,8 +361,8 @@
           <li>Governance gates + audit trail for every run</li>
         </ul>
         <div class="row">
-          <a class="btn btn-primary" href="#intake">Start Intake</a>
-          <a class="btn btn-alt" href="#packages">See Packages</a>
+          <a class="btn btn-primary" data-track-event="cta_click" data-track-channel="start_intake" href="#intake">Start Intake</a>
+          <a class="btn btn-alt" data-track-event="cta_click" data-track-channel="see_packages" href="#packages">See Packages</a>
         </div>
         <p class="small" style="margin-top:12px">Locked weekly CTA: <strong>DM "FOUNDATION"</strong></p>
       </article>
@@ -466,7 +466,7 @@
         </label>
         <div class="row">
           <button class="btn btn-primary" type="submit">Send Intake</button>
-          <a class="btn btn-alt" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20DM">DM FOUNDATION</a>
+          <a class="btn btn-alt" data-track-event="cta_click" data-track-channel="dm_foundation" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20DM">DM FOUNDATION</a>
         </div>
       </form>
       <p id="intakeStatus" class="small" style="margin-top:12px"></p>
@@ -486,6 +486,47 @@
       "http://127.0.0.1:8000/api/revenue/intake",
       "http://localhost:8000/api/revenue/intake",
     ];
+    const siteEventEndpoints = intakeEndpoints.map((url) => url.replace("/revenue/intake", "/revenue/site-event"));
+
+    function ensureSessionId() {
+      const key = "permanence_foundation_session_id";
+      let current = "";
+      try {
+        current = String(window.localStorage.getItem(key) || "").trim();
+      } catch (_error) {
+        current = "";
+      }
+      if (current) return current;
+      const generated = `FS-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      try {
+        window.localStorage.setItem(key, generated);
+      } catch (_error) {
+      }
+      return generated;
+    }
+
+    async function trackSiteEvent(eventType, channel = "", meta = {}) {
+      const payload = {
+        event_type: String(eventType || "").trim().toLowerCase(),
+        source: "foundation_site",
+        session_id: ensureSessionId(),
+        channel: String(channel || "").trim(),
+        meta: meta && typeof meta === "object" ? meta : {},
+      };
+      for (const endpoint of siteEventEndpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (response.ok) return true;
+        } catch (_error) {
+          continue;
+        }
+      }
+      return false;
+    }
 
     async function submitToApi(payload) {
       for (const endpoint of intakeEndpoints) {
@@ -522,12 +563,19 @@
 
       statusEl.textContent = "Submitting intake...";
       statusEl.className = "small";
+      await trackSiteEvent("intake_submit", "intake_form", {
+        package: payload.package,
+        workflow: payload.workflow,
+      });
 
       const apiResult = await submitToApi(payload);
       if (apiResult) {
         const leadId = apiResult.lead_id ? ` | lead ${apiResult.lead_id}` : "";
         statusEl.textContent = `Intake captured in local Revenue Ops${leadId}.`;
         statusEl.className = "small success";
+        await trackSiteEvent("intake_captured", "api_capture", {
+          lead_id: String(apiResult.lead_id || ""),
+        });
         form.reset();
         return;
       }
@@ -545,7 +593,23 @@
       const body = encodeURIComponent(lines.join("\n"));
       statusEl.textContent = "Could not reach local API. Opening email fallback...";
       statusEl.className = "small danger";
+      await trackSiteEvent("intake_fallback", "mailto_fallback", {
+        package: payload.package,
+      });
       window.location.href = `mailto:hello@permanencesystems.com?subject=${subject}&body=${body}`;
+    });
+
+    const trackedLinks = document.querySelectorAll("[data-track-event]");
+    trackedLinks.forEach((node) => {
+      node.addEventListener("click", () => {
+        const eventType = String(node.getAttribute("data-track-event") || "");
+        const channel = String(node.getAttribute("data-track-channel") || "");
+        void trackSiteEvent(eventType, channel);
+      });
+    });
+    void trackSiteEvent("page_view", "foundation_landing", {
+      path: window.location.pathname,
+      referrer: document.referrer || "",
     });
   </script>
 </body>

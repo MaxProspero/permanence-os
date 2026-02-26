@@ -213,6 +213,38 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             ),
             encoding="utf-8",
         )
+        (tool_dir / "revenue_followup_queue_20260225-000002.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-02-25T13:00:00Z",
+                    "latest_markdown": str(outputs_dir / "revenue_followup_queue_latest.md"),
+                    "followups": [
+                        {
+                            "lead_id": "L-1",
+                            "lead_name": "Lead A",
+                            "message_key": "L-1",
+                            "priority": "high",
+                            "channel": "dm",
+                            "reason": "No reply after 48h",
+                            "due_at": "2026-02-26T13:00:00Z",
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        (outputs_dir / "revenue_followup_queue_latest.md").write_text(
+            "# Revenue Follow-up Queue\n\n1. [high] Lead A (L-1)\n",
+            encoding="utf-8",
+        )
+        (outputs_dir / "revenue_eval_latest.md").write_text(
+            "# Revenue Eval\n\n- Result: PASS\n",
+            encoding="utf-8",
+        )
+        (outputs_dir / "integration_readiness_latest.md").write_text(
+            "# Integration Readiness\n\n- Overall status: READY\n",
+            encoding="utf-8",
+        )
 
         pipeline_path = working_dir / "sales_pipeline.json"
         pipeline_path.write_text(
@@ -301,6 +333,52 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             ),
             encoding="utf-8",
         )
+        deal_events_path = working_dir / "revenue_deal_events.jsonl"
+        deal_events_path.write_text(
+            json.dumps(
+                {
+                    "event_id": "RD-TEST-1",
+                    "timestamp": "2026-02-25T12:15:00Z",
+                    "lead_id": "L-1",
+                    "event_type": "proposal_sent",
+                    "amount_usd": None,
+                }
+            )
+            + "\n"
+            + json.dumps(
+                {
+                    "event_id": "RD-TEST-2",
+                    "timestamp": "2026-02-25T13:15:00Z",
+                    "lead_id": "L-2",
+                    "event_type": "payment_received",
+                    "amount_usd": 1000,
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        site_events_path = working_dir / "revenue_site_events.jsonl"
+        site_events_path.write_text(
+            json.dumps(
+                {
+                    "event_id": "RS-TEST-1",
+                    "timestamp": "2026-02-25T09:00:00Z",
+                    "event_type": "page_view",
+                    "session_id": "S-1",
+                }
+            )
+            + "\n"
+            + json.dumps(
+                {
+                    "event_id": "RS-TEST-2",
+                    "timestamp": "2026-02-25T09:05:00Z",
+                    "event_type": "cta_click",
+                    "session_id": "S-1",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
         original_paths = dict(dashboard_api.PATHS)
         original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
@@ -308,6 +386,8 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
         original_action_status_path = os.environ.get("PERMANENCE_REVENUE_ACTION_STATUS_PATH")
         original_outreach_status_path = os.environ.get("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH")
         original_targets_path = os.environ.get("PERMANENCE_REVENUE_TARGETS_PATH")
+        original_deal_events_path = os.environ.get("PERMANENCE_REVENUE_DEAL_EVENTS_PATH")
+        original_site_events_path = os.environ.get("PERMANENCE_REVENUE_SITE_EVENTS_PATH")
         try:
             dashboard_api.PATHS["outputs"] = str(outputs_dir)
             dashboard_api.PATHS["working"] = str(working_dir)
@@ -317,6 +397,8 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = str(action_status_path)
             os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = str(outreach_status_path)
             os.environ["PERMANENCE_REVENUE_TARGETS_PATH"] = str(targets_path)
+            os.environ["PERMANENCE_REVENUE_DEAL_EVENTS_PATH"] = str(deal_events_path)
+            os.environ["PERMANENCE_REVENUE_SITE_EVENTS_PATH"] = str(site_events_path)
 
             snapshot = dashboard_api._load_revenue_snapshot()
             assert snapshot["queue"]["count"] == 2
@@ -345,6 +427,15 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             assert snapshot["targets"]["path"] is not None
             assert snapshot["targets"]["data"]["daily_outreach_target"] == 9
             assert snapshot["targets"]["progress"]["won_week_value"] >= 0
+            assert snapshot["followups"]["count"] == 1
+            assert snapshot["followups"]["items"][0]["lead_id"] == "L-1"
+            assert snapshot["deal_events"]["summary"]["counts"]["payment_received"] >= 1
+            assert snapshot["site"]["summary"]["counts"]["page_view"] >= 1
+            assert snapshot["eval"]["status"] == "PASS"
+            assert snapshot["integration"]["status"] == "READY"
+            assert snapshot["sources"]["followup_queue"] is not None
+            assert snapshot["sources"]["deal_events"] is not None
+            assert snapshot["sources"]["integration_readiness"] is not None
         finally:
             dashboard_api.PATHS.update(original_paths)
             if original_pipeline_path is None:
@@ -367,6 +458,14 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
                 os.environ.pop("PERMANENCE_REVENUE_TARGETS_PATH", None)
             else:
                 os.environ["PERMANENCE_REVENUE_TARGETS_PATH"] = original_targets_path
+            if original_deal_events_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_DEAL_EVENTS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_DEAL_EVENTS_PATH"] = original_deal_events_path
+            if original_site_events_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_SITE_EVENTS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_SITE_EVENTS_PATH"] = original_site_events_path
 
 
 def test_revenue_action_endpoint_tracks_completion():
@@ -472,6 +571,132 @@ def test_revenue_outreach_endpoint_rejects_invalid_status():
     client = dashboard_api.app.test_client()
     response = client.post("/api/revenue/outreach", json={"lead_id": "L-1", "status": "invalid"})
     assert response.status_code == 400
+
+
+def test_revenue_deal_event_endpoint_updates_pipeline():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+
+        pipeline_path = working_dir / "sales_pipeline.json"
+        pipeline_path.write_text(
+            json.dumps(
+                [
+                    {
+                        "lead_id": "L-100",
+                        "name": "Deal Lead",
+                        "source": "dashboard",
+                        "stage": "qualified",
+                        "offer": "Permanence OS Foundation Setup",
+                        "est_value": 1500,
+                        "actual_value": None,
+                        "next_action": "Send proposal",
+                        "next_action_due": "",
+                        "notes": "",
+                        "created_at": "2026-02-25T00:00:00Z",
+                        "updated_at": "2026-02-25T00:00:00Z",
+                        "closed_at": None,
+                    }
+                ]
+            ),
+            encoding="utf-8",
+        )
+        deal_events_path = working_dir / "revenue_deal_events.jsonl"
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
+        original_deal_events_path = os.environ.get("PERMANENCE_REVENUE_DEAL_EVENTS_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = str(pipeline_path)
+            os.environ["PERMANENCE_REVENUE_DEAL_EVENTS_PATH"] = str(deal_events_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/deal-event",
+                json={
+                    "lead_id": "L-100",
+                    "event_type": "payment_received",
+                    "amount_usd": 1700,
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "UPDATED"
+            assert payload.get("lead", {}).get("stage") == "won"
+            assert payload.get("lead", {}).get("actual_value") == 1700
+            assert deal_events_path.exists()
+            events = dashboard_api._load_revenue_deal_events(limit=10)
+            assert events
+            assert events[0]["event_type"] == "payment_received"
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_pipeline_path is None:
+                os.environ.pop("PERMANENCE_SALES_PIPELINE_PATH", None)
+            else:
+                os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = original_pipeline_path
+            if original_deal_events_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_DEAL_EVENTS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_DEAL_EVENTS_PATH"] = original_deal_events_path
+
+
+def test_revenue_site_event_endpoint_captures_telemetry():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        site_events_path = working_dir / "revenue_site_events.jsonl"
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_site_events_path = os.environ.get("PERMANENCE_REVENUE_SITE_EVENTS_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_REVENUE_SITE_EVENTS_PATH"] = str(site_events_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/site-event",
+                json={
+                    "event_type": "page_view",
+                    "source": "foundation_site",
+                    "session_id": "S-1",
+                    "channel": "foundation_landing",
+                    "meta": {"path": "/"},
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "CAPTURED"
+            assert site_events_path.exists()
+            rows = dashboard_api._load_revenue_site_events(limit=10)
+            assert rows
+            assert rows[0]["event_type"] == "page_view"
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_site_events_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_SITE_EVENTS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_SITE_EVENTS_PATH"] = original_site_events_path
 
 
 def test_revenue_playbook_endpoint_updates_lock():
@@ -606,8 +831,8 @@ def test_revenue_run_loop_endpoint_executes_queue_commands():
             payload = response.get_json() or {}
             assert payload.get("status") == "OK"
             assert payload.get("mode") == "queue"
-            assert len(payload.get("commands") or []) == 4
-            assert mock_call.call_count == 4
+            assert len(payload.get("commands") or []) == 6
+            assert mock_call.call_count == 6
         finally:
             dashboard_api.PATHS.update(original_paths)
 
@@ -769,6 +994,8 @@ if __name__ == "__main__":
     test_revenue_action_endpoint_tracks_completion()
     test_revenue_outreach_endpoint_tracks_status()
     test_revenue_outreach_endpoint_rejects_invalid_status()
+    test_revenue_deal_event_endpoint_updates_pipeline()
+    test_revenue_site_event_endpoint_captures_telemetry()
     test_revenue_playbook_endpoint_updates_lock()
     test_revenue_targets_endpoint_updates_lock()
     test_revenue_run_loop_endpoint_executes_queue_commands()

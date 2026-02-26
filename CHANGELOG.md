@@ -19,8 +19,14 @@ All notable changes to this project will be documented in this file.
   - Revenue Ops outreach drafts now support status updates (`POST /api/revenue/outreach`) and UI controls for pending/sent/replied
   - added locked offer + CTA playbook management (`scripts/revenue_playbook.py`, `python cli.py revenue-playbook`, and `POST /api/revenue/playbook`)
   - added locked revenue target management (`scripts/revenue_targets.py`, `python cli.py revenue-targets`, and `POST /api/revenue/targets`)
+  - added integration readiness checks (`scripts/integration_readiness.py`, `python cli.py integration-readiness`)
+  - added outreach follow-up queue generation (`scripts/revenue_followup_queue.py`, `python cli.py revenue-followup-queue`)
+  - added revenue eval harness (`scripts/revenue_eval.py`, `python cli.py revenue-eval`)
+  - added revenue backup bundles (`scripts/revenue_backup.py`, `python cli.py revenue-backup`)
+  - added revenue deal-event + site telemetry APIs (`POST /api/revenue/deal-event`, `/api/revenue/site-event`)
   - revenue queue, outreach pack, execution board, and intake lead defaults now read from locked playbook values
   - Revenue Ops dashboard now includes editable targets and live weekly/monthly won-progress vs target
+  - Revenue Ops dashboard now includes follow-up queue, deal-event logging, site funnel telemetry, and revenue eval status
   - `revenue_action_queue.py` now prioritizes actions from live pipeline due dates + funnel bottlenecks before template fallbacks
   - added `scripts/revenue_outreach_pack.py` + `python cli.py revenue-outreach-pack` for stage-aware outreach drafts from open leads
   - money loop now generates outreach pack each run
@@ -34,6 +40,10 @@ All notable changes to this project will be documented in this file.
     - `automation/disable_money_loop_automation.sh`
   - tests for revenue execution board generation and dashboard revenue snapshot parsing
 - Reliability/phase/glance evaluation now supports injected local time in tests (`now_local`) to keep gate tests date-stable across calendar changes
+- Added automation/service setup scripts:
+  - `automation/setup_revenue_ops_automation.sh` + `automation/disable_revenue_ops_automation.sh`
+  - `automation/setup_operator_surface_service.sh` + `automation/disable_operator_surface_service.sh`
+  - `automation/run_revenue_ops_maintenance.sh`
 - Added chronicle distribution pipeline:
   - `scripts/chronicle_publish.py`
   - shared publish outputs under `memory/chronicle/shared/`
