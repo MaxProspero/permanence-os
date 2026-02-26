@@ -381,6 +381,7 @@ Revenue data is also visible in Command Center under **Revenue Ops**.
 - Revenue Ops queue actions can now be marked done/undone in-dashboard with completion-rate tracking.
 - Revenue Ops includes one-click loop controls in-dashboard: **Run Money Loop Now** and **Refresh Queue + Board**.
 - Revenue Ops now displays the latest Outreach Draft Pack inside the dashboard.
+- Outreach drafts now support status tracking in-dashboard (pending/sent/replied) plus one-click copy for subject/body.
 
 ### Revenue Weekly Summary
 Generate the weekly operator scorecard:

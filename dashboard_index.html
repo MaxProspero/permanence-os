@@ -858,6 +858,9 @@
 
       <div class="card" style="margin-bottom: 16px;">
         <div class="card-title">Outreach Draft Pack</div>
+        <div id="revenue-outreach-summary" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+          Loading outreach status...
+        </div>
         <div id="revenue-outreach-pack"><div class="empty">Loading outreach drafts...</div></div>
       </div>
 
@@ -1128,8 +1131,35 @@ function encodeActionToken(action) {
   return encodeURIComponent(String(action ?? ""));
 }
 
+function decodeToken(token) {
+  try {
+    return decodeURIComponent(String(token ?? ""));
+  } catch (_e) {
+    return String(token ?? "");
+  }
+}
+
+async function copyRevenueText(token) {
+  const text = decodeToken(token);
+  if (!text) return;
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+  } catch (_e) {
+    // fallback below
+  }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+}
+
 async function setRevenueActionComplete(actionToken, completed) {
-  const action = decodeURIComponent(String(actionToken || ""));
+  const action = decodeToken(actionToken);
   if (!action) return;
   const result = await apiPost("/revenue/action", {
     action,
@@ -1139,6 +1169,24 @@ async function setRevenueActionComplete(actionToken, completed) {
   });
   if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
     alert("Could not update action status.");
+    return;
+  }
+  await loadRevenue();
+}
+
+async function setRevenueOutreachStatus(messageKeyToken, status, leadIdToken = "") {
+  const messageKey = decodeToken(messageKeyToken);
+  const leadId = decodeToken(leadIdToken);
+  if (!messageKey || !status) return;
+  const result = await apiPost("/revenue/outreach", {
+    message_key: messageKey,
+    lead_id: leadId || undefined,
+    status,
+    source: "dashboard",
+    actor: "human",
+  });
+  if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
+    alert("Could not update outreach status.");
     return;
   }
   await loadRevenue();
@@ -1395,6 +1443,7 @@ async function loadRevenue() {
     document.getElementById("revenue-urgent-actions").innerHTML = `<div class="empty">No urgent actions available yet.</div>`;
     document.getElementById("revenue-open-rows").innerHTML = `<div class="empty">No open leads found yet.</div>`;
     document.getElementById("revenue-intake-rows").innerHTML = `<div class="empty">No intake submissions found yet.</div>`;
+    document.getElementById("revenue-outreach-summary").textContent = "No outreach status available.";
     document.getElementById("revenue-outreach-pack").innerHTML = `<div class="empty">No outreach drafts available yet.</div>`;
     document.getElementById("revenue-sources").innerHTML = `<div class="empty">Run money loop to generate data sources.</div>`;
     return;
@@ -1515,14 +1564,37 @@ async function loadRevenue() {
     : `<div class="empty">No intake submissions found yet.</div>`;
 
   const outreachMessages = Array.isArray(outreach.messages) ? outreach.messages : [];
+  document.getElementById("revenue-outreach-summary").textContent =
+    `pending=${outreach.pending_count ?? 0} | sent=${outreach.sent_count ?? 0} | replied=${outreach.replied_count ?? 0} | completion=${formatPercent(outreach.completion_rate)}`;
   document.getElementById("revenue-outreach-pack").innerHTML = outreachMessages.length
-    ? outreachMessages.map((msg) => `
+    ? outreachMessages.map((msg) => {
+      const status = String(msg.status ?? "pending").toLowerCase();
+      const keyToken = encodeActionToken(msg.message_key ?? msg.lead_id ?? msg.title ?? "");
+      const leadToken = encodeActionToken(msg.lead_id ?? "");
+      const bodyToken = encodeActionToken(msg.body ?? "");
+      const subjectToken = encodeActionToken(msg.subject ?? "");
+      return `
       <div style="padding:10px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
         <div style="font-family:var(--mono); color:var(--text); margin-bottom:4px;">${escapeHtml(msg.title ?? "Outreach draft")}</div>
-        <div style="margin-bottom:4px;">stage=${escapeHtml(msg.stage ?? "-")} | channel=${escapeHtml(msg.channel ?? "-")}</div>
+        <div style="margin-bottom:4px;">stage=${escapeHtml(msg.stage ?? "-")} | channel=${escapeHtml(msg.channel ?? "-")} | status=${escapeHtml(status)}</div>
         <div style="margin-bottom:4px;"><strong>Subject:</strong> ${escapeHtml(msg.subject ?? "-")}</div>
         <div style="white-space:pre-wrap; color:var(--muted);">${escapeHtml(msg.body ?? "")}</div>
-      </div>`).join("")
+        <div class="approval-actions" style="margin-top:6px;">
+          <button class="btn btn-view" onclick="copyRevenueText('${subjectToken}')">Copy Subject</button>
+          <button class="btn btn-view" onclick="copyRevenueText('${bodyToken}')">Copy Body</button>
+          ${
+            status === "pending"
+              ? `<button class="btn btn-approve" onclick="setRevenueOutreachStatus('${keyToken}', 'sent', '${leadToken}')">Mark Sent</button>`
+              : status === "sent"
+                ? `<button class="btn btn-approve" onclick="setRevenueOutreachStatus('${keyToken}', 'replied', '${leadToken}')">Mark Replied</button>`
+                : `<button class="btn btn-view" onclick="setRevenueOutreachStatus('${keyToken}', 'pending', '${leadToken}')">Reset Pending</button>`
+          }
+          <span style="font-size:11px; color:${status === "replied" ? "var(--safe)" : status === "sent" ? "var(--accent)" : "var(--muted)"}; font-family:var(--mono);">
+            ${escapeHtml(msg.status_updated_at ?? "")}
+          </span>
+        </div>
+      </div>`;
+    }).join("")
     : `<div class="empty">No outreach drafts found. Run revenue outreach pack.</div>`;
 
   const inbox = board.inbox_pressure ?? {};
@@ -1531,6 +1603,8 @@ async function loadRevenue() {
     `Architecture source: ${sources.architecture ?? "none"}`,
     `Execution board source: ${sources.execution_board ?? "none"}`,
     `Outreach pack source: ${sources.outreach_pack ?? "none"}`,
+    `Outreach tool source: ${sources.outreach_tool ?? "none"}`,
+    `Outreach status source: ${sources.outreach_status ?? "none"}`,
     `Pipeline source: ${sources.pipeline ?? "none"}`,
     `Intake source: ${intake.path ?? "none"}`,
     `Inbox pressure: P0=${inbox.P0 ?? 0} | P1=${inbox.P1 ?? 0} | P2=${inbox.P2 ?? 0} | P3=${inbox.P3 ?? 0}`,

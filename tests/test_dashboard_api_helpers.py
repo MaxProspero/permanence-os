@@ -138,8 +138,10 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
         root = Path(tmp)
         outputs_dir = root / "outputs"
         working_dir = root / "working"
+        tool_dir = root / "tool"
         outputs_dir.mkdir(parents=True, exist_ok=True)
         working_dir.mkdir(parents=True, exist_ok=True)
+        tool_dir.mkdir(parents=True, exist_ok=True)
 
         (outputs_dir / "revenue_action_queue_20260225-000001.md").write_text(
             "\n".join(
@@ -190,6 +192,24 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
                     "Hey Lead A, quick follow-up.",
                     "```",
                 ]
+            ),
+            encoding="utf-8",
+        )
+        (tool_dir / "revenue_outreach_pack_20260225-000001.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": "2026-02-25T12:00:00Z",
+                    "messages": [
+                        {
+                            "lead_id": "L-1",
+                            "lead_name": "Lead A",
+                            "stage": "qualified",
+                            "channel": "dm",
+                            "subject": "Lead A — next step",
+                            "body": "Hey Lead A, quick follow-up.",
+                        }
+                    ],
+                }
             ),
             encoding="utf-8",
         )
@@ -249,17 +269,37 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             + "\n",
             encoding="utf-8",
         )
+        outreach_status_path = working_dir / "revenue_outreach_status.jsonl"
+        outreach_status_path.write_text(
+            json.dumps(
+                {
+                    "event_id": "RO-TEST-1",
+                    "timestamp": "2026-02-25T12:00:00Z",
+                    "message_key": "L-1",
+                    "lead_id": "L-1",
+                    "status": "sent",
+                    "source": "test",
+                    "actor": "human",
+                    "notes": "",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
         original_paths = dict(dashboard_api.PATHS)
         original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
         original_intake_path = os.environ.get("PERMANENCE_REVENUE_INTAKE_PATH")
         original_action_status_path = os.environ.get("PERMANENCE_REVENUE_ACTION_STATUS_PATH")
+        original_outreach_status_path = os.environ.get("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH")
         try:
             dashboard_api.PATHS["outputs"] = str(outputs_dir)
             dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["tool"] = str(tool_dir)
             os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = str(pipeline_path)
             os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = str(intake_path)
             os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = str(action_status_path)
+            os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = str(outreach_status_path)
 
             snapshot = dashboard_api._load_revenue_snapshot()
             assert snapshot["queue"]["count"] == 2
@@ -277,7 +317,11 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             assert len(snapshot["funnel"]["segments"]) >= 4
             assert snapshot["funnel"]["bottleneck"] is not None
             assert snapshot["outreach"]["count"] == 1
+            assert snapshot["outreach"]["sent_count"] == 1
+            assert snapshot["outreach"]["pending_count"] == 0
             assert len(snapshot["outreach"]["messages"]) == 1
+            assert snapshot["outreach"]["messages"][0]["status"] == "sent"
+            assert snapshot["sources"]["outreach_status"] is not None
             assert snapshot["sources"]["outreach_pack"] is not None
         finally:
             dashboard_api.PATHS.update(original_paths)
@@ -293,6 +337,10 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
                 os.environ.pop("PERMANENCE_REVENUE_ACTION_STATUS_PATH", None)
             else:
                 os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = original_action_status_path
+            if original_outreach_status_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = original_outreach_status_path
 
 
 def test_revenue_action_endpoint_tracks_completion():
@@ -342,6 +390,62 @@ def test_revenue_action_endpoint_tracks_completion():
                 os.environ.pop("PERMANENCE_REVENUE_ACTION_STATUS_PATH", None)
             else:
                 os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = original_action_status_path
+
+
+def test_revenue_outreach_endpoint_tracks_status():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        outreach_status_path = working_dir / "revenue_outreach_status.jsonl"
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_outreach_status_path = os.environ.get("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = str(outreach_status_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/outreach",
+                json={
+                    "lead_id": "L-42",
+                    "status": "sent",
+                    "source": "dashboard",
+                    "actor": "human",
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "UPDATED"
+            assert payload.get("outreach_status") == "sent"
+
+            state = dashboard_api._load_revenue_outreach_status()
+            assert "L-42" in state
+            assert state["L-42"]["status"] == "sent"
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_outreach_status_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = original_outreach_status_path
+
+
+def test_revenue_outreach_endpoint_rejects_invalid_status():
+    if _skip_if_missing_dashboard_api():
+        return
+    client = dashboard_api.app.test_client()
+    response = client.post("/api/revenue/outreach", json={"lead_id": "L-1", "status": "invalid"})
+    assert response.status_code == 400
 
 
 def test_revenue_run_loop_endpoint_executes_queue_commands():
@@ -531,6 +635,8 @@ if __name__ == "__main__":
     test_load_promotion_status_reads_storage_log_fallback()
     test_load_revenue_snapshot_includes_pipeline_and_board()
     test_revenue_action_endpoint_tracks_completion()
+    test_revenue_outreach_endpoint_tracks_status()
+    test_revenue_outreach_endpoint_rejects_invalid_status()
     test_revenue_run_loop_endpoint_executes_queue_commands()
     test_revenue_run_loop_endpoint_rejects_invalid_mode()
     test_revenue_intake_endpoint_creates_lead_and_persists_rows()

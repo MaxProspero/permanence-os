@@ -460,6 +460,46 @@ def update_revenue_action():
     )
 
 
+@app.route("/api/revenue/outreach", methods=["POST"])
+def update_revenue_outreach_status():
+    """Update outreach status for a lead/message (pending/sent/replied)."""
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/outreach", payload)
+
+    lead_id = str(payload.get("lead_id") or "").strip()
+    message_key = str(payload.get("message_key") or "").strip()
+    status_raw = str(payload.get("status") or "").strip().lower()
+    if not lead_id and not message_key:
+        log_api_call("POST", "/api/revenue/outreach", payload, "MISSING_LEAD_ID")
+        abort(400, description="lead_id or message_key is required.")
+    if status_raw not in REVENUE_OUTREACH_STATUSES:
+        log_api_call("POST", "/api/revenue/outreach", payload, "INVALID_STATUS")
+        abort(400, description="status must be one of: pending, sent, replied")
+
+    source = str(payload.get("source") or "dashboard").strip()
+    actor = str(payload.get("actor") or "human").strip()
+    notes = str(payload.get("notes") or "").strip()
+    key = lead_id or message_key
+    entry = _record_revenue_outreach_status(
+        key=key,
+        lead_id=lead_id,
+        status=status_raw,
+        source=source,
+        actor=actor,
+        notes=notes,
+    )
+    return jsonify(
+        {
+            "status": "UPDATED",
+            "lead_id": lead_id or None,
+            "message_key": key,
+            "outreach_status": status_raw,
+            "entry": entry,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
 @app.route("/api/revenue/run-loop", methods=["POST"])
 def run_revenue_loop():
     """Run revenue loop commands from dashboard (full loop or queue refresh)."""
@@ -638,6 +678,7 @@ REVENUE_STAGE_PROB = {
     "won": 1.00,
     "lost": 0.00,
 }
+REVENUE_OUTREACH_STATUSES = {"pending", "sent", "replied"}
 
 
 def _intake_path() -> str:
@@ -825,6 +866,31 @@ def _latest_output_file(pattern: str) -> Optional[str]:
     return max(files, key=os.path.getmtime)
 
 
+def _candidate_tool_dirs() -> list[str]:
+    raw_candidates = [
+        PATHS["tool"],
+        os.path.join(BASE_DIR, "memory", "tool"),
+        os.path.join(BASE_DIR, "permanence_storage", "memory", "tool"),
+    ]
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for candidate in raw_candidates:
+        normalized = os.path.abspath(os.path.expanduser(candidate))
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        deduped.append(normalized)
+    return deduped
+
+
+def _latest_tool_file(pattern: str) -> Optional[str]:
+    for tool_dir in _candidate_tool_dirs():
+        matches = glob.glob(os.path.join(tool_dir, pattern))
+        if matches:
+            return max(matches, key=os.path.getmtime)
+    return None
+
+
 def _read_text_file(path: Optional[str]) -> str:
     if not path or not os.path.exists(path):
         return ""
@@ -958,6 +1024,102 @@ def _build_queue_progress(actions: list[str]) -> dict:
     }
 
 
+def _revenue_outreach_status_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_OUTREACH_STATUS_PATH",
+        os.path.join(PATHS["working"], "revenue_outreach_status.jsonl"),
+    )
+
+
+def _outreach_message_key(message: dict) -> str:
+    lead_id = str(message.get("lead_id") or "").strip()
+    if lead_id:
+        return lead_id
+    explicit_key = str(message.get("message_key") or "").strip()
+    if explicit_key:
+        return explicit_key
+    return _action_hash(f"{message.get('title', '')}|{message.get('subject', '')}")
+
+
+def _load_revenue_outreach_status() -> dict[str, dict]:
+    path = _revenue_outreach_status_path()
+    if not os.path.exists(path):
+        return {}
+    latest_by_key: dict[str, dict] = {}
+    try:
+        with open(path) as f:
+            for raw in f:
+                line = raw.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(item, dict):
+                    continue
+                key = str(item.get("message_key") or "").strip()
+                if not key:
+                    continue
+                latest_by_key[key] = item
+    except OSError:
+        return {}
+    return latest_by_key
+
+
+def _record_revenue_outreach_status(*, key: str, lead_id: str, status: str, source: str, actor: str, notes: str) -> dict:
+    path = _revenue_outreach_status_path()
+    entry = {
+        "event_id": f"RO-{utc_now().strftime('%Y%m%d-%H%M%S%f')}",
+        "timestamp": utc_iso(),
+        "message_key": key,
+        "lead_id": lead_id or None,
+        "status": status,
+        "source": source,
+        "actor": actor,
+        "notes": notes,
+    }
+    _append_jsonl(path, entry)
+    return entry
+
+
+def _apply_outreach_status(messages: list[dict]) -> dict:
+    status_map = _load_revenue_outreach_status()
+    pending = 0
+    sent = 0
+    replied = 0
+    merged: list[dict] = []
+    for message in messages[:7]:
+        item = dict(message)
+        key = _outreach_message_key(item)
+        state = status_map.get(key, {})
+        status = str(state.get("status") or "pending").strip().lower()
+        if status not in REVENUE_OUTREACH_STATUSES:
+            status = "pending"
+        if status == "sent":
+            sent += 1
+        elif status == "replied":
+            replied += 1
+        else:
+            pending += 1
+
+        item["message_key"] = key
+        item["status"] = status
+        item["status_updated_at"] = state.get("timestamp")
+        merged.append(item)
+
+    total = len(merged)
+    return {
+        "messages": merged,
+        "count": total,
+        "pending_count": pending,
+        "sent_count": sent,
+        "replied_count": replied,
+        "completion_rate": _safe_rate(replied, total),
+        "status_path": _revenue_outreach_status_path(),
+    }
+
+
 def _parse_revenue_board(markdown: str) -> dict:
     lines = markdown.splitlines() if markdown else []
     non_negotiables: list[str] = []
@@ -1047,6 +1209,62 @@ def _parse_outreach_pack(markdown: str) -> list[dict]:
         current["body"] = "\n".join(body_lines).strip()
         messages.append(current)
     return messages
+
+
+def _parse_outreach_title(title: str) -> tuple[str, str]:
+    text = str(title or "").strip()
+    if " (" in text and text.endswith(")"):
+        name_part, maybe_id = text.rsplit(" (", 1)
+        candidate = maybe_id[:-1].strip()
+        if candidate.startswith("L-"):
+            return name_part.strip(), candidate
+    return text, ""
+
+
+def _normalize_outreach_message(message: dict) -> dict:
+    title = str(message.get("title") or "").strip()
+    lead_name = str(message.get("lead_name") or "").strip()
+    lead_id = str(message.get("lead_id") or "").strip()
+    if title and (not lead_name or not lead_id):
+        parsed_name, parsed_lead_id = _parse_outreach_title(title)
+        lead_name = lead_name or parsed_name
+        lead_id = lead_id or parsed_lead_id
+    if not title:
+        if lead_name and lead_id:
+            title = f"{lead_name} ({lead_id})"
+        elif lead_name:
+            title = lead_name
+        else:
+            title = "Outreach Draft"
+    return {
+        "title": title,
+        "lead_name": lead_name or title,
+        "lead_id": lead_id,
+        "stage": str(message.get("stage") or "").strip(),
+        "channel": str(message.get("channel") or "").strip(),
+        "subject": str(message.get("subject") or "").strip(),
+        "body": str(message.get("body") or "").strip(),
+        "next_action_due": str(message.get("next_action_due") or "").strip(),
+    }
+
+
+def _load_outreach_messages(markdown: str) -> tuple[list[dict], Optional[str]]:
+    tool_path = _latest_tool_file("revenue_outreach_pack_*.json")
+    if tool_path and os.path.exists(tool_path):
+        try:
+            with open(tool_path) as f:
+                payload = json.load(f)
+            raw_messages = payload.get("messages", []) if isinstance(payload, dict) else []
+            if isinstance(raw_messages, list):
+                normalized = [_normalize_outreach_message(item) for item in raw_messages if isinstance(item, dict)]
+                if normalized:
+                    return normalized, tool_path
+        except (OSError, json.JSONDecodeError):
+            pass
+
+    parsed = _parse_outreach_pack(markdown)
+    normalized = [_normalize_outreach_message(item) for item in parsed]
+    return normalized, None
 
 
 def _parse_iso_datetime(raw: object) -> Optional[datetime.datetime]:
@@ -1260,7 +1478,8 @@ def _load_revenue_snapshot() -> dict:
     queue_actions = _parse_revenue_queue_actions(queue_markdown)
     queue_progress = _build_queue_progress(queue_actions)
     board_data = _parse_revenue_board(board_markdown)
-    outreach_messages = _parse_outreach_pack(outreach_markdown)
+    outreach_messages, outreach_tool_path = _load_outreach_messages(outreach_markdown)
+    outreach_status = _apply_outreach_status(outreach_messages)
     pipeline = _load_pipeline_snapshot()
     pipeline_rows = _pipeline_load()
     intake_rows_all = _load_intake_rows(limit=0)
@@ -1274,6 +1493,8 @@ def _load_revenue_snapshot() -> dict:
             "architecture": arch_path or None,
             "execution_board": board_path or None,
             "outreach_pack": outreach_path or None,
+            "outreach_tool": outreach_tool_path,
+            "outreach_status": outreach_status["status_path"],
             "pipeline": pipeline["path"],
         },
         "queue": {
@@ -1309,8 +1530,14 @@ def _load_revenue_snapshot() -> dict:
         "funnel": funnel,
         "outreach": {
             "source": outreach_path or None,
-            "count": len(outreach_messages),
-            "messages": outreach_messages[:7],
+            "tool_source": outreach_tool_path,
+            "status_path": outreach_status["status_path"],
+            "count": outreach_status["count"],
+            "pending_count": outreach_status["pending_count"],
+            "sent_count": outreach_status["sent_count"],
+            "replied_count": outreach_status["replied_count"],
+            "completion_rate": outreach_status["completion_rate"],
+            "messages": outreach_status["messages"],
             "content_markdown": outreach_markdown[:6000],
         },
         "architecture_excerpt": architecture_markdown[:4000],
