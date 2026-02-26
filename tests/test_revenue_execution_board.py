@@ -83,24 +83,40 @@ def test_revenue_execution_board_writes_outputs():
         )
         targets_path = working_dir / "revenue_targets.json"
         targets_path.write_text(json.dumps({"daily_outreach_target": 12}), encoding="utf-8")
+        playbook_path = working_dir / "revenue_playbook.json"
+        playbook_path.write_text(
+            json.dumps(
+                {
+                    "offer_name": "Operator System Install",
+                    "cta_keyword": "OPERATOR",
+                    "cta_public": 'DM me "OPERATOR".',
+                    "pricing_tier": "Pilot",
+                    "price_usd": 900,
+                }
+            ),
+            encoding="utf-8",
+        )
 
         original = {
             "OUTPUT_DIR": board_mod.OUTPUT_DIR,
             "TOOL_DIR": board_mod.TOOL_DIR,
             "PIPELINE_PATH": board_mod.PIPELINE_PATH,
             "TARGETS_PATH": board_mod.TARGETS_PATH,
+            "PLAYBOOK_PATH": board_mod.PLAYBOOK_PATH,
         }
         try:
             board_mod.OUTPUT_DIR = outputs_dir
             board_mod.TOOL_DIR = tool_dir
             board_mod.PIPELINE_PATH = pipeline_path
             board_mod.TARGETS_PATH = targets_path
+            board_mod.PLAYBOOK_PATH = playbook_path
             rc = board_mod.main()
         finally:
             board_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
             board_mod.TOOL_DIR = original["TOOL_DIR"]
             board_mod.PIPELINE_PATH = original["PIPELINE_PATH"]
             board_mod.TARGETS_PATH = original["TARGETS_PATH"]
+            board_mod.PLAYBOOK_PATH = original["PLAYBOOK_PATH"]
 
         assert rc == 0
 
@@ -108,6 +124,8 @@ def test_revenue_execution_board_writes_outputs():
         assert latest_md.exists()
         content = latest_md.read_text(encoding="utf-8")
         assert "Revenue Execution Board" in content
+        assert "Operator System Install" in content
+        assert 'Locked CTA: DM me "OPERATOR".' in content
         assert "Outreach target today: 12" in content
         assert "Lead One" in content
         assert "P0: 1 | P1: 2 | P2: 3 | P3: 4" in content

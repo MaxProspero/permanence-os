@@ -59,30 +59,48 @@ def test_revenue_outreach_pack_writes_outputs():
             ),
             encoding="utf-8",
         )
+        playbook_path = working_dir / "revenue_playbook.json"
+        playbook_path.write_text(
+            json.dumps(
+                {
+                    "offer_name": "Operator System Install",
+                    "cta_keyword": "OPERATOR",
+                    "cta_public": 'DM me "OPERATOR".',
+                    "cta_direct": 'If this is a fit, DM "OPERATOR" and I will send intake + calendar link.',
+                    "pricing_tier": "Pilot",
+                    "price_usd": 900,
+                }
+            ),
+            encoding="utf-8",
+        )
 
         original = {
             "OUTPUT_DIR": outreach_mod.OUTPUT_DIR,
             "TOOL_DIR": outreach_mod.TOOL_DIR,
             "WORKING_DIR": outreach_mod.WORKING_DIR,
             "PIPELINE_PATH": outreach_mod.PIPELINE_PATH,
+            "PLAYBOOK_PATH": outreach_mod.PLAYBOOK_PATH,
         }
         try:
             outreach_mod.OUTPUT_DIR = outputs_dir
             outreach_mod.TOOL_DIR = tool_dir
             outreach_mod.WORKING_DIR = working_dir
             outreach_mod.PIPELINE_PATH = pipeline_path
+            outreach_mod.PLAYBOOK_PATH = playbook_path
             rc = outreach_mod.main()
         finally:
             outreach_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
             outreach_mod.TOOL_DIR = original["TOOL_DIR"]
             outreach_mod.WORKING_DIR = original["WORKING_DIR"]
             outreach_mod.PIPELINE_PATH = original["PIPELINE_PATH"]
+            outreach_mod.PLAYBOOK_PATH = original["PLAYBOOK_PATH"]
 
         assert rc == 0
         latest_md = outputs_dir / "revenue_outreach_pack_latest.md"
         assert latest_md.exists()
         content = latest_md.read_text(encoding="utf-8")
         assert "Revenue Outreach Pack" in content
+        assert "Operator System Install" in content
         assert "Alpha Co" in content
         assert "Beta Co" in content
         assert "Governance Notes" in content
@@ -92,6 +110,7 @@ def test_revenue_outreach_pack_writes_outputs():
         assert payloads
         payload = json.loads(payloads[-1].read_text(encoding="utf-8"))
         assert len(payload.get("messages") or []) == 2
+        assert payload.get("playbook", {}).get("cta_keyword") == "OPERATOR"
         assert any(msg.get("channel") == "dm" for msg in payload["messages"])
         assert any(msg.get("channel") == "email" for msg in payload["messages"])
 

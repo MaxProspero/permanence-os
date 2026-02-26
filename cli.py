@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, operator-surface, setup-launchers, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, operator-surface, setup-launchers, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-playbook, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -1187,6 +1187,25 @@ def main() -> int:
             [
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "revenue_outreach_pack.py"),
+            ]
+        )
+    )
+
+    revenue_playbook_p = sub.add_parser(
+        "revenue-playbook",
+        help="Manage locked offer + CTA playbook for revenue ops",
+    )
+    revenue_playbook_p.add_argument(
+        "playbook_args",
+        nargs=argparse.REMAINDER,
+        help="Args for scripts/revenue_playbook.py (e.g. set --cta-keyword FOUNDATION)",
+    )
+    revenue_playbook_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_playbook.py"),
+                *args.playbook_args,
             ]
         )
     )

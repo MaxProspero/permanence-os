@@ -19,9 +19,20 @@ TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool
 
 PIPELINE_PATH = Path(os.getenv("PERMANENCE_SALES_PIPELINE_PATH", str(WORKING_DIR / "sales_pipeline.json")))
 TARGETS_PATH = Path(os.getenv("PERMANENCE_REVENUE_TARGETS_PATH", str(WORKING_DIR / "revenue_targets.json")))
+PLAYBOOK_PATH = Path(os.getenv("PERMANENCE_REVENUE_PLAYBOOK_PATH", str(WORKING_DIR / "revenue_playbook.json")))
 
 QUEUE_ACTION_RE = re.compile(r"^\d+\.\s+\[(.+)\]\s+(.+)$")
 EMAIL_BUCKET_RE = re.compile(r"^##\s+(P[0-3])\s+\((\d+)\)")
+
+
+def _default_playbook() -> dict[str, Any]:
+    return {
+        "offer_name": "Permanence OS Foundation Setup",
+        "cta_keyword": "FOUNDATION",
+        "cta_public": 'DM me "FOUNDATION".',
+        "pricing_tier": "Core",
+        "price_usd": 1500,
+    }
 
 
 def _now() -> datetime:
@@ -42,6 +53,15 @@ def _latest(pattern: str) -> Path | None:
         return None
     matches = sorted(OUTPUT_DIR.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
     return matches[0] if matches else None
+
+
+def _load_playbook() -> dict[str, Any]:
+    payload = _read_json(PLAYBOOK_PATH, {})
+    if not isinstance(payload, dict):
+        payload = {}
+    merged = dict(_default_playbook())
+    merged.update(payload)
+    return merged
 
 
 def _queue_actions(path: Path | None) -> list[str]:
@@ -104,6 +124,7 @@ def _write_board(
     urgent_rows: list[dict[str, Any]],
     pipeline_path: Path,
     targets: dict[str, Any],
+    playbook: dict[str, Any],
 ) -> tuple[Path, Path]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     TOOL_DIR.mkdir(parents=True, exist_ok=True)
@@ -113,11 +134,16 @@ def _write_board(
     json_path = TOOL_DIR / f"revenue_execution_board_{stamp}.json"
 
     outreach_target = int(targets.get("daily_outreach_target", 10))
+    offer_name = str(playbook.get("offer_name") or _default_playbook()["offer_name"])
+    cta_public = str(playbook.get("cta_public") or _default_playbook()["cta_public"])
+    pricing_tier = str(playbook.get("pricing_tier") or _default_playbook()["pricing_tier"])
+    price_usd = int(playbook.get("price_usd") or _default_playbook()["price_usd"])
 
     lines = [
         "# Revenue Execution Board",
         "",
         f"Generated (UTC): {_now().isoformat()}",
+        f"Locked offer: {offer_name} ({pricing_tier}, ${price_usd:,})",
         "",
         "## Today's Non-Negotiables",
     ]
@@ -149,7 +175,7 @@ def _write_board(
             "",
             "## Publish + Outreach Block",
             f"- Outreach target today: {outreach_target}",
-            "- Locked CTA: DM \"FOUNDATION\"",
+            f"- Locked CTA: {cta_public}",
             "",
             "### Drafts Ready",
         ]
@@ -177,6 +203,7 @@ def _write_board(
             f"- Email triage: {email_path if email_path else 'none'}",
             f"- Social summary: {social_path if social_path else 'none'}",
             f"- Pipeline: {pipeline_path}",
+            f"- Playbook: {PLAYBOOK_PATH}",
             "",
         ]
     )
@@ -188,6 +215,7 @@ def _write_board(
     payload = {
         "generated_at": _now().isoformat(),
         "targets": targets,
+        "playbook": playbook,
         "queue_source": str(queue_path) if queue_path else None,
         "queue_actions": queue_actions[:7],
         "email_source": str(email_path) if email_path else None,
@@ -220,6 +248,7 @@ def main() -> int:
     queue_actions = _queue_actions(queue_path)
     email_counts = _email_bucket_counts(email_path)
     social_items = _social_drafts(social_path)
+    playbook = _load_playbook()
 
     md_path, json_path = _write_board(
         queue_actions=queue_actions,
@@ -231,6 +260,7 @@ def main() -> int:
         urgent_rows=urgent_rows,
         pipeline_path=PIPELINE_PATH,
         targets=targets,
+        playbook=playbook,
     )
     print(f"Revenue execution board written: {md_path}")
     print(f"Revenue execution latest: {OUTPUT_DIR / 'revenue_execution_board_latest.md'}")

@@ -21,6 +21,7 @@ TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool
 WORKING_DIR = Path(os.getenv("PERMANENCE_WORKING_DIR", str(BASE_DIR / "memory" / "working")))
 PIPELINE_PATH = Path(os.getenv("PERMANENCE_SALES_PIPELINE_PATH", str(WORKING_DIR / "sales_pipeline.json")))
 INTAKE_PATH = Path(os.getenv("PERMANENCE_REVENUE_INTAKE_PATH", str(WORKING_DIR / "revenue_intake.jsonl")))
+PLAYBOOK_PATH = Path(os.getenv("PERMANENCE_REVENUE_PLAYBOOK_PATH", str(WORKING_DIR / "revenue_playbook.json")))
 
 SOCIAL_RE = re.compile(r"^-\s+(.+)\s+\[(.+)\]\s+\((.+)\)\s*$")
 OPEN_STAGES = {"lead", "qualified", "call_scheduled", "proposal_sent", "negotiation"}
@@ -66,6 +67,17 @@ REVENUE_EMAIL_EXCLUDE = {
     "you're leaving money behind",
     "unsubscribe",
 }
+
+
+def _default_playbook() -> dict[str, Any]:
+    return {
+        "offer_name": "Permanence OS Foundation Setup",
+        "cta_keyword": "FOUNDATION",
+        "cta_public": 'DM me "FOUNDATION".',
+        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send the intake + call link.',
+        "pricing_tier": "Core",
+        "price_usd": 1500,
+    }
 
 
 def _latest(pattern: str) -> Path | None:
@@ -131,6 +143,15 @@ def _load_pipeline_rows() -> list[dict]:
     if not isinstance(data, list):
         return []
     return [row for row in data if isinstance(row, dict)]
+
+
+def _load_playbook() -> dict[str, Any]:
+    payload = _read_json(PLAYBOOK_PATH, {})
+    if not isinstance(payload, dict):
+        payload = {}
+    merged = dict(_default_playbook())
+    merged.update(payload)
+    return merged
 
 
 def _load_intake_rows() -> list[dict]:
@@ -406,10 +427,14 @@ def _build_actions(
     social_items: list[dict],
     pipeline_rows: list[dict],
     intake_rows: list[dict],
+    playbook: dict[str, Any],
 ) -> tuple[list[dict], dict]:
     actions: list[dict] = []
     seen: set[str] = set()
     funnel = _build_revenue_funnel(pipeline_rows, intake_rows)
+    offer_name = str(playbook.get("offer_name") or _default_playbook()["offer_name"])
+    cta_keyword = str(playbook.get("cta_keyword") or _default_playbook()["cta_keyword"])
+    cta_public = str(playbook.get("cta_public") or _default_playbook()["cta_public"])
 
     revenue_email_items = [item for item in email_items if _is_revenue_relevant_email(str(item.get("summary") or ""))]
     for item in revenue_email_items[:2]:
@@ -471,7 +496,7 @@ def _build_actions(
         {
             "type": "offer_clarity",
             "window": "today",
-            "action": "Define one core offer and one CTA for this week (single sentence each).",
+            "action": f'Lock message discipline: offer="{offer_name}" and CTA="{cta_public}"',
             "source_bucket": "template",
         },
         {
@@ -483,7 +508,7 @@ def _build_actions(
         {
             "type": "outreach",
             "window": "48h",
-            "action": "Send 5 direct outreach messages to qualified prospects with the weekly CTA.",
+            "action": f'Send 5 direct outreach messages using CTA keyword "{cta_keyword}".',
             "source_bucket": "template",
         },
         {
@@ -524,6 +549,7 @@ def _write_output(
     email_src: Path | None,
     social_src: Path | None,
     funnel: dict,
+    playbook: dict[str, Any],
 ) -> tuple[Path, Path]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     TOOL_DIR.mkdir(parents=True, exist_ok=True)
@@ -543,6 +569,13 @@ def _write_output(
         f"- Social summary source: {social_src if social_src else 'none'}",
         f"- Pipeline source: {PIPELINE_PATH}",
         f"- Intake source: {INTAKE_PATH}",
+        f"- Playbook source: {PLAYBOOK_PATH}",
+        "",
+        "## Locked Offer + CTA",
+        f"- Offer: {playbook.get('offer_name')}",
+        f"- CTA keyword: {playbook.get('cta_keyword')}",
+        f"- CTA line: {playbook.get('cta_public')}",
+        f"- Pricing tier: {playbook.get('pricing_tier')} (${playbook.get('price_usd')})",
         "",
         "## Funnel Signals",
         (
@@ -582,8 +615,10 @@ def _write_output(
             "social_summary": str(social_src) if social_src else None,
             "pipeline": str(PIPELINE_PATH),
             "intake": str(INTAKE_PATH),
+            "playbook": str(PLAYBOOK_PATH),
         },
         "latest_markdown": str(latest_path),
+        "playbook": playbook,
         "funnel": funnel,
         "actions": actions,
     }
@@ -598,12 +633,14 @@ def main() -> int:
     social_items = _parse_social(social_path)
     pipeline_rows = _load_pipeline_rows()
     intake_rows = _load_intake_rows()
-    actions, funnel = _build_actions(email_items, social_items, pipeline_rows, intake_rows)
+    playbook = _load_playbook()
+    actions, funnel = _build_actions(email_items, social_items, pipeline_rows, intake_rows, playbook)
     md_path, json_path = _write_output(
         actions,
         email_src=email_path,
         social_src=social_path,
         funnel=funnel,
+        playbook=playbook,
     )
 
     print(f"Revenue action queue written: {md_path}")

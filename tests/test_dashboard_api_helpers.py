@@ -323,6 +323,8 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             assert snapshot["outreach"]["messages"][0]["status"] == "sent"
             assert snapshot["sources"]["outreach_status"] is not None
             assert snapshot["sources"]["outreach_pack"] is not None
+            assert snapshot["playbook"]["path"] is not None
+            assert snapshot["playbook"]["data"]["cta_keyword"] == "FOUNDATION"
         finally:
             dashboard_api.PATHS.update(original_paths)
             if original_pipeline_path is None:
@@ -446,6 +448,58 @@ def test_revenue_outreach_endpoint_rejects_invalid_status():
     client = dashboard_api.app.test_client()
     response = client.post("/api/revenue/outreach", json={"lead_id": "L-1", "status": "invalid"})
     assert response.status_code == 400
+
+
+def test_revenue_playbook_endpoint_updates_lock():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        playbook_path = working_dir / "revenue_playbook.json"
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_playbook_path = os.environ.get("PERMANENCE_REVENUE_PLAYBOOK_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_REVENUE_PLAYBOOK_PATH"] = str(playbook_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/playbook",
+                json={
+                    "offer_name": "Operator System Install",
+                    "cta_keyword": "OPERATOR",
+                    "cta_public": 'DM me "OPERATOR".',
+                    "pricing_tier": "Pilot",
+                    "price_usd": 900,
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "UPDATED"
+            assert payload.get("playbook", {}).get("offer_name") == "Operator System Install"
+            assert payload.get("playbook", {}).get("cta_keyword") == "OPERATOR"
+            assert playbook_path.exists()
+
+            get_response = client.get("/api/revenue/playbook")
+            assert get_response.status_code == 200
+            get_payload = get_response.get_json() or {}
+            assert get_payload.get("playbook", {}).get("pricing_tier") == "Pilot"
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_playbook_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_PLAYBOOK_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_PLAYBOOK_PATH"] = original_playbook_path
 
 
 def test_revenue_run_loop_endpoint_executes_queue_commands():
@@ -637,6 +691,7 @@ if __name__ == "__main__":
     test_revenue_action_endpoint_tracks_completion()
     test_revenue_outreach_endpoint_tracks_status()
     test_revenue_outreach_endpoint_rejects_invalid_status()
+    test_revenue_playbook_endpoint_updates_lock()
     test_revenue_run_loop_endpoint_executes_queue_commands()
     test_revenue_run_loop_endpoint_rejects_invalid_mode()
     test_revenue_intake_endpoint_creates_lead_and_persists_rows()

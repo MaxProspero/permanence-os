@@ -310,6 +310,8 @@ def create_revenue_lead():
     """Create a lead in sales pipeline from dashboard or intake capture."""
     payload = request.get_json() or {}
     log_api_call("POST", "/api/revenue/pipeline/lead", payload)
+    playbook = _load_revenue_playbook()
+    default_offer = str(playbook.get("offer_name") or "Permanence OS Foundation Setup")
     name = str(payload.get("name") or "").strip()
     if not name:
         log_api_call("POST", "/api/revenue/pipeline/lead", payload, "INVALID_NAME")
@@ -320,7 +322,7 @@ def create_revenue_lead():
             "name": name,
             "source": str(payload.get("source") or "dashboard"),
             "stage": str(payload.get("stage") or "lead"),
-            "offer": str(payload.get("offer") or "Permanence OS Foundation Setup"),
+            "offer": str(payload.get("offer") or default_offer),
             "est_value": payload.get("est_value", 1500),
             "next_action": str(payload.get("next_action") or "Send intake + book fit call"),
             "next_action_due": str(payload.get("next_action_due") or ""),
@@ -398,17 +400,21 @@ def foundation_intake():
     }
     _append_jsonl(_intake_path(), entry)
 
+    playbook = _load_revenue_playbook()
+    default_offer = str(playbook.get("offer_name") or "Permanence OS Foundation Setup")
+    default_price = _coerce_float(playbook.get("price_usd"), 1500.0)
+
     create_lead = payload.get("create_lead", True) is not False
     lead_id: Optional[str] = None
     if create_lead:
-        package_value = {"pilot": 750, "core": 1500, "operator": 3000}.get(package.strip().lower(), 1500)
+        package_value = {"pilot": 750, "core": 1500, "operator": 3000}.get(package.strip().lower(), default_price)
         tomorrow = (utc_now().date() + datetime.timedelta(days=1)).isoformat()
         lead = _pipeline_add_lead(
             {
                 "name": name,
                 "source": f"{source}:{email}",
                 "stage": "lead",
-                "offer": "Permanence OS Foundation Setup",
+                "offer": default_offer,
                 "est_value": package_value,
                 "next_action": "Send intake + book fit call",
                 "next_action_due": tomorrow,
@@ -422,6 +428,53 @@ def foundation_intake():
             "status": "CAPTURED",
             "intake": entry,
             "lead_id": lead_id,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/playbook", methods=["GET", "POST"])
+def revenue_playbook():
+    """Read/update locked offer + CTA playbook."""
+    if request.method == "GET":
+        log_api_call("GET", "/api/revenue/playbook")
+        return jsonify(
+            {
+                "status": "OK",
+                "path": _revenue_playbook_path(),
+                "playbook": _load_revenue_playbook(),
+                "timestamp": utc_iso(),
+            }
+        )
+
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/playbook", payload)
+    current = _load_revenue_playbook()
+    updates = dict(current)
+    if "offer_name" in payload:
+        updates["offer_name"] = str(payload.get("offer_name") or "").strip()
+    if "offer_promise" in payload:
+        updates["offer_promise"] = str(payload.get("offer_promise") or "").strip()
+    if "delivery_window_days" in payload:
+        updates["delivery_window_days"] = max(1, int(_coerce_float(payload.get("delivery_window_days"), 7)))
+    if "cta_keyword" in payload:
+        updates["cta_keyword"] = str(payload.get("cta_keyword") or "").strip().upper()
+    if "cta_public" in payload:
+        updates["cta_public"] = str(payload.get("cta_public") or "").strip()
+    if "cta_direct" in payload:
+        updates["cta_direct"] = str(payload.get("cta_direct") or "").strip()
+    if "pricing_tier" in payload:
+        updates["pricing_tier"] = str(payload.get("pricing_tier") or "").strip()
+    if "price_usd" in payload:
+        updates["price_usd"] = max(0, int(_coerce_float(payload.get("price_usd"), 0)))
+    updates["source"] = "dashboard_api"
+
+    saved = _save_revenue_playbook(updates)
+    return jsonify(
+        {
+            "status": "UPDATED",
+            "path": _revenue_playbook_path(),
+            "playbook": saved,
             "timestamp": utc_iso(),
         }
     )
@@ -686,6 +739,57 @@ def _intake_path() -> str:
         "PERMANENCE_REVENUE_INTAKE_PATH",
         os.path.join(PATHS["working"], "revenue_intake.jsonl"),
     )
+
+
+def _revenue_playbook_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_PLAYBOOK_PATH",
+        os.path.join(PATHS["working"], "revenue_playbook.json"),
+    )
+
+
+def _default_revenue_playbook() -> dict:
+    return {
+        "offer_name": "Permanence OS Foundation Setup",
+        "offer_promise": "Install and operationalize a governed AI operating system on a client's Mac in 7 days.",
+        "delivery_window_days": 7,
+        "cta_keyword": "FOUNDATION",
+        "cta_public": 'DM me "FOUNDATION".',
+        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send the intake + call link.',
+        "pricing_tier": "Core",
+        "price_usd": 1500,
+        "updated_at": utc_iso(),
+        "source": "dashboard_default",
+    }
+
+
+def _load_revenue_playbook() -> dict:
+    default = _default_revenue_playbook()
+    path = _revenue_playbook_path()
+    if not os.path.exists(path):
+        return default
+    try:
+        with open(path) as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return default
+    if not isinstance(payload, dict):
+        return default
+    merged = dict(default)
+    merged.update(payload)
+    return merged
+
+
+def _save_revenue_playbook(playbook: dict) -> dict:
+    path = _revenue_playbook_path()
+    merged = dict(_default_revenue_playbook())
+    merged.update(playbook or {})
+    merged["updated_at"] = utc_iso()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(merged, f, indent=2)
+        f.write("\n")
+    return merged
 
 
 def _append_jsonl(path: str, payload: dict) -> None:
@@ -1485,6 +1589,7 @@ def _load_revenue_snapshot() -> dict:
     intake_rows_all = _load_intake_rows(limit=0)
     intake_rows_preview = intake_rows_all[:10]
     funnel = _build_revenue_funnel(pipeline_rows, intake_rows_all)
+    playbook = _load_revenue_playbook()
 
     return {
         "generated_at": utc_iso(),
@@ -1496,6 +1601,7 @@ def _load_revenue_snapshot() -> dict:
             "outreach_tool": outreach_tool_path,
             "outreach_status": outreach_status["status_path"],
             "pipeline": pipeline["path"],
+            "playbook": _revenue_playbook_path(),
         },
         "queue": {
             "count": len(queue_actions),
@@ -1528,6 +1634,10 @@ def _load_revenue_snapshot() -> dict:
             "path": _intake_path(),
         },
         "funnel": funnel,
+        "playbook": {
+            "path": _revenue_playbook_path(),
+            "data": playbook,
+        },
         "outreach": {
             "source": outreach_path or None,
             "tool_source": outreach_tool_path,

@@ -19,6 +19,7 @@ TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool
 
 PIPELINE_PATH = Path(os.getenv("PERMANENCE_SALES_PIPELINE_PATH", str(WORKING_DIR / "sales_pipeline.json")))
 INTAKE_PATH = Path(os.getenv("PERMANENCE_REVENUE_INTAKE_PATH", str(WORKING_DIR / "revenue_intake.jsonl")))
+PLAYBOOK_PATH = Path(os.getenv("PERMANENCE_REVENUE_PLAYBOOK_PATH", str(WORKING_DIR / "revenue_playbook.json")))
 
 ACTION_RE = re.compile(r"^\d+\.\s+\[(.+)\]\s+(.+)$")
 STAGE_PROB = {
@@ -30,6 +31,16 @@ STAGE_PROB = {
     "won": 1.00,
     "lost": 0.00,
 }
+
+
+def _default_playbook() -> dict[str, Any]:
+    return {
+        "offer_name": "Permanence OS Foundation Setup",
+        "cta_keyword": "FOUNDATION",
+        "cta_public": 'DM me "FOUNDATION".',
+        "pricing_tier": "Core",
+        "price_usd": 1500,
+    }
 
 
 def _utc_now() -> datetime:
@@ -67,6 +78,15 @@ def _read_json(path: Path, default: Any) -> Any:
         return json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return default
+
+
+def _load_playbook() -> dict[str, Any]:
+    payload = _read_json(PLAYBOOK_PATH, {})
+    if not isinstance(payload, dict):
+        payload = {}
+    merged = dict(_default_playbook())
+    merged.update(payload)
+    return merged
 
 
 def _load_pipeline_rows() -> list[dict[str, Any]]:
@@ -199,6 +219,7 @@ def _write_report(
     intake_summary: dict[str, Any],
     queue_actions: list[str],
     queue_source: Path | None,
+    playbook: dict[str, Any],
 ) -> tuple[Path, Path]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     TOOL_DIR.mkdir(parents=True, exist_ok=True)
@@ -263,8 +284,8 @@ def _write_report(
     lines.extend(
         [
             "",
-            "## Operator Notes",
-            "- Keep offer + CTA locked for the entire week.",
+        "## Operator Notes",
+            f"- Keep offer + CTA locked for the entire week: {playbook.get('offer_name')} | {playbook.get('cta_public')}",
             "- Move every touched lead to a concrete next stage before end of day.",
             "",
         ]
@@ -282,9 +303,11 @@ def _write_report(
         "intake_summary": intake_summary,
         "queue_source": str(queue_source) if queue_source else None,
         "queue_actions": queue_actions[:7],
+        "playbook": playbook,
         "paths": {
             "pipeline": str(PIPELINE_PATH),
             "intake": str(INTAKE_PATH),
+            "playbook": str(PLAYBOOK_PATH),
             "latest_summary": str(latest_path),
         },
     }
@@ -298,6 +321,7 @@ def main() -> int:
     intake_rows = _load_intake_rows()
     queue_source = _latest_queue_path()
     queue_actions = _queue_actions(queue_source)
+    playbook = _load_playbook()
 
     pipeline_summary = _summarize_pipeline(pipeline_rows, week_start, week_end)
     intake_summary = _summarize_intake(intake_rows, week_start, week_end)
@@ -308,6 +332,7 @@ def main() -> int:
         intake_summary=intake_summary,
         queue_actions=queue_actions,
         queue_source=queue_source,
+        playbook=playbook,
     )
 
     print(f"Revenue weekly summary written: {md_path}")

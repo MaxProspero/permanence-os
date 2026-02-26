@@ -342,6 +342,8 @@ python cli.py money-loop
 python cli.py revenue-action-queue
 python cli.py revenue-execution-board
 python cli.py revenue-outreach-pack
+python cli.py revenue-playbook show
+python cli.py revenue-playbook set --offer-name "Permanence OS Foundation Setup" --cta-keyword FOUNDATION --cta-public 'DM me "FOUNDATION".' --pricing-tier Core --price-usd 1500
 ```
 `revenue-action-queue` now prioritizes from live pipeline/intake/funnel signals first (urgent leads + bottleneck), then fills remaining slots with template actions.
 Desktop launcher:
@@ -372,6 +374,7 @@ Files created/used:
 - `memory/working/revenue_targets.json`
 - `memory/working/revenue_streams.json`
 - `memory/working/sales_pipeline.json`
+- `memory/working/revenue_playbook.json`
 - `outputs/revenue_architecture_latest.md`
 - `outputs/revenue_execution_board_latest.md`
 - `outputs/revenue_outreach_pack_latest.md`

@@ -108,6 +108,7 @@ def test_revenue_action_queue_uses_pipeline_and_funnel_signals():
             "WORKING_DIR": queue_mod.WORKING_DIR,
             "PIPELINE_PATH": queue_mod.PIPELINE_PATH,
             "INTAKE_PATH": queue_mod.INTAKE_PATH,
+            "PLAYBOOK_PATH": queue_mod.PLAYBOOK_PATH,
         }
         try:
             queue_mod.OUTPUT_DIR = outputs_dir
@@ -115,6 +116,7 @@ def test_revenue_action_queue_uses_pipeline_and_funnel_signals():
             queue_mod.WORKING_DIR = working_dir
             queue_mod.PIPELINE_PATH = working_dir / "sales_pipeline.json"
             queue_mod.INTAKE_PATH = working_dir / "revenue_intake.jsonl"
+            queue_mod.PLAYBOOK_PATH = working_dir / "revenue_playbook.json"
             rc = queue_mod.main()
         finally:
             queue_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
@@ -122,6 +124,7 @@ def test_revenue_action_queue_uses_pipeline_and_funnel_signals():
             queue_mod.WORKING_DIR = original["WORKING_DIR"]
             queue_mod.PIPELINE_PATH = original["PIPELINE_PATH"]
             queue_mod.INTAKE_PATH = original["INTAKE_PATH"]
+            queue_mod.PLAYBOOK_PATH = original["PLAYBOOK_PATH"]
 
         assert rc == 0
 
@@ -160,6 +163,7 @@ def test_revenue_action_queue_falls_back_to_template_actions():
             "WORKING_DIR": queue_mod.WORKING_DIR,
             "PIPELINE_PATH": queue_mod.PIPELINE_PATH,
             "INTAKE_PATH": queue_mod.INTAKE_PATH,
+            "PLAYBOOK_PATH": queue_mod.PLAYBOOK_PATH,
         }
         try:
             queue_mod.OUTPUT_DIR = outputs_dir
@@ -167,6 +171,7 @@ def test_revenue_action_queue_falls_back_to_template_actions():
             queue_mod.WORKING_DIR = working_dir
             queue_mod.PIPELINE_PATH = working_dir / "sales_pipeline.json"
             queue_mod.INTAKE_PATH = working_dir / "revenue_intake.jsonl"
+            queue_mod.PLAYBOOK_PATH = working_dir / "revenue_playbook.json"
             rc = queue_mod.main()
         finally:
             queue_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
@@ -174,6 +179,7 @@ def test_revenue_action_queue_falls_back_to_template_actions():
             queue_mod.WORKING_DIR = original["WORKING_DIR"]
             queue_mod.PIPELINE_PATH = original["PIPELINE_PATH"]
             queue_mod.INTAKE_PATH = original["INTAKE_PATH"]
+            queue_mod.PLAYBOOK_PATH = original["PLAYBOOK_PATH"]
 
         assert rc == 0
         payloads = sorted(tool_dir.glob("revenue_action_queue_*.json"))
@@ -233,6 +239,7 @@ def test_revenue_action_queue_filters_non_revenue_email_noise():
             "WORKING_DIR": queue_mod.WORKING_DIR,
             "PIPELINE_PATH": queue_mod.PIPELINE_PATH,
             "INTAKE_PATH": queue_mod.INTAKE_PATH,
+            "PLAYBOOK_PATH": queue_mod.PLAYBOOK_PATH,
         }
         try:
             queue_mod.OUTPUT_DIR = outputs_dir
@@ -240,6 +247,7 @@ def test_revenue_action_queue_filters_non_revenue_email_noise():
             queue_mod.WORKING_DIR = working_dir
             queue_mod.PIPELINE_PATH = working_dir / "sales_pipeline.json"
             queue_mod.INTAKE_PATH = working_dir / "revenue_intake.jsonl"
+            queue_mod.PLAYBOOK_PATH = working_dir / "revenue_playbook.json"
             rc = queue_mod.main()
         finally:
             queue_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
@@ -247,6 +255,7 @@ def test_revenue_action_queue_filters_non_revenue_email_noise():
             queue_mod.WORKING_DIR = original["WORKING_DIR"]
             queue_mod.PIPELINE_PATH = original["PIPELINE_PATH"]
             queue_mod.INTAKE_PATH = original["INTAKE_PATH"]
+            queue_mod.PLAYBOOK_PATH = original["PLAYBOOK_PATH"]
 
         assert rc == 0
         payloads = sorted(tool_dir.glob("revenue_action_queue_*.json"))

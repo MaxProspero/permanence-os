@@ -18,6 +18,7 @@ WORKING_DIR = Path(os.getenv("PERMANENCE_WORKING_DIR", str(BASE_DIR / "memory" /
 OUTPUT_DIR = Path(os.getenv("PERMANENCE_OUTPUT_DIR", str(BASE_DIR / "outputs")))
 TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool")))
 PIPELINE_PATH = Path(os.getenv("PERMANENCE_SALES_PIPELINE_PATH", str(WORKING_DIR / "sales_pipeline.json")))
+PLAYBOOK_PATH = Path(os.getenv("PERMANENCE_REVENUE_PLAYBOOK_PATH", str(WORKING_DIR / "revenue_playbook.json")))
 
 OPEN_STAGES = {"lead", "qualified", "call_scheduled", "proposal_sent", "negotiation"}
 STAGE_PRIORITY = {
@@ -43,6 +44,17 @@ OPEN_LINE_BY_STAGE = {
 }
 
 
+def _default_playbook() -> dict[str, Any]:
+    return {
+        "offer_name": "Permanence OS Foundation Setup",
+        "cta_keyword": "FOUNDATION",
+        "cta_public": 'DM me "FOUNDATION".',
+        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send the intake + call link.',
+        "pricing_tier": "Core",
+        "price_usd": 1500,
+    }
+
+
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -61,6 +73,15 @@ def _load_pipeline_rows() -> list[dict[str, Any]]:
     if not isinstance(payload, list):
         return []
     return [row for row in payload if isinstance(row, dict)]
+
+
+def _load_playbook() -> dict[str, Any]:
+    payload = _read_json(PLAYBOOK_PATH, {})
+    if not isinstance(payload, dict):
+        payload = {}
+    merged = dict(_default_playbook())
+    merged.update(payload)
+    return merged
 
 
 def _as_float(value: Any, default: float = 0.0) -> float:
@@ -97,7 +118,7 @@ def _rank_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return ranked
 
 
-def _build_message(row: dict[str, Any]) -> dict[str, Any]:
+def _build_message(row: dict[str, Any], playbook: dict[str, Any]) -> dict[str, Any]:
     lead_id = str(row.get("lead_id") or "unknown")
     name = str(row.get("name") or "there")
     stage = str(row.get("stage") or "lead")
@@ -109,12 +130,14 @@ def _build_message(row: dict[str, Any]) -> dict[str, Any]:
     channel = _suggest_channel(source)
     cta = CTA_BY_STAGE.get(stage, CTA_BY_STAGE["lead"])
     open_line = OPEN_LINE_BY_STAGE.get(stage, OPEN_LINE_BY_STAGE["lead"])
-    subject = f"{name} — next step for FOUNDATION setup"
+    offer_name = str(playbook.get("offer_name") or _default_playbook()["offer_name"])
+    cta_direct = str(playbook.get("cta_direct") or _default_playbook()["cta_direct"])
+    subject = f"{name} — next step for {offer_name}"
     body = (
         f"Hey {name}, {open_line} "
         f"Current next step on my side is: {next_action}. "
         f"If this is still a priority, let's {cta}. "
-        f"I can send the intake + calendar link right now."
+        f"{cta_direct}"
     )
     if stage in {"proposal_sent", "negotiation"}:
         body += " If helpful, I can also walk through scope line-by-line in one quick call."
@@ -132,7 +155,7 @@ def _build_message(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _write_outputs(messages: list[dict[str, Any]]) -> tuple[Path, Path]:
+def _write_outputs(messages: list[dict[str, Any]], playbook: dict[str, Any]) -> tuple[Path, Path]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     TOOL_DIR.mkdir(parents=True, exist_ok=True)
     stamp = _utc_now().strftime("%Y%m%d-%H%M%S")
@@ -146,6 +169,13 @@ def _write_outputs(messages: list[dict[str, Any]]) -> tuple[Path, Path]:
         "",
         f"Generated (UTC): {_utc_now().isoformat()}",
         f"Pipeline source: {PIPELINE_PATH}",
+        f"Playbook source: {PLAYBOOK_PATH}",
+        "",
+        "## Locked Offer + CTA",
+        f"- Offer: {playbook.get('offer_name')}",
+        f"- CTA keyword: {playbook.get('cta_keyword')}",
+        f"- CTA line: {playbook.get('cta_public')}",
+        f"- Pricing tier: {playbook.get('pricing_tier')} (${playbook.get('price_usd')})",
         "",
         "## Priority Messages",
     ]
@@ -185,6 +215,8 @@ def _write_outputs(messages: list[dict[str, Any]]) -> tuple[Path, Path]:
     payload = {
         "generated_at": _utc_now().isoformat(),
         "pipeline_path": str(PIPELINE_PATH),
+        "playbook_path": str(PLAYBOOK_PATH),
+        "playbook": playbook,
         "messages": messages,
         "latest_markdown": str(latest_path),
     }
@@ -195,8 +227,9 @@ def _write_outputs(messages: list[dict[str, Any]]) -> tuple[Path, Path]:
 def main() -> int:
     rows = _load_pipeline_rows()
     ranked = _rank_rows(rows)
-    messages = [_build_message(row) for row in ranked[:7]]
-    md_path, json_path = _write_outputs(messages)
+    playbook = _load_playbook()
+    messages = [_build_message(row, playbook) for row in ranked[:7]]
+    md_path, json_path = _write_outputs(messages, playbook)
     print(f"Revenue outreach pack written: {md_path}")
     print(f"Revenue outreach latest: {OUTPUT_DIR / 'revenue_outreach_pack_latest.md'}")
     print(f"Tool payload written: {json_path}")
