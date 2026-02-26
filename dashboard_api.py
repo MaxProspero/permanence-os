@@ -480,6 +480,51 @@ def revenue_playbook():
     )
 
 
+@app.route("/api/revenue/targets", methods=["GET", "POST"])
+def revenue_targets():
+    """Read/update revenue targets used by architecture and execution board."""
+    if request.method == "GET":
+        log_api_call("GET", "/api/revenue/targets")
+        return jsonify(
+            {
+                "status": "OK",
+                "path": _revenue_targets_path(),
+                "targets": _load_revenue_targets(),
+                "timestamp": utc_iso(),
+            }
+        )
+
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/targets", payload)
+    current = _load_revenue_targets()
+    updates = dict(current)
+    if "week_of" in payload:
+        updates["week_of"] = str(payload.get("week_of") or "").strip()
+    if "weekly_revenue_target" in payload:
+        updates["weekly_revenue_target"] = max(0, int(_coerce_float(payload.get("weekly_revenue_target"), 0)))
+    if "monthly_revenue_target" in payload:
+        updates["monthly_revenue_target"] = max(0, int(_coerce_float(payload.get("monthly_revenue_target"), 0)))
+    if "weekly_leads_target" in payload:
+        updates["weekly_leads_target"] = max(0, int(_coerce_float(payload.get("weekly_leads_target"), 0)))
+    if "weekly_calls_target" in payload:
+        updates["weekly_calls_target"] = max(0, int(_coerce_float(payload.get("weekly_calls_target"), 0)))
+    if "weekly_closes_target" in payload:
+        updates["weekly_closes_target"] = max(0, int(_coerce_float(payload.get("weekly_closes_target"), 0)))
+    if "daily_outreach_target" in payload:
+        updates["daily_outreach_target"] = max(1, int(_coerce_float(payload.get("daily_outreach_target"), 1)))
+    updates["source"] = "dashboard_api"
+
+    saved = _save_revenue_targets(updates)
+    return jsonify(
+        {
+            "status": "UPDATED",
+            "path": _revenue_targets_path(),
+            "targets": saved,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
 @app.route("/api/revenue/action", methods=["POST"])
 def update_revenue_action():
     """Mark a queue action complete/incomplete for operator progress tracking."""
@@ -748,6 +793,13 @@ def _revenue_playbook_path() -> str:
     )
 
 
+def _revenue_targets_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_TARGETS_PATH",
+        os.path.join(PATHS["working"], "revenue_targets.json"),
+    )
+
+
 def _default_revenue_playbook() -> dict:
     return {
         "offer_name": "Permanence OS Foundation Setup",
@@ -784,6 +836,52 @@ def _save_revenue_playbook(playbook: dict) -> dict:
     path = _revenue_playbook_path()
     merged = dict(_default_revenue_playbook())
     merged.update(playbook or {})
+    merged["updated_at"] = utc_iso()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(merged, f, indent=2)
+        f.write("\n")
+    return merged
+
+
+def _default_revenue_targets() -> dict:
+    weekly_revenue_target = int(os.environ.get("PERMANENCE_REVENUE_WEEKLY_TARGET", "3000"))
+    monthly_revenue_target = int(os.environ.get("PERMANENCE_REVENUE_MONTHLY_TARGET", str(max(12000, weekly_revenue_target * 4))))
+    week_start = datetime.datetime.now().date() - datetime.timedelta(days=datetime.datetime.now().date().weekday())
+    return {
+        "week_of": week_start.isoformat(),
+        "weekly_revenue_target": weekly_revenue_target,
+        "monthly_revenue_target": monthly_revenue_target,
+        "weekly_leads_target": int(os.environ.get("PERMANENCE_REVENUE_WEEKLY_LEADS_TARGET", "10")),
+        "weekly_calls_target": int(os.environ.get("PERMANENCE_REVENUE_WEEKLY_CALLS_TARGET", "5")),
+        "weekly_closes_target": int(os.environ.get("PERMANENCE_REVENUE_WEEKLY_CLOSES_TARGET", "2")),
+        "daily_outreach_target": int(os.environ.get("PERMANENCE_REVENUE_DAILY_OUTREACH_TARGET", "10")),
+        "updated_at": utc_iso(),
+        "source": "dashboard_default",
+    }
+
+
+def _load_revenue_targets() -> dict:
+    default = _default_revenue_targets()
+    path = _revenue_targets_path()
+    if not os.path.exists(path):
+        return default
+    try:
+        with open(path) as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return default
+    if not isinstance(payload, dict):
+        return default
+    merged = dict(default)
+    merged.update(payload)
+    return merged
+
+
+def _save_revenue_targets(targets: dict) -> dict:
+    path = _revenue_targets_path()
+    merged = dict(_default_revenue_targets())
+    merged.update(targets or {})
     merged["updated_at"] = utc_iso()
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
@@ -1401,6 +1499,51 @@ def _safe_rate(numerator: int, denominator: int) -> Optional[float]:
     return numerator / denominator
 
 
+def _safe_float_rate(numerator: float, denominator: float) -> Optional[float]:
+    if denominator <= 0:
+        return None
+    return numerator / denominator
+
+
+def _build_revenue_target_progress(pipeline_rows: list[dict], targets: dict) -> dict:
+    week_start, week_end = _week_window_local()
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+
+    won_week_count = 0
+    won_week_value = 0.0
+    won_month_count = 0
+    won_month_value = 0.0
+    for row in pipeline_rows:
+        stage = str(row.get("stage") or "lead")
+        if stage != "won":
+            continue
+        closed = _parse_iso_datetime(row.get("closed_at")) or _parse_iso_datetime(row.get("updated_at"))
+        if closed is None:
+            continue
+        value = _coerce_float(row.get("actual_value"), _coerce_float(row.get("est_value"), 0.0))
+        if _in_window(closed, week_start, week_end):
+            won_week_count += 1
+            won_week_value += value
+        if closed.year == now_utc.year and closed.month == now_utc.month:
+            won_month_count += 1
+            won_month_value += value
+
+    weekly_revenue_target = max(0.0, _coerce_float(targets.get("weekly_revenue_target"), 0.0))
+    monthly_revenue_target = max(0.0, _coerce_float(targets.get("monthly_revenue_target"), 0.0))
+    weekly_closes_target = max(0, int(_coerce_float(targets.get("weekly_closes_target"), 0.0)))
+    return {
+        "week_start": week_start.isoformat(),
+        "week_end": week_end.isoformat(),
+        "won_week_count": won_week_count,
+        "won_week_value": won_week_value,
+        "won_week_progress": _safe_float_rate(won_week_value, weekly_revenue_target),
+        "won_week_close_progress": _safe_rate(won_week_count, weekly_closes_target),
+        "won_month_count": won_month_count,
+        "won_month_value": won_month_value,
+        "won_month_progress": _safe_float_rate(won_month_value, monthly_revenue_target),
+    }
+
+
 def _build_revenue_funnel(pipeline_rows: list[dict], intake_rows: list[dict]) -> dict:
     week_start, week_end = _week_window_local()
 
@@ -1590,6 +1733,8 @@ def _load_revenue_snapshot() -> dict:
     intake_rows_preview = intake_rows_all[:10]
     funnel = _build_revenue_funnel(pipeline_rows, intake_rows_all)
     playbook = _load_revenue_playbook()
+    targets = _load_revenue_targets()
+    target_progress = _build_revenue_target_progress(pipeline_rows, targets)
 
     return {
         "generated_at": utc_iso(),
@@ -1602,6 +1747,7 @@ def _load_revenue_snapshot() -> dict:
             "outreach_status": outreach_status["status_path"],
             "pipeline": pipeline["path"],
             "playbook": _revenue_playbook_path(),
+            "targets": _revenue_targets_path(),
         },
         "queue": {
             "count": len(queue_actions),
@@ -1637,6 +1783,11 @@ def _load_revenue_snapshot() -> dict:
         "playbook": {
             "path": _revenue_playbook_path(),
             "data": playbook,
+        },
+        "targets": {
+            "path": _revenue_targets_path(),
+            "data": targets,
+            "progress": target_progress,
         },
         "outreach": {
             "source": outreach_path or None,

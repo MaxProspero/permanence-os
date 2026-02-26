@@ -66,9 +66,11 @@ def _write_json(path: Path, payload: Any) -> None:
 
 
 def _ensure_targets() -> dict[str, Any]:
+    weekly_revenue_target = int(os.getenv("PERMANENCE_REVENUE_WEEKLY_TARGET", "3000"))
     defaults = {
         "week_of": _week_start(),
-        "weekly_revenue_target": int(os.getenv("PERMANENCE_REVENUE_WEEKLY_TARGET", "3000")),
+        "weekly_revenue_target": weekly_revenue_target,
+        "monthly_revenue_target": int(os.getenv("PERMANENCE_REVENUE_MONTHLY_TARGET", str(max(12000, weekly_revenue_target * 4)))),
         "weekly_leads_target": int(os.getenv("PERMANENCE_REVENUE_WEEKLY_LEADS_TARGET", "10")),
         "weekly_calls_target": int(os.getenv("PERMANENCE_REVENUE_WEEKLY_CALLS_TARGET", "5")),
         "weekly_closes_target": int(os.getenv("PERMANENCE_REVENUE_WEEKLY_CLOSES_TARGET", "2")),

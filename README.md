@@ -344,6 +344,8 @@ python cli.py revenue-execution-board
 python cli.py revenue-outreach-pack
 python cli.py revenue-playbook show
 python cli.py revenue-playbook set --offer-name "Permanence OS Foundation Setup" --cta-keyword FOUNDATION --cta-public 'DM me "FOUNDATION".' --pricing-tier Core --price-usd 1500
+python cli.py revenue-targets show
+python cli.py revenue-targets set --weekly-revenue-target 5000 --monthly-revenue-target 20000 --daily-outreach-target 12
 ```
 `revenue-action-queue` now prioritizes from live pipeline/intake/funnel signals first (urgent leads + bottleneck), then fills remaining slots with template actions.
 Desktop launcher:
@@ -385,6 +387,7 @@ Revenue data is also visible in Command Center under **Revenue Ops**.
 - Revenue Ops includes one-click loop controls in-dashboard: **Run Money Loop Now** and **Refresh Queue + Board**.
 - Revenue Ops now displays the latest Outreach Draft Pack inside the dashboard.
 - Outreach drafts now support status tracking in-dashboard (pending/sent/replied) plus one-click copy for subject/body.
+- Revenue Ops now includes editable Revenue Targets lock (weekly/monthly revenue, funnel targets, outreach target) with live progress percentages.
 
 ### Revenue Weekly Summary
 Generate the weekly operator scorecard:

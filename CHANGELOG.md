@@ -18,7 +18,9 @@ All notable changes to this project will be documented in this file.
   - Revenue Ops dashboard now includes live Outreach Draft Pack rendering from latest outreach artifact
   - Revenue Ops outreach drafts now support status updates (`POST /api/revenue/outreach`) and UI controls for pending/sent/replied
   - added locked offer + CTA playbook management (`scripts/revenue_playbook.py`, `python cli.py revenue-playbook`, and `POST /api/revenue/playbook`)
+  - added locked revenue target management (`scripts/revenue_targets.py`, `python cli.py revenue-targets`, and `POST /api/revenue/targets`)
   - revenue queue, outreach pack, execution board, and intake lead defaults now read from locked playbook values
+  - Revenue Ops dashboard now includes editable targets and live weekly/monthly won-progress vs target
   - `revenue_action_queue.py` now prioritizes actions from live pipeline due dates + funnel bottlenecks before template fallbacks
   - added `scripts/revenue_outreach_pack.py` + `python cli.py revenue-outreach-pack` for stage-aware outreach drafts from open leads
   - money loop now generates outreach pack each run

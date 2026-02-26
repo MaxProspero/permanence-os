@@ -787,6 +787,30 @@
         </form>
       </div>
 
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Revenue Targets Lock</div>
+        <div id="revenue-targets-summary" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+          Loading targets...
+        </div>
+        <form id="revenueTargetsForm" onsubmit="saveRevenueTargets(event)">
+          <div class="inline-form">
+            <input name="week_of" type="date" placeholder="Week start">
+            <input name="weekly_revenue_target" type="number" min="0" step="1" placeholder="Weekly revenue target">
+            <input name="monthly_revenue_target" type="number" min="0" step="1" placeholder="Monthly revenue target">
+            <input name="daily_outreach_target" type="number" min="1" step="1" placeholder="Daily outreach target">
+          </div>
+          <div class="inline-form">
+            <input name="weekly_leads_target" type="number" min="0" step="1" placeholder="Weekly leads target">
+            <input name="weekly_calls_target" type="number" min="0" step="1" placeholder="Weekly calls target">
+            <input name="weekly_closes_target" type="number" min="0" step="1" placeholder="Weekly closes target">
+          </div>
+          <div class="approval-actions">
+            <button class="btn btn-approve" type="submit">Save Targets</button>
+            <span id="revenueTargetsStatus" style="font-size:11px; color:var(--muted); font-family:var(--mono);"></span>
+          </div>
+        </form>
+      </div>
+
       <div class="grid-4">
         <div class="card stat-gold">
           <div class="card-label">Queue Actions</div>
@@ -1146,6 +1170,33 @@ async function saveRevenuePlaybook(event) {
   await loadRevenue();
 }
 
+async function saveRevenueTargets(event) {
+  event.preventDefault();
+  const form = event.target;
+  const statusEl = document.getElementById("revenueTargetsStatus");
+  const data = new FormData(form);
+  const payload = {
+    week_of: String(data.get("week_of") || "").trim(),
+    weekly_revenue_target: Number(data.get("weekly_revenue_target") || 0),
+    monthly_revenue_target: Number(data.get("monthly_revenue_target") || 0),
+    weekly_leads_target: Number(data.get("weekly_leads_target") || 0),
+    weekly_calls_target: Number(data.get("weekly_calls_target") || 0),
+    weekly_closes_target: Number(data.get("weekly_closes_target") || 0),
+    daily_outreach_target: Number(data.get("daily_outreach_target") || 1),
+  };
+  statusEl.textContent = "Saving targets...";
+  statusEl.style.color = "var(--muted)";
+  const result = await apiPost("/revenue/targets", payload);
+  if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
+    statusEl.textContent = "Could not save targets.";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+  statusEl.textContent = "Saved.";
+  statusEl.style.color = "var(--safe)";
+  await loadRevenue();
+}
+
 async function setRevenueLeadStage(leadId, stage) {
   const payload = { stage: String(stage || "").toLowerCase() };
   if (payload.stage !== "won" && payload.stage !== "lost") {
@@ -1483,7 +1534,12 @@ async function loadRevenue() {
     if (playbookStatusEl) {
       playbookStatusEl.textContent = "";
     }
+    const targetsStatusEl = document.getElementById("revenueTargetsStatus");
+    if (targetsStatusEl) {
+      targetsStatusEl.textContent = "";
+    }
     document.getElementById("revenue-playbook-summary").textContent = "No playbook loaded.";
+    document.getElementById("revenue-targets-summary").textContent = "No targets loaded.";
     document.getElementById("revenue-queue-count").textContent = "—";
     document.getElementById("revenue-queue-progress").textContent = "No queue progress available.";
     document.getElementById("revenue-queue-progress-detail").textContent = "No queue progress available.";
@@ -1510,6 +1566,9 @@ async function loadRevenue() {
   const intake = data.intake ?? {};
   const funnel = data.funnel ?? {};
   const playbook = (data.playbook ?? {}).data ?? {};
+  const targetsBlock = data.targets ?? {};
+  const targets = targetsBlock.data ?? {};
+  const targetProgress = targetsBlock.progress ?? {};
   const outreach = data.outreach ?? {};
   const sources = data.sources ?? {};
 
@@ -1545,6 +1604,26 @@ async function loadRevenue() {
   const quickOfferField = document.querySelector("#revenueLeadForm input[name='offer']");
   if (quickOfferField) {
     quickOfferField.value = String(playbook.offer_name ?? "Permanence OS Foundation Setup");
+  }
+  document.getElementById("revenue-targets-summary").textContent =
+    `week_of=${targets.week_of ?? "-"} | week_target=${formatCurrency(targets.weekly_revenue_target ?? 0)} | week_won=${formatCurrency(targetProgress.won_week_value ?? 0)} (${formatPercent(targetProgress.won_week_progress)}) | month_target=${formatCurrency(targets.monthly_revenue_target ?? 0)} | month_won=${formatCurrency(targetProgress.won_month_value ?? 0)} (${formatPercent(targetProgress.won_month_progress)})`;
+
+  const targetsForm = document.getElementById("revenueTargetsForm");
+  if (targetsForm) {
+    const weekField = targetsForm.querySelector("input[name='week_of']");
+    const weeklyRevenueField = targetsForm.querySelector("input[name='weekly_revenue_target']");
+    const monthlyRevenueField = targetsForm.querySelector("input[name='monthly_revenue_target']");
+    const leadsField = targetsForm.querySelector("input[name='weekly_leads_target']");
+    const callsField = targetsForm.querySelector("input[name='weekly_calls_target']");
+    const closesField = targetsForm.querySelector("input[name='weekly_closes_target']");
+    const outreachField = targetsForm.querySelector("input[name='daily_outreach_target']");
+    if (weekField) weekField.value = String(targets.week_of ?? "");
+    if (weeklyRevenueField) weeklyRevenueField.value = String(targets.weekly_revenue_target ?? "");
+    if (monthlyRevenueField) monthlyRevenueField.value = String(targets.monthly_revenue_target ?? "");
+    if (leadsField) leadsField.value = String(targets.weekly_leads_target ?? "");
+    if (callsField) callsField.value = String(targets.weekly_calls_target ?? "");
+    if (closesField) closesField.value = String(targets.weekly_closes_target ?? "");
+    if (outreachField) outreachField.value = String(targets.daily_outreach_target ?? "");
   }
 
   const funnelWeek = (funnel.week_start && funnel.week_end) ? `${funnel.week_start} to ${funnel.week_end}` : "week unknown";
@@ -1684,6 +1763,7 @@ async function loadRevenue() {
     `Outreach tool source: ${sources.outreach_tool ?? "none"}`,
     `Outreach status source: ${sources.outreach_status ?? "none"}`,
     `Playbook source: ${sources.playbook ?? "none"}`,
+    `Targets source: ${sources.targets ?? "none"}`,
     `Pipeline source: ${sources.pipeline ?? "none"}`,
     `Intake source: ${intake.path ?? "none"}`,
     `Inbox pressure: P0=${inbox.P0 ?? 0} | P1=${inbox.P1 ?? 0} | P2=${inbox.P2 ?? 0} | P3=${inbox.P3 ?? 0}`,

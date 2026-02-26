@@ -286,12 +286,28 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             + "\n",
             encoding="utf-8",
         )
+        targets_path = working_dir / "revenue_targets.json"
+        targets_path.write_text(
+            json.dumps(
+                {
+                    "week_of": "2026-02-24",
+                    "weekly_revenue_target": 3000,
+                    "monthly_revenue_target": 12000,
+                    "weekly_leads_target": 10,
+                    "weekly_calls_target": 5,
+                    "weekly_closes_target": 2,
+                    "daily_outreach_target": 9,
+                }
+            ),
+            encoding="utf-8",
+        )
 
         original_paths = dict(dashboard_api.PATHS)
         original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
         original_intake_path = os.environ.get("PERMANENCE_REVENUE_INTAKE_PATH")
         original_action_status_path = os.environ.get("PERMANENCE_REVENUE_ACTION_STATUS_PATH")
         original_outreach_status_path = os.environ.get("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH")
+        original_targets_path = os.environ.get("PERMANENCE_REVENUE_TARGETS_PATH")
         try:
             dashboard_api.PATHS["outputs"] = str(outputs_dir)
             dashboard_api.PATHS["working"] = str(working_dir)
@@ -300,6 +316,7 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = str(intake_path)
             os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = str(action_status_path)
             os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = str(outreach_status_path)
+            os.environ["PERMANENCE_REVENUE_TARGETS_PATH"] = str(targets_path)
 
             snapshot = dashboard_api._load_revenue_snapshot()
             assert snapshot["queue"]["count"] == 2
@@ -325,6 +342,9 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             assert snapshot["sources"]["outreach_pack"] is not None
             assert snapshot["playbook"]["path"] is not None
             assert snapshot["playbook"]["data"]["cta_keyword"] == "FOUNDATION"
+            assert snapshot["targets"]["path"] is not None
+            assert snapshot["targets"]["data"]["daily_outreach_target"] == 9
+            assert snapshot["targets"]["progress"]["won_week_value"] >= 0
         finally:
             dashboard_api.PATHS.update(original_paths)
             if original_pipeline_path is None:
@@ -343,6 +363,10 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
                 os.environ.pop("PERMANENCE_REVENUE_OUTREACH_STATUS_PATH", None)
             else:
                 os.environ["PERMANENCE_REVENUE_OUTREACH_STATUS_PATH"] = original_outreach_status_path
+            if original_targets_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_TARGETS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_TARGETS_PATH"] = original_targets_path
 
 
 def test_revenue_action_endpoint_tracks_completion():
@@ -500,6 +524,60 @@ def test_revenue_playbook_endpoint_updates_lock():
                 os.environ.pop("PERMANENCE_REVENUE_PLAYBOOK_PATH", None)
             else:
                 os.environ["PERMANENCE_REVENUE_PLAYBOOK_PATH"] = original_playbook_path
+
+
+def test_revenue_targets_endpoint_updates_lock():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        targets_path = working_dir / "revenue_targets.json"
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_targets_path = os.environ.get("PERMANENCE_REVENUE_TARGETS_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_REVENUE_TARGETS_PATH"] = str(targets_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/targets",
+                json={
+                    "week_of": "2026-02-24",
+                    "weekly_revenue_target": 5000,
+                    "monthly_revenue_target": 20000,
+                    "weekly_leads_target": 14,
+                    "weekly_calls_target": 7,
+                    "weekly_closes_target": 3,
+                    "daily_outreach_target": 11,
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "UPDATED"
+            assert payload.get("targets", {}).get("weekly_revenue_target") == 5000
+            assert payload.get("targets", {}).get("daily_outreach_target") == 11
+            assert targets_path.exists()
+
+            get_response = client.get("/api/revenue/targets")
+            assert get_response.status_code == 200
+            get_payload = get_response.get_json() or {}
+            assert get_payload.get("targets", {}).get("monthly_revenue_target") == 20000
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_targets_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_TARGETS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_TARGETS_PATH"] = original_targets_path
 
 
 def test_revenue_run_loop_endpoint_executes_queue_commands():
@@ -692,6 +770,7 @@ if __name__ == "__main__":
     test_revenue_outreach_endpoint_tracks_status()
     test_revenue_outreach_endpoint_rejects_invalid_status()
     test_revenue_playbook_endpoint_updates_lock()
+    test_revenue_targets_endpoint_updates_lock()
     test_revenue_run_loop_endpoint_executes_queue_commands()
     test_revenue_run_loop_endpoint_rejects_invalid_mode()
     test_revenue_intake_endpoint_creates_lead_and_persists_rows()

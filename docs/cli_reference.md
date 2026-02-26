@@ -54,6 +54,13 @@ Examples:
 - `python cli.py revenue-playbook show`
 - `python cli.py revenue-playbook set --offer-name "Permanence OS Foundation Setup" --cta-keyword FOUNDATION --cta-public 'DM me "FOUNDATION".' --pricing-tier Core --price-usd 1500`
 
+### `python cli.py revenue-targets ...`
+Manage locked revenue targets.
+Examples:
+- `python cli.py revenue-targets init`
+- `python cli.py revenue-targets show`
+- `python cli.py revenue-targets set --weekly-revenue-target 5000 --monthly-revenue-target 20000 --daily-outreach-target 12`
+
 ### `python cli.py sales-pipeline ...`
 Forward pipeline commands to `scripts/sales_pipeline.py`.
 Examples:
