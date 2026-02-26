@@ -212,18 +212,41 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             + "\n",
             encoding="utf-8",
         )
+        action_status_path = working_dir / "revenue_action_status.jsonl"
+        first_action = "[today] Send follow-up to lead A"
+        action_status_path.write_text(
+            json.dumps(
+                {
+                    "event_id": "RA-TEST-1",
+                    "timestamp": "2026-02-25T11:00:00Z",
+                    "action": first_action,
+                    "action_hash": dashboard_api._action_hash(first_action),
+                    "completed": True,
+                    "source": "test",
+                    "actor": "human",
+                    "notes": "",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
         original_paths = dict(dashboard_api.PATHS)
         original_pipeline_path = os.environ.get("PERMANENCE_SALES_PIPELINE_PATH")
         original_intake_path = os.environ.get("PERMANENCE_REVENUE_INTAKE_PATH")
+        original_action_status_path = os.environ.get("PERMANENCE_REVENUE_ACTION_STATUS_PATH")
         try:
             dashboard_api.PATHS["outputs"] = str(outputs_dir)
             dashboard_api.PATHS["working"] = str(working_dir)
             os.environ["PERMANENCE_SALES_PIPELINE_PATH"] = str(pipeline_path)
             os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = str(intake_path)
+            os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = str(action_status_path)
 
             snapshot = dashboard_api._load_revenue_snapshot()
             assert snapshot["queue"]["count"] == 2
+            assert snapshot["queue"]["completed_count"] == 1
+            assert snapshot["queue"]["pending_count"] == 1
+            assert len(snapshot["queue"]["items"]) == 2
             assert len(snapshot["board"]["non_negotiables"]) == 2
             assert snapshot["board"]["inbox_pressure"]["P1"] == 2
             assert snapshot["pipeline"]["total"] == 2
@@ -244,6 +267,59 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
                 os.environ.pop("PERMANENCE_REVENUE_INTAKE_PATH", None)
             else:
                 os.environ["PERMANENCE_REVENUE_INTAKE_PATH"] = original_intake_path
+            if original_action_status_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_ACTION_STATUS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = original_action_status_path
+
+
+def test_revenue_action_endpoint_tracks_completion():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        action_status_path = working_dir / "revenue_action_status.jsonl"
+
+        original_paths = dict(dashboard_api.PATHS)
+        original_action_status_path = os.environ.get("PERMANENCE_REVENUE_ACTION_STATUS_PATH")
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+            os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = str(action_status_path)
+
+            client = dashboard_api.app.test_client()
+            response = client.post(
+                "/api/revenue/action",
+                json={
+                    "action": "[today] Send follow-up to lead A",
+                    "completed": True,
+                    "source": "dashboard",
+                    "actor": "human",
+                },
+            )
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "UPDATED"
+            assert payload.get("completed") is True
+
+            state = dashboard_api._load_revenue_action_status()
+            action_hash = dashboard_api._action_hash("[today] Send follow-up to lead A")
+            assert action_hash in state
+            assert state[action_hash]["completed"] is True
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+            if original_action_status_path is None:
+                os.environ.pop("PERMANENCE_REVENUE_ACTION_STATUS_PATH", None)
+            else:
+                os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = original_action_status_path
 
 
 def test_revenue_intake_endpoint_creates_lead_and_persists_rows():
@@ -392,6 +468,7 @@ if __name__ == "__main__":
     test_load_latest_briefing_supports_markdown()
     test_load_promotion_status_reads_storage_log_fallback()
     test_load_revenue_snapshot_includes_pipeline_and_board()
+    test_revenue_action_endpoint_tracks_completion()
     test_revenue_intake_endpoint_creates_lead_and_persists_rows()
     test_revenue_pipeline_update_endpoint_changes_stage()
     print("✓ Dashboard API helper tests passed")

@@ -425,6 +425,39 @@ def foundation_intake():
     )
 
 
+@app.route("/api/revenue/action", methods=["POST"])
+def update_revenue_action():
+    """Mark a queue action complete/incomplete for operator progress tracking."""
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/action", payload)
+
+    action = str(payload.get("action") or "").strip()
+    if not action:
+        log_api_call("POST", "/api/revenue/action", payload, "INVALID_ACTION")
+        abort(400, description="Action text is required.")
+
+    completed = _coerce_bool(payload.get("completed"), True)
+    source = str(payload.get("source") or "dashboard").strip()
+    actor = str(payload.get("actor") or "human").strip()
+    notes = str(payload.get("notes") or "").strip()
+    entry = _record_revenue_action_status(
+        action=action,
+        completed=completed,
+        source=source,
+        actor=actor,
+        notes=notes,
+    )
+    return jsonify(
+        {
+            "status": "UPDATED",
+            "action_hash": entry["action_hash"],
+            "completed": bool(entry["completed"]),
+            "entry": entry,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
 # ─────────────────────────────────────────────
 # HORIZON REPORTS
 # ─────────────────────────────────────────────
@@ -601,6 +634,19 @@ def _coerce_float(value: object, default: float = 0.0) -> float:
         return default
 
 
+def _coerce_bool(value: object, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "on"}:
+        return True
+    if text in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
 def _validate_stage(value: str) -> str:
     stage = str(value or "lead").strip().lower()
     if stage not in REVENUE_STAGE_PROB:
@@ -775,6 +821,90 @@ def _parse_revenue_queue_actions(markdown: str) -> list[str]:
             continue
         actions.append(body)
     return actions
+
+
+def _revenue_action_status_path() -> str:
+    return os.environ.get(
+        "PERMANENCE_REVENUE_ACTION_STATUS_PATH",
+        os.path.join(PATHS["working"], "revenue_action_status.jsonl"),
+    )
+
+
+def _action_hash(action_text: str) -> str:
+    normalized = str(action_text or "").strip().lower()
+    return hashlib.sha256(normalized.encode()).hexdigest()[:16]
+
+
+def _load_revenue_action_status() -> dict[str, dict]:
+    path = _revenue_action_status_path()
+    if not os.path.exists(path):
+        return {}
+    latest_by_hash: dict[str, dict] = {}
+    try:
+        with open(path) as f:
+            for raw in f:
+                line = raw.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(item, dict):
+                    continue
+                key = str(item.get("action_hash") or "").strip()
+                if not key:
+                    continue
+                latest_by_hash[key] = item
+    except OSError:
+        return {}
+    return latest_by_hash
+
+
+def _record_revenue_action_status(*, action: str, completed: bool, source: str, actor: str, notes: str) -> dict:
+    path = _revenue_action_status_path()
+    action_text = str(action or "").strip()
+    entry = {
+        "event_id": f"RA-{utc_now().strftime('%Y%m%d-%H%M%S%f')}",
+        "timestamp": utc_iso(),
+        "action": action_text,
+        "action_hash": _action_hash(action_text),
+        "completed": bool(completed),
+        "source": source,
+        "actor": actor,
+        "notes": notes,
+    }
+    _append_jsonl(path, entry)
+    return entry
+
+
+def _build_queue_progress(actions: list[str]) -> dict:
+    status_map = _load_revenue_action_status()
+    items: list[dict] = []
+    completed = 0
+    for action in actions[:7]:
+        key = _action_hash(action)
+        state = status_map.get(key, {})
+        is_done = _coerce_bool(state.get("completed"), False)
+        if is_done:
+            completed += 1
+        items.append(
+            {
+                "action": action,
+                "action_hash": key,
+                "completed": is_done,
+                "completed_at": state.get("timestamp") if is_done else None,
+            }
+        )
+    total = len(items)
+    pending = max(0, total - completed)
+    return {
+        "items": items,
+        "completed_count": completed,
+        "pending_count": pending,
+        "completion_rate": _safe_rate(completed, total),
+        "status_path": _revenue_action_status_path(),
+    }
 
 
 def _parse_revenue_board(markdown: str) -> dict:
@@ -1020,6 +1150,7 @@ def _load_revenue_snapshot() -> dict:
     architecture_markdown = _read_text_file(arch_path)
 
     queue_actions = _parse_revenue_queue_actions(queue_markdown)
+    queue_progress = _build_queue_progress(queue_actions)
     board_data = _parse_revenue_board(board_markdown)
     pipeline = _load_pipeline_snapshot()
     pipeline_rows = _pipeline_load()
@@ -1038,6 +1169,11 @@ def _load_revenue_snapshot() -> dict:
         "queue": {
             "count": len(queue_actions),
             "actions": queue_actions[:7],
+            "items": queue_progress["items"],
+            "completed_count": queue_progress["completed_count"],
+            "pending_count": queue_progress["pending_count"],
+            "completion_rate": queue_progress["completion_rate"],
+            "status_path": queue_progress["status_path"],
             "content_markdown": queue_markdown,
         },
         "board": {

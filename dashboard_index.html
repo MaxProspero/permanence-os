@@ -760,7 +760,7 @@
         <div class="card stat-gold">
           <div class="card-label">Queue Actions</div>
           <div class="card-value" id="revenue-queue-count">—</div>
-          <div class="card-sub">Next 7 actions generated</div>
+          <div class="card-sub" id="revenue-queue-progress">Next 7 actions generated</div>
         </div>
         <div class="card">
           <div class="card-label">Open Leads</div>
@@ -825,6 +825,9 @@
         </div>
         <div class="card">
           <div class="card-title">Queue Actions</div>
+          <div id="revenue-queue-progress-detail" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:8px;">
+            Loading completion progress...
+          </div>
           <div id="revenue-queue-actions"><div class="empty">Loading queue...</div></div>
         </div>
       </div>
@@ -1080,6 +1083,26 @@ async function advanceRevenueLead(leadId, currentStage) {
   await setRevenueLeadStage(leadId, next);
 }
 
+function encodeActionToken(action) {
+  return encodeURIComponent(String(action ?? ""));
+}
+
+async function setRevenueActionComplete(actionToken, completed) {
+  const action = decodeURIComponent(String(actionToken || ""));
+  if (!action) return;
+  const result = await apiPost("/revenue/action", {
+    action,
+    completed: Boolean(completed),
+    source: "dashboard",
+    actor: "human",
+  });
+  if (!result || String(result.status || "").toUpperCase() !== "UPDATED") {
+    alert("Could not update action status.");
+    return;
+  }
+  await loadRevenue();
+}
+
 // ─────────────────────────────────────────────
 // OVERVIEW
 // ─────────────────────────────────────────────
@@ -1313,6 +1336,8 @@ async function loadRevenue() {
 
   if (!data) {
     document.getElementById("revenue-queue-count").textContent = "—";
+    document.getElementById("revenue-queue-progress").textContent = "No queue progress available.";
+    document.getElementById("revenue-queue-progress-detail").textContent = "No queue progress available.";
     document.getElementById("revenue-open-leads").textContent = "—";
     document.getElementById("revenue-weighted").textContent = "$—";
     document.getElementById("revenue-urgent-count").textContent = "—";
@@ -1339,6 +1364,13 @@ async function loadRevenue() {
   document.getElementById("revenue-open-leads").textContent = pipeline.open_count ?? 0;
   document.getElementById("revenue-weighted").textContent = formatCurrency(pipeline.weighted_value ?? 0);
   document.getElementById("revenue-urgent-count").textContent = pipeline.urgent_count ?? 0;
+  const completedCount = Number(queue.completed_count ?? 0);
+  const pendingCount = Number(queue.pending_count ?? 0);
+  const completionRate = Number(queue.completion_rate);
+  document.getElementById("revenue-queue-progress").textContent =
+    `Done ${completedCount} / ${queue.count ?? 0} (${formatPercent(completionRate)})`;
+  document.getElementById("revenue-queue-progress-detail").textContent =
+    `completed=${completedCount} | pending=${pendingCount} | status_log=${queue.status_path ?? "none"}`;
 
   const funnelWeek = (funnel.week_start && funnel.week_end) ? `${funnel.week_start} to ${funnel.week_end}` : "week unknown";
   document.getElementById("revenue-funnel-summary").textContent =
@@ -1377,12 +1409,29 @@ async function loadRevenue() {
       </div>`).join("")
     : `<div class="empty">No non-negotiables found. Generate an execution board.</div>`;
 
-  const queueActions = Array.isArray(queue.actions) ? queue.actions : [];
-  document.getElementById("revenue-queue-actions").innerHTML = queueActions.length
-    ? queueActions.map(action => `
+  const queueItems = Array.isArray(queue.items)
+    ? queue.items
+    : (Array.isArray(queue.actions) ? queue.actions.map(action => ({ action, completed: false })) : []);
+  document.getElementById("revenue-queue-actions").innerHTML = queueItems.length
+    ? queueItems.map((item) => {
+      const actionText = String(item.action ?? "");
+      const done = Boolean(item.completed);
+      const actionToken = encodeActionToken(actionText);
+      return `
       <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text-sub);">
-        ${escapeHtml(action)}
-      </div>`).join("")
+        <div style="${done ? "text-decoration:line-through; color:var(--muted);" : ""}">${escapeHtml(actionText)}</div>
+        <div class="approval-actions" style="margin-top:6px;">
+          ${
+            done
+              ? `<button class="btn btn-view" onclick="setRevenueActionComplete('${actionToken}', false)">Undo</button>`
+              : `<button class="btn btn-approve" onclick="setRevenueActionComplete('${actionToken}', true)">Mark Done</button>`
+          }
+          <span style="font-size:11px; color:${done ? "var(--safe)" : "var(--muted)"}; font-family:var(--mono);">
+            ${done ? `completed ${escapeHtml(item.completed_at ?? "")}` : "pending"}
+          </span>
+        </div>
+      </div>`;
+    }).join("")
     : `<div class="empty">No queue actions found. Run revenue action queue.</div>`;
 
   const urgent = Array.isArray(board.urgent_actions) ? board.urgent_actions : [];
