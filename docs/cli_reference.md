@@ -44,6 +44,9 @@ Generate the daily revenue execution board.
 ### `python cli.py revenue-weekly-summary`
 Generate a weekly revenue scorecard from pipeline + intake + latest queue.
 
+### `python cli.py revenue-outreach-pack`
+Generate outreach message drafts from prioritized open leads.
+
 ### `python cli.py sales-pipeline ...`
 Forward pipeline commands to `scripts/sales_pipeline.py`.
 Examples:

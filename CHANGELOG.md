@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
   - Revenue Ops queue actions can now be marked complete/incomplete from dashboard (`POST /api/revenue/action`) with live completion progress
   - Revenue Ops now supports dashboard-triggered loop runs (`POST /api/revenue/run-loop`) for full money-loop or queue-only refresh
   - `revenue_action_queue.py` now prioritizes actions from live pipeline due dates + funnel bottlenecks before template fallbacks
+  - added `scripts/revenue_outreach_pack.py` + `python cli.py revenue-outreach-pack` for stage-aware outreach drafts from open leads
+  - money loop now generates outreach pack each run
   - local FOUNDATION site preview server: `scripts/foundation_site.py`
   - FOUNDATION intake form now submits to local API first and falls back to mailto
   - operator surface launcher: `scripts/operator_surface.py` + `python cli.py operator-surface` (boots command center + FOUNDATION site together, optional `--money-loop`)

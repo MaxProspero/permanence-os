@@ -335,11 +335,13 @@ Run one command to refresh inbox intelligence and generate:
 - revenue action queue
 - revenue architecture scorecard
 - revenue execution board
+- revenue outreach message pack
 
 ```bash
 python cli.py money-loop
 python cli.py revenue-action-queue
 python cli.py revenue-execution-board
+python cli.py revenue-outreach-pack
 ```
 `revenue-action-queue` now prioritizes from live pipeline/intake/funnel signals first (urgent leads + bottleneck), then fills remaining slots with template actions.
 Desktop launcher:
@@ -372,6 +374,7 @@ Files created/used:
 - `memory/working/sales_pipeline.json`
 - `outputs/revenue_architecture_latest.md`
 - `outputs/revenue_execution_board_latest.md`
+- `outputs/revenue_outreach_pack_latest.md`
 
 Revenue data is also visible in Command Center under **Revenue Ops**.
 - Revenue Ops now includes a live conversion funnel and automatic bottleneck detection (Intake -> Lead -> Qualified -> Call -> Proposal -> Won).

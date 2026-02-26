@@ -63,6 +63,7 @@ run_step "status-glance" "$PYTHON_BIN" cli.py status-glance
 run_step "revenue-action-queue" "$PYTHON_BIN" scripts/revenue_action_queue.py
 run_step "revenue-architecture" "$PYTHON_BIN" scripts/revenue_architecture_report.py
 run_step "revenue-execution-board" "$PYTHON_BIN" scripts/revenue_execution_board.py
+run_step "revenue-outreach-pack" "$PYTHON_BIN" scripts/revenue_outreach_pack.py
 
 LATEST_QUEUE="$(ls -t "$BASE_DIR"/outputs/revenue_action_queue_*.md 2>/dev/null | head -n 1 || true)"
 if [[ -n "$LATEST_QUEUE" ]]; then
@@ -75,6 +76,10 @@ fi
 LATEST_BOARD="$(ls -t "$BASE_DIR"/outputs/revenue_execution_board_*.md 2>/dev/null | head -n 1 || true)"
 if [[ -n "$LATEST_BOARD" ]]; then
   echo "Latest revenue execution board: $LATEST_BOARD" | tee -a "$LOG_FILE"
+fi
+LATEST_OUTREACH="$(ls -t "$BASE_DIR"/outputs/revenue_outreach_pack_*.md 2>/dev/null | head -n 1 || true)"
+if [[ -n "$LATEST_OUTREACH" ]]; then
+  echo "Latest revenue outreach pack: $LATEST_OUTREACH" | tee -a "$LOG_FILE"
 fi
 echo "Money loop completed (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$LOG_FILE"
 echo "Log: $LOG_FILE"

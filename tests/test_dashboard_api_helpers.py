@@ -349,8 +349,8 @@ def test_revenue_run_loop_endpoint_executes_queue_commands():
             payload = response.get_json() or {}
             assert payload.get("status") == "OK"
             assert payload.get("mode") == "queue"
-            assert len(payload.get("commands") or []) == 3
-            assert mock_call.call_count == 3
+            assert len(payload.get("commands") or []) == 4
+            assert mock_call.call_count == 4
         finally:
             dashboard_api.PATHS.update(original_paths)
 

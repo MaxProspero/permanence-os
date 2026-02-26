@@ -480,6 +480,7 @@ def run_revenue_loop():
             [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-action-queue"],
             [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-architecture"],
             [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-execution-board"],
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-outreach-pack"],
         ]
 
     started = utc_now()
