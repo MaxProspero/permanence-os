@@ -175,6 +175,24 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             ),
             encoding="utf-8",
         )
+        (outputs_dir / "revenue_outreach_pack_latest.md").write_text(
+            "\n".join(
+                [
+                    "# Revenue Outreach Pack",
+                    "",
+                    "## Priority Messages",
+                    "### 1. Lead A (L-1)",
+                    "- Stage: qualified",
+                    "- Channel: dm",
+                    "- Subject: Lead A — next step",
+                    "",
+                    "```text",
+                    "Hey Lead A, quick follow-up.",
+                    "```",
+                ]
+            ),
+            encoding="utf-8",
+        )
 
         pipeline_path = working_dir / "sales_pipeline.json"
         pipeline_path.write_text(
@@ -258,6 +276,9 @@ def test_load_revenue_snapshot_includes_pipeline_and_board():
             assert snapshot["funnel"]["pipeline_total"] == 2
             assert len(snapshot["funnel"]["segments"]) >= 4
             assert snapshot["funnel"]["bottleneck"] is not None
+            assert snapshot["outreach"]["count"] == 1
+            assert len(snapshot["outreach"]["messages"]) == 1
+            assert snapshot["sources"]["outreach_pack"] is not None
         finally:
             dashboard_api.PATHS.update(original_paths)
             if original_pipeline_path is None:

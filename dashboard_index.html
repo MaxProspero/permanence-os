@@ -856,6 +856,11 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Outreach Draft Pack</div>
+        <div id="revenue-outreach-pack"><div class="empty">Loading outreach drafts...</div></div>
+      </div>
+
       <div class="card">
         <div class="card-title">Data Sources</div>
         <div id="revenue-sources"><div class="empty">Loading source paths...</div></div>
@@ -1390,6 +1395,7 @@ async function loadRevenue() {
     document.getElementById("revenue-urgent-actions").innerHTML = `<div class="empty">No urgent actions available yet.</div>`;
     document.getElementById("revenue-open-rows").innerHTML = `<div class="empty">No open leads found yet.</div>`;
     document.getElementById("revenue-intake-rows").innerHTML = `<div class="empty">No intake submissions found yet.</div>`;
+    document.getElementById("revenue-outreach-pack").innerHTML = `<div class="empty">No outreach drafts available yet.</div>`;
     document.getElementById("revenue-sources").innerHTML = `<div class="empty">Run money loop to generate data sources.</div>`;
     return;
   }
@@ -1399,6 +1405,7 @@ async function loadRevenue() {
   const pipeline = data.pipeline ?? {};
   const intake = data.intake ?? {};
   const funnel = data.funnel ?? {};
+  const outreach = data.outreach ?? {};
   const sources = data.sources ?? {};
 
   document.getElementById("revenue-queue-count").textContent = queue.count ?? 0;
@@ -1507,11 +1514,23 @@ async function loadRevenue() {
       </div>`).join("")
     : `<div class="empty">No intake submissions found yet.</div>`;
 
+  const outreachMessages = Array.isArray(outreach.messages) ? outreach.messages : [];
+  document.getElementById("revenue-outreach-pack").innerHTML = outreachMessages.length
+    ? outreachMessages.map((msg) => `
+      <div style="padding:10px 0; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-sub);">
+        <div style="font-family:var(--mono); color:var(--text); margin-bottom:4px;">${escapeHtml(msg.title ?? "Outreach draft")}</div>
+        <div style="margin-bottom:4px;">stage=${escapeHtml(msg.stage ?? "-")} | channel=${escapeHtml(msg.channel ?? "-")}</div>
+        <div style="margin-bottom:4px;"><strong>Subject:</strong> ${escapeHtml(msg.subject ?? "-")}</div>
+        <div style="white-space:pre-wrap; color:var(--muted);">${escapeHtml(msg.body ?? "")}</div>
+      </div>`).join("")
+    : `<div class="empty">No outreach drafts found. Run revenue outreach pack.</div>`;
+
   const inbox = board.inbox_pressure ?? {};
   const sourceRows = [
     `Queue source: ${sources.queue ?? "none"}`,
     `Architecture source: ${sources.architecture ?? "none"}`,
     `Execution board source: ${sources.execution_board ?? "none"}`,
+    `Outreach pack source: ${sources.outreach_pack ?? "none"}`,
     `Pipeline source: ${sources.pipeline ?? "none"}`,
     `Intake source: ${intake.path ?? "none"}`,
     `Inbox pressure: P0=${inbox.P0 ?? 0} | P1=${inbox.P1 ?? 0} | P2=${inbox.P2 ?? 0} | P3=${inbox.P3 ?? 0}`,

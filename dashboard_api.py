@@ -997,6 +997,58 @@ def _parse_revenue_board(markdown: str) -> dict:
     }
 
 
+def _parse_outreach_pack(markdown: str) -> list[dict]:
+    if not markdown:
+        return []
+    messages: list[dict] = []
+    current: Optional[dict] = None
+    in_body = False
+    body_lines: list[str] = []
+
+    for raw in markdown.splitlines():
+        line = raw.rstrip("\n")
+        text = line.strip()
+        if text.startswith("### "):
+            if current is not None:
+                current["body"] = "\n".join(body_lines).strip()
+                messages.append(current)
+            current = {
+                "title": text[4:].strip(),
+                "stage": "",
+                "channel": "",
+                "subject": "",
+                "body": "",
+            }
+            body_lines = []
+            in_body = False
+            continue
+
+        if current is None:
+            continue
+
+        if text == "```text":
+            in_body = True
+            continue
+        if text == "```":
+            in_body = False
+            continue
+        if in_body:
+            body_lines.append(line)
+            continue
+
+        if text.startswith("- Stage:"):
+            current["stage"] = text.split(":", 1)[1].strip()
+        elif text.startswith("- Channel:"):
+            current["channel"] = text.split(":", 1)[1].strip()
+        elif text.startswith("- Subject:"):
+            current["subject"] = text.split(":", 1)[1].strip()
+
+    if current is not None:
+        current["body"] = "\n".join(body_lines).strip()
+        messages.append(current)
+    return messages
+
+
 def _parse_iso_datetime(raw: object) -> Optional[datetime.datetime]:
     text = str(raw or "").strip()
     if not text:
@@ -1196,13 +1248,19 @@ def _load_revenue_snapshot() -> dict:
     if board_path is None:
         board_path = _latest_output_file("revenue_execution_board_*.md") or ""
 
+    outreach_path = _first_existing_output_file("revenue_outreach_pack_latest.md")
+    if outreach_path is None:
+        outreach_path = _latest_output_file("revenue_outreach_pack_*.md") or ""
+
     queue_markdown = _read_text_file(queue_path)
     board_markdown = _read_text_file(board_path)
     architecture_markdown = _read_text_file(arch_path)
+    outreach_markdown = _read_text_file(outreach_path)
 
     queue_actions = _parse_revenue_queue_actions(queue_markdown)
     queue_progress = _build_queue_progress(queue_actions)
     board_data = _parse_revenue_board(board_markdown)
+    outreach_messages = _parse_outreach_pack(outreach_markdown)
     pipeline = _load_pipeline_snapshot()
     pipeline_rows = _pipeline_load()
     intake_rows_all = _load_intake_rows(limit=0)
@@ -1215,6 +1273,7 @@ def _load_revenue_snapshot() -> dict:
             "queue": queue_path,
             "architecture": arch_path or None,
             "execution_board": board_path or None,
+            "outreach_pack": outreach_path or None,
             "pipeline": pipeline["path"],
         },
         "queue": {
@@ -1248,6 +1307,12 @@ def _load_revenue_snapshot() -> dict:
             "path": _intake_path(),
         },
         "funnel": funnel,
+        "outreach": {
+            "source": outreach_path or None,
+            "count": len(outreach_messages),
+            "messages": outreach_messages[:7],
+            "content_markdown": outreach_markdown[:6000],
+        },
         "architecture_excerpt": architecture_markdown[:4000],
     }
 
