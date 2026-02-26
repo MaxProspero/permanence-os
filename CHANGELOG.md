@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
   - FOUNDATION intake form now submits to local API first and falls back to mailto
   - operator surface launcher: `scripts/operator_surface.py` + `python cli.py operator-surface` (boots command center + FOUNDATION site together, optional `--money-loop`)
   - helper launcher script: `scripts/launch_operator_surface.sh`
+  - desktop launcher generator: `scripts/setup_desktop_launchers.py` + `python cli.py setup-launchers`
   - added automation scripts for money-loop scheduling:
     - `automation/setup_money_loop_automation.sh`
     - `automation/disable_money_loop_automation.sh`

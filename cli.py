@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, operator-surface, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, command-center, operator-surface, setup-launchers, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -1279,6 +1279,26 @@ def main() -> int:
                 *(["--run-horizon"] if args.run_horizon else []),
                 *(["--demo-horizon"] if args.demo_horizon else []),
                 *(["--dry-run"] if args.dry_run else []),
+            ]
+        )
+    )
+
+    launcher_p = sub.add_parser(
+        "setup-launchers",
+        help="Create Desktop .command launchers for core workflows",
+    )
+    launcher_p.add_argument(
+        "--desktop-dir",
+        help="Override destination directory (default: ~/Desktop)",
+    )
+    launcher_p.add_argument("--force", action="store_true", help="Overwrite existing launcher files")
+    launcher_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "setup_desktop_launchers.py"),
+                *(["--desktop-dir", args.desktop_dir] if args.desktop_dir else []),
+                *(["--force"] if args.force else []),
             ]
         )
     )

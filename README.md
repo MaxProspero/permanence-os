@@ -407,6 +407,16 @@ This starts:
 Helper launcher script:
 - `scripts/launch_operator_surface.sh`
 
+Create Desktop click-launch files:
+```bash
+python cli.py setup-launchers --force
+```
+Creates:
+- `~/Desktop/Run_Permanence_Operator_Surface.command`
+- `~/Desktop/Run_Permanence_Command_Center.command`
+- `~/Desktop/Run_Permanence_Foundation_Site.command`
+- `~/Desktop/Run_Permanence_Money_Loop.command`
+
 ### Money Loop Automation Schedule
 Schedule money loop at 07:15, 12:15, 19:15 local time:
 ```bash

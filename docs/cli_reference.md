@@ -78,6 +78,11 @@ Run Command Center + FOUNDATION site together.
 - `--no-open` disable browser auto-open
 - `--dry-run` print launch commands without starting services
 
+### `python cli.py setup-launchers`
+Create Desktop `.command` launchers for daily workflows.
+- `--desktop-dir` override destination directory (default `~/Desktop`)
+- `--force` overwrite existing launcher files
+
 ### `python cli.py snapshot`
 Generate a system snapshot with status + OpenClaw + HR + briefing.
 
