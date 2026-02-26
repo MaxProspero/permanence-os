@@ -756,6 +756,14 @@
         <div class="page-subtitle">Daily execution board, queue actions, and live pipeline metrics</div>
       </div>
 
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="approval-actions">
+          <button class="btn btn-approve" onclick="runRevenueLoop('full')">Run Money Loop Now</button>
+          <button class="btn btn-view" onclick="runRevenueLoop('queue')">Refresh Queue + Board</button>
+          <span id="revenueLoopStatus" style="font-size:11px; color:var(--muted); font-family:var(--mono);">Idle</span>
+        </div>
+      </div>
+
       <div class="grid-4">
         <div class="card stat-gold">
           <div class="card-label">Queue Actions</div>
@@ -1052,6 +1060,34 @@ async function createRevenueLead(event) {
   await loadRevenue();
 }
 
+async function runRevenueLoop(mode = "full") {
+  const statusEl = document.getElementById("revenueLoopStatus");
+  if (!statusEl) return;
+  statusEl.textContent = mode === "queue" ? "Refreshing queue + board..." : "Running money loop...";
+  statusEl.style.color = "var(--muted)";
+
+  const result = await apiPost("/revenue/run-loop", { mode });
+  if (!result) {
+    statusEl.textContent = "Loop run failed (no response).";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+
+  const ok = String(result.status || "").toUpperCase() === "OK";
+  if (!ok) {
+    const failedCmd = Array.isArray(result.commands)
+      ? result.commands.find((cmd) => Number(cmd.return_code) !== 0)
+      : null;
+    statusEl.textContent = `Loop failed${failedCmd ? ` (rc=${failedCmd.return_code})` : ""}.`;
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+
+  statusEl.textContent = `Completed in ${Math.max(0, Number(result.elapsed_ms || 0))} ms`;
+  statusEl.style.color = "var(--safe)";
+  await loadRevenue();
+}
+
 async function setRevenueLeadStage(leadId, stage) {
   const payload = { stage: String(stage || "").toLowerCase() };
   if (payload.stage !== "won" && payload.stage !== "lost") {
@@ -1335,6 +1371,11 @@ async function loadRevenue() {
   const data = await apiFetch("/revenue/latest");
 
   if (!data) {
+    const loopStatusEl = document.getElementById("revenueLoopStatus");
+    if (loopStatusEl) {
+      loopStatusEl.textContent = "Revenue API unavailable.";
+      loopStatusEl.style.color = "var(--alert)";
+    }
     document.getElementById("revenue-queue-count").textContent = "—";
     document.getElementById("revenue-queue-progress").textContent = "No queue progress available.";
     document.getElementById("revenue-queue-progress-detail").textContent = "No queue progress available.";

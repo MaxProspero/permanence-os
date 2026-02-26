@@ -26,6 +26,8 @@ import os
 import datetime
 import hashlib
 import glob
+import subprocess
+import sys
 from typing import Optional
 
 app = Flask(__name__)
@@ -453,6 +455,54 @@ def update_revenue_action():
             "action_hash": entry["action_hash"],
             "completed": bool(entry["completed"]),
             "entry": entry,
+            "timestamp": utc_iso(),
+        }
+    )
+
+
+@app.route("/api/revenue/run-loop", methods=["POST"])
+def run_revenue_loop():
+    """Run revenue loop commands from dashboard (full loop or queue refresh)."""
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/revenue/run-loop", payload)
+
+    mode = str(payload.get("mode") or "full").strip().lower()
+    if mode not in {"full", "queue"}:
+        log_api_call("POST", "/api/revenue/run-loop", payload, "INVALID_MODE")
+        abort(400, description="mode must be 'full' or 'queue'")
+
+    if mode == "full":
+        commands = [
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "money-loop"],
+        ]
+    else:
+        commands = [
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-action-queue"],
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-architecture"],
+            [sys.executable, os.path.join(BASE_DIR, "cli.py"), "revenue-execution-board"],
+        ]
+
+    started = utc_now()
+    run_results: list[dict] = []
+    for command in commands:
+        rc = subprocess.call(command, cwd=BASE_DIR, env=os.environ.copy())
+        run_results.append({"command": command, "return_code": rc})
+        if rc != 0:
+            break
+
+    elapsed_ms = int((utc_now() - started).total_seconds() * 1000)
+    ok = all(int(item["return_code"]) == 0 for item in run_results) and len(run_results) == len(commands)
+    if ok:
+        status = "OK"
+    else:
+        status = "FAILED"
+    return jsonify(
+        {
+            "status": status,
+            "mode": mode,
+            "started_at": started.isoformat().replace("+00:00", "Z"),
+            "elapsed_ms": elapsed_ms,
+            "commands": run_results,
             "timestamp": utc_iso(),
         }
     )

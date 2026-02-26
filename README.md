@@ -376,6 +376,7 @@ Files created/used:
 Revenue data is also visible in Command Center under **Revenue Ops**.
 - Revenue Ops now includes a live conversion funnel and automatic bottleneck detection (Intake -> Lead -> Qualified -> Call -> Proposal -> Won).
 - Revenue Ops queue actions can now be marked done/undone in-dashboard with completion-rate tracking.
+- Revenue Ops includes one-click loop controls in-dashboard: **Run Money Loop Now** and **Refresh Queue + Board**.
 
 ### Revenue Weekly Summary
 Generate the weekly operator scorecard:

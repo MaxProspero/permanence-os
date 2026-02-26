@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
   - Revenue Ops now supports quick lead add + inline stage updates and shows open pipeline rows + latest intake submissions
   - Revenue Ops now shows conversion funnel metrics and auto-detected bottleneck recommendations
   - Revenue Ops queue actions can now be marked complete/incomplete from dashboard (`POST /api/revenue/action`) with live completion progress
+  - Revenue Ops now supports dashboard-triggered loop runs (`POST /api/revenue/run-loop`) for full money-loop or queue-only refresh
   - `revenue_action_queue.py` now prioritizes actions from live pipeline due dates + funnel bottlenecks before template fallbacks
   - local FOUNDATION site preview server: `scripts/foundation_site.py`
   - FOUNDATION intake form now submits to local API first and falls back to mailto

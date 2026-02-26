@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -322,6 +323,46 @@ def test_revenue_action_endpoint_tracks_completion():
                 os.environ["PERMANENCE_REVENUE_ACTION_STATUS_PATH"] = original_action_status_path
 
 
+def test_revenue_run_loop_endpoint_executes_queue_commands():
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        working_dir = root / "working"
+        outputs_dir = root / "outputs"
+        logs_dir = root / "logs"
+        working_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        logs_dir.mkdir(parents=True, exist_ok=True)
+
+        original_paths = dict(dashboard_api.PATHS)
+        try:
+            dashboard_api.PATHS["working"] = str(working_dir)
+            dashboard_api.PATHS["outputs"] = str(outputs_dir)
+            dashboard_api.PATHS["logs"] = str(logs_dir)
+            dashboard_api.PATHS["api_log"] = str(logs_dir / "dashboard_api.log")
+
+            client = dashboard_api.app.test_client()
+            with patch.object(dashboard_api.subprocess, "call", return_value=0) as mock_call:
+                response = client.post("/api/revenue/run-loop", json={"mode": "queue"})
+            assert response.status_code == 200
+            payload = response.get_json() or {}
+            assert payload.get("status") == "OK"
+            assert payload.get("mode") == "queue"
+            assert len(payload.get("commands") or []) == 3
+            assert mock_call.call_count == 3
+        finally:
+            dashboard_api.PATHS.update(original_paths)
+
+
+def test_revenue_run_loop_endpoint_rejects_invalid_mode():
+    if _skip_if_missing_dashboard_api():
+        return
+    client = dashboard_api.app.test_client()
+    response = client.post("/api/revenue/run-loop", json={"mode": "invalid"})
+    assert response.status_code == 400
+
+
 def test_revenue_intake_endpoint_creates_lead_and_persists_rows():
     if _skip_if_missing_dashboard_api():
         return
@@ -469,6 +510,8 @@ if __name__ == "__main__":
     test_load_promotion_status_reads_storage_log_fallback()
     test_load_revenue_snapshot_includes_pipeline_and_board()
     test_revenue_action_endpoint_tracks_completion()
+    test_revenue_run_loop_endpoint_executes_queue_commands()
+    test_revenue_run_loop_endpoint_rejects_invalid_mode()
     test_revenue_intake_endpoint_creates_lead_and_persists_rows()
     test_revenue_pipeline_update_endpoint_changes_stage()
     print("✓ Dashboard API helper tests passed")
