@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
     - `automation/setup_money_loop_automation.sh`
     - `automation/disable_money_loop_automation.sh`
   - tests for revenue execution board generation and dashboard revenue snapshot parsing
+- Reliability/phase/glance evaluation now supports injected local time in tests (`now_local`) to keep gate tests date-stable across calendar changes
 - Added chronicle distribution pipeline:
   - `scripts/chronicle_publish.py`
   - shared publish outputs under `memory/chronicle/shared/`

@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -55,6 +56,7 @@ def test_phase_gate_passes_when_reliability_and_streak_pass():
             require_notebooklm=False,
             include_today=False,
             target_streak=7,
+            now_local=datetime(2026, 2, 7, 12, 0, 0),
         )
         assert ok is True
         assert "Phase gate: PASS" in report
@@ -80,6 +82,7 @@ def test_phase_gate_fails_when_streak_short():
             require_notebooklm=False,
             include_today=False,
             target_streak=7,
+            now_local=datetime(2026, 2, 7, 12, 0, 0),
         )
         assert ok is False
         assert "Streak gate: FAIL" in report
@@ -103,6 +106,7 @@ def test_phase_gate_fails_when_reliability_fails():
             require_notebooklm=False,
             include_today=False,
             target_streak=7,
+            now_local=datetime(2026, 2, 7, 12, 0, 0),
         )
         assert ok is False
         assert "Reliability gate: FAIL" in report

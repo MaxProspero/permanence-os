@@ -12,6 +12,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(BASE_DIR)
@@ -80,6 +81,7 @@ def evaluate_phase_gate(
     require_notebooklm: bool,
     include_today: bool,
     target_streak: int,
+    now_local: Optional[datetime] = None,
 ) -> tuple[bool, str]:
     reliability_ok, reliability_report = evaluate_reliability(
         log_dir=log_dir,
@@ -88,6 +90,7 @@ def evaluate_phase_gate(
         tolerance_minutes=tolerance_minutes,
         require_notebooklm=require_notebooklm,
         include_today=include_today,
+        now_local=now_local,
     )
     streak = _read_streak(streak_path)
     streak_ok = streak["current_streak"] >= target_streak

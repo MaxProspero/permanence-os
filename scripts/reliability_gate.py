@@ -66,8 +66,8 @@ def _parse_run(path: Path) -> RunStatus | None:
     )
 
 
-def _window_dates(days: int, include_today: bool) -> list[date]:
-    today = datetime.now().date()
+def _window_dates(days: int, include_today: bool, today_local: date | None = None) -> list[date]:
+    today = today_local or datetime.now().date()
     end = today if include_today else (today - timedelta(days=1))
     start = end - timedelta(days=days - 1)
     return [start + timedelta(days=i) for i in range(days)]
@@ -80,6 +80,7 @@ def evaluate_reliability(
     tolerance_minutes: int,
     require_notebooklm: bool,
     include_today: bool,
+    now_local: datetime | None = None,
 ) -> tuple[bool, str]:
     all_runs = []
     for path in sorted(log_dir.glob("run_*.log")):
@@ -87,7 +88,8 @@ def evaluate_reliability(
         if run:
             all_runs.append(run)
 
-    dates = _window_dates(days, include_today)
+    today_local = (now_local or datetime.now()).date()
+    dates = _window_dates(days, include_today, today_local=today_local)
     expected = [(d, h) for d in dates for h in slots]
     total_expected = len(expected)
 

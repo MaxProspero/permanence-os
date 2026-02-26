@@ -4,6 +4,7 @@
 import os
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -31,6 +32,7 @@ def test_reliability_fail_when_missing_slots():
             tolerance_minutes=30,
             require_notebooklm=False,
             include_today=False,
+            now_local=datetime(2026, 2, 7, 12, 0, 0),
         )
         assert ok is False
         assert "Missing:" in report
@@ -51,6 +53,7 @@ def test_reliability_pass_single_day_all_slots():
             tolerance_minutes=30,
             require_notebooklm=False,
             include_today=False,
+            now_local=datetime(2026, 2, 7, 12, 0, 0),
         )
         assert ok is True
         assert "Gate result: PASS" in report
@@ -69,6 +72,7 @@ def test_reliability_slot_recovery_prefers_success():
             tolerance_minutes=90,
             require_notebooklm=False,
             include_today=False,
+            now_local=datetime(2026, 2, 7, 12, 0, 0),
         )
         assert ok is True
         assert "Gate result: PASS" in report

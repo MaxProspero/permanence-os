@@ -82,6 +82,7 @@ def compute_glance(
             tolerance_minutes=tolerance_minutes,
             require_notebooklm=False,
             include_today=True,
+            now_local=now_local,
         )
         summary = _extract_summary(report)
         today_state = "PASS" if ok else "FAIL"
