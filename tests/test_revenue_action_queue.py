@@ -183,7 +183,82 @@ def test_revenue_action_queue_falls_back_to_template_actions():
         assert any(action["type"] == "offer_clarity" for action in payload["actions"])
 
 
+def test_revenue_action_queue_filters_non_revenue_email_noise():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        outputs_dir = root / "outputs"
+        tool_dir = root / "tool"
+        working_dir = root / "working"
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        tool_dir.mkdir(parents=True, exist_ok=True)
+        working_dir.mkdir(parents=True, exist_ok=True)
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        (outputs_dir / "email_triage_20260226-130000.md").write_text(
+            "\n".join(
+                [
+                    "# Email Triage",
+                    "## P0 (3)",
+                    "- [30] Your Apple Account was used to sign in to iCloud on an iPad",
+                    "- [28] Weekly digest from Coinbase Bytes",
+                    "- [27] 10 Books to Help You Enter the Top 1% of Entrepreneurs Worldwide",
+                    "## P1 (0)",
+                    "## P2 (0)",
+                    "## P3 (0)",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        pipeline_rows = [
+            {
+                "lead_id": "L-200",
+                "name": "Delta Co",
+                "stage": "lead",
+                "est_value": 1500,
+                "next_action": "Send intake + book fit call",
+                "next_action_due": datetime.now(timezone.utc).date().isoformat(),
+                "created_at": now_iso,
+                "updated_at": now_iso,
+                "closed_at": None,
+            }
+        ]
+        (working_dir / "sales_pipeline.json").write_text(json.dumps(pipeline_rows), encoding="utf-8")
+        _write_jsonl(working_dir / "revenue_intake.jsonl", [])
+
+        original = {
+            "OUTPUT_DIR": queue_mod.OUTPUT_DIR,
+            "TOOL_DIR": queue_mod.TOOL_DIR,
+            "WORKING_DIR": queue_mod.WORKING_DIR,
+            "PIPELINE_PATH": queue_mod.PIPELINE_PATH,
+            "INTAKE_PATH": queue_mod.INTAKE_PATH,
+        }
+        try:
+            queue_mod.OUTPUT_DIR = outputs_dir
+            queue_mod.TOOL_DIR = tool_dir
+            queue_mod.WORKING_DIR = working_dir
+            queue_mod.PIPELINE_PATH = working_dir / "sales_pipeline.json"
+            queue_mod.INTAKE_PATH = working_dir / "revenue_intake.jsonl"
+            rc = queue_mod.main()
+        finally:
+            queue_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
+            queue_mod.TOOL_DIR = original["TOOL_DIR"]
+            queue_mod.WORKING_DIR = original["WORKING_DIR"]
+            queue_mod.PIPELINE_PATH = original["PIPELINE_PATH"]
+            queue_mod.INTAKE_PATH = original["INTAKE_PATH"]
+
+        assert rc == 0
+        payloads = sorted(tool_dir.glob("revenue_action_queue_*.json"))
+        assert payloads
+        payload = json.loads(payloads[-1].read_text(encoding="utf-8"))
+        joined_actions = " || ".join(str(a.get("action") or "") for a in payload["actions"]).lower()
+        assert "icloud" not in joined_actions
+        assert "coinbase bytes" not in joined_actions
+        assert "books to help you enter" not in joined_actions
+
+
 if __name__ == "__main__":
     test_revenue_action_queue_uses_pipeline_and_funnel_signals()
     test_revenue_action_queue_falls_back_to_template_actions()
+    test_revenue_action_queue_filters_non_revenue_email_noise()
     print("✓ Revenue action queue tests passed")

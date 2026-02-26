@@ -24,6 +24,44 @@ INTAKE_PATH = Path(os.getenv("PERMANENCE_REVENUE_INTAKE_PATH", str(WORKING_DIR /
 
 SOCIAL_RE = re.compile(r"^-\s+(.+)\s+\[(.+)\]\s+\((.+)\)\s*$")
 OPEN_STAGES = {"lead", "qualified", "call_scheduled", "proposal_sent", "negotiation"}
+REVENUE_EMAIL_INCLUDE = {
+    "proposal",
+    "quote",
+    "client",
+    "prospect",
+    "lead",
+    "discovery",
+    "call",
+    "book fit call",
+    "book call",
+    "schedule",
+    "schedule call",
+    "project",
+    "contract",
+    "invoice",
+    "payment",
+    "scope",
+    "onboarding",
+    "dm",
+    "foundation",
+    "interested",
+}
+REVENUE_EMAIL_EXCLUDE = {
+    "icloud",
+    "apple account",
+    "sign in",
+    "signin",
+    "newsletter",
+    "digest",
+    "coinbase bytes",
+    "password",
+    "verification code",
+    "security alert",
+    "marketing update",
+    "promo",
+    "promotion",
+    "unsubscribe",
+}
 
 
 def _latest(pattern: str) -> Path | None:
@@ -269,6 +307,17 @@ def _parse_social(path: Path | None) -> list[dict]:
     return drafts
 
 
+def _is_revenue_relevant_email(summary: str) -> bool:
+    text = (summary or "").strip().lower()
+    if not text:
+        return False
+    if any(token in text for token in REVENUE_EMAIL_EXCLUDE):
+        return False
+    if any(token in text for token in REVENUE_EMAIL_INCLUDE):
+        return True
+    return False
+
+
 def _as_float(value: Any, default: float = 0.0) -> float:
     try:
         return float(value)
@@ -358,7 +407,8 @@ def _build_actions(
     seen: set[str] = set()
     funnel = _build_revenue_funnel(pipeline_rows, intake_rows)
 
-    for item in email_items[:2]:
+    revenue_email_items = [item for item in email_items if _is_revenue_relevant_email(str(item.get("summary") or ""))]
+    for item in revenue_email_items[:2]:
         _add_unique_action(
             actions,
             seen,
