@@ -33,7 +33,7 @@ Generate a consolidated dashboard report.
 Run the full revenue money loop (`scripts/run_money_loop.sh`) end-to-end.
 
 ### `python cli.py revenue-action-queue`
-Generate the latest 7-action revenue queue from email/social outputs.
+Generate the latest 7-action revenue queue from email/social plus pipeline + intake funnel signals.
 
 ### `python cli.py revenue-architecture`
 Generate Revenue Architecture v1 scorecard and pipeline snapshot.

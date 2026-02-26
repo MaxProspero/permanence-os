@@ -341,6 +341,7 @@ python cli.py money-loop
 python cli.py revenue-action-queue
 python cli.py revenue-execution-board
 ```
+`revenue-action-queue` now prioritizes from live pipeline/intake/funnel signals first (urgent leads + bottleneck), then fills remaining slots with template actions.
 Desktop launcher:
 - `/Users/paytonhicks/Desktop/Run_Permanence_Money_Loop.command`
 

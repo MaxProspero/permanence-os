@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
   - Command Center Revenue Ops view in `dashboard_index.html`
   - Revenue Ops now supports quick lead add + inline stage updates and shows open pipeline rows + latest intake submissions
   - Revenue Ops now shows conversion funnel metrics and auto-detected bottleneck recommendations
+  - `revenue_action_queue.py` now prioritizes actions from live pipeline due dates + funnel bottlenecks before template fallbacks
   - local FOUNDATION site preview server: `scripts/foundation_site.py`
   - FOUNDATION intake form now submits to local API first and falls back to mailto
   - operator surface launcher: `scripts/operator_surface.py` + `python cli.py operator-surface` (boots command center + FOUNDATION site together, optional `--money-loop`)
