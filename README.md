@@ -395,6 +395,18 @@ Then open: `http://127.0.0.1:8787/`
   - `memory/working/sales_pipeline.json` (new lead created)
 - If API is unreachable, the page falls back to `mailto:` intake.
 
+### Operator Surface (Dashboard + Offer Site)
+Run both operator-facing surfaces together in one command:
+```bash
+python cli.py operator-surface --money-loop
+```
+This starts:
+- Command Center API/UI at `http://127.0.0.1:8000`
+- FOUNDATION site at `http://127.0.0.1:8787/`
+
+Helper launcher script:
+- `scripts/launch_operator_surface.sh`
+
 ### Money Loop Automation Schedule
 Schedule money loop at 07:15, 12:15, 19:15 local time:
 ```bash

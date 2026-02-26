@@ -59,6 +59,25 @@ Serve `site/foundation/index.html` locally.
 - `--site-dir` override site root
 - Intake form posts to local Command Center API (`/api/revenue/intake`) when available, otherwise falls back to email.
 
+### `python cli.py command-center`
+Run live dashboard API + Command Center UI.
+- `--host` bind host (default `127.0.0.1`)
+- `--port` bind port (default `8000`)
+- `--no-open` disable auto-open browser
+- `--run-horizon` run Horizon before boot
+- `--demo-horizon` deterministic Horizon mode (requires `--run-horizon`)
+
+### `python cli.py operator-surface`
+Run Command Center + FOUNDATION site together.
+- `--host` bind host for both services
+- `--dashboard-port` dashboard API port (default `8000`)
+- `--foundation-port` FOUNDATION site port (default `8787`)
+- `--money-loop` run one money-loop refresh before launch
+- `--run-horizon` run Horizon before dashboard boot
+- `--demo-horizon` deterministic Horizon mode (requires `--run-horizon`)
+- `--no-open` disable browser auto-open
+- `--dry-run` print launch commands without starting services
+
 ### `python cli.py snapshot`
 Generate a system snapshot with status + OpenClaw + HR + briefing.
 

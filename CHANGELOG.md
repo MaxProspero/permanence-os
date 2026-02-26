@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file.
   - Revenue Ops now shows conversion funnel metrics and auto-detected bottleneck recommendations
   - local FOUNDATION site preview server: `scripts/foundation_site.py`
   - FOUNDATION intake form now submits to local API first and falls back to mailto
+  - operator surface launcher: `scripts/operator_surface.py` + `python cli.py operator-surface` (boots command center + FOUNDATION site together, optional `--money-loop`)
+  - helper launcher script: `scripts/launch_operator_surface.sh`
   - added automation scripts for money-loop scheduling:
     - `automation/setup_money_loop_automation.sh`
     - `automation/disable_money_loop_automation.sh`
