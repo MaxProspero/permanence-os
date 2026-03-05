@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ophtxn AI School | Learn AI Like a Sport</title>
+  <meta name="description" content="Micro-lessons, daily AI challenges, and execution loops that build real-world AI skills fast.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Chivo+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #091019;
+      --ink: #eaf5ff;
+      --muted: #9eb4c6;
+      --line: rgba(152, 188, 212, 0.24);
+      --card: rgba(17, 29, 42, 0.8);
+      --c1: #48dfb7;
+      --c2: #f8bf63;
+      --c3: #7cb9ff;
+      --danger: #ff9b9b;
+      --radius: 18px;
+      --shadow: 0 24px 52px rgba(0, 0, 0, 0.34);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      background:
+        radial-gradient(1100px 620px at -8% -10%, #1f3f61 0%, transparent 58%),
+        radial-gradient(880px 520px at 108% -10%, #3f321e 0%, transparent 56%),
+        radial-gradient(920px 560px at 50% 120%, #17372f 0%, transparent 52%),
+        var(--bg);
+      line-height: 1.45;
+    }
+
+    .layout {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: 26px 0 72px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .top-links {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .top-links a {
+      text-decoration: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-family: "Chivo Mono", monospace;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+      box-shadow: var(--shadow);
+      padding: clamp(22px, 4vw, 42px);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      right: -90px;
+      bottom: -120px;
+      border-radius: 999px;
+      background: radial-gradient(circle at center, rgba(72, 223, 183, 0.26), transparent 66%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--c2);
+      font-family: "Chivo Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 8px 0 10px;
+      font-size: clamp(34px, 7vw, 70px);
+      letter-spacing: -0.03em;
+      line-height: 0.94;
+      max-width: 880px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: clamp(15px, 2vw, 18px);
+    }
+
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      color: #03241d;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--c1), #6fe3cb);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      padding: 14px;
+    }
+
+    .k {
+      margin: 0;
+      color: var(--muted);
+      font-family: "Chivo Mono", monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .v {
+      margin: 4px 0 0;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 16px;
+      color: var(--muted);
+      display: grid;
+      gap: 8px;
+    }
+
+    .challenge {
+      border: 1px dashed rgba(132, 185, 216, 0.34);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .challenge h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .challenge p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    form {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(130, 180, 210, 0.28);
+      border-radius: 10px;
+      background: rgba(7, 15, 23, 0.6);
+      color: var(--ink);
+      font: inherit;
+      padding: 10px 11px;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .status {
+      min-height: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .footer {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(7, 15, 23, 0.58);
+    }
+
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { line-height: 1.02; }
+    }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <header class="top">
+      <a class="brand" href="./index.html" data-cta="school_back_main">OPHTXN AI SCHOOL</a>
+      <nav class="top-links" aria-label="Page Links">
+        <a href="./official_app.html" data-cta="school_open_studio">App Studio</a>
+        <a href="./press_kit.html" data-cta="school_open_presskit">Press Kit</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Learn AI Like A Sport</p>
+      <h1>Build real AI skill every day with fast wins and execution reps.</h1>
+      <p>Ophtxn AI School turns AI education into short daily actions: one concept, one challenge, one practical output. No fluff. Real progress.</p>
+      <div class="cta">
+        <a class="btn primary" href="#join" data-cta="school_join_waitlist">Join Early Access</a>
+        <button class="btn" id="completeChallenge" data-cta="school_mark_complete">Mark Challenge Complete</button>
+      </div>
+    </section>
+
+    <section class="metrics">
+      <article class="metric">
+        <p class="k">Daily Challenge</p>
+        <p class="v" id="challengeIndex">#1</p>
+      </article>
+      <article class="metric">
+        <p class="k">Your Streak</p>
+        <p class="v" id="streakCount">0</p>
+      </article>
+      <article class="metric">
+        <p class="k">Focus</p>
+        <p class="v">Execution</p>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Today’s AI challenge</h2>
+        <div class="challenge">
+          <h3 id="challengeTitle">Challenge loading...</h3>
+          <p id="challengeBody">Please wait.</p>
+        </div>
+        <ol class="list">
+          <li>Run the challenge in your preferred model.</li>
+          <li>Save the output in your Ophtxn system memory.</li>
+          <li>Share one result in your build log or social post draft.</li>
+        </ol>
+      </article>
+
+      <article class="card" id="join">
+        <h2>Join AI School waitlist</h2>
+        <form id="schoolLeadForm" novalidate>
+          <input id="name" name="name" type="text" placeholder="Name" autocomplete="name">
+          <input id="email" name="email" type="email" placeholder="Email" required autocomplete="email">
+          <select id="lane" name="lane">
+            <option value="beginner">Beginner (new to AI)</option>
+            <option value="operator">Operator (daily user)</option>
+            <option value="builder">Builder (shipping tools)</option>
+          </select>
+          <textarea id="goal" name="goal" placeholder="Your goal for the next 30 days"></textarea>
+          <button class="btn primary" type="submit" data-cta="school_submit_waitlist">Request Invite</button>
+        </form>
+        <p class="status" id="formStatus"></p>
+      </article>
+    </section>
+
+    <section class="footer">
+      This lane is built for speed: short lessons, repeatable habits, and visible progress. The mission is to make AI literacy practical enough for everyday people and powerful enough for builders.
+    </section>
+  </main>
+
+  <script src="./runtime.config.js"></script>
+  <script>
+    (function () {
+      const runtime = window.__OPHTXN_RUNTIME || {};
+      const apiBaseRaw = String(runtime.apiBase || "").trim();
+      const apiBase = apiBaseRaw.replace(/\/$/, "");
+      const source = String(runtime.source || "foundation_site").trim() || "foundation_site";
+      const analyticsEnabled = runtime.analyticsEnabled !== false;
+      const leadCaptureEnabled = runtime.leadCaptureEnabled !== false;
+      const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
+      const leadEndpoint = String(runtime.leadCaptureEndpoint || "/api/revenue/intake").trim() || "/api/revenue/intake";
+      const fallbackEmail = String(runtime.fallbackEmail || "paybhicks7@gmail.com").trim();
+      const sessionKey = "ophtxn_session_id";
+      const streakKey = "ophtxn_ai_school_streak";
+      let sessionId = localStorage.getItem(sessionKey);
+      if (!sessionId) {
+        sessionId = "sess_" + Math.random().toString(36).slice(2, 11);
+        localStorage.setItem(sessionKey, sessionId);
+      }
+
+      const challenges = [
+        { title: "Explain Claude to your dad in 90 seconds", body: "Write a plain-English explanation of what Claude is, what it does, and one daily use case." },
+        { title: "Prompt surgery", body: "Take one vague prompt and rewrite it with role, context, constraints, and output format." },
+        { title: "Money task automation", body: "Design a 3-step AI workflow that saves at least 30 minutes on a money-making task." },
+        { title: "Research compression", body: "Summarize one long article into a 7-line tactical memo with next actions." },
+        { title: "Skill transfer", body: "Use AI to learn one new concept and explain it back using your own example." },
+        { title: "System map", body: "Map one personal process (lead follow-up, outreach, budgeting) and identify where AI removes friction." },
+        { title: "Execution script", body: "Create a reusable instruction block for a repeated task and test it across two models." },
+        { title: "Quality control loop", body: "Build a checklist that grades AI output for correctness, usefulness, and actionability." }
+      ];
+
+      function byId(id) {
+        return document.getElementById(id);
+      }
+
+      function endpoint(path) {
+        if (!path) return "";
+        if (/^https?:\/\//i.test(path)) return path;
+        return apiBase ? apiBase + path : "";
+      }
+
+      function todayKey() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function challengeForToday() {
+        const daySeed = Math.floor(Date.now() / 86400000);
+        const idx = ((daySeed % challenges.length) + challenges.length) % challenges.length;
+        return { index: idx, row: challenges[idx] };
+      }
+
+      function readStreak() {
+        const raw = localStorage.getItem(streakKey);
+        if (!raw) return { streak: 0, lastDoneDate: "" };
+        try {
+          const parsed = JSON.parse(raw);
+          return {
+            streak: Number(parsed.streak || 0),
+            lastDoneDate: String(parsed.lastDoneDate || "")
+          };
+        } catch (_err) {
+          return { streak: 0, lastDoneDate: "" };
+        }
+      }
+
+      function writeStreak(row) {
+        localStorage.setItem(streakKey, JSON.stringify(row));
+      }
+
+      async function track(eventType, meta) {
+        if (!analyticsEnabled) return;
+        const url = endpoint(siteEventEndpoint);
+        if (!url) return;
+        try {
+          await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              source,
+              event_type: eventType,
+              session_id: sessionId,
+              metadata: meta || {}
+            })
+          });
+        } catch (_err) {
+          // Non-blocking analytics.
+        }
+      }
+
+      function renderChallenge() {
+        const today = challengeForToday();
+        byId("challengeIndex").textContent = "#" + String(today.index + 1);
+        byId("challengeTitle").textContent = today.row.title;
+        byId("challengeBody").textContent = today.row.body;
+      }
+
+      function renderStreak() {
+        const row = readStreak();
+        byId("streakCount").textContent = String(row.streak || 0);
+      }
+
+      function completeToday() {
+        const key = todayKey();
+        const row = readStreak();
+        if (row.lastDoneDate === key) {
+          byId("formStatus").textContent = "Challenge already marked complete for today.";
+          return;
+        }
+        let next = Number(row.streak || 0);
+        if (!row.lastDoneDate) {
+          next = 1;
+        } else {
+          const today = new Date(key + "T00:00:00Z");
+          const previous = new Date(String(row.lastDoneDate) + "T00:00:00Z");
+          const gapDays = Math.round((today.getTime() - previous.getTime()) / 86400000);
+          next = gapDays === 1 ? next + 1 : 1;
+        }
+        writeStreak({ streak: next, lastDoneDate: key });
+        renderStreak();
+        byId("formStatus").textContent = "Challenge complete. Streak updated.";
+        track("ai_school_challenge_complete", { streak: next });
+      }
+
+      function wireCtas() {
+        document.querySelectorAll("[data-cta]").forEach((node) => {
+          node.addEventListener("click", () => {
+            track("cta_click", { cta: node.getAttribute("data-cta") || "unknown" });
+          });
+        });
+      }
+
+      function wireForm() {
+        const form = byId("schoolLeadForm");
+        if (!form) return;
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const status = byId("formStatus");
+          status.classList.remove("error");
+          status.textContent = "";
+
+          const email = String(byId("email").value || "").trim();
+          if (!email || !email.includes("@")) {
+            status.classList.add("error");
+            status.textContent = "Add a valid email.";
+            return;
+          }
+
+          const payload = {
+            name: String(byId("name").value || "").trim() || "AI School User",
+            email: email,
+            source: "ophtxn_ai_school",
+            notes: JSON.stringify({
+              lane: String(byId("lane").value || "beginner"),
+              goal: String(byId("goal").value || "").trim(),
+              session_id: sessionId
+            }),
+            create_lead: true
+          };
+
+          if (!leadCaptureEnabled) {
+            status.classList.add("error");
+            status.textContent = "Lead capture is currently disabled.";
+            return;
+          }
+
+          const url = endpoint(leadEndpoint);
+          if (!url) {
+            status.classList.add("error");
+            status.textContent = "Lead capture endpoint unavailable.";
+            return;
+          }
+
+          status.textContent = "Sending...";
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+              throw new Error("status " + String(response.status));
+            }
+            status.textContent = "Invite requested. Check your inbox.";
+            form.reset();
+            track("ai_school_waitlist_submit", { lane: payload.notes });
+            return;
+          } catch (_err) {
+            const subject = encodeURIComponent("Ophtxn AI School Invite");
+            const body = encodeURIComponent("Name: " + payload.name + "\nEmail: " + payload.email + "\nLane: " + String(byId("lane").value || "beginner") + "\nGoal: " + String(byId("goal").value || "").trim());
+            window.location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
+            status.classList.add("error");
+            status.textContent = "API unavailable. Opened email fallback.";
+          }
+        });
+      }
+
+      byId("completeChallenge").addEventListener("click", completeToday);
+      renderChallenge();
+      renderStreak();
+      wireCtas();
+      wireForm();
+      track("page_view", { page: "ai_school" });
+    })();
+  </script>
+</body>
+</html>
