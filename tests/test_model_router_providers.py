@@ -14,6 +14,8 @@ import models.registry as registry_mod  # noqa: E402
 
 MODEL_ENV_KEYS = [
     "PERMANENCE_MODEL_PROVIDER",
+    "PERMANENCE_MODEL_PROVIDER_FALLBACKS",
+    "PERMANENCE_MODEL_PROVIDER_CAPS_USD",
     "PERMANENCE_MODEL_OPUS",
     "PERMANENCE_MODEL_SONNET",
     "PERMANENCE_MODEL_HAIKU",
@@ -39,6 +41,11 @@ def test_model_router_uses_provider_default_map():
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "openai"
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             assert router.provider == "openai"
             assert router.model_by_task.get("planning") == "gpt-4o"
             assert router.model_by_task.get("summarization") == "gpt-4o-mini"
@@ -57,6 +64,11 @@ def test_model_router_budget_downgrade_works_for_openai_models():
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 49.0, "ratio": 0.98}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("planning")
             assert model == "gpt-4o-mini"
     finally:
@@ -93,6 +105,11 @@ def test_model_router_get_model_forwards_provider_and_model_name():
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 10.0, "ratio": 0.2}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.get_model("planning")
             assert model is not None
     finally:
@@ -104,8 +121,52 @@ def test_model_router_get_model_forwards_provider_and_model_name():
     assert captured.get("tier") == "sonnet"
 
 
+def test_model_router_provider_cap_failover_to_openai():
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
+    try:
+        os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
+        os.environ["PERMANENCE_MODEL_PROVIDER_FALLBACKS"] = "anthropic,openai,xai"
+        os.environ["PERMANENCE_MODEL_PROVIDER_CAPS_USD"] = "anthropic=5,openai=30,xai=10"
+        with tempfile.TemporaryDirectory() as tmp:
+            router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
+            router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 10.0, "ratio": 0.2}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 5.1,
+                "openai": 1.0,
+                "xai": 0.0,
+            }
+            model = router.route("planning")
+            assert model == "gpt-4o"
+            assert router.selected_provider == "openai"
+    finally:
+        _restore_env(snapshot)
+
+
+def test_model_router_provider_cap_exhausted_stays_primary():
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
+    try:
+        os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
+        os.environ["PERMANENCE_MODEL_PROVIDER_FALLBACKS"] = "anthropic,openai,xai"
+        os.environ["PERMANENCE_MODEL_PROVIDER_CAPS_USD"] = "anthropic=5,openai=2,xai=1"
+        with tempfile.TemporaryDirectory() as tmp:
+            router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
+            router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 20.0, "ratio": 0.5}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 6.0,
+                "openai": 2.5,
+                "xai": 1.1,
+            }
+            model = router.route("planning")
+            assert model == "claude-sonnet-4-6"
+            assert router.selected_provider == "anthropic"
+    finally:
+        _restore_env(snapshot)
+
+
 if __name__ == "__main__":
     test_model_router_uses_provider_default_map()
     test_model_router_budget_downgrade_works_for_openai_models()
     test_model_router_get_model_forwards_provider_and_model_name()
+    test_model_router_provider_cap_failover_to_openai()
+    test_model_router_provider_cap_exhausted_stays_primary()
     print("✓ Model router provider tests passed")

@@ -15,6 +15,8 @@ from core.model_router import ModelRouter
 
 MODEL_ENV_KEYS = [
     "PERMANENCE_MODEL_PROVIDER",
+    "PERMANENCE_MODEL_PROVIDER_FALLBACKS",
+    "PERMANENCE_MODEL_PROVIDER_CAPS_USD",
     "PERMANENCE_MODEL_OPUS",
     "PERMANENCE_MODEL_SONNET",
     "PERMANENCE_MODEL_HAIKU",
@@ -41,6 +43,11 @@ def test_route_defaults_to_sonnet_for_unknown_task():
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("unknown-task")
             assert "sonnet" in model
         finally:
@@ -58,6 +65,11 @@ def test_route_uses_haiku_for_classification():
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("classification")
             assert "haiku" in model
         finally:
@@ -75,6 +87,11 @@ def test_env_override_for_opus_model():
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("strategy")
             assert model == "claude-opus-custom"
         finally:
@@ -92,6 +109,11 @@ def test_routing_log_is_append_only():
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             router.route("planning")
             router.route("execution")
 

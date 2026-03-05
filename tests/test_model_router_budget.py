@@ -16,6 +16,8 @@ from core.model_router import ModelRouter  # noqa: E402
 
 MODEL_ENV_KEYS = [
     "PERMANENCE_MODEL_PROVIDER",
+    "PERMANENCE_MODEL_PROVIDER_FALLBACKS",
+    "PERMANENCE_MODEL_PROVIDER_CAPS_USD",
     "PERMANENCE_MODEL_OPUS",
     "PERMANENCE_MODEL_SONNET",
     "PERMANENCE_MODEL_HAIKU",
@@ -43,6 +45,11 @@ def test_model_router_keeps_opus_when_budget_ok() -> None:
         try:
             router = ModelRouter(log_path=str(log_path))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 10.0, "ratio": 0.2}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("strategy")
             assert "opus" in model
         finally:
@@ -61,12 +68,17 @@ def test_model_router_downgrades_opus_to_sonnet_on_warning() -> None:
         try:
             router = ModelRouter(log_path=str(log_path))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 42.0, "ratio": 0.84}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("strategy")
             assert "sonnet" in model
 
             rows = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines() if line.strip()]
             assert rows
-            assert rows[-1].get("budget_policy") == "budget_warning_downgrade_opus_to_sonnet"
+            assert "budget_warning_downgrade_opus_to_sonnet" in str(rows[-1].get("budget_policy") or "")
             assert float(rows[-1].get("budget_ratio", 0.0)) >= 0.84
         finally:
             _restore_env(snapshot)
@@ -84,6 +96,11 @@ def test_model_router_downgrades_medium_to_haiku_on_critical() -> None:
         try:
             router = ModelRouter(log_path=str(log_path))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 49.0, "ratio": 0.98}  # type: ignore[assignment]
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+            }
             model = router.route("planning")
             assert "haiku" in model
         finally:

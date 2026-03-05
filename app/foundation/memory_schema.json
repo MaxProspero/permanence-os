@@ -1,0 +1,49 @@
+{
+  "schema_version": "0.1.0",
+  "description": "Foundational memory schema for app-mode personal assistants.",
+  "entities": {
+    "user_profile": {
+      "required": [
+        "user_id",
+        "name",
+        "mission",
+        "goals",
+        "strengths",
+        "growth_edges",
+        "personality_mode",
+        "updated_at"
+      ],
+      "fields": {
+        "user_id": "string",
+        "name": "string",
+        "mission": "string",
+        "goals": "array[string]",
+        "strengths": "array[string]",
+        "growth_edges": "array[string]",
+        "work_style": "string",
+        "values": "array[string]",
+        "personality_mode": "string",
+        "updated_at": "iso_datetime"
+      }
+    },
+    "memory_entry": {
+      "required": [
+        "entry_id",
+        "user_id",
+        "source",
+        "text",
+        "tags",
+        "timestamp"
+      ],
+      "fields": {
+        "entry_id": "string",
+        "user_id": "string",
+        "source": "string",
+        "text": "string",
+        "tags": "array[string]",
+        "importance": "number",
+        "timestamp": "iso_datetime"
+      }
+    }
+  }
+}

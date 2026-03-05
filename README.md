@@ -452,6 +452,7 @@ Model provider routing defaults to Anthropic, with optional OpenAI/xAI fallback:
 ```bash
 export PERMANENCE_MODEL_PROVIDER=anthropic
 export PERMANENCE_MODEL_PROVIDER_FALLBACKS=anthropic,openai,xai
+export PERMANENCE_MODEL_PROVIDER_CAPS_USD=anthropic=35,openai=10,xai=5
 # optional explicit tier overrides
 export PERMANENCE_MODEL_OPUS=claude-opus-4-6
 export PERMANENCE_MODEL_SONNET=claude-sonnet-4-6
@@ -560,8 +561,10 @@ Outputs:
 Serve the local offer page:
 ```bash
 python cli.py foundation-site
+python cli.py foundation-api
 ```
 Then open: `http://127.0.0.1:8787/`
+- FOUNDATION API default: `http://127.0.0.1:8797/`
 - If Command Center API is running on `http://127.0.0.1:8000`, intake submissions are captured automatically to:
   - `memory/working/revenue_intake.jsonl`
   - `memory/working/sales_pipeline.json` (new lead created)

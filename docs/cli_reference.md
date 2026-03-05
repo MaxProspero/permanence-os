@@ -339,6 +339,13 @@ Serve `site/foundation/index.html` locally.
 - `--site-dir` override site root
 - Intake form posts to local Command Center API (`/api/revenue/intake`) when available, otherwise falls back to email.
 
+### `python cli.py foundation-api`
+Run FOUNDATION API scaffold for auth + onboarding + memory.
+- `--host` bind host (default `127.0.0.1`)
+- `--port` bind port (default `8797`)
+- `--debug` enable Flask debug mode
+- Endpoints: `/health`, `/auth/session`, `/onboarding/start`, `/memory/schema`, `/memory/entry`
+
 ### `python cli.py command-center`
 Run live dashboard API + Command Center UI.
 - `--host` bind host (default `127.0.0.1`)
