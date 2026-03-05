@@ -741,6 +741,7 @@ python cli.py social-summary
 See `docs/cli_reference.md` for a full command list.
 See `docs/ophtxn_operator_command_guide.md` for the Telegram command map + daily/weekly operating cadence.
 See `docs/ophtxn_official_launch_path_20260305.md` for the official product launch sequencing.
+See `docs/ophtxn_fastlane_execution_20260305.md` for the 72-hour acceleration plan (revenue + education product lane).
 See `docs/ophtxn_production_deployment_runbook_20260305.md` for production deployment + no-spend rollout sequence.
 Use `python cli.py ophtxn-launchpad --action status --strict --min-score 80` for launch-readiness scoring.
 Use `python cli.py ophtxn-production --action preflight --check-wrangler` for deploy-environment readiness.
