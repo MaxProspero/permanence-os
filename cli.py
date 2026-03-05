@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, command-center, operator-surface, setup-launchers, money-loop, revenue-action-queue, revenue-architecture, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -12,8 +12,137 @@ import sys
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 
+def _load_env_file(env: dict[str, str], env_path: str) -> None:
+    if not os.path.exists(env_path):
+        return
+    try:
+        lines = open(env_path, "r", encoding="utf-8", errors="ignore").read().splitlines()
+    except OSError:
+        return
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in env:
+            continue
+        value = value.strip()
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        env[key] = value
+
+
+def _keychain_secret(service: str, account: str) -> str:
+    if sys.platform != "darwin":
+        return ""
+    if not service or not account:
+        return ""
+    try:
+        proc = subprocess.run(
+            ["security", "find-generic-password", "-s", service, "-a", account, "-w"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return ""
+    if proc.returncode != 0:
+        return ""
+    return (proc.stdout or "").strip()
+
+
+def _inject_keychain_env(env: dict[str, str]) -> None:
+    mappings = [
+        (
+            "ANTHROPIC_API_KEY",
+            "PERMANENCE_ANTHROPIC_KEYCHAIN_SERVICE",
+            "PERMANENCE_ANTHROPIC_KEYCHAIN_ACCOUNT",
+            "permanence_os_anthropic_api_key",
+        ),
+        (
+            "PERMANENCE_GITHUB_READ_TOKEN",
+            "PERMANENCE_GITHUB_READ_KEYCHAIN_SERVICE",
+            "PERMANENCE_GITHUB_READ_KEYCHAIN_ACCOUNT",
+            "permanence_os_github_read_token",
+        ),
+        (
+            "PERMANENCE_SOCIAL_READ_TOKEN",
+            "PERMANENCE_SOCIAL_READ_KEYCHAIN_SERVICE",
+            "PERMANENCE_SOCIAL_READ_KEYCHAIN_ACCOUNT",
+            "permanence_os_social_read_token",
+        ),
+        (
+            "PERMANENCE_DISCORD_ALERT_WEBHOOK_URL",
+            "PERMANENCE_DISCORD_ALERT_WEBHOOK_KEYCHAIN_SERVICE",
+            "PERMANENCE_DISCORD_ALERT_WEBHOOK_KEYCHAIN_ACCOUNT",
+            "permanence_os_discord_alert_webhook",
+        ),
+        (
+            "PERMANENCE_DISCORD_BOT_TOKEN",
+            "PERMANENCE_DISCORD_BOT_TOKEN_KEYCHAIN_SERVICE",
+            "PERMANENCE_DISCORD_BOT_TOKEN_KEYCHAIN_ACCOUNT",
+            "permanence_os_discord_bot_token",
+        ),
+        (
+            "PERMANENCE_TELEGRAM_BOT_TOKEN",
+            "PERMANENCE_TELEGRAM_BOT_TOKEN_KEYCHAIN_SERVICE",
+            "PERMANENCE_TELEGRAM_BOT_TOKEN_KEYCHAIN_ACCOUNT",
+            "permanence_os_telegram_bot_token",
+        ),
+        (
+            "XAI_API_KEY",
+            "XAI_KEYCHAIN_SERVICE",
+            "XAI_KEYCHAIN_ACCOUNT",
+            "permanence_os_xai_api_key",
+        ),
+        (
+            "ALPHA_VANTAGE_API_KEY",
+            "ALPHA_VANTAGE_KEYCHAIN_SERVICE",
+            "ALPHA_VANTAGE_KEYCHAIN_ACCOUNT",
+            "permanence_os_alpha_vantage_api_key",
+        ),
+        (
+            "FINNHUB_API_KEY",
+            "FINNHUB_KEYCHAIN_SERVICE",
+            "FINNHUB_KEYCHAIN_ACCOUNT",
+            "permanence_os_finnhub_api_key",
+        ),
+        (
+            "POLYGON_API_KEY",
+            "POLYGON_KEYCHAIN_SERVICE",
+            "POLYGON_KEYCHAIN_ACCOUNT",
+            "permanence_os_polygon_api_key",
+        ),
+        (
+            "COINMARKETCAP_API_KEY",
+            "COINMARKETCAP_KEYCHAIN_SERVICE",
+            "COINMARKETCAP_KEYCHAIN_ACCOUNT",
+            "permanence_os_coinmarketcap_api_key",
+        ),
+        (
+            "GLASSNODE_API_KEY",
+            "GLASSNODE_KEYCHAIN_SERVICE",
+            "GLASSNODE_KEYCHAIN_ACCOUNT",
+            "permanence_os_glassnode_api_key",
+        ),
+    ]
+    user = os.getenv("USER", "")
+    for env_key, service_key, account_key, default_service in mappings:
+        current = (env.get(env_key) or "").strip()
+        if current:
+            continue
+        service = (env.get(service_key) or default_service).strip()
+        account = (env.get(account_key) or user).strip()
+        secret = _keychain_secret(service=service, account=account)
+        if secret:
+            env[env_key] = secret
+
+
 def _run(cmd: list[str]) -> int:
     env = os.environ.copy()
+    _load_env_file(env, os.path.join(BASE_DIR, ".env"))
+    _inject_keychain_env(env)
     current = env.get("PYTHONPATH", "")
     paths = [p for p in current.split(os.pathsep) if p]
     if BASE_DIR not in paths:
@@ -102,10 +231,53 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_ingest_sources_append.py"),
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
         os.path.join(BASE_DIR, "tests", "test_research_inbox.py"),
+        os.path.join(BASE_DIR, "tests", "test_glasses_bridge.py"),
+        os.path.join(BASE_DIR, "tests", "test_telegram_control.py"),
+        os.path.join(BASE_DIR, "tests", "test_ophtxn_brain.py"),
+        os.path.join(BASE_DIR, "tests", "test_terminal_task_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_glasses_autopilot.py"),
+        os.path.join(BASE_DIR, "tests", "test_discord_feed_manager.py"),
+        os.path.join(BASE_DIR, "tests", "test_discord_telegram_relay.py"),
+        os.path.join(BASE_DIR, "tests", "test_comms_digest.py"),
+        os.path.join(BASE_DIR, "tests", "test_comms_escalation_digest.py"),
+        os.path.join(BASE_DIR, "tests", "test_comms_status.py"),
+        os.path.join(BASE_DIR, "tests", "test_comms_doctor.py"),
+        os.path.join(BASE_DIR, "tests", "test_comms_automation.py"),
         os.path.join(BASE_DIR, "tests", "test_file_organizer.py"),
         os.path.join(BASE_DIR, "tests", "test_dashboard_api_helpers.py"),
         os.path.join(BASE_DIR, "tests", "test_revenue_execution_board.py"),
         os.path.join(BASE_DIR, "tests", "test_revenue_weekly_summary.py"),
+        os.path.join(BASE_DIR, "tests", "test_revenue_cost_recovery.py"),
+        os.path.join(BASE_DIR, "tests", "test_anthropic_keychain.py"),
+        os.path.join(BASE_DIR, "tests", "test_connector_keychain.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_keychain_injection.py"),
+        os.path.join(BASE_DIR, "tests", "test_secret_scan.py"),
+        os.path.join(BASE_DIR, "tests", "test_external_access_policy.py"),
+        os.path.join(BASE_DIR, "tests", "test_github_research_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_github_trending_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_ecosystem_research_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_social_research_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_x_account_watch.py"),
+        os.path.join(BASE_DIR, "tests", "test_world_watch_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_world_watch_alerts.py"),
+        os.path.join(BASE_DIR, "tests", "test_market_focus_brief.py"),
+        os.path.join(BASE_DIR, "tests", "test_market_backtest_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_narrative_tracker.py"),
+        os.path.join(BASE_DIR, "tests", "test_life_os_brief.py"),
+        os.path.join(BASE_DIR, "tests", "test_side_business_portfolio.py"),
+        os.path.join(BASE_DIR, "tests", "test_prediction_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_prediction_lab.py"),
+        os.path.join(BASE_DIR, "tests", "test_clipping_transcript_ingest.py"),
+        os.path.join(BASE_DIR, "tests", "test_clipping_pipeline_manager.py"),
+        os.path.join(BASE_DIR, "tests", "test_attachment_pipeline.py"),
+        os.path.join(BASE_DIR, "tests", "test_resume_brand_brief.py"),
+        os.path.join(BASE_DIR, "tests", "test_phase2_refresh.py"),
+        os.path.join(BASE_DIR, "tests", "test_opportunity_ranker.py"),
+        os.path.join(BASE_DIR, "tests", "test_opportunity_approval_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_phase3_refresh.py"),
+        os.path.join(BASE_DIR, "tests", "test_approval_execution_board.py"),
+        os.path.join(BASE_DIR, "tests", "test_second_brain_report.py"),
+        os.path.join(BASE_DIR, "tests", "test_second_brain_init.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -1015,6 +1187,699 @@ def main() -> int:
         )
     )
 
+    glasses_bridge_p = sub.add_parser(
+        "glasses-bridge",
+        help="Ingest smart-glasses events into attachment, reception, and research queues",
+    )
+    glasses_bridge_p.add_argument("--action", choices=["ingest", "intake", "status"], default="status")
+    glasses_bridge_p.add_argument("--from-json", action="append", default=[], help="Path to exported JSON event file")
+    glasses_bridge_p.add_argument("--text", help="Direct event text for intake")
+    glasses_bridge_p.add_argument("--source", help="Source override")
+    glasses_bridge_p.add_argument("--channel", help="Channel override")
+    glasses_bridge_p.add_argument("--sender", help="Sender override")
+    glasses_bridge_p.add_argument("--url", action="append", default=[], help="Attach URL (repeatable)")
+    glasses_bridge_p.add_argument("--media", action="append", default=[], help="Media path (repeatable)")
+    glasses_bridge_p.add_argument("--events-path", help="Events JSONL path")
+    glasses_bridge_p.add_argument("--attachments-dir", help="Attachment inbox directory")
+    glasses_bridge_p.add_argument("--reception-queue-dir", help="Reception queue directory")
+    glasses_bridge_p.add_argument("--research-inbox-path", help="Research inbox JSONL path")
+    glasses_bridge_p.add_argument("--max-items", type=int, default=20, help="Status max recent items")
+    glasses_bridge_p.add_argument("--no-reception", action="store_true", help="Skip Ari intake mirroring")
+    glasses_bridge_p.add_argument("--no-research", action="store_true", help="Skip research inbox mirroring")
+    glasses_bridge_p.add_argument("--no-attachments", action="store_true", help="Skip media copy/extract")
+    glasses_bridge_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "glasses_bridge.py"),
+                "--action",
+                args.action,
+                *([arg for path in args.from_json for arg in ("--from-json", path)] if args.from_json else []),
+                *(["--text", args.text] if args.text else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--channel", args.channel] if args.channel else []),
+                *(["--sender", args.sender] if args.sender else []),
+                *([arg for url in args.url for arg in ("--url", url)] if args.url else []),
+                *([arg for media in args.media for arg in ("--media", media)] if args.media else []),
+                *(["--events-path", args.events_path] if args.events_path else []),
+                *(["--attachments-dir", args.attachments_dir] if args.attachments_dir else []),
+                *(["--reception-queue-dir", args.reception_queue_dir] if args.reception_queue_dir else []),
+                *(["--research-inbox-path", args.research_inbox_path] if args.research_inbox_path else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
+                *(["--no-reception"] if args.no_reception else []),
+                *(["--no-research"] if args.no_research else []),
+                *(["--no-attachments"] if args.no_attachments else []),
+            ]
+        )
+    )
+
+    telegram_control_p = sub.add_parser(
+        "telegram-control",
+        help="Poll Telegram and route channel messages into glasses/research/reception queues",
+    )
+    telegram_control_p.add_argument("--action", choices=["status", "poll"], default="status")
+    telegram_control_p.add_argument(
+        "--chat-id",
+        help="Target Telegram chat id or comma-separated ids (also reads PERMANENCE_TELEGRAM_CHAT_ID(S))",
+    )
+    telegram_control_p.add_argument("--source", default="telegram-control", help="Source label for events")
+    telegram_control_p.add_argument("--channel", default="telegram", help="Channel label for events")
+    telegram_control_p.add_argument("--limit", type=int, default=50, help="Max updates per poll")
+    telegram_control_p.add_argument("--state-path", help="Offset state path")
+    telegram_control_p.add_argument("--download-dir", help="Media download directory")
+    telegram_control_p.add_argument("--timeout", type=int, default=20, help="Network timeout seconds")
+    telegram_control_p.add_argument("--skip-media", action="store_true", help="Skip media download")
+    telegram_control_p.add_argument(
+        "--include-bot-messages",
+        action="store_true",
+        help="Include Telegram messages where sender is marked bot",
+    )
+    telegram_control_p.add_argument("--no-commit-offset", action="store_true", help="Do not persist next offset")
+    telegram_control_p.add_argument("--ack", action="store_true", help="Send summary ack back to Telegram")
+    telegram_control_p.add_argument("--enable-commands", action="store_true", help="Enable slash command execution")
+    telegram_control_p.add_argument("--command-prefix", default="/", help="Command prefix token")
+    telegram_control_p.add_argument("--command-timeout", type=int, default=90, help="Max seconds per command")
+    telegram_control_p.add_argument("--max-commands", type=int, default=3, help="Max commands per poll")
+    telegram_control_p.add_argument(
+        "--command-allow-user-id",
+        action="append",
+        default=[],
+        help="Allowed Telegram user id for command execution (repeatable)",
+    )
+    telegram_control_p.add_argument(
+        "--command-allow-chat-id",
+        action="append",
+        default=[],
+        help="Allowed Telegram chat id for command execution (repeatable)",
+    )
+    telegram_control_p.add_argument(
+        "--require-command-allowlist",
+        action="store_true",
+        help="Require configured command user/chat allowlist before command execution",
+    )
+    telegram_control_p.add_argument("--no-command-ack", action="store_true", help="Do not send command ack responses")
+    telegram_control_p.add_argument("--chat-agent", action="store_true", help="Reply to non-command messages")
+    telegram_control_p.add_argument("--no-chat-agent", action="store_true", help="Disable chat-agent replies")
+    telegram_control_p.add_argument(
+        "--chat-task-type",
+        default="execution",
+        help="Model routing task type for chat-agent replies",
+    )
+    telegram_control_p.add_argument("--max-chat-replies", type=int, default=3, help="Max chat-agent replies per poll")
+    telegram_control_p.add_argument("--chat-max-history", type=int, default=12, help="Max history messages per chat")
+    telegram_control_p.add_argument(
+        "--chat-reply-max-chars",
+        type=int,
+        default=1400,
+        help="Max characters per chat-agent reply",
+    )
+    telegram_control_p.add_argument("--chat-history-path", help="Chat history JSON path")
+    telegram_control_p.add_argument(
+        "--chat-memory-max-notes",
+        type=int,
+        default=8,
+        help="Max personal-memory notes added to chat prompt",
+    )
+    telegram_control_p.add_argument("--chat-auto-memory", action="store_true", help="Auto-store non-command chat notes")
+    telegram_control_p.add_argument(
+        "--no-chat-auto-memory",
+        action="store_true",
+        help="Disable auto-store of non-command chat notes",
+    )
+    telegram_control_p.add_argument("--memory-path", help="Personal memory JSON path")
+    telegram_control_p.add_argument("--memory-max-notes", type=int, default=500, help="Max memory notes per user")
+    telegram_control_p.add_argument(
+        "--voice-priority",
+        choices=["urgent", "high", "normal", "low"],
+        default="high",
+        help="Priority for voice-note events",
+    )
+    telegram_control_p.add_argument("--voice-channel", default="telegram-voice", help="Channel label for voice notes")
+    telegram_control_p.add_argument("--voice-source", help="Optional source label for voice notes")
+    telegram_control_p.add_argument("--voice-text-prefix", default="[Voice Note]", help="Prefix for voice-note messages")
+    telegram_control_p.add_argument("--voice-transcribe-queue", help="Transcription queue JSON path")
+    telegram_control_p.add_argument("--no-voice-transcribe-queue", action="store_true", help="Disable voice queueing")
+    telegram_control_p.add_argument("--dry-run", action="store_true", help="Fetch + parse only")
+    telegram_control_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "telegram_control.py"),
+                "--action",
+                args.action,
+                *([f"--chat-id={args.chat_id}"] if args.chat_id else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--channel", args.channel] if args.channel else []),
+                *(["--limit", str(args.limit)] if args.limit else []),
+                *(["--state-path", args.state_path] if args.state_path else []),
+                *(["--download-dir", args.download_dir] if args.download_dir else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--skip-media"] if args.skip_media else []),
+                *(["--include-bot-messages"] if args.include_bot_messages else []),
+                *(["--no-commit-offset"] if args.no_commit_offset else []),
+                *(["--ack"] if args.ack else []),
+                *(["--enable-commands"] if args.enable_commands else []),
+                *(["--command-prefix", args.command_prefix] if args.command_prefix else []),
+                *(["--command-timeout", str(args.command_timeout)] if args.command_timeout else []),
+                *(["--max-commands", str(args.max_commands)] if args.max_commands is not None else []),
+                *(
+                    [arg for value in args.command_allow_user_id for arg in ("--command-allow-user-id", value)]
+                    if args.command_allow_user_id
+                    else []
+                ),
+                *(
+                    [f"--command-allow-chat-id={value}" for value in args.command_allow_chat_id]
+                    if args.command_allow_chat_id
+                    else []
+                ),
+                *(["--require-command-allowlist"] if args.require_command_allowlist else []),
+                *(["--no-command-ack"] if args.no_command_ack else []),
+                *(["--chat-agent"] if args.chat_agent else []),
+                *(["--no-chat-agent"] if args.no_chat_agent else []),
+                *(["--chat-task-type", args.chat_task_type] if args.chat_task_type else []),
+                *(["--max-chat-replies", str(args.max_chat_replies)] if args.max_chat_replies is not None else []),
+                *(["--chat-max-history", str(args.chat_max_history)] if args.chat_max_history is not None else []),
+                *(
+                    ["--chat-reply-max-chars", str(args.chat_reply_max_chars)]
+                    if args.chat_reply_max_chars is not None
+                    else []
+                ),
+                *(["--chat-history-path", args.chat_history_path] if args.chat_history_path else []),
+                *(
+                    ["--chat-memory-max-notes", str(args.chat_memory_max_notes)]
+                    if args.chat_memory_max_notes is not None
+                    else []
+                ),
+                *(["--chat-auto-memory"] if args.chat_auto_memory else []),
+                *(["--no-chat-auto-memory"] if args.no_chat_auto_memory else []),
+                *(["--memory-path", args.memory_path] if args.memory_path else []),
+                *(["--memory-max-notes", str(args.memory_max_notes)] if args.memory_max_notes is not None else []),
+                *(["--voice-priority", args.voice_priority] if args.voice_priority else []),
+                *(["--voice-channel", args.voice_channel] if args.voice_channel else []),
+                *(["--voice-source", args.voice_source] if args.voice_source else []),
+                *(["--voice-text-prefix", args.voice_text_prefix] if args.voice_text_prefix else []),
+                *(["--voice-transcribe-queue", args.voice_transcribe_queue] if args.voice_transcribe_queue else []),
+                *(["--no-voice-transcribe-queue"] if args.no_voice_transcribe_queue else []),
+                *(["--dry-run"] if args.dry_run else []),
+            ]
+        )
+    )
+
+    ophtxn_simulation_p = sub.add_parser(
+        "ophtxn-simulation",
+        help="Run offline Ophtxn memory + habit simulations",
+    )
+    ophtxn_simulation_p.add_argument("--seed", type=int, default=7, help="Random seed")
+    ophtxn_simulation_p.add_argument("--memory-trials", type=int, default=120, help="Memory retrieval trial count")
+    ophtxn_simulation_p.add_argument("--habit-days", type=int, default=60, help="Habit simulation day count")
+    ophtxn_simulation_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ophtxn_simulation.py"),
+                "--seed",
+                str(args.seed),
+                "--memory-trials",
+                str(args.memory_trials),
+                "--habit-days",
+                str(args.habit_days),
+            ]
+        )
+    )
+
+    governed_learning_p = sub.add_parser(
+        "governed-learning",
+        help="Run governed continuous learning (X/media/AI/finance/excel) under explicit approval gates",
+    )
+    governed_learning_p.add_argument(
+        "--action",
+        choices=["status", "run", "init-policy"],
+        default="status",
+        help="Status-only, execute a run, or reset policy template",
+    )
+    governed_learning_p.add_argument("--policy-path", help="Policy JSON path override")
+    governed_learning_p.add_argument("--state-path", help="State JSON path override")
+    governed_learning_p.add_argument("--force-template", action="store_true", help="Rewrite policy template")
+    governed_learning_p.add_argument("--approved-by", help="Approval actor for run action")
+    governed_learning_p.add_argument("--approval-note", help="Approval note for run action")
+    governed_learning_p.add_argument("--skip-pipeline", action="append", default=[], help="Skip pipeline by name")
+    governed_learning_p.add_argument("--timeout", type=int, default=180, help="Per-pipeline timeout seconds")
+    governed_learning_p.add_argument("--force", action="store_true", help="Override daily run cap")
+    governed_learning_p.add_argument("--dry-run", action="store_true", help="Render run plan but skip execution")
+    governed_learning_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "governed_learning_loop.py"),
+                "--action",
+                args.action,
+                *(["--policy-path", args.policy_path] if args.policy_path else []),
+                *(["--state-path", args.state_path] if args.state_path else []),
+                *(["--force-template"] if args.force_template else []),
+                *(["--approved-by", args.approved_by] if args.approved_by else []),
+                *(["--approval-note", args.approval_note] if args.approval_note else []),
+                *([arg for row in args.skip_pipeline for arg in ("--skip-pipeline", row)] if args.skip_pipeline else []),
+                *(["--timeout", str(args.timeout)] if args.timeout is not None else []),
+                *(["--force"] if args.force else []),
+                *(["--dry-run"] if args.dry_run else []),
+            ]
+        )
+    )
+
+    self_improvement_p = sub.add_parser(
+        "self-improvement",
+        help="Generate and govern Ophtxn self-improvement pitches with explicit approval decisions",
+    )
+    self_improvement_p.add_argument(
+        "--action",
+        choices=["status", "pitch", "list", "decide", "init-policy"],
+        default="status",
+        help="Inspect status, generate pitches, list pending, or decide",
+    )
+    self_improvement_p.add_argument("--policy-path", help="Policy JSON path override")
+    self_improvement_p.add_argument("--proposals-path", help="Proposals JSON path override")
+    self_improvement_p.add_argument("--force-template", action="store_true", help="Rewrite policy template")
+    self_improvement_p.add_argument("--decision", choices=["approve", "reject", "defer"], help="Decision verb")
+    self_improvement_p.add_argument("--proposal-id", help="Target proposal id")
+    self_improvement_p.add_argument("--decided-by", help="Decision actor")
+    self_improvement_p.add_argument("--note", help="Decision note")
+    self_improvement_p.add_argument("--decision-code", help="Decision code/PIN for protected decisions")
+    self_improvement_p.add_argument("--set-decision-code", help="Set or rotate required decision code")
+    self_improvement_p.add_argument("--clear-decision-code", action="store_true", help="Disable required decision code")
+    self_improvement_p.add_argument("--send-telegram", action="store_true", help="Send summary to Telegram")
+    self_improvement_p.add_argument("--telegram-chat-id", help="Telegram chat id override")
+    self_improvement_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "self_improvement_loop.py"),
+                "--action",
+                args.action,
+                *(["--policy-path", args.policy_path] if args.policy_path else []),
+                *(["--proposals-path", args.proposals_path] if args.proposals_path else []),
+                *(["--force-template"] if args.force_template else []),
+                *(["--decision", args.decision] if args.decision else []),
+                *(["--proposal-id", args.proposal_id] if args.proposal_id else []),
+                *(["--decided-by", args.decided_by] if args.decided_by else []),
+                *(["--note", args.note] if args.note else []),
+                *(["--decision-code", args.decision_code] if args.decision_code else []),
+                *(["--set-decision-code", args.set_decision_code] if args.set_decision_code else []),
+                *(["--clear-decision-code"] if args.clear_decision_code else []),
+                *(["--send-telegram"] if args.send_telegram else []),
+                *(["--telegram-chat-id", args.telegram_chat_id] if args.telegram_chat_id else []),
+            ]
+        )
+    )
+
+    glasses_autopilot_p = sub.add_parser(
+        "glasses-autopilot",
+        help="Auto-scan Downloads for new smart-glasses exports and ingest them",
+    )
+    glasses_autopilot_p.add_argument("--action", choices=["run", "status"], default="status")
+    glasses_autopilot_p.add_argument("--downloads-dir", help="Directory to scan")
+    glasses_autopilot_p.add_argument("--state-path", help="Autopilot state path")
+    glasses_autopilot_p.add_argument("--pattern", action="append", default=[], help="Glob pattern (repeatable)")
+    glasses_autopilot_p.add_argument("--max-files", type=int, default=60, help="Max candidate files to inspect")
+    glasses_autopilot_p.add_argument("--no-attachment-pipeline", action="store_true", help="Skip attachment follow-up")
+    glasses_autopilot_p.add_argument("--no-research-process", action="store_true", help="Skip research follow-up")
+    glasses_autopilot_p.add_argument("--dry-run", action="store_true", help="Scan only")
+    glasses_autopilot_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "glasses_autopilot.py"),
+                "--action",
+                args.action,
+                *(["--downloads-dir", args.downloads_dir] if args.downloads_dir else []),
+                *(["--state-path", args.state_path] if args.state_path else []),
+                *([arg for pattern in args.pattern for arg in ("--pattern", pattern)] if args.pattern else []),
+                *(["--max-files", str(args.max_files)] if args.max_files else []),
+                *(["--no-attachment-pipeline"] if args.no_attachment_pipeline else []),
+                *(["--no-research-process"] if args.no_research_process else []),
+                *(["--dry-run"] if args.dry_run else []),
+            ]
+        )
+    )
+
+    discord_feed_manager_p = sub.add_parser(
+        "discord-feed-manager",
+        help="Manage Discord channel feed rows in social_research_feeds.json",
+    )
+    discord_feed_manager_p.add_argument("--action", choices=["list", "add", "enable", "disable", "remove"], default="list")
+    discord_feed_manager_p.add_argument("--name", default="", help="Discord feed display name")
+    discord_feed_manager_p.add_argument("--channel-id", default="", help="Discord channel id")
+    discord_feed_manager_p.add_argument("--channel-link", default="", help="Discord channel URL")
+    discord_feed_manager_p.add_argument("--invite-url", default="", help="Optional invite URL")
+    discord_feed_manager_p.add_argument("--max-messages", type=int, default=50, help="Max messages per poll")
+    discord_feed_manager_p.add_argument("--include-keyword", action="append", default=[], help="Include keyword filter")
+    discord_feed_manager_p.add_argument("--exclude-keyword", action="append", default=[], help="Exclude keyword filter")
+    discord_feed_manager_p.add_argument(
+        "--priority",
+        choices=["urgent", "high", "normal", "low"],
+        help="Feed priority level",
+    )
+    discord_feed_manager_p.add_argument("--min-chars", type=int, help="Minimum message length filter")
+    discord_feed_manager_p.add_argument("--clear-filters", action="store_true", help="Clear feed filters")
+    discord_feed_manager_p.add_argument("--feeds-path", help="Feeds JSON path")
+    discord_feed_manager_p.add_argument("--disabled", action="store_true", help="For add: create disabled row")
+    discord_feed_manager_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "discord_feed_manager.py"),
+                "--action",
+                args.action,
+                *(["--name", args.name] if args.name else []),
+                *(["--channel-id", args.channel_id] if args.channel_id else []),
+                *(["--channel-link", args.channel_link] if args.channel_link else []),
+                *(["--invite-url", args.invite_url] if args.invite_url else []),
+                *(["--max-messages", str(args.max_messages)] if args.max_messages else []),
+                *(
+                    [arg for keyword in args.include_keyword for arg in ("--include-keyword", keyword)]
+                    if args.include_keyword
+                    else []
+                ),
+                *(
+                    [arg for keyword in args.exclude_keyword for arg in ("--exclude-keyword", keyword)]
+                    if args.exclude_keyword
+                    else []
+                ),
+                *(["--priority", args.priority] if args.priority else []),
+                *(["--min-chars", str(args.min_chars)] if args.min_chars is not None else []),
+                *(["--clear-filters"] if args.clear_filters else []),
+                *(["--feeds-path", args.feeds_path] if args.feeds_path else []),
+                *(["--disabled"] if args.disabled else []),
+            ]
+        )
+    )
+
+    discord_telegram_relay_p = sub.add_parser(
+        "discord-telegram-relay",
+        help="Relay new Discord feed messages into Telegram",
+    )
+    discord_telegram_relay_p.add_argument("--action", choices=["status", "run"], default="status")
+    discord_telegram_relay_p.add_argument("--feeds-path", help="Discord feeds JSON path")
+    discord_telegram_relay_p.add_argument("--state-path", help="State JSON path")
+    discord_telegram_relay_p.add_argument("--chat-id", help="Telegram chat/channel id")
+    discord_telegram_relay_p.add_argument("--max-per-feed", type=int, default=20, help="Max messages pulled per feed")
+    discord_telegram_relay_p.add_argument("--timeout", type=int, default=20, help="Network timeout seconds")
+    discord_telegram_relay_p.add_argument("--escalate", action="store_true", help="Enable escalation")
+    discord_telegram_relay_p.add_argument("--no-escalate", action="store_true", help="Disable escalation")
+    discord_telegram_relay_p.add_argument("--escalation-keyword", action="append", default=[], help="Escalation keyword")
+    discord_telegram_relay_p.add_argument(
+        "--escalation-min-priority",
+        choices=["urgent", "high", "normal", "low"],
+        default="high",
+        help="Min feed priority required for escalation",
+    )
+    discord_telegram_relay_p.add_argument("--escalations-path", help="Escalation JSONL path")
+    discord_telegram_relay_p.add_argument(
+        "--escalate-to-reception",
+        dest="escalate_to_reception",
+        action="store_true",
+        default=None,
+        help="Mirror escalations to reception queue",
+    )
+    discord_telegram_relay_p.add_argument(
+        "--no-escalate-to-reception",
+        dest="escalate_to_reception",
+        action="store_false",
+        help="Do not mirror escalations to reception queue",
+    )
+    discord_telegram_relay_p.add_argument("--escalation-notify", action="store_true", help="Send escalation notifications")
+    discord_telegram_relay_p.add_argument("--no-escalation-notify", action="store_true", help="Skip escalation notifications")
+    discord_telegram_relay_p.add_argument(
+        "--escalation-telegram-min-priority",
+        choices=["urgent", "high", "normal", "low"],
+        default="high",
+        help="Min priority for Telegram escalation notification",
+    )
+    discord_telegram_relay_p.add_argument(
+        "--escalation-discord-min-priority",
+        choices=["urgent", "high", "normal", "low"],
+        default="urgent",
+        help="Min priority for Discord webhook escalation notification",
+    )
+    discord_telegram_relay_p.add_argument("--escalation-max-notify", type=int, default=5, help="Max escalation rows in notify")
+    discord_telegram_relay_p.add_argument("--escalation-webhook-url", help="Discord webhook override for escalations")
+    discord_telegram_relay_p.add_argument("--escalation-notify-timeout", type=int, default=15, help="Escalation notify timeout")
+    discord_telegram_relay_p.add_argument("--dry-run", action="store_true", help="Fetch only; do not send Telegram")
+    discord_telegram_relay_p.add_argument("--no-commit-state", action="store_true", help="Do not persist relay state")
+    discord_telegram_relay_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "discord_telegram_relay.py"),
+                "--action",
+                args.action,
+                *(["--feeds-path", args.feeds_path] if args.feeds_path else []),
+                *(["--state-path", args.state_path] if args.state_path else []),
+                *([f"--chat-id={args.chat_id}"] if args.chat_id else []),
+                *(["--max-per-feed", str(args.max_per_feed)] if args.max_per_feed else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--escalate"] if args.escalate else []),
+                *(["--no-escalate"] if args.no_escalate else []),
+                *(
+                    [arg for keyword in args.escalation_keyword for arg in ("--escalation-keyword", keyword)]
+                    if args.escalation_keyword
+                    else []
+                ),
+                *(
+                    ["--escalation-min-priority", args.escalation_min_priority]
+                    if args.escalation_min_priority
+                    else []
+                ),
+                *(["--escalations-path", args.escalations_path] if args.escalations_path else []),
+                *(["--escalate-to-reception"] if args.escalate_to_reception is True else []),
+                *(["--no-escalate-to-reception"] if args.escalate_to_reception is False else []),
+                *(["--escalation-notify"] if args.escalation_notify else []),
+                *(["--no-escalation-notify"] if args.no_escalation_notify else []),
+                *(
+                    ["--escalation-telegram-min-priority", args.escalation_telegram_min_priority]
+                    if args.escalation_telegram_min_priority
+                    else []
+                ),
+                *(
+                    ["--escalation-discord-min-priority", args.escalation_discord_min_priority]
+                    if args.escalation_discord_min_priority
+                    else []
+                ),
+                *(["--escalation-max-notify", str(args.escalation_max_notify)] if args.escalation_max_notify is not None else []),
+                *(["--escalation-webhook-url", args.escalation_webhook_url] if args.escalation_webhook_url else []),
+                *(
+                    ["--escalation-notify-timeout", str(args.escalation_notify_timeout)]
+                    if args.escalation_notify_timeout is not None
+                    else []
+                ),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--no-commit-state"] if args.no_commit_state else []),
+            ]
+        )
+    )
+
+    comms_digest_p = sub.add_parser(
+        "comms-digest",
+        help="Build and optionally send daily communication digest to Telegram",
+    )
+    comms_digest_p.add_argument("--send", action="store_true", help="Send digest to Telegram")
+    comms_digest_p.add_argument("--chat-id", help="Override Telegram chat id")
+    comms_digest_p.add_argument("--timeout", type=int, default=20, help="Network timeout seconds")
+    comms_digest_p.add_argument("--max-warnings", type=int, default=8, help="Max warnings to include")
+    comms_digest_p.add_argument("--include-paths", action="store_true", help="Include local payload paths")
+    comms_digest_p.add_argument("--dry-run", action="store_true", help="Build only; do not send")
+    comms_digest_p.add_argument("--no-history", action="store_true", help="Skip history append")
+    comms_digest_p.add_argument("--history-path", help="Digest history JSONL path")
+    comms_digest_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "comms_digest.py"),
+                *(["--send"] if args.send else []),
+                *([f"--chat-id={args.chat_id}"] if args.chat_id else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--max-warnings", str(args.max_warnings)] if args.max_warnings is not None else []),
+                *(["--include-paths"] if args.include_paths else []),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--no-history"] if args.no_history else []),
+                *(["--history-path", args.history_path] if args.history_path else []),
+            ]
+        )
+    )
+
+    comms_escalation_digest_p = sub.add_parser(
+        "comms-escalation-digest",
+        help="Build and optionally dispatch escalation digest from comms escalation history",
+    )
+    comms_escalation_digest_p.add_argument("--escalations-path", help="Escalations JSONL path")
+    comms_escalation_digest_p.add_argument("--hours", type=int, default=24, help="Lookback window in hours")
+    comms_escalation_digest_p.add_argument("--max-items", type=int, default=8, help="Max escalation rows")
+    comms_escalation_digest_p.add_argument("--send", action="store_true", help="Send to Telegram+Discord (configured)")
+    comms_escalation_digest_p.add_argument("--send-telegram", action="store_true", help="Send to Telegram only")
+    comms_escalation_digest_p.add_argument("--send-discord", action="store_true", help="Send to Discord only")
+    comms_escalation_digest_p.add_argument("--chat-id", help="Telegram chat id override")
+    comms_escalation_digest_p.add_argument("--webhook-url", help="Discord webhook override")
+    comms_escalation_digest_p.add_argument("--timeout", type=int, default=15, help="Network timeout seconds")
+    comms_escalation_digest_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "comms_escalation_digest.py"),
+                *(["--escalations-path", args.escalations_path] if args.escalations_path else []),
+                *(["--hours", str(args.hours)] if args.hours is not None else []),
+                *(["--max-items", str(args.max_items)] if args.max_items is not None else []),
+                *(["--send"] if args.send else []),
+                *(["--send-telegram"] if args.send_telegram else []),
+                *(["--send-discord"] if args.send_discord else []),
+                *([f"--chat-id={args.chat_id}"] if args.chat_id else []),
+                *(["--webhook-url", args.webhook_url] if args.webhook_url else []),
+                *(["--timeout", str(args.timeout)] if args.timeout is not None else []),
+            ]
+        )
+    )
+
+    comms_status_p = sub.add_parser(
+        "comms-status",
+        help="Generate communication stack health/status rollup",
+    )
+    comms_status_p.add_argument(
+        "--comms-log-stale-minutes",
+        type=int,
+        default=20,
+        help="Warn when comms loop log is older than this many minutes",
+    )
+    comms_status_p.add_argument(
+        "--component-stale-minutes",
+        type=int,
+        default=120,
+        help="Warn when core component payloads are older than this many minutes",
+    )
+    comms_status_p.add_argument(
+        "--escalation-digest-stale-minutes",
+        type=int,
+        default=1500,
+        help="Warn when escalation digest payload is older than this many minutes",
+    )
+    comms_status_p.add_argument("--escalation-hours", type=int, default=24, help="Escalation lookback window in hours")
+    comms_status_p.add_argument(
+        "--escalation-warn-count",
+        type=int,
+        default=8,
+        help="Warn when escalations in lookback window are >= this value",
+    )
+    comms_status_p.add_argument(
+        "--voice-queue-warn-count",
+        type=int,
+        default=15,
+        help="Warn when pending voice transcription queue entries are >= this value",
+    )
+    comms_status_p.add_argument(
+        "--require-escalation-digest",
+        action="store_true",
+        help="Warn when escalation digest payload is missing",
+    )
+    comms_status_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "comms_status.py"),
+                *(["--comms-log-stale-minutes", str(args.comms_log_stale_minutes)] if args.comms_log_stale_minutes else []),
+                *(["--component-stale-minutes", str(args.component_stale_minutes)] if args.component_stale_minutes else []),
+                *(
+                    ["--escalation-digest-stale-minutes", str(args.escalation_digest_stale_minutes)]
+                    if args.escalation_digest_stale_minutes
+                    else []
+                ),
+                *(["--escalation-hours", str(args.escalation_hours)] if args.escalation_hours else []),
+                *(["--escalation-warn-count", str(args.escalation_warn_count)] if args.escalation_warn_count else []),
+                *(["--voice-queue-warn-count", str(args.voice_queue_warn_count)] if args.voice_queue_warn_count else []),
+                *(["--require-escalation-digest"] if args.require_escalation_digest else []),
+            ]
+        )
+    )
+
+    comms_doctor_p = sub.add_parser(
+        "comms-doctor",
+        help="Run comms doctor checks for secrets, automation, and payload freshness",
+    )
+    comms_doctor_p.add_argument("--max-stale-minutes", type=int, default=45, help="Max stale minutes for core payloads")
+    comms_doctor_p.add_argument(
+        "--digest-max-stale-minutes",
+        type=int,
+        default=1500,
+        help="Max stale minutes for digest payload",
+    )
+    comms_doctor_p.add_argument("--require-digest", action="store_true", help="Require digest automation/payload checks")
+    comms_doctor_p.add_argument(
+        "--require-escalation-digest",
+        action="store_true",
+        help="Require escalation digest automation/payload checks",
+    )
+    comms_doctor_p.add_argument("--check-live", action="store_true", help="Run live token checks")
+    comms_doctor_p.add_argument("--live-timeout", type=int, default=8, help="Timeout for live token checks")
+    comms_doctor_p.add_argument("--auto-repair", action="store_true", help="Attempt auto-enable of missing automations")
+    comms_doctor_p.add_argument("--repair-timeout", type=int, default=120, help="Timeout for repair commands")
+    comms_doctor_p.add_argument("--allow-warnings", action="store_true", help="Exit 0 even with warnings")
+    comms_doctor_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "comms_doctor.py"),
+                *(["--max-stale-minutes", str(args.max_stale_minutes)] if args.max_stale_minutes else []),
+                *(
+                    ["--digest-max-stale-minutes", str(args.digest_max_stale_minutes)]
+                    if args.digest_max_stale_minutes
+                    else []
+                ),
+                *(["--require-digest"] if args.require_digest else []),
+                *(["--require-escalation-digest"] if args.require_escalation_digest else []),
+                *(["--check-live"] if args.check_live else []),
+                *(["--live-timeout", str(args.live_timeout)] if args.live_timeout else []),
+                *(["--auto-repair"] if args.auto_repair else []),
+                *(["--repair-timeout", str(args.repair_timeout)] if args.repair_timeout else []),
+                *(["--allow-warnings"] if args.allow_warnings else []),
+            ]
+        )
+    )
+
+    comms_automation_p = sub.add_parser(
+        "comms-automation",
+        help="Manage comms loop/digest/doctor automation lifecycle",
+    )
+    comms_automation_p.add_argument(
+        "--action",
+        choices=[
+            "status",
+            "enable",
+            "disable",
+            "run-now",
+            "digest-status",
+            "digest-enable",
+            "digest-disable",
+            "digest-now",
+            "doctor-status",
+            "doctor-enable",
+            "doctor-disable",
+            "doctor-now",
+            "escalation-status",
+            "escalation-enable",
+            "escalation-disable",
+            "escalation-digest-now",
+        ],
+        default="status",
+    )
+    comms_automation_p.add_argument("--label", default="com.permanence.comms_loop", help="launchd label")
+    comms_automation_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "comms_automation.py"),
+                "--action",
+                args.action,
+                *(["--label", args.label] if args.label else []),
+            ]
+        )
+    )
+
     email_p = sub.add_parser("email-triage", help="Run Email Agent triage")
     email_p.add_argument("--inbox-dir", help="Inbox directory")
     email_p.add_argument("--vip", nargs="*", default=[], help="VIP sender emails")
@@ -1126,6 +1991,380 @@ def main() -> int:
         )
     )
 
+    keychain_p = sub.add_parser(
+        "anthropic-keychain",
+        help="Install/check Anthropic key in macOS Keychain and keep .env key blank",
+    )
+    keychain_p.add_argument("--from-file", help="Path to file containing Anthropic API key")
+    keychain_p.add_argument("--service", help="Keychain service label")
+    keychain_p.add_argument("--account", help="Keychain account label")
+    keychain_p.add_argument("--remove-source", action="store_true", help="Delete source key file after install")
+    keychain_p.add_argument("--status", action="store_true", help="Check key presence in keychain")
+    keychain_p.add_argument("--clear", action="store_true", help="Delete keychain entry")
+    keychain_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "anthropic_keychain.py"),
+                *(["--from-file", args.from_file] if args.from_file else []),
+                *(["--service", args.service] if args.service else []),
+                *(["--account", args.account] if args.account else []),
+                *(["--remove-source"] if args.remove_source else []),
+                *(["--status"] if args.status else []),
+                *(["--clear"] if args.clear else []),
+            ]
+        )
+    )
+
+    connector_keychain_p = sub.add_parser(
+        "connector-keychain",
+        help="Install/check connector read tokens in macOS Keychain (.env token stays blank)",
+    )
+    connector_keychain_p.add_argument(
+        "--target",
+        required=True,
+        choices=[
+            "github-read",
+            "social-read",
+            "discord-alert-webhook",
+            "discord-bot-token",
+            "telegram-bot-token",
+            "xai-api-key",
+            "alpha-vantage",
+            "finnhub",
+            "polygon",
+            "coinmarketcap",
+            "glassnode",
+        ],
+        help="Connector target",
+    )
+    connector_keychain_p.add_argument("--from-file", help="Path to file containing connector token")
+    connector_keychain_p.add_argument("--service", help="Keychain service label")
+    connector_keychain_p.add_argument("--account", help="Keychain account label")
+    connector_keychain_p.add_argument("--remove-source", action="store_true", help="Delete source file after install")
+    connector_keychain_p.add_argument("--status", action="store_true", help="Check token presence in keychain")
+    connector_keychain_p.add_argument("--clear", action="store_true", help="Delete keychain entry")
+    connector_keychain_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "connector_keychain.py"),
+                "--target",
+                args.target,
+                *(["--from-file", args.from_file] if args.from_file else []),
+                *(["--service", args.service] if args.service else []),
+                *(["--account", args.account] if args.account else []),
+                *(["--remove-source"] if args.remove_source else []),
+                *(["--status"] if args.status else []),
+                *(["--clear"] if args.clear else []),
+            ]
+        )
+    )
+
+    secret_scan_p = sub.add_parser(
+        "secret-scan",
+        help="Scan staged/all tracked files for likely secret leaks",
+    )
+    secret_scan_p.add_argument("--all-files", action="store_true", help="Scan all tracked files")
+    secret_scan_p.add_argument("--staged", action="store_true", help="Scan staged files")
+    secret_scan_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "secret_scan.py"),
+                *(["--all-files"] if args.all_files else []),
+                *(["--staged"] if args.staged else []),
+            ]
+        )
+    )
+
+    access_policy_p = sub.add_parser(
+        "external-access-policy",
+        help="Generate secure external connector access policy + risk report",
+    )
+    access_policy_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Overwrite memory/working/agent_access_policy.json template",
+    )
+    access_policy_p.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero when risk is high",
+    )
+    access_policy_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "external_access_policy.py"),
+                *(["--force-template"] if args.force_template else []),
+                *(["--strict"] if args.strict else []),
+            ]
+        )
+    )
+
+    gh_research_p = sub.add_parser(
+        "github-research-ingest",
+        help="Run read-only GitHub research ingest and action suggestions",
+    )
+    gh_research_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/github_research_targets.json template",
+    )
+    gh_research_p.add_argument("--max-items", type=int, help="Max open issues/PRs per repo")
+    gh_research_p.add_argument("--stale-days", type=int, help="Stale threshold in days")
+    gh_research_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "github_research_ingest.py"),
+                *(["--force-template"] if args.force_template else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
+                *(["--stale-days", str(args.stale_days)] if args.stale_days else []),
+            ]
+        )
+    )
+
+    gh_trending_p = sub.add_parser(
+        "github-trending-ingest",
+        help="Run read-only GitHub trending ingest and rank trend opportunities",
+    )
+    gh_trending_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/github_trending_focus.json template",
+    )
+    gh_trending_p.add_argument(
+        "--since",
+        choices=["daily", "weekly", "monthly"],
+        help="Override trending window",
+    )
+    gh_trending_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "github_trending_ingest.py"),
+                *(["--force-template"] if args.force_template else []),
+                *(["--since", args.since] if args.since else []),
+            ]
+        )
+    )
+
+    ecosystem_research_p = sub.add_parser(
+        "ecosystem-research-ingest",
+        help="Run read-only ecosystem ingest (repos, developers, docs, communities)",
+    )
+    ecosystem_research_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/ecosystem_watchlist.json template",
+    )
+    ecosystem_research_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ecosystem_research_ingest.py"),
+                *(["--force-template"] if args.force_template else []),
+            ]
+        )
+    )
+
+    social_research_p = sub.add_parser(
+        "social-research-ingest",
+        help="Run read-only social trend ingest and ranking",
+    )
+    social_research_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/social_research_feeds.json template",
+    )
+    social_research_p.add_argument(
+        "--force-policy",
+        action="store_true",
+        help="Rewrite memory/working/social_discernment_policy.json template",
+    )
+    social_research_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "social_research_ingest.py"),
+                *(["--force-template"] if args.force_template else []),
+                *(["--force-policy"] if args.force_policy else []),
+            ]
+        )
+    )
+
+    ophtxn_brain_p = sub.add_parser(
+        "ophtxn-brain",
+        help="Sync and query Ophtxn persistent brain vault from system files",
+    )
+    ophtxn_brain_p.add_argument("--action", choices=["status", "sync", "recall"], default="status")
+    ophtxn_brain_p.add_argument("--vault-path", help="Override vault JSON path")
+    ophtxn_brain_p.add_argument("--query", help="Recall query for recall action")
+    ophtxn_brain_p.add_argument("--limit", type=int, default=8, help="Max recall hits")
+    ophtxn_brain_p.add_argument("--max-chunks", type=int, default=5000, help="Max vault chunks retained")
+    ophtxn_brain_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ophtxn_brain.py"),
+                "--action",
+                args.action,
+                *(["--vault-path", args.vault_path] if args.vault_path else []),
+                *(["--query", args.query] if args.query else []),
+                *(["--limit", str(args.limit)] if args.limit is not None else []),
+                *(["--max-chunks", str(args.max_chunks)] if args.max_chunks is not None else []),
+            ]
+        )
+    )
+
+    terminal_queue_p = sub.add_parser(
+        "terminal-task-queue",
+        help="Manage queued terminal tasks captured from Telegram messages",
+    )
+    terminal_queue_p.add_argument("--action", choices=["status", "list", "add", "complete"], default="status")
+    terminal_queue_p.add_argument("--queue-path", help="Override queue JSONL path")
+    terminal_queue_p.add_argument("--text", help="Task text for add action")
+    terminal_queue_p.add_argument("--task-id", help="Task id for complete action")
+    terminal_queue_p.add_argument("--source", help="Task source label")
+    terminal_queue_p.add_argument("--sender", help="Sender label")
+    terminal_queue_p.add_argument("--sender-user-id", help="Sender user id")
+    terminal_queue_p.add_argument("--chat-id", help="Chat id")
+    terminal_queue_p.add_argument("--limit", type=int, default=12, help="Recent rows in report")
+    terminal_queue_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "terminal_task_queue.py"),
+                "--action",
+                args.action,
+                *(["--queue-path", args.queue_path] if args.queue_path else []),
+                *(["--text", args.text] if args.text else []),
+                *(["--task-id", args.task_id] if args.task_id else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--sender", args.sender] if args.sender else []),
+                *(["--sender-user-id", args.sender_user_id] if args.sender_user_id else []),
+                *([f"--chat-id={args.chat_id}"] if args.chat_id else []),
+                *(["--limit", str(args.limit)] if args.limit is not None else []),
+            ]
+        )
+    )
+
+    x_watch_p = sub.add_parser(
+        "x-account-watch",
+        help="Manage read-only personal X account watch feeds for social-research ingest",
+    )
+    x_watch_p.add_argument("--action", choices=["list", "add", "remove"], default="list")
+    x_watch_p.add_argument("--handle", action="append", default=[], help="X handle/@handle/profile URL (repeatable)")
+    x_watch_p.add_argument("--max-results", type=int, default=25, help="Max results per account feed")
+    x_watch_p.add_argument("--include-replies", action="store_true", help="Include replies in account query")
+    x_watch_p.add_argument("--label", help="Optional feed label for single add")
+    x_watch_p.add_argument("--feeds-path", help="Override social feeds JSON path")
+    x_watch_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "x_account_watch.py"),
+                "--action",
+                args.action,
+                *(sum([["--handle", str(item)] for item in (args.handle or [])], [])),
+                *(["--max-results", str(args.max_results)] if args.max_results is not None else []),
+                *(["--include-replies"] if args.include_replies else []),
+                *(["--label", args.label] if args.label else []),
+                *(["--feeds-path", args.feeds_path] if args.feeds_path else []),
+            ]
+        )
+    )
+
+    world_watch_p = sub.add_parser(
+        "world-watch",
+        help="Ingest global world-watch feeds and produce ranked situational alerts",
+    )
+    world_watch_p.add_argument("--force-template", action="store_true", help="Rewrite world watch source template file")
+    world_watch_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "world_watch_ingest.py"),
+                *(["--force-template"] if args.force_template else []),
+            ]
+        )
+    )
+
+    world_watch_alerts_p = sub.add_parser(
+        "world-watch-alerts",
+        help="Create world-watch alert brief and optionally dispatch to Discord/Telegram",
+    )
+    world_watch_alerts_p.add_argument("--send", action="store_true", help="Dispatch alerts to configured channels")
+    world_watch_alerts_p.add_argument("--max-alerts", type=int, default=6, help="Max alerts in the message")
+    world_watch_alerts_p.add_argument("--min-score", type=float, default=68.0, help="Minimum severity score")
+    world_watch_alerts_p.add_argument("--include-links", action="store_true", help="Include URLs in alert message")
+    world_watch_alerts_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "world_watch_alerts.py"),
+                *(["--send"] if args.send else []),
+                *(["--max-alerts", str(args.max_alerts)] if args.max_alerts is not None else []),
+                *(["--min-score", str(args.min_score)] if args.min_score is not None else []),
+                *(["--include-links"] if args.include_links else []),
+            ]
+        )
+    )
+
+    market_focus_brief_p = sub.add_parser(
+        "market-focus-brief",
+        help="Generate compact market focus brief from latest world-watch payload",
+    )
+    market_focus_brief_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "market_focus_brief.py"),
+            ]
+        )
+    )
+
+    market_backtest_queue_p = sub.add_parser(
+        "market-backtest-queue",
+        help="Build market backtest queue from social/news/video evidence (advisory only)",
+    )
+    market_backtest_queue_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/market_backtest_watchlist.json template",
+    )
+    market_backtest_queue_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "market_backtest_queue.py"),
+                *(["--force-template"] if args.force_template else []),
+            ]
+        )
+    )
+
+    narrative_tracker_p = sub.add_parser(
+        "narrative-tracker",
+        aliases=["conspiracy-tracker"],
+        help="Track high-uncertainty narratives with evidence states (supported/unverified/contradicted)",
+    )
+    narrative_tracker_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/narrative_tracker_hypotheses.json template",
+    )
+    narrative_tracker_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "narrative_tracker.py"),
+                *(["--force-template"] if args.force_template else []),
+            ]
+        )
+    )
+
     money_loop_p = sub.add_parser(
         "money-loop",
         help="Run the end-to-end revenue money loop script",
@@ -1135,6 +2374,180 @@ def main() -> int:
             [
                 "/bin/bash",
                 os.path.join(BASE_DIR, "scripts", "run_money_loop.sh"),
+            ]
+        )
+    )
+
+    comms_loop_p = sub.add_parser(
+        "comms-loop",
+        help="Run the cross-platform communication loop (Telegram, Discord relay, glasses intake)",
+    )
+    comms_loop_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                "/bin/bash",
+                os.path.join(BASE_DIR, "scripts", "run_comms_loop.sh"),
+            ]
+        )
+    )
+
+    second_brain_init_p = sub.add_parser(
+        "second-brain-init",
+        help="Initialize editable working templates for second-brain modules",
+    )
+    second_brain_init_p.add_argument("--force", action="store_true", help="Overwrite existing working files")
+    second_brain_init_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "second_brain_init.py"),
+                *(["--force"] if args.force else []),
+            ]
+        )
+    )
+
+    second_brain_loop_p = sub.add_parser(
+        "second-brain-loop",
+        help="Run life + research + side-business + prediction + clipping + unified second-brain report",
+    )
+    second_brain_loop_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                "/bin/bash",
+                os.path.join(BASE_DIR, "scripts", "run_second_brain_loop.sh"),
+            ]
+        )
+    )
+
+    attachment_pipeline_p = sub.add_parser(
+        "attachment-pipeline",
+        help="Index attachment inbox files and build processing queues",
+    )
+    attachment_pipeline_p.add_argument("--inbox-dir", help="Attachment inbox directory")
+    attachment_pipeline_p.add_argument("--max-files", type=int, default=250, help="Max files to index per run")
+    attachment_pipeline_p.add_argument("--queue-path", help="Transcription queue JSON path")
+    attachment_pipeline_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "attachment_pipeline.py"),
+                *(["--inbox-dir", args.inbox_dir] if args.inbox_dir else []),
+                *(["--max-files", str(args.max_files)] if args.max_files else []),
+                *(["--queue-path", args.queue_path] if args.queue_path else []),
+            ]
+        )
+    )
+
+    resume_brand_p = sub.add_parser(
+        "resume-brand-brief",
+        help="Generate resume + brand optimization brief from local context",
+    )
+    resume_brand_p.add_argument("--focus", choices=["resume", "brand", "both"], default="both")
+    resume_brand_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "resume_brand_brief.py"),
+                *(["--focus", args.focus] if args.focus else []),
+            ]
+        )
+    )
+
+    phase2_refresh_p = sub.add_parser(
+        "phase2-refresh",
+        help="Run Phase 2 module refresh (attachments, ingest, life, resume/brand, report)",
+    )
+    phase2_refresh_p.add_argument("--strict", action="store_true", help="Exit non-zero when a step fails")
+    phase2_refresh_p.add_argument("--timeout", type=int, default=900, help="Per-step timeout seconds")
+    phase2_refresh_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "phase2_refresh.py"),
+                *(["--strict"] if args.strict else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+            ]
+        )
+    )
+
+    opportunity_ranker_p = sub.add_parser(
+        "opportunity-ranker",
+        help="Rank cross-source opportunities for manual approval queueing",
+    )
+    opportunity_ranker_p.add_argument(
+        "--force-policy",
+        action="store_true",
+        help="Rewrite memory/working/opportunity_rank_policy.json with default values",
+    )
+    opportunity_ranker_p.add_argument("--max-items", type=int, help="Override max ranked opportunities")
+    opportunity_ranker_p.add_argument("--min-score", type=float, help="Override minimum priority score threshold")
+    opportunity_ranker_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "opportunity_ranker.py"),
+                *(["--force-policy"] if args.force_policy else []),
+                *(["--max-items", str(args.max_items)] if args.max_items is not None else []),
+                *(["--min-score", str(args.min_score)] if args.min_score is not None else []),
+            ]
+        )
+    )
+
+    opportunity_queue_p = sub.add_parser(
+        "opportunity-approval-queue",
+        help="Queue ranked opportunities into memory/approvals.json for human decision",
+    )
+    opportunity_queue_p.add_argument(
+        "--force-policy",
+        action="store_true",
+        help="Rewrite memory/working/opportunity_queue_policy.json with default values",
+    )
+    opportunity_queue_p.add_argument("--max-items", type=int, help="Override max items queued this run")
+    opportunity_queue_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "opportunity_approval_queue.py"),
+                *(["--force-policy"] if args.force_policy else []),
+                *(["--max-items", str(args.max_items)] if args.max_items is not None else []),
+            ]
+        )
+    )
+
+    phase3_refresh_p = sub.add_parser(
+        "phase3-refresh",
+        help="Run Phase 3 module refresh (research -> ranking -> approval queue -> report)",
+    )
+    phase3_refresh_p.add_argument("--strict", action="store_true", help="Exit non-zero when a step fails")
+    phase3_refresh_p.add_argument("--timeout", type=int, default=900, help="Per-step timeout seconds")
+    phase3_refresh_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "phase3_refresh.py"),
+                *(["--strict"] if args.strict else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+            ]
+        )
+    )
+
+    approval_execution_board_p = sub.add_parser(
+        "approval-execution-board",
+        help="Build execution board from approved queue items",
+    )
+    approval_execution_board_p.add_argument("--limit", type=int, default=12, help="Max surfaced tasks")
+    approval_execution_board_p.add_argument(
+        "--no-mark-queued",
+        action="store_true",
+        help="Do not write execution metadata back to approvals.json",
+    )
+    approval_execution_board_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "approval_execution_board.py"),
+                *(["--limit", str(args.limit)] if args.limit is not None else []),
+                *(["--no-mark-queued"] if args.no_mark_queued else []),
             ]
         )
     )
@@ -1161,6 +2574,25 @@ def main() -> int:
             [
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "revenue_architecture_report.py"),
+            ]
+        )
+    )
+
+    revenue_recovery_p = sub.add_parser(
+        "revenue-cost-recovery",
+        help="Generate cost-recovery plan to cover API/tool spend via revenue actions",
+    )
+    revenue_recovery_p.add_argument(
+        "--force-template",
+        action="store_true",
+        help="Rewrite memory/working/api_cost_plan.json with default values before planning",
+    )
+    revenue_recovery_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "revenue_cost_recovery.py"),
+                *(["--force-template"] if args.force_template else []),
             ]
         )
     )
@@ -1298,6 +2730,97 @@ def main() -> int:
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "sales_pipeline.py"),
                 *args.pipeline_args,
+            ]
+        )
+    )
+
+    life_brief_p = sub.add_parser(
+        "life-os-brief",
+        help="Generate daily Life OS brief (personal second-brain layer)",
+    )
+    life_brief_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "life_os_brief.py"),
+            ]
+        )
+    )
+
+    side_portfolio_p = sub.add_parser(
+        "side-business-portfolio",
+        help="Generate side-business portfolio priorities and actions",
+    )
+    side_portfolio_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "side_business_portfolio.py"),
+            ]
+        )
+    )
+
+    prediction_ingest_p = sub.add_parser(
+        "prediction-ingest",
+        help="Ingest news feeds and refresh prediction hypothesis signals",
+    )
+    prediction_ingest_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "prediction_ingest.py"),
+            ]
+        )
+    )
+
+    prediction_lab_p = sub.add_parser(
+        "prediction-lab",
+        help="Generate prediction-market research brief (advisory only)",
+    )
+    prediction_lab_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "prediction_lab.py"),
+            ]
+        )
+    )
+
+    clipping_ingest_p = sub.add_parser(
+        "clipping-transcript-ingest",
+        help="Ingest transcript files into clipping queue working state",
+    )
+    clipping_ingest_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "clipping_transcript_ingest.py"),
+            ]
+        )
+    )
+
+    clipping_p = sub.add_parser(
+        "clipping-pipeline",
+        help="Generate clipping queue and candidate clip rankings",
+    )
+    clipping_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "clipping_pipeline_manager.py"),
+            ]
+        )
+    )
+
+    second_brain_p = sub.add_parser(
+        "second-brain-report",
+        help="Generate unified second-brain report across life + business layers",
+    )
+    second_brain_p.set_defaults(
+        func=lambda _args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "second_brain_report.py"),
             ]
         )
     )

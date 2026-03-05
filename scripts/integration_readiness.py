@@ -11,9 +11,31 @@ import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Any
 
 BASE_DIR = Path(__file__).resolve().parents[1]
+
+
+def _load_local_env() -> None:
+    env_path = BASE_DIR / ".env"
+    if not env_path.exists():
+        return
+    for raw_line in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        value = value.strip()
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        os.environ[key] = value
+
+
+_load_local_env()
 WORKING_DIR = Path(os.getenv("PERMANENCE_WORKING_DIR", str(BASE_DIR / "memory" / "working")))
 OUTPUT_DIR = Path(os.getenv("PERMANENCE_OUTPUT_DIR", str(BASE_DIR / "outputs")))
 TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool")))
@@ -43,7 +65,35 @@ def _normalize_value(raw: str, key: str) -> str:
     value = (raw or "").strip()
     if value:
         return value
+    if key in {"PERMANENCE_BOOKING_LINK", "PERMANENCE_PAYMENT_LINK"}:
+        playbook_path = WORKING_DIR / "revenue_playbook.json"
+        if playbook_path.exists():
+            try:
+                payload = json.loads(playbook_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                payload = {}
+            if isinstance(payload, dict):
+                if key == "PERMANENCE_BOOKING_LINK":
+                    return str(payload.get("booking_link") or "").strip()
+                if key == "PERMANENCE_PAYMENT_LINK":
+                    return str(payload.get("payment_link") or "").strip()
     return _default_env(key)
+
+
+def _value_preview(check: Check, value: str) -> str:
+    if not value:
+        return ""
+    key_upper = check.key.upper()
+    if check.kind == "secret":
+        return "(set)"
+    if any(marker in key_upper for marker in ("TOKEN", "KEY", "SECRET", "WEBHOOK", "PASSWORD")):
+        return "(set)"
+    if check.kind == "url":
+        parsed = urlparse(value)
+        if not parsed.scheme or not parsed.netloc:
+            return "(set)"
+        return f"{parsed.scheme}://{parsed.netloc}"
+    return value[:120]
 
 
 def _check_item(check: Check) -> dict[str, Any]:
@@ -67,21 +117,64 @@ def _check_item(check: Check) -> dict[str, Any]:
         "status": status,
         "exists": exists,
         "value_present": bool(value),
-        "value_preview": value[:120] if value else "",
+        "value_preview": _value_preview(check, value),
         "help": check.help_text,
     }
 
 
+def _is_true(value: str) -> bool:
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _require_revenue_links() -> bool:
+    raw = str(os.getenv("PERMANENCE_REQUIRE_REVENUE_LINKS", "0"))
+    return _is_true(raw)
+
+
 def _checks() -> list[Check]:
+    require_revenue_links = _require_revenue_links()
     return [
         Check("ANTHROPIC_API_KEY", True, "secret", "Required for live Claude model calls."),
         Check("PERMANENCE_GMAIL_CREDENTIALS", True, "path", "Google OAuth client credentials JSON."),
         Check("PERMANENCE_GMAIL_TOKEN", True, "path", "Google OAuth token JSON (run gmail-ingest once to authorize)."),
-        Check("PERMANENCE_BOOKING_LINK", True, "url", "Booking link used in outreach and offers."),
-        Check("PERMANENCE_PAYMENT_LINK", True, "url", "Payment link used in proposals and close flow."),
+        Check("PERMANENCE_BOOKING_LINK", require_revenue_links, "url", "Booking link used in outreach and offers."),
+        Check("PERMANENCE_PAYMENT_LINK", require_revenue_links, "url", "Payment link used in proposals and close flow."),
         Check("PERMANENCE_SLACK_WEBHOOK_URL", False, "url", "Optional Slack notifications."),
+        Check("PERMANENCE_GITHUB_READ_TOKEN", False, "secret", "Optional read-only token for GitHub research ingest."),
+        Check("PERMANENCE_SOCIAL_READ_TOKEN", False, "secret", "Optional read-only token for social trend ingest."),
+        Check("PERMANENCE_DISCORD_ALERT_WEBHOOK_URL", False, "url", "Optional Discord webhook for world-watch alerts."),
+        Check("PERMANENCE_DISCORD_BOT_TOKEN", False, "secret", "Optional Discord bot token for read-only server research feeds."),
+        Check("PERMANENCE_TELEGRAM_BOT_TOKEN", False, "secret", "Optional Telegram bot token for world-watch alerts."),
+        Check("PERMANENCE_TELEGRAM_CHAT_ID", False, "text", "Optional Telegram chat id for world-watch alerts."),
+        Check("PERMANENCE_HOME_LAT", False, "text", "Optional home latitude to anchor local weather alerts."),
+        Check("PERMANENCE_HOME_LON", False, "text", "Optional home longitude to anchor local weather alerts."),
+        Check("PERMANENCE_HOME_LABEL", False, "text", "Optional human-friendly home location label for alerts."),
+        Check(
+            "PERMANENCE_AGENT_EXTERNAL_WRITE_ENABLE",
+            False,
+            "text",
+            "Keep 0/false during research phase; enable only with manual approval queue.",
+        ),
+        Check(
+            "PERMANENCE_WORLD_WATCH_ENABLE",
+            False,
+            "text",
+            "Set to 1 to include world-watch automation in your daily loops.",
+        ),
+        Check(
+            "PERMANENCE_REQUIRE_REVENUE_LINKS",
+            False,
+            "text",
+            "Set to 1 only when you are actively running booking/payment outreach flows.",
+        ),
         Check("OPENAI_API_KEY", False, "secret", "Optional for OpenAI skills."),
+        Check("XAI_API_KEY", False, "secret", "Optional for Grok/xAI model access."),
         Check("GH_TOKEN", False, "secret", "Optional for GitHub automation."),
+        Check("ALPHA_VANTAGE_API_KEY", False, "secret", "Optional higher-coverage equities and FX intraday data."),
+        Check("FINNHUB_API_KEY", False, "secret", "Optional equities/news/sentiment market data API."),
+        Check("POLYGON_API_KEY", False, "secret", "Optional institutional-grade US market data API."),
+        Check("COINMARKETCAP_API_KEY", False, "secret", "Optional crypto market breadth API."),
+        Check("GLASSNODE_API_KEY", False, "secret", "Optional on-chain crypto intelligence API."),
         Check("claude", False, "command", "Optional Claude CLI for terminal workflows."),
     ]
 

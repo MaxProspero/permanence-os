@@ -205,6 +205,38 @@ python cli.py ari-reception --action summary
 python cli.py sandra-reception --action summary
 python cli.py remote-ready
 python cli.py ari-reception --action intake --sender "Payton" --message "Need review of weekly phase gate" --channel discord
+python cli.py glasses-bridge --action ingest --from-json ~/Downloads/nearby_glasses_detected_123.json
+python cli.py glasses-bridge --action intake --source visionclaw --channel telegram --text "What am I looking at?" --media ~/Downloads/pov.jpg
+python cli.py telegram-control --action status
+python cli.py telegram-control --action poll --ack
+python cli.py telegram-control --action poll --enable-commands --ack --max-commands 3
+python cli.py telegram-control --action poll --chat-agent --max-chat-replies 3
+python cli.py ophtxn-simulation --seed 11 --memory-trials 300 --habit-days 90
+python cli.py telegram-control --action poll --voice-priority high --voice-channel telegram-voice
+python cli.py telegram-control --action poll --voice-transcribe-queue ~/permanence-os/memory/working/transcription_queue.json
+python cli.py glasses-autopilot --action run
+python cli.py discord-feed-manager --action list
+python cli.py discord-feed-manager --action add --name "Permanence" --channel-link https://discord.com/channels/<guild_id>/<channel_id>
+python cli.py discord-feed-manager --action add --channel-id <channel_id> --priority urgent
+python cli.py discord-feed-manager --action add --channel-id <channel_id> --include-keyword gold --include-keyword xauusd --exclude-keyword spam --min-chars 15
+python cli.py discord-telegram-relay --action status
+python cli.py discord-telegram-relay --action run
+python cli.py discord-telegram-relay --action run --escalate --escalation-keyword outage --escalation-min-priority high
+python cli.py discord-telegram-relay --action run --escalation-notify --escalation-telegram-min-priority high --escalation-discord-min-priority urgent
+python cli.py comms-digest --send
+python cli.py comms-escalation-digest --send
+python cli.py comms-status
+python cli.py comms-status --require-escalation-digest --escalation-warn-count 10 --voice-queue-warn-count 20
+python cli.py comms-doctor --allow-warnings
+python cli.py comms-doctor --require-escalation-digest --allow-warnings
+python cli.py comms-doctor --check-live --auto-repair --allow-warnings
+python cli.py comms-automation --action status
+python cli.py comms-automation --action digest-now
+python cli.py comms-automation --action escalation-status
+python cli.py comms-automation --action escalation-enable
+python cli.py comms-automation --action escalation-digest-now
+python cli.py comms-automation --action doctor-status
+python cli.py comms-loop
 python cli.py email-triage
 python cli.py gmail-ingest
 python cli.py health-summary
@@ -334,21 +366,24 @@ Run one command to refresh inbox intelligence and generate:
 - social summary
 - revenue action queue
 - revenue architecture scorecard
+- revenue cost-recovery plan (API/tool spend coverage)
 - revenue execution board
 - revenue outreach message pack
 
 ```bash
 python cli.py money-loop
 python cli.py revenue-action-queue
+python cli.py revenue-cost-recovery
 python cli.py revenue-execution-board
 python cli.py revenue-outreach-pack
 python cli.py revenue-followup-queue
 python cli.py revenue-eval
 python cli.py revenue-playbook show
-python cli.py revenue-playbook set --offer-name "Permanence OS Foundation Setup" --cta-keyword FOUNDATION --cta-public 'DM me "FOUNDATION".' --pricing-tier Core --price-usd 1500
+python cli.py revenue-playbook set --offer-name "Permanence OS Foundation Setup" --cta-keyword FOUNDATION --cta-public 'DM me "FOUNDATION".' --booking-link "https://cal.com/..." --payment-link "https://buy.stripe.com/..." --pricing-tier Core --price-usd 1500
 python cli.py revenue-targets show
 python cli.py revenue-targets set --weekly-revenue-target 5000 --monthly-revenue-target 20000 --daily-outreach-target 12
 python cli.py integration-readiness
+python cli.py external-access-policy
 python cli.py revenue-backup
 ```
 `revenue-action-queue` now prioritizes from live pipeline/intake/funnel signals first (urgent leads + bottleneck), then fills remaining slots with template actions.
@@ -362,6 +397,107 @@ Optional env vars:
 - `PERMANENCE_MONEY_LOOP_TRIAGE_MAX_ITEMS=40`
 - `PERMANENCE_GMAIL_CREDENTIALS=~/.../credentials.json` (if not using default path)
 - `PERMANENCE_GMAIL_TOKEN=~/.../token.json` (required for non-interactive automation)
+
+### External Connector Safety (GitHub + Social)
+Generate and review the staged-access policy before granting agent connectors:
+```bash
+python cli.py anthropic-keychain --status
+python cli.py external-access-policy
+python cli.py external-access-policy --strict
+```
+Creates:
+- `memory/working/agent_access_policy.json`
+- `outputs/external_access_policy_latest.md`
+
+Recommended rollout:
+- phase 1: read-only research connectors
+- phase 2: supervised write with manual approvals
+- phase 3: limited autopilot only for pre-approved low-risk actions
+
+Optional env vars for read-only research:
+- `PERMANENCE_GITHUB_READ_TOKEN=...`
+- `PERMANENCE_SOCIAL_READ_TOKEN=...`
+- `PERMANENCE_SOCIAL_KEYWORDS=ai,agent,automation,saas,growth,monetize`
+- `PERMANENCE_X_RECENT_SEARCH_URL=https://api.twitter.com/2/tweets/search/recent` (override only if needed)
+- `PERMANENCE_X_MAX_RESULTS=25`
+- `PERMANENCE_AGENT_EXTERNAL_WRITE_ENABLE=0`
+- `PERMANENCE_REQUIRE_REVENUE_LINKS=0` (set to `1` only when you want booking/payment links enforced as required)
+
+Anthropic keychain workflow (recommended):
+```bash
+python cli.py anthropic-keychain --from-file /absolute/path/to/anthropic_key.txt --remove-source
+python cli.py anthropic-keychain --status
+```
+This keeps `ANTHROPIC_API_KEY=` blank in `.env` and loads the key from macOS Keychain at runtime.
+
+Connector keychain workflow (recommended):
+```bash
+python cli.py connector-keychain --target github-read --from-file /absolute/path/to/github_read_token.txt --remove-source
+python cli.py connector-keychain --target social-read --from-file /absolute/path/to/social_read_token.txt --remove-source
+python cli.py connector-keychain --target xai-api-key --from-file /absolute/path/to/xai_api_key.txt --remove-source
+python cli.py connector-keychain --target github-read --status
+python cli.py connector-keychain --target social-read --status
+python cli.py connector-keychain --target xai-api-key --status
+```
+This keeps `PERMANENCE_GITHUB_READ_TOKEN=`, `PERMANENCE_SOCIAL_READ_TOKEN=`, and `XAI_API_KEY=` blank in `.env` and loads them from Keychain at runtime.
+
+Secret leak guard (recommended before every push):
+```bash
+python cli.py secret-scan
+bash automation/setup_secret_scan_hook.sh
+```
+This installs a pre-push hook that blocks pushes when likely secrets are detected.
+
+### Second Brain Loop (Life + Business + Income Streams)
+Run one command to refresh your personal operating layer plus supervised side-income modules:
+```bash
+python cli.py second-brain-init
+python cli.py second-brain-loop
+python cli.py life-os-brief
+python cli.py github-research-ingest
+python cli.py social-research-ingest
+python cli.py side-business-portfolio
+python cli.py prediction-ingest
+python cli.py prediction-lab
+python cli.py clipping-transcript-ingest
+python cli.py clipping-pipeline
+python cli.py revenue-cost-recovery
+python cli.py second-brain-report
+```
+Outputs:
+- `outputs/life_os_brief_latest.md`
+- `outputs/github_research_ingest_latest.md`
+- `outputs/social_research_ingest_latest.md`
+- `outputs/side_business_portfolio_latest.md`
+- `outputs/prediction_ingest_latest.md`
+- `outputs/prediction_lab_latest.md`
+- `outputs/clipping_transcript_ingest_latest.md`
+- `outputs/clipping_pipeline_latest.md`
+- `outputs/revenue_cost_recovery_latest.md`
+- `outputs/second_brain_report_latest.md`
+
+Working files to edit:
+- `memory/working/github_research_targets.json` (repos to monitor read-only)
+- `memory/working/social_research_feeds.json` (RSS and optional X query feeds to rank)
+- `memory/working/social_discernment_policy.json` (what the social agent keeps vs filters out)
+- `memory/working/prediction_news_feeds.json` (feed list for signal ingest)
+- `memory/working/clipping_transcripts/` (drop transcript files here for auto ingest)
+- `memory/working/api_cost_plan.json` (monthly API/tool budget + payback assumptions)
+
+Example X feed row (`social_research_feeds.json`):
+```json
+{
+  "name": "X Agents/Automation",
+  "platform": "x",
+  "query": "(ai OR agent OR automation OR saas) -is:retweet lang:en",
+  "max_results": 25
+}
+```
+
+Governance model:
+- prediction and trading logic is advisory only
+- publishing/trading actions remain manual approval
+- no autonomous broker/exchange execution in this stack
 
 ### Revenue Architecture v1 (Pipeline + KPI Scorecard)
 Generate report:
@@ -435,6 +571,13 @@ Creates:
 - `~/Desktop/Run_Permanence_Command_Center.command`
 - `~/Desktop/Run_Permanence_Foundation_Site.command`
 - `~/Desktop/Run_Permanence_Money_Loop.command`
+- `~/Desktop/Run_Permanence_Comms_Loop.command`
+- `~/Desktop/Run_Permanence_Comms_Status.command`
+- `~/Desktop/Run_Permanence_Discord_Relay.command`
+- `~/Desktop/Run_Permanence_Comms_Digest.command`
+- `~/Desktop/Run_Permanence_Comms_Doctor.command`
+- `~/Desktop/Run_Permanence_Comms_Escalation_Digest.command`
+- `~/Desktop/Run_Permanence_Comms_Escalation_Status.command`
 
 ### Money Loop Automation Schedule
 Schedule money loop at 07:15, 12:15, 19:15 local time:
@@ -444,6 +587,91 @@ bash automation/setup_money_loop_automation.sh
 Disable schedule:
 ```bash
 bash automation/disable_money_loop_automation.sh
+```
+
+### Comms Loop Automation Schedule
+Run cross-platform communication sync every 5 minutes (Telegram poll, Discord relay, glasses/autopilot, inbox process):
+```bash
+bash automation/setup_comms_loop_automation.sh
+```
+Disable schedule:
+```bash
+bash automation/disable_comms_loop_automation.sh
+```
+CLI alternative:
+```bash
+python cli.py comms-automation --action enable
+python cli.py comms-automation --action status
+python cli.py comms-automation --action run-now
+python cli.py comms-automation --action disable
+```
+Optional stricter status snapshot inside loop:
+- leave `PERMANENCE_COMMS_LOOP_COMMS_STATUS_ENABLED=1`
+- tune thresholds with:
+  - `PERMANENCE_COMMS_LOOP_COMMS_STATUS_ESCALATION_WARN_COUNT` (default `6`)
+  - `PERMANENCE_COMMS_LOOP_COMMS_STATUS_VOICE_QUEUE_WARN_COUNT` (default `12`)
+  - `PERMANENCE_COMMS_LOOP_COMMS_STATUS_ESCALATION_DIGEST_STALE_MINUTES` (default `720`)
+  - `PERMANENCE_COMMS_LOOP_COMMS_STATUS_REQUIRE_ESCALATION_DIGEST=1` if you want missing escalation digest to warn
+
+### Comms Digest Automation Schedule
+Send daily Telegram comms digest at 21:05 local time:
+```bash
+bash automation/setup_comms_digest_automation.sh
+```
+Disable schedule:
+```bash
+bash automation/disable_comms_digest_automation.sh
+```
+CLI alternative:
+```bash
+python cli.py comms-automation --action digest-enable
+python cli.py comms-automation --action digest-status
+python cli.py comms-automation --action digest-now
+python cli.py comms-automation --action digest-disable
+```
+
+### Comms Escalation Digest Automation Schedule
+Run escalation digest every 4 hours:
+```bash
+bash automation/setup_comms_escalation_digest_automation.sh
+```
+Disable schedule:
+```bash
+bash automation/disable_comms_escalation_digest_automation.sh
+```
+CLI alternative:
+```bash
+python cli.py comms-automation --action escalation-enable
+python cli.py comms-automation --action escalation-status
+python cli.py comms-automation --action escalation-digest-now
+python cli.py comms-automation --action escalation-disable
+```
+
+### Comms Doctor Automation Schedule
+Run comms health doctor every 30 minutes (secrets/feed/automation/freshness checks):
+```bash
+bash automation/setup_comms_doctor_automation.sh
+```
+Disable schedule:
+```bash
+bash automation/disable_comms_doctor_automation.sh
+```
+CLI alternative:
+```bash
+python cli.py comms-automation --action doctor-enable
+python cli.py comms-automation --action doctor-status
+python cli.py comms-automation --action doctor-now
+python cli.py comms-automation --action doctor-disable
+```
+
+### Second Brain Automation Schedule
+Schedule second-brain loop at 06:40, 13:40, 20:40 local time:
+```bash
+bash automation/setup_second_brain_automation.sh
+```
+Disable schedule:
+```bash
+bash automation/disable_second_brain_automation.sh
 ```
 
 ### Revenue Ops Automation + Services
@@ -742,3 +970,75 @@ MIT License - See LICENSE file
 
 **Permanence OS v0.1.0**
 February 2026
+Telegram command control notes:
+- enable command mode with `PERMANENCE_TELEGRAM_CONTROL_ENABLE_COMMANDS=1`
+- recommended limits: `PERMANENCE_TELEGRAM_CONTROL_MAX_COMMANDS=3`, `PERMANENCE_TELEGRAM_CONTROL_COMMAND_TIMEOUT=90`
+- per-command ack on/off: `PERMANENCE_TELEGRAM_CONTROL_COMMAND_ACK=1|0`
+- command prefix: `PERMANENCE_TELEGRAM_CONTROL_COMMAND_PREFIX=/`
+- chat-agent mode:
+  - enable with `PERMANENCE_TELEGRAM_CONTROL_CHAT_AGENT_ENABLED=1`
+  - plain text/voice/media messages get assistant replies + still enter intake pipeline
+  - tune with `PERMANENCE_TELEGRAM_CONTROL_CHAT_MAX_REPLIES`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_MAX_HISTORY`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_REPLY_MAX_CHARS`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_MEMORY_MAX_NOTES`
+  - auto-memory capture toggle: `PERMANENCE_TELEGRAM_CONTROL_CHAT_AUTO_MEMORY=1|0`
+  - memory retention cap: `PERMANENCE_TELEGRAM_CONTROL_MEMORY_MAX_NOTES=500`
+  - default personality mode: `PERMANENCE_TELEGRAM_CONTROL_CHAT_PERSONALITY_DEFAULT=adaptive|strategist|coach|operator|calm|creative`
+  - optional memory path override: `PERMANENCE_TELEGRAM_CONTROL_MEMORY_PATH=.../personal_memory.json`
+  - fallback ack on model error: `PERMANENCE_TELEGRAM_CONTROL_CHAT_FALLBACK_ACK=1`
+- target chat scope:
+  - single: `PERMANENCE_TELEGRAM_CHAT_ID=-100...`
+  - multiple: `PERMANENCE_TELEGRAM_CHAT_IDS=-100...,123456789`
+  - telegram-control-only override: `PERMANENCE_TELEGRAM_CONTROL_TARGET_CHAT_IDS=` (blank means accept all chats)
+  - chat-loop override scope: `PERMANENCE_TELEGRAM_CHAT_LOOP_CHAT_IDS=-100...` (run loop polls only these chats)
+- optional hard safety allowlist:
+  - set `PERMANENCE_TELEGRAM_CONTROL_COMMAND_USER_IDS=123456789,987654321`
+  - or set `PERMANENCE_TELEGRAM_CONTROL_COMMAND_CHAT_IDS=-1001234567890`
+  - set `PERMANENCE_TELEGRAM_CONTROL_REQUIRE_COMMAND_ALLOWLIST=1`
+  - send `/comms-whoami` to return your Telegram `user_id` / `sender_chat_id` / `chat_id`
+- routing check from Telegram:
+  - send `/comms-mode` to see agent-vs-terminal routing behavior
+  - send `/memory-help` for persistent memory commands (`/remember`, `/share`, `/recall`, `/profile`, `/profile-history`, `/profile-conflicts`, `/forget-last`)
+  - set profile and style with `/profile-set <field> <value>` and `/personality <mode>`
+  - queue terminal work items from Telegram with `/terminal <task>` and review with `/terminal-list`
+  - track routines with `/habit-add ... | cue: ... | plan: ...`, `/habit-plan`, `/habit-done`, `/habit-nudge`, `/habit-list`
+  - governed learning shortcuts: `/learn-status`, `/learn-run` (subject to command security scope)
+  - improvement pitch shortcuts: `/improve-status`, `/improve-pitch`, `/improve-list`, `/improve-approve [proposal-id] [decision-code]`, `/improve-reject [proposal-id] [decision-code]`, `/improve-defer [proposal-id] [decision-code]`
+  - brain shortcuts: `/brain-status`, `/brain-sync`, `/brain-recall <query>`
+  - read-only X watch shortcuts: `/x-watch <handle|url>`, `/x-unwatch <handle|url>`, `/x-watch-list`
+  - loop brain-sync knobs: `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC=1|0`, `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC_MIN_AGE_SECONDS=900`
+  - sensitive data guardrails: `PERMANENCE_TELEGRAM_CONTROL_REDACT_SENSITIVE=1`, `PERMANENCE_TELEGRAM_CONTROL_REDACT_PAYMENT_LINKS=1`
+  - optional iMessage/SMS mirror for Telegram replies/acks:
+    - enable `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_MIRROR=1`
+    - set destination `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_TARGET=+1...` (or iMessage email)
+    - choose channel `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_SERVICE=iMessage|SMS`
+    - optional prefix/limit: `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_PREFIX`, `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_MAX_CHARS`
+Governed continuous learning notes:
+- run `python cli.py governed-learning --action status` to inspect policy/state
+- run `python cli.py governed-learning --action init-policy` to scaffold/reset governance policy
+- run `python cli.py governed-learning --action run --approved-by <name> --approval-note "<reason>"` for approved learning cycles
+- default loop is read-only and blocks when `PERMANENCE_AGENT_EXTERNAL_WRITE_ENABLE=1`
+- topics are managed in `memory/working/governed_learning_policy.json` (AI, finance, excel, media keywords)
+Self-improvement pitch loop notes:
+- run `python cli.py self-improvement --action pitch` to generate upgrade ideas from live system signals
+- run `python cli.py self-improvement --action list` to review pending ideas
+- run `python cli.py self-improvement --action decide --decision approve --proposal-id <id> --decided-by <name>` to approve a change
+- set approval PIN/password: `python cli.py self-improvement --action status --set-decision-code <pin>`
+- enforce PIN on decisions: `python cli.py self-improvement --action decide --decision approve --proposal-id <id> --decided-by <name> --decision-code <pin>`
+- approved ideas can be auto-queued to `memory/approvals.json` for execution board tracking
+- set up recurring pitch loop: `bash automation/setup_self_improvement_automation.sh /Users/paytonhicks/Code/permanence-os 21600`
+- disable recurring pitch loop: `bash automation/disable_self_improvement_automation.sh /Users/paytonhicks/Code/permanence-os`
+Terminal task queue notes:
+- review queued Telegram terminal tasks: `python cli.py terminal-task-queue --action list`
+- add one manually: `python cli.py terminal-task-queue --action add --text "task text"`
+- complete one: `python cli.py terminal-task-queue --action complete --task-id TERM-XXXXXXXXXXXX`
+Cost and spend governance notes:
+- keep all paid upgrades manual: no autonomous paid plan upgrades or purchases
+- external writes and money actions remain approval-gated (`PERMANENCE_AGENT_EXTERNAL_WRITE_ENABLE=0`)
+X personal account read-only notes:
+- add a watched account feed: `python cli.py x-account-watch --action add --handle @yourhandle`
+- list watched feeds: `python cli.py x-account-watch --action list`
+- remove watched feed: `python cli.py x-account-watch --action remove --handle @yourhandle`
+- watched feeds are read-only trend ingest config and do not post/publish.
+Ophtxn persistent brain notes:
+- sync the vault from docs/reports/intake: `python cli.py ophtxn-brain --action sync`
+- recall from vault: `python cli.py ophtxn-brain --action recall --query "<topic>"`
+- Telegram chat replies can include this brain context when the vault exists.
