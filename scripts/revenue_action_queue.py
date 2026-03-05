@@ -74,7 +74,8 @@ def _default_playbook() -> dict[str, Any]:
         "offer_name": "Permanence OS Foundation Setup",
         "cta_keyword": "FOUNDATION",
         "cta_public": 'DM me "FOUNDATION".',
-        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send the intake + call link.',
+        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send fit-call + direct-checkout options.',
+        "call_policy": "recommended",
         "pricing_tier": "Core",
         "price_usd": 1500,
     }

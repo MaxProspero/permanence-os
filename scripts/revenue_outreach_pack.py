@@ -19,6 +19,7 @@ OUTPUT_DIR = Path(os.getenv("PERMANENCE_OUTPUT_DIR", str(BASE_DIR / "outputs")))
 TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool")))
 PIPELINE_PATH = Path(os.getenv("PERMANENCE_SALES_PIPELINE_PATH", str(WORKING_DIR / "sales_pipeline.json")))
 PLAYBOOK_PATH = Path(os.getenv("PERMANENCE_REVENUE_PLAYBOOK_PATH", str(WORKING_DIR / "revenue_playbook.json")))
+CALL_POLICIES = {"recommended", "required", "direct_pay"}
 
 OPEN_STAGES = {"lead", "qualified", "call_scheduled", "proposal_sent", "negotiation"}
 STAGE_PRIORITY = {
@@ -49,7 +50,10 @@ def _default_playbook() -> dict[str, Any]:
         "offer_name": "Permanence OS Foundation Setup",
         "cta_keyword": "FOUNDATION",
         "cta_public": 'DM me "FOUNDATION".',
-        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send the intake + call link.',
+        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send fit-call + direct-checkout options.',
+        "call_policy": "recommended",
+        "booking_link": str(os.getenv("PERMANENCE_BOOKING_LINK", "")).strip(),
+        "payment_link": str(os.getenv("PERMANENCE_PAYMENT_LINK", "")).strip(),
         "pricing_tier": "Core",
         "price_usd": 1500,
     }
@@ -89,6 +93,13 @@ def _as_float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError):
         return default
+
+
+def _normalize_call_policy(value: Any) -> str:
+    policy = str(value or "").strip().lower()
+    if policy in CALL_POLICIES:
+        return policy
+    return "recommended"
 
 
 def _suggest_channel(source: str) -> str:
@@ -132,6 +143,9 @@ def _build_message(row: dict[str, Any], playbook: dict[str, Any]) -> dict[str, A
     open_line = OPEN_LINE_BY_STAGE.get(stage, OPEN_LINE_BY_STAGE["lead"])
     offer_name = str(playbook.get("offer_name") or _default_playbook()["offer_name"])
     cta_direct = str(playbook.get("cta_direct") or _default_playbook()["cta_direct"])
+    call_policy = _normalize_call_policy(playbook.get("call_policy"))
+    booking_link = str(playbook.get("booking_link") or _default_playbook()["booking_link"])
+    payment_link = str(playbook.get("payment_link") or _default_playbook()["payment_link"])
     subject = f"{name} — next step for {offer_name}"
     body = (
         f"Hey {name}, {open_line} "
@@ -139,8 +153,32 @@ def _build_message(row: dict[str, Any], playbook: dict[str, Any]) -> dict[str, A
         f"If this is still a priority, let's {cta}. "
         f"{cta_direct}"
     )
-    if stage in {"proposal_sent", "negotiation"}:
-        body += " If helpful, I can also walk through scope line-by-line in one quick call."
+    if stage in {"lead", "qualified", "call_scheduled"}:
+        if call_policy == "required":
+            if booking_link:
+                body += f" Fit call required: {booking_link}"
+            elif payment_link:
+                body += f" If you are ready now, direct checkout: {payment_link}"
+        elif call_policy == "direct_pay":
+            if payment_link:
+                body += f" Ready now? Direct checkout: {payment_link}"
+            if booking_link:
+                body += f" Optional fit call: {booking_link}"
+        else:
+            if booking_link and payment_link:
+                body += f" Optional fit call: {booking_link} | Ready-now checkout: {payment_link}"
+            elif booking_link:
+                body += f" Optional fit call: {booking_link}"
+            elif payment_link:
+                body += f" Ready-now checkout: {payment_link}"
+    elif stage in {"proposal_sent", "negotiation"}:
+        if payment_link:
+            body += f" Ready-now checkout: {payment_link}"
+        if booking_link:
+            if call_policy == "direct_pay":
+                body += f" Optional scope review call: {booking_link}"
+            else:
+                body += f" If helpful, quick scope review call: {booking_link}"
 
     return {
         "lead_id": lead_id,
@@ -175,6 +213,7 @@ def _write_outputs(messages: list[dict[str, Any]], playbook: dict[str, Any]) -> 
         f"- Offer: {playbook.get('offer_name')}",
         f"- CTA keyword: {playbook.get('cta_keyword')}",
         f"- CTA line: {playbook.get('cta_public')}",
+        f"- Call policy: {_normalize_call_policy(playbook.get('call_policy'))}",
         f"- Pricing tier: {playbook.get('pricing_tier')} (${playbook.get('price_usd')})",
         "",
         "## Priority Messages",

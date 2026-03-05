@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
 """
 
 import argparse
@@ -2205,9 +2205,42 @@ def main() -> int:
         )
     )
 
+    platform_watch_p = sub.add_parser(
+        "platform-change-watch",
+        help="Watch API/platform updates from feeds + email and queue actionable code update tasks",
+    )
+    platform_watch_p.add_argument("--force-template", action="store_true", help="Rewrite watchlist template file")
+    platform_watch_p.add_argument("--watchlist-path", help="Override watchlist JSON path")
+    platform_watch_p.add_argument("--email-path", help="Override email inbox JSON path")
+    platform_watch_p.add_argument("--queue-path", help="Override action queue JSONL path")
+    platform_watch_p.add_argument("--scan-root", action="append", default=[], help="Path to scan for integration references")
+    platform_watch_p.add_argument("--lookback-days", type=int, help="Lookback window in days")
+    platform_watch_p.add_argument("--min-score", type=float, help="Minimum alert score threshold")
+    platform_watch_p.add_argument("--max-items", type=int, help="Max alerts to include")
+    platform_watch_p.add_argument("--no-queue", action="store_true", help="Skip queue file updates")
+    platform_watch_p.add_argument("--strict", action="store_true", help="Exit non-zero when critical alerts are present")
+    platform_watch_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "platform_change_watch.py"),
+                *(["--force-template"] if args.force_template else []),
+                *(["--watchlist-path", args.watchlist_path] if args.watchlist_path else []),
+                *(["--email-path", args.email_path] if args.email_path else []),
+                *(["--queue-path", args.queue_path] if args.queue_path else []),
+                *([arg for path in (args.scan_root or []) for arg in ("--scan-root", path)] if args.scan_root else []),
+                *(["--lookback-days", str(args.lookback_days)] if args.lookback_days is not None else []),
+                *(["--min-score", str(args.min_score)] if args.min_score is not None else []),
+                *(["--max-items", str(args.max_items)] if args.max_items is not None else []),
+                *(["--no-queue"] if args.no_queue else []),
+                *(["--strict"] if args.strict else []),
+            ]
+        )
+    )
+
     ophtxn_completion_p = sub.add_parser(
         "ophtxn-completion",
-        help="Score Ophtxn completion progress vs 100% from live telemetry",
+        help="Score Ophtxn completion progress vs 100%% from live telemetry",
     )
     ophtxn_completion_p.add_argument("--target", type=int, default=100, help="Target completion percentage")
     ophtxn_completion_p.add_argument("--strict", action="store_true", help="Exit non-zero when below target")
@@ -2388,6 +2421,72 @@ def main() -> int:
                 sys.executable,
                 os.path.join(BASE_DIR, "scripts", "narrative_tracker.py"),
                 *(["--force-template"] if args.force_template else []),
+            ]
+        )
+    )
+
+    low_cost_mode_p = sub.add_parser(
+        "low-cost-mode",
+        help="Status/apply low-cost operating profile (local-first + budget + revenue gate)",
+    )
+    low_cost_mode_p.add_argument("--action", choices=["status", "enable", "disable"], default="status")
+    low_cost_mode_p.add_argument("--monthly-budget", type=float, default=10.0, help="Budget cap for --action enable")
+    low_cost_mode_p.add_argument("--milestone-usd", type=int, default=500, help="Revenue milestone for --action enable")
+    low_cost_mode_p.add_argument(
+        "--chat-agent",
+        action="store_true",
+        help="Keep Telegram chat-agent enabled when low-cost mode is enabled",
+    )
+    low_cost_mode_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "low_cost_mode.py"),
+                "--action",
+                args.action,
+                *(["--monthly-budget", str(args.monthly_budget)] if args.monthly_budget is not None else []),
+                *(["--milestone-usd", str(args.milestone_usd)] if args.milestone_usd is not None else []),
+                *(["--chat-agent"] if args.chat_agent else []),
+            ]
+        )
+    )
+
+    money_gate_p = sub.add_parser(
+        "money-first-gate",
+        help="Gate feature work until first revenue milestone is reached",
+    )
+    money_gate_p.add_argument("--pipeline-path", help="Override sales pipeline path")
+    money_gate_p.add_argument("--milestone-usd", type=float, help="Won revenue milestone to unlock feature work")
+    money_gate_p.add_argument("--min-won-deals", type=int, help="Minimum won deals to unlock feature work")
+    money_gate_p.add_argument("--strict", action="store_true", help="Exit non-zero when gate is closed")
+    money_gate_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "money_first_gate.py"),
+                *(["--pipeline-path", args.pipeline_path] if args.pipeline_path else []),
+                *(["--milestone-usd", str(args.milestone_usd)] if args.milestone_usd is not None else []),
+                *(["--min-won-deals", str(args.min_won_deals)] if args.min_won_deals is not None else []),
+                *(["--strict"] if args.strict else []),
+            ]
+        )
+    )
+
+    money_lane_p = sub.add_parser(
+        "money-first-lane",
+        help="Run revenue-first execution lane before feature expansion",
+    )
+    money_lane_p.add_argument("--strict", action="store_true", help="Exit non-zero when any step fails")
+    money_lane_p.add_argument("--timeout", type=int, default=900, help="Per-step timeout seconds")
+    money_lane_p.add_argument("--skip-init", action="store_true", help="Skip init checks for playbook/targets/pipeline")
+    money_lane_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "money_first_lane.py"),
+                *(["--strict"] if args.strict else []),
+                *(["--timeout", str(args.timeout)] if args.timeout is not None else []),
+                *(["--skip-init"] if args.skip_init else []),
             ]
         )
     )

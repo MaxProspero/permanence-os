@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -23,9 +23,15 @@ def test_revenue_weekly_summary_writes_outputs():
         tool_dir.mkdir(parents=True, exist_ok=True)
         working_dir.mkdir(parents=True, exist_ok=True)
 
-        now = datetime.now(timezone.utc)
-        this_week = now.isoformat()
-        yesterday = (now - timedelta(days=1)).isoformat()
+        # Use local week boundaries to match production behavior.
+        week_start, _ = summary_mod._week_window(date.today())
+        local_tz = datetime.now().astimezone().tzinfo
+        assert local_tz is not None
+
+        this_week_dt = datetime.combine(week_start + timedelta(days=1), time(12, 0), tzinfo=local_tz)
+        yesterday_dt = this_week_dt - timedelta(days=1)
+        this_week = this_week_dt.isoformat()
+        yesterday = yesterday_dt.isoformat()
 
         pipeline_path = working_dir / "sales_pipeline.json"
         pipeline_path.write_text(
@@ -37,7 +43,7 @@ def test_revenue_weekly_summary_writes_outputs():
                         "stage": "qualified",
                         "est_value": 1500,
                         "next_action": "Run discovery call",
-                        "next_action_due": (now.date() + timedelta(days=1)).isoformat(),
+                        "next_action_due": (this_week_dt.date() + timedelta(days=1)).isoformat(),
                         "created_at": this_week,
                         "updated_at": this_week,
                         "closed_at": None,

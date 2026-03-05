@@ -53,6 +53,69 @@ def _launcher_specs() -> dict[str, str]:
             ]
         )
         + "\n",
+        "Run_Permanence_Comms_Loop.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env bash "scripts/run_comms_loop.sh"',
+            ]
+        )
+        + "\n",
+        "Run_Permanence_Comms_Status.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env python3 "cli.py" comms-status "$@"',
+            ]
+        )
+        + "\n",
+        "Run_Permanence_Discord_Relay.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env python3 "cli.py" discord-telegram-relay --action run "$@"',
+            ]
+        )
+        + "\n",
+        "Run_Permanence_Comms_Digest.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env python3 "cli.py" comms-digest --send "$@"',
+            ]
+        )
+        + "\n",
+        "Run_Permanence_Comms_Doctor.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env python3 "cli.py" comms-doctor --allow-warnings "$@"',
+            ]
+        )
+        + "\n",
+        "Run_Permanence_Comms_Escalation_Digest.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env python3 "cli.py" comms-escalation-digest --send "$@"',
+            ]
+        )
+        + "\n",
+        "Run_Permanence_Comms_Escalation_Status.command": "\n".join(
+            [
+                "#!/bin/zsh",
+                "set -euo pipefail",
+                f'cd "{BASE_DIR}"',
+                'exec /usr/bin/env python3 "cli.py" comms-automation --action escalation-status "$@"',
+            ]
+        )
+        + "\n",
     }
 
 

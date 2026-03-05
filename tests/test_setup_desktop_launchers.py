@@ -17,12 +17,7 @@ def test_setup_desktop_launchers_writes_expected_files():
         rc = launcher_mod.main(["--desktop-dir", str(target_dir)])
         assert rc == 0
 
-        expected = {
-            "Run_Permanence_Operator_Surface.command",
-            "Run_Permanence_Command_Center.command",
-            "Run_Permanence_Foundation_Site.command",
-            "Run_Permanence_Money_Loop.command",
-        }
+        expected = set(launcher_mod._launcher_specs().keys())
         actual = {p.name for p in target_dir.glob("*.command")}
         assert expected.issubset(actual)
 

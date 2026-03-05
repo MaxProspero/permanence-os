@@ -38,6 +38,7 @@ def _default_playbook() -> dict[str, Any]:
         "offer_name": "Permanence OS Foundation Setup",
         "cta_keyword": "FOUNDATION",
         "cta_public": 'DM me "FOUNDATION".',
+        "call_policy": "recommended",
         "pricing_tier": "Core",
         "price_usd": 1500,
     }
@@ -286,6 +287,7 @@ def _write_report(
             "",
         "## Operator Notes",
             f"- Keep offer + CTA locked for the entire week: {playbook.get('offer_name')} | {playbook.get('cta_public')}",
+            f"- Call policy this week: {playbook.get('call_policy') or 'recommended'}",
             "- Move every touched lead to a concrete next stage before end of day.",
             "",
         ]

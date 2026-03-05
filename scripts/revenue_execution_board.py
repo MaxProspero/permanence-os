@@ -30,6 +30,7 @@ def _default_playbook() -> dict[str, Any]:
         "offer_name": "Permanence OS Foundation Setup",
         "cta_keyword": "FOUNDATION",
         "cta_public": 'DM me "FOUNDATION".',
+        "call_policy": "recommended",
         "pricing_tier": "Core",
         "price_usd": 1500,
     }
@@ -136,6 +137,7 @@ def _write_board(
     outreach_target = int(targets.get("daily_outreach_target", 10))
     offer_name = str(playbook.get("offer_name") or _default_playbook()["offer_name"])
     cta_public = str(playbook.get("cta_public") or _default_playbook()["cta_public"])
+    call_policy = str(playbook.get("call_policy") or _default_playbook()["call_policy"])
     pricing_tier = str(playbook.get("pricing_tier") or _default_playbook()["pricing_tier"])
     price_usd = int(playbook.get("price_usd") or _default_playbook()["price_usd"])
 
@@ -176,6 +178,7 @@ def _write_board(
             "## Publish + Outreach Block",
             f"- Outreach target today: {outreach_target}",
             f"- Locked CTA: {cta_public}",
+            f"- Call policy: {call_policy}",
             "",
             "### Drafts Ready",
         ]

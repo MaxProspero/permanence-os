@@ -15,10 +15,18 @@ from typing import Any
 BASE_DIR = Path(__file__).resolve().parents[1]
 WORKING_DIR = Path(os.getenv("PERMANENCE_WORKING_DIR", str(BASE_DIR / "memory" / "working")))
 PLAYBOOK_PATH = Path(os.getenv("PERMANENCE_REVENUE_PLAYBOOK_PATH", str(WORKING_DIR / "revenue_playbook.json")))
+CALL_POLICIES = {"recommended", "required", "direct_pay"}
 
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _normalize_call_policy(value: Any) -> str:
+    policy = str(value or "").strip().lower()
+    if policy in CALL_POLICIES:
+        return policy
+    return "recommended"
 
 
 def default_playbook() -> dict[str, Any]:
@@ -28,7 +36,10 @@ def default_playbook() -> dict[str, Any]:
         "delivery_window_days": 7,
         "cta_keyword": "FOUNDATION",
         "cta_public": 'DM me "FOUNDATION".',
-        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send the intake + call link.',
+        "cta_direct": 'If you want this set up for you, DM "FOUNDATION" and I will send fit-call + direct-checkout options.',
+        "call_policy": "recommended",
+        "booking_link": str(os.getenv("PERMANENCE_BOOKING_LINK", "")).strip(),
+        "payment_link": str(os.getenv("PERMANENCE_PAYMENT_LINK", "")).strip(),
         "pricing_tier": "Core",
         "price_usd": 1500,
         "updated_at": _utc_now_iso(),
@@ -48,6 +59,7 @@ def load_playbook() -> dict[str, Any]:
         return default
     merged = dict(default)
     merged.update(payload)
+    merged["call_policy"] = _normalize_call_policy(merged.get("call_policy"))
     return merged
 
 
@@ -89,6 +101,12 @@ def cmd_set(args: argparse.Namespace) -> int:
         pb["cta_public"] = str(args.cta_public).strip()
     if args.cta_direct is not None:
         pb["cta_direct"] = str(args.cta_direct).strip()
+    if args.call_policy is not None:
+        pb["call_policy"] = _normalize_call_policy(args.call_policy)
+    if args.booking_link is not None:
+        pb["booking_link"] = str(args.booking_link).strip()
+    if args.payment_link is not None:
+        pb["payment_link"] = str(args.payment_link).strip()
     if args.pricing_tier is not None:
         pb["pricing_tier"] = str(args.pricing_tier).strip()
     if args.price_usd is not None:
@@ -118,6 +136,9 @@ def build_parser() -> argparse.ArgumentParser:
     set_p.add_argument("--cta-keyword")
     set_p.add_argument("--cta-public")
     set_p.add_argument("--cta-direct")
+    set_p.add_argument("--call-policy", choices=sorted(CALL_POLICIES))
+    set_p.add_argument("--booking-link")
+    set_p.add_argument("--payment-link")
     set_p.add_argument("--pricing-tier")
     set_p.add_argument("--price-usd", type=int)
     set_p.set_defaults(func=cmd_set)

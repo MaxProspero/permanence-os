@@ -63,6 +63,7 @@ run_step "status-glance" "$PYTHON_BIN" cli.py status-glance
 run_step "integration-readiness" "$PYTHON_BIN" cli.py integration-readiness
 run_step "revenue-action-queue" "$PYTHON_BIN" scripts/revenue_action_queue.py
 run_step "revenue-architecture" "$PYTHON_BIN" scripts/revenue_architecture_report.py
+run_step "revenue-cost-recovery" "$PYTHON_BIN" scripts/revenue_cost_recovery.py
 run_step "revenue-execution-board" "$PYTHON_BIN" scripts/revenue_execution_board.py
 run_step "revenue-outreach-pack" "$PYTHON_BIN" scripts/revenue_outreach_pack.py
 run_step "revenue-followup-queue" "$PYTHON_BIN" scripts/revenue_followup_queue.py
@@ -75,6 +76,10 @@ fi
 LATEST_ARCH="$(ls -t "$BASE_DIR"/outputs/revenue_architecture_*.md 2>/dev/null | head -n 1 || true)"
 if [[ -n "$LATEST_ARCH" ]]; then
   echo "Latest revenue architecture: $LATEST_ARCH" | tee -a "$LOG_FILE"
+fi
+LATEST_RECOVERY="$(ls -t "$BASE_DIR"/outputs/revenue_cost_recovery_*.md 2>/dev/null | head -n 1 || true)"
+if [[ -n "$LATEST_RECOVERY" ]]; then
+  echo "Latest revenue cost recovery: $LATEST_RECOVERY" | tee -a "$LOG_FILE"
 fi
 LATEST_BOARD="$(ls -t "$BASE_DIR"/outputs/revenue_execution_board_*.md 2>/dev/null | head -n 1 || true)"
 if [[ -n "$LATEST_BOARD" ]]; then

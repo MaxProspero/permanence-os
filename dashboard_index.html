@@ -534,6 +534,105 @@
     .log-agent { color: var(--accent); }
     .log-msg   { color: var(--text-sub); }
 
+    /* ─── AGENT CONSOLE ─────────────────────────────────────────── */
+    .agent-quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .agent-console-history {
+      max-height: 460px;
+      overflow-y: auto;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .agent-console-entry {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: var(--surface);
+    }
+
+    .agent-console-entry.user {
+      border-left: 3px solid var(--info);
+    }
+
+    .agent-console-entry.assistant {
+      border-left: 3px solid var(--accent);
+    }
+
+    .agent-console-meta {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .agent-console-body {
+      font-size: 12px;
+      color: var(--text-sub);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .agent-console-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .agent-console-form input {
+      width: 100%;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: var(--font);
+    }
+
+    .agent-console-upload {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .agent-console-upload input[type="file"] {
+      width: 100%;
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-sub);
+      padding: 6px;
+      font-size: 11px;
+      font-family: var(--font);
+    }
+
+    .agent-console-uploads {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      max-height: 140px;
+      overflow-y: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      white-space: pre-wrap;
+    }
+
     /* ─── HORIZON ────────────────────────────────────────────────── */
     .elevation-card {
       background: var(--surface);
@@ -637,6 +736,9 @@
     </div>
     <div class="nav-item" data-view="revenue" onclick="switchView('revenue', this)">
       <span>¤</span> Revenue Ops
+    </div>
+    <div class="nav-item" data-view="agent-console" onclick="switchView('agent-console', this)">
+      <span>⌁</span> Agent Console
     </div>
 
     <div class="nav-section-label">Intelligence</div>
@@ -773,12 +875,21 @@
           <div class="inline-form">
             <input name="offer_name" placeholder="Offer name">
             <input name="cta_keyword" placeholder="CTA keyword (e.g. FOUNDATION)">
+            <select name="call_policy">
+              <option value="recommended">Call: Recommended</option>
+              <option value="required">Call: Required</option>
+              <option value="direct_pay">Direct Pay First</option>
+            </select>
             <input name="pricing_tier" placeholder="Pricing tier">
             <input name="price_usd" type="number" min="0" step="1" placeholder="Price USD">
           </div>
           <div class="inline-form">
             <input name="cta_public" placeholder='Public CTA (e.g. DM me "FOUNDATION".)'>
             <input name="cta_direct" placeholder="Direct CTA line">
+          </div>
+          <div class="inline-form">
+            <input name="booking_link" placeholder="Booking link (https://...)">
+            <input name="payment_link" placeholder="Payment link (https://...)">
           </div>
           <div class="approval-actions">
             <button class="btn btn-approve" type="submit">Save Lock</button>
@@ -965,6 +1076,57 @@
       </div>
     </div>
 
+    <!-- ── AGENT CONSOLE ── -->
+    <div class="view" id="view-agent-console">
+      <div class="page-header">
+        <div class="page-title">Agent Console</div>
+        <div class="page-subtitle">Send governed commands to your system and track execution in one timeline.</div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Quick Actions</div>
+        <div id="agent-console-quick-actions" class="agent-quick-actions">
+          <div class="empty">Loading commands...</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Constitution Gate</div>
+        <div id="agent-console-constitution" style="font-size:11px; color:var(--muted); font-family:var(--mono);">
+          Loading constitution policy...
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Conversation</div>
+        <div id="agent-console-history" class="agent-console-history">
+          <div class="empty">No messages yet. Send your first instruction below.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <form id="agentConsoleForm" onsubmit="sendAgentConsole(event)">
+          <div class="agent-console-form">
+            <input
+              name="message"
+              id="agentConsoleInput"
+              placeholder='Examples: "run phase2 refresh", "scan attachments", "run resume brand brief"'
+              autocomplete="off"
+            >
+            <button class="btn btn-approve" type="submit">Send</button>
+          </div>
+          <div id="agentConsoleStatus" style="font-size:11px; color:var(--muted); font-family:var(--mono); margin-top:8px;">
+            Idle
+          </div>
+        </form>
+        <form id="agentConsoleUploadForm" onsubmit="uploadAgentConsoleFile(event)" class="agent-console-upload">
+          <input id="agentConsoleFile" name="file" type="file" />
+          <button class="btn btn-view" type="submit">Upload</button>
+        </form>
+        <div id="agent-console-uploads" class="agent-console-uploads">No uploads yet.</div>
+      </div>
+    </div>
+
     <!-- ── HORIZON ── -->
     <div class="view" id="view-horizon">
       <div class="page-header">
@@ -1027,6 +1189,7 @@ const API_BASE = window.location.protocol.startsWith("http")
   ? `${window.location.origin}/api`
   : "http://127.0.0.1:8000/api";
 let refreshInterval = null;
+let agentConsoleCommands = [];
 
 // ─────────────────────────────────────────────
 // NAVIGATION
@@ -1045,6 +1208,7 @@ function loadView(viewId) {
     case "approvals": loadApprovals(); break;
     case "briefing":  loadBriefing(); break;
     case "revenue":   loadRevenue(); break;
+    case "agent-console": loadAgentConsole(); break;
     case "horizon":   loadHorizon(); break;
     case "memory":    loadMemory(); break;
     case "canon":     loadCanon(); break;
@@ -1200,10 +1364,13 @@ async function saveRevenuePlaybook(event) {
   const payload = {
     offer_name: String(data.get("offer_name") || "").trim(),
     cta_keyword: String(data.get("cta_keyword") || "").trim(),
+    call_policy: String(data.get("call_policy") || "recommended").trim(),
     pricing_tier: String(data.get("pricing_tier") || "").trim(),
     price_usd: Number(data.get("price_usd") || 0),
     cta_public: String(data.get("cta_public") || "").trim(),
     cta_direct: String(data.get("cta_direct") || "").trim(),
+    booking_link: String(data.get("booking_link") || "").trim(),
+    payment_link: String(data.get("payment_link") || "").trim(),
   };
   statusEl.textContent = "Saving lock...";
   statusEl.style.color = "var(--muted)";
@@ -1394,6 +1561,218 @@ async function setRevenueOutreachStatus(messageKeyToken, status, leadIdToken = "
     return;
   }
   await loadRevenue();
+}
+
+// ─────────────────────────────────────────────
+// AGENT CONSOLE
+// ─────────────────────────────────────────────
+function renderAgentConsoleHistory(messages) {
+  const el = document.getElementById("agent-console-history");
+  if (!el) return;
+  if (!Array.isArray(messages) || messages.length === 0) {
+    el.innerHTML = `<div class="empty">No messages yet. Send your first instruction below.</div>`;
+    return;
+  }
+  el.innerHTML = messages.map((msg) => {
+    const role = String(msg.role || "assistant").toLowerCase() === "user" ? "user" : "assistant";
+    const stamp = msg.created_at ? new Date(msg.created_at).toLocaleString() : "unknown time";
+    const status = escapeHtml(String(msg.status || ""));
+    const command = msg.command_id ? ` · ${escapeHtml(msg.command_id)}` : "";
+    return `
+      <div class="agent-console-entry ${role}">
+        <div class="agent-console-meta">${role.toUpperCase()} · ${escapeHtml(stamp)}${command}${status ? ` · ${status}` : ""}</div>
+        <div class="agent-console-body">${escapeHtml(msg.text ?? "")}</div>
+      </div>
+    `;
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+
+async function loadAgentConsoleCommands() {
+  const el = document.getElementById("agent-console-quick-actions");
+  if (!el) return;
+  const data = await apiFetch("/agent-console/commands");
+  if (!data || !Array.isArray(data.commands) || data.commands.length === 0) {
+    el.innerHTML = `<div class="empty">No commands available.</div>`;
+    return;
+  }
+  agentConsoleCommands = data.commands;
+  el.innerHTML = data.commands.map((cmd) => {
+    const id = String(cmd.id || "").replace(/'/g, "\\'");
+    const policy = cmd.policy || {};
+    const execution = String(policy.execution || "allow").toLowerCase();
+    const enabled = policy.enabled !== false && execution !== "deny";
+    const risk = String(policy.risk_tier || "low").toUpperCase();
+    const title = `${cmd.description || ""} | risk=${risk} | policy=${execution}`;
+    return `<button class="btn ${enabled ? "btn-view" : "btn-reject"}" title="${escapeHtml(title)}" ${enabled ? `onclick="runAgentQuickAction('${id}')"` : "disabled"}>${escapeHtml(cmd.label || cmd.id || "Command")}</button>`;
+  }).join("");
+}
+
+function renderAgentConsoleConstitution(data) {
+  const el = document.getElementById("agent-console-constitution");
+  if (!el) return;
+  if (!data || !data.constitution) {
+    el.textContent = "Constitution policy unavailable.";
+    return;
+  }
+  const constitution = data.constitution || {};
+  const toggles = constitution.capability_toggles || {};
+  const nonNegotiables = Array.isArray(constitution.non_negotiables) ? constitution.non_negotiables.slice(0, 4) : [];
+  const lines = [
+    `version=${constitution.version || "1.0"} | status=${data.constitution_status || "unknown"}`,
+    `live_trading=${toggles.allow_live_trading ? "on" : "off"} | external_writes=${toggles.allow_external_writes ? "on" : "off"} | voice_mode=${toggles.allow_voice_mode ? "on" : "off"}`,
+    `policy_path=${data.constitution_path || "-"}`,
+  ];
+  if (nonNegotiables.length > 0) {
+    lines.push(`rules=${nonNegotiables.join(" ; ")}`);
+  }
+  el.textContent = lines.join("\n");
+}
+
+async function loadAgentConsoleConstitution() {
+  const data = await apiFetch("/agent-console/constitution");
+  renderAgentConsoleConstitution(data);
+}
+
+function renderAgentConsoleUploads(rows) {
+  const el = document.getElementById("agent-console-uploads");
+  if (!el) return;
+  if (!Array.isArray(rows) || rows.length === 0) {
+    el.textContent = "No uploads yet.";
+    return;
+  }
+  const lines = rows.slice(0, 20).map((row) => {
+    const kind = String(row.kind || "other");
+    const name = String(row.relative_path || row.filename || "file");
+    const size = Number(row.size_bytes || 0);
+    return `[${kind}] ${name} (${size} bytes)`;
+  });
+  el.textContent = lines.join("\n");
+}
+
+async function loadAgentConsoleUploads() {
+  const data = await apiFetch("/agent-console/uploads?limit=40");
+  renderAgentConsoleUploads(data?.uploads || []);
+}
+
+async function loadAgentConsoleHistory() {
+  const data = await apiFetch("/agent-console/messages?limit=80");
+  if (!data) {
+    renderAgentConsoleHistory([]);
+    return;
+  }
+  renderAgentConsoleHistory(data.messages || []);
+}
+
+async function runAgentQuickAction(commandId) {
+  await sendAgentConsolePayload({ command_id: String(commandId || "").trim() });
+}
+
+async function sendAgentConsole(event) {
+  event.preventDefault();
+  const input = document.getElementById("agentConsoleInput");
+  const message = String(input?.value || "").trim();
+  if (!message) return;
+  const ok = await sendAgentConsolePayload({ message });
+  if (ok && input) input.value = "";
+}
+
+async function uploadAgentConsoleFile(event) {
+  event.preventDefault();
+  const input = document.getElementById("agentConsoleFile");
+  const statusEl = document.getElementById("agentConsoleStatus");
+  const file = input?.files?.[0];
+  if (!file) {
+    if (statusEl) {
+      statusEl.textContent = "Select a file first.";
+      statusEl.style.color = "var(--accent)";
+    }
+    return;
+  }
+  const formData = new FormData();
+  formData.append("file", file);
+  if (statusEl) {
+    statusEl.textContent = "Uploading attachment...";
+    statusEl.style.color = "var(--muted)";
+  }
+  let ok = false;
+  try {
+    const resp = await fetch(`${API_BASE}/agent-console/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await resp.json();
+    if (resp.ok && String(data.status || "").toUpperCase() === "UPLOADED") {
+      ok = true;
+      if (statusEl) {
+        statusEl.textContent = "Attachment uploaded. Run 'Attachment Pipeline' quick action next.";
+        statusEl.style.color = "var(--safe)";
+      }
+    } else if (statusEl) {
+      statusEl.textContent = "Upload failed.";
+      statusEl.style.color = "var(--alert)";
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.textContent = `Upload error: ${String(err)}`;
+      statusEl.style.color = "var(--alert)";
+    }
+  }
+  if (ok && input) input.value = "";
+  await loadAgentConsoleUploads();
+}
+
+async function sendAgentConsolePayload(payload) {
+  const statusEl = document.getElementById("agentConsoleStatus");
+  if (statusEl) {
+    statusEl.textContent = "Running...";
+    statusEl.style.color = "var(--muted)";
+  }
+  const result = await apiPost("/agent-console/send", payload);
+  if (!result) {
+    if (statusEl) {
+      statusEl.textContent = "Command failed (no response).";
+      statusEl.style.color = "var(--alert)";
+    }
+    return false;
+  }
+
+  if (Array.isArray(result.history)) {
+    renderAgentConsoleHistory(result.history);
+  } else {
+    await loadAgentConsoleHistory();
+  }
+
+  const status = String(result.status || "").toUpperCase();
+  if (statusEl) {
+    if (status === "OK") {
+      const label = String(result.command_label || result.command_id || "Command");
+      statusEl.textContent = `${label} completed.`;
+      statusEl.style.color = "var(--safe)";
+    } else if (status === "NEEDS_COMMAND") {
+      statusEl.textContent = "Need a supported command. Try a quick action.";
+      statusEl.style.color = "var(--accent)";
+    } else if (status === "NEEDS_APPROVAL") {
+      statusEl.textContent = "Action requires manual approval by constitution.";
+      statusEl.style.color = "var(--accent)";
+    } else if (status === "BLOCKED_BY_CONSTITUTION") {
+      statusEl.textContent = "Blocked by constitution guardrails.";
+      statusEl.style.color = "var(--alert)";
+    } else {
+      statusEl.textContent = "Command failed. Check conversation output.";
+      statusEl.style.color = "var(--alert)";
+    }
+  }
+  return status === "OK";
+}
+
+async function loadAgentConsole() {
+  await Promise.all([
+    loadAgentConsoleCommands(),
+    loadAgentConsoleConstitution(),
+    loadAgentConsoleUploads(),
+    loadAgentConsoleHistory(),
+  ]);
 }
 
 // ─────────────────────────────────────────────
@@ -1703,22 +2082,28 @@ async function loadRevenue() {
   document.getElementById("revenue-queue-progress-detail").textContent =
     `completed=${completedCount} | pending=${pendingCount} | status_log=${queue.status_path ?? "none"}`;
   document.getElementById("revenue-playbook-summary").textContent =
-    `offer="${playbook.offer_name ?? "-"}" | cta_keyword=${playbook.cta_keyword ?? "-"} | tier=${playbook.pricing_tier ?? "-"} | price=${formatCurrency(playbook.price_usd ?? 0)}`;
+    `offer="${playbook.offer_name ?? "-"}" | cta_keyword=${playbook.cta_keyword ?? "-"} | call_policy=${playbook.call_policy ?? "recommended"} | tier=${playbook.pricing_tier ?? "-"} | price=${formatCurrency(playbook.price_usd ?? 0)} | booking=${playbook.booking_link ? "set" : "missing"} | payment=${playbook.payment_link ? "set" : "missing"}`;
 
   const playbookForm = document.getElementById("revenuePlaybookForm");
   if (playbookForm) {
     const offerField = playbookForm.querySelector("input[name='offer_name']");
     const keywordField = playbookForm.querySelector("input[name='cta_keyword']");
+    const policyField = playbookForm.querySelector("select[name='call_policy']");
     const tierField = playbookForm.querySelector("input[name='pricing_tier']");
     const priceField = playbookForm.querySelector("input[name='price_usd']");
     const publicField = playbookForm.querySelector("input[name='cta_public']");
     const directField = playbookForm.querySelector("input[name='cta_direct']");
+    const bookingField = playbookForm.querySelector("input[name='booking_link']");
+    const paymentField = playbookForm.querySelector("input[name='payment_link']");
     if (offerField) offerField.value = String(playbook.offer_name ?? "");
     if (keywordField) keywordField.value = String(playbook.cta_keyword ?? "");
+    if (policyField) policyField.value = String(playbook.call_policy ?? "recommended");
     if (tierField) tierField.value = String(playbook.pricing_tier ?? "");
     if (priceField) priceField.value = String(playbook.price_usd ?? "");
     if (publicField) publicField.value = String(playbook.cta_public ?? "");
     if (directField) directField.value = String(playbook.cta_direct ?? "");
+    if (bookingField) bookingField.value = String(playbook.booking_link ?? "");
+    if (paymentField) paymentField.value = String(playbook.payment_link ?? "");
   }
   const quickOfferField = document.querySelector("#revenueLeadForm input[name='offer']");
   if (quickOfferField) {

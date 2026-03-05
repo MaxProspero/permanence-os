@@ -107,6 +107,48 @@ Run read-only social/trend feed ranking for opportunity discovery.
 - `--force-policy` rewrites the discernment policy template file
 - No publish actions
 
+### `python cli.py platform-change-watch`
+Watch upstream platform/API drift and queue update tasks before integrations break.
+- Uses `memory/working/platform_change_watchlist.json`
+- Reads local email ingest from `memory/working/email/inbox.json` for provider notices
+- Scans code references to estimate impact scope per platform (X/Telegram/Discord/Gmail/model providers)
+- Queues high/critical items to `memory/working/platform_change_action_queue.jsonl`
+- Writes `outputs/platform_change_watch_latest.md`
+- Writes `memory/tool/platform_change_watch_*.json`
+- If a source has no parsable feed structure, it is flagged in the report warnings so you can swap in a better URL/RSS feed.
+- Optional flags:
+`--force-template`, `--watchlist-path`, `--email-path`, `--queue-path`, `--scan-root`, `--lookback-days`, `--min-score`, `--max-items`, `--no-queue`, `--strict`
+
+### `python cli.py low-cost-mode`
+Apply/status low-cost operation profile for budget control.
+- Status:
+`python cli.py low-cost-mode --action status`
+- Enable low-cost defaults (local-first provider + caps + revenue gate):
+`python cli.py low-cost-mode --action enable`
+- Disable low-cost mode:
+`python cli.py low-cost-mode --action disable`
+- Optional flags:
+`--monthly-budget`, `--milestone-usd`, `--chat-agent`
+
+### `python cli.py money-first-gate`
+Gate feature work until first revenue milestone is reached.
+- Status:
+`python cli.py money-first-gate`
+- Strict gate (exit non-zero when gate is closed):
+`python cli.py money-first-gate --strict`
+- Optional flags:
+`--pipeline-path`, `--milestone-usd`, `--min-won-deals`
+- Uses `memory/working/sales_pipeline.json` won deals + values to decide unlock.
+
+### `python cli.py money-first-lane`
+Run revenue-first execution lane before feature-expansion loops.
+- Run:
+`python cli.py money-first-lane`
+- Strict mode:
+`python cli.py money-first-lane --strict`
+- Optional flags:
+`--timeout`, `--skip-init`
+
 ### `python cli.py x-account-watch`
 Manage read-only personal X account watch feeds used by `social-research-ingest`.
 - List watched handles:
@@ -180,6 +222,7 @@ Queue ranked opportunities into `memory/approvals.json` with `PENDING_HUMAN_REVI
 
 ### `python cli.py phase3-refresh`
 Run the full Phase 3 governed sequence:
+- Optional pre-gate: when `PERMANENCE_FEATURE_WORK_REQUIRE_REVENUE_MILESTONE=1`, this command first enforces `money-first-gate --strict`.
 - social research ingest
 - GitHub research ingest
 - GitHub trending ingest
@@ -211,6 +254,8 @@ Run the full communication sync loop (`scripts/run_comms_loop.sh`) end-to-end:
 - glasses exports autopilot ingest
 - research inbox process
 - status glance + integration readiness snapshots
+- optional platform change watch (set `PERMANENCE_COMMS_LOOP_PLATFORM_WATCH_ENABLED=1`)
+  and optional fail-on-critical mode `PERMANENCE_COMMS_LOOP_PLATFORM_WATCH_STRICT=1`
 - optional comms status snapshot with escalation/backlog thresholds
 - optional digest step (set `PERMANENCE_COMMS_LOOP_DIGEST_ENABLED=1`)
 - optional doctor step (set `PERMANENCE_COMMS_LOOP_DOCTOR_ENABLED=1`)
@@ -227,6 +272,7 @@ Run the full communication sync loop (`scripts/run_comms_loop.sh`) end-to-end:
 
 ### `python cli.py second-brain-loop`
 Run the full second-brain loop (`scripts/run_second_brain_loop.sh`) end-to-end:
+- Optional pre-gate: when `PERMANENCE_FEATURE_WORK_REQUIRE_REVENUE_MILESTONE=1`, this loop exits early unless `money-first-gate --strict` passes.
 - life brief
 - GitHub research ingest
 - GitHub trending ingest

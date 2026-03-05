@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added second-brain and multi-income agent portfolio layer:
+  - `scripts/life_os_brief.py` (`python cli.py life-os-brief`)
+  - `scripts/side_business_portfolio.py` (`python cli.py side-business-portfolio`)
+  - `scripts/prediction_lab.py` (`python cli.py prediction-lab`) with advisory-only Bayesian/simulation scoring and manual approval gating
+  - `scripts/prediction_ingest.py` (`python cli.py prediction-ingest`) RSS/news ingest that refreshes hypothesis signal scores + evidence
+  - `scripts/clipping_transcript_ingest.py` (`python cli.py clipping-transcript-ingest`) transcript-file ingest into governed clipping queue
+  - `scripts/clipping_pipeline_manager.py` (`python cli.py clipping-pipeline`) for governed clip queue + candidate scoring
+  - `scripts/second_brain_report.py` (`python cli.py second-brain-report`) unified life + business + side-income snapshot
+    - now includes API/tool cost-recovery metrics (`target_recovery_usd`, closes needed, outreach needed)
+  - `scripts/second_brain_init.py` (`python cli.py second-brain-init`) editable template scaffolding for life/tasks/streams/hypotheses/feeds/clipping jobs/transcripts
+  - `scripts/run_second_brain_loop.sh` (`python cli.py second-brain-loop`) one-command refresh loop with ingestion + revenue board refresh
+  - `scripts/revenue_cost_recovery.py` (`python cli.py revenue-cost-recovery`) computes break-even and buffered recovery targets for API/tool spend with required closes/leads/outreach
+  - money loop now runs cost-recovery planning each cycle
+  - second-brain loop now refreshes cost-recovery plan each cycle
+  - cost-recovery working template auto-managed at `memory/working/api_cost_plan.json`
+  - `scripts/external_access_policy.py` (`python cli.py external-access-policy`) staged GitHub/social connector policy + risk report
+  - `scripts/github_research_ingest.py` (`python cli.py github-research-ingest`) read-only GitHub repository research and backlog action scoring
+  - `scripts/social_research_ingest.py` (`python cli.py social-research-ingest`) read-only social/trend feed ingestion and ranking
+    - added optional read-only X recent-search ingestion (`platform: "x"` + `query`) using `PERMANENCE_SOCIAL_READ_TOKEN`
+    - added configurable discernment policy (`memory/working/social_discernment_policy.json`) to keep/filter feed items by score and keyword rules
+    - default second-brain social feed templates now include an X query feed
+    - added test coverage for X feed ingestion branch
+  - `scripts/anthropic_keychain.py` (`python cli.py anthropic-keychain`) macOS keychain install/status/clear flow for Anthropic API key
+  - `scripts/connector_keychain.py` (`python cli.py connector-keychain`) macOS keychain install/status/clear flow for GitHub/social read tokens
+  - `scripts/secret_scan.py` (`python cli.py secret-scan`) staged/all-file secret leak scanner
+  - `automation/setup_secret_scan_hook.sh` + `automation/disable_secret_scan_hook.sh` for pre-push secret guard
+  - `integration_readiness.py` now supports phased enforcement of booking/payment checks via `PERMANENCE_REQUIRE_REVENUE_LINKS`
+  - dashboard API endpoint: `GET /api/second-brain/latest`
+  - second-brain automation scripts: `automation/setup_second_brain_automation.sh` and `automation/disable_second_brain_automation.sh`
+  - tests added: `test_life_os_brief.py`, `test_side_business_portfolio.py`, `test_github_research_ingest.py`, `test_social_research_ingest.py`, `test_prediction_ingest.py`, `test_prediction_lab.py`, `test_clipping_transcript_ingest.py`, `test_clipping_pipeline_manager.py`, `test_second_brain_report.py`
 - Added revenue operations expansion:
   - `scripts/revenue_execution_board.py` daily execution board output + tool payload
   - `scripts/revenue_weekly_summary.py` weekly revenue scorecard output + tool payload
@@ -25,6 +55,7 @@ All notable changes to this project will be documented in this file.
   - added revenue backup bundles (`scripts/revenue_backup.py`, `python cli.py revenue-backup`)
   - added revenue deal-event + site telemetry APIs (`POST /api/revenue/deal-event`, `/api/revenue/site-event`)
   - revenue queue, outreach pack, execution board, and intake lead defaults now read from locked playbook values
+  - playbook now supports booking/payment links, and outreach drafts include links for booking/payment stages
   - Revenue Ops dashboard now includes editable targets and live weekly/monthly won-progress vs target
   - Revenue Ops dashboard now includes follow-up queue, deal-event logging, site funnel telemetry, and revenue eval status
   - `revenue_action_queue.py` now prioritizes actions from live pipeline due dates + funnel bottlenecks before template fallbacks
@@ -40,6 +71,7 @@ All notable changes to this project will be documented in this file.
     - `automation/disable_money_loop_automation.sh`
   - tests for revenue execution board generation and dashboard revenue snapshot parsing
 - Reliability/phase/glance evaluation now supports injected local time in tests (`now_local`) to keep gate tests date-stable across calendar changes
+- Fixed `tests/test_revenue_weekly_summary.py` time-boundary flake by aligning fixture timestamps with local week windows
 - Added automation/service setup scripts:
   - `automation/setup_revenue_ops_automation.sh` + `automation/disable_revenue_ops_automation.sh`
   - `automation/setup_operator_surface_service.sh` + `automation/disable_operator_surface_service.sh`
