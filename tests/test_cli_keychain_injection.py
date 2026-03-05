@@ -13,6 +13,8 @@ def test_inject_keychain_env_sets_multiple_tokens():
     env = {
         "PERMANENCE_ANTHROPIC_KEYCHAIN_SERVICE": "svc.anthropic",
         "PERMANENCE_ANTHROPIC_KEYCHAIN_ACCOUNT": "acct.anthropic",
+        "OPENAI_KEYCHAIN_SERVICE": "svc.openai",
+        "OPENAI_KEYCHAIN_ACCOUNT": "acct.openai",
         "PERMANENCE_GITHUB_READ_KEYCHAIN_SERVICE": "svc.github",
         "PERMANENCE_GITHUB_READ_KEYCHAIN_ACCOUNT": "acct.github",
         "PERMANENCE_SOCIAL_READ_KEYCHAIN_SERVICE": "svc.social",
@@ -40,6 +42,7 @@ def test_inject_keychain_env_sets_multiple_tokens():
     def fake_keychain_secret(service: str, account: str) -> str:
         mapping = {
             ("svc.anthropic", "acct.anthropic"): "sk-ant-test-value",
+            ("svc.openai", "acct.openai"): "sk-openai-test-value",
             ("svc.github", "acct.github"): "gh_read_token_abcdefghijklmnopqrstuvwxyz123456",
             ("svc.social", "acct.social"): "social_read_token_value_123456",
             ("svc.discord", "acct.discord"): "https://discord.com/api/webhooks/123/abc",
@@ -62,6 +65,7 @@ def test_inject_keychain_env_sets_multiple_tokens():
         cli_mod._keychain_secret = original
 
     assert env.get("ANTHROPIC_API_KEY") == "sk-ant-test-value"
+    assert env.get("OPENAI_API_KEY") == "sk-openai-test-value"
     assert env.get("PERMANENCE_GITHUB_READ_TOKEN", "").startswith("gh_read_token_")
     assert env.get("PERMANENCE_SOCIAL_READ_TOKEN", "").startswith("social_read_token_value_")
     assert env.get("PERMANENCE_DISCORD_ALERT_WEBHOOK_URL", "").startswith("https://discord.com/api/webhooks/")

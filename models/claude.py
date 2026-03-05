@@ -35,12 +35,13 @@ class ClaudeModel(BaseModel):
         "haiku": "claude-haiku-4-5-20251001"
     }
     
-    def __init__(self, tier: str = "sonnet"):
+    def __init__(self, tier: str = "sonnet", model_id: str | None = None):
         if not ANTHROPIC_AVAILABLE:
             raise RuntimeError("anthropic package not installed. Run: pip install anthropic --break-system-packages")
-        
+
         self.tier = tier
-        self.model_id = self.MODELS.get(tier, self.MODELS["sonnet"])
+        selected_model = str(model_id or "").strip()
+        self.model_id = selected_model or self.MODELS.get(tier, self.MODELS["sonnet"])
         self.name = f"claude_{tier}"
         
         api_key = os.getenv("ANTHROPIC_API_KEY")

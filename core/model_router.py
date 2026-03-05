@@ -15,22 +15,61 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 
-DEFAULT_MODEL_BY_TASK: Dict[str, str] = {
-    "canon_interpretation": "claude-opus-4-6",
-    "strategy": "claude-opus-4-6",
-    "code_generation": "claude-opus-4-6",
-    "adversarial_review": "claude-opus-4-6",
-    "research_synthesis": "claude-sonnet-4-6",
-    "planning": "claude-sonnet-4-6",
-    "review": "claude-sonnet-4-6",
-    "execution": "claude-sonnet-4-6",
-    "conciliation": "claude-sonnet-4-6",
-    "classification": "claude-haiku-4-5-20251001",
-    "summarization": "claude-haiku-4-5-20251001",
-    "tagging": "claude-haiku-4-5-20251001",
-    "formatting": "claude-haiku-4-5-20251001",
-    "default": "claude-sonnet-4-6",
+TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review")
+TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation")
+TASKS_HAIKU = ("classification", "summarization", "tagging", "formatting")
+
+DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
+    "anthropic": {
+        "canon_interpretation": "claude-opus-4-6",
+        "strategy": "claude-opus-4-6",
+        "code_generation": "claude-opus-4-6",
+        "adversarial_review": "claude-opus-4-6",
+        "research_synthesis": "claude-sonnet-4-6",
+        "planning": "claude-sonnet-4-6",
+        "review": "claude-sonnet-4-6",
+        "execution": "claude-sonnet-4-6",
+        "conciliation": "claude-sonnet-4-6",
+        "classification": "claude-haiku-4-5-20251001",
+        "summarization": "claude-haiku-4-5-20251001",
+        "tagging": "claude-haiku-4-5-20251001",
+        "formatting": "claude-haiku-4-5-20251001",
+        "default": "claude-sonnet-4-6",
+    },
+    "openai": {
+        "canon_interpretation": "gpt-4.1",
+        "strategy": "gpt-4.1",
+        "code_generation": "gpt-4.1",
+        "adversarial_review": "gpt-4.1",
+        "research_synthesis": "gpt-4o",
+        "planning": "gpt-4o",
+        "review": "gpt-4o",
+        "execution": "gpt-4o",
+        "conciliation": "gpt-4o",
+        "classification": "gpt-4o-mini",
+        "summarization": "gpt-4o-mini",
+        "tagging": "gpt-4o-mini",
+        "formatting": "gpt-4o-mini",
+        "default": "gpt-4o",
+    },
+    "xai": {
+        "canon_interpretation": "grok-3-latest",
+        "strategy": "grok-3-latest",
+        "code_generation": "grok-3-latest",
+        "adversarial_review": "grok-3-latest",
+        "research_synthesis": "grok-3-mini",
+        "planning": "grok-3-mini",
+        "review": "grok-3-mini",
+        "execution": "grok-3-mini",
+        "conciliation": "grok-3-mini",
+        "classification": "grok-2-mini",
+        "summarization": "grok-2-mini",
+        "tagging": "grok-2-mini",
+        "formatting": "grok-2-mini",
+        "default": "grok-3-mini",
+    },
 }
+DEFAULT_MODEL_BY_TASK: Dict[str, str] = DEFAULT_MODEL_BY_TASK_BY_PROVIDER["anthropic"]
 
 DEFAULT_LLM_MONTHLY_BUDGET_USD = 50.0
 DEFAULT_BUDGET_WARNING_RATIO = 0.75
@@ -42,6 +81,12 @@ DEFAULT_MODEL_PRICING_PER_1M: Dict[str, Dict[str, float]] = {
     "claude-opus-4-6": {"input": 15.0, "output": 75.0},
     "claude-sonnet-4-6": {"input": 3.0, "output": 15.0},
     "claude-haiku-4-5-20251001": {"input": 0.8, "output": 4.0},
+    "gpt-4.1": {"input": 2.0, "output": 8.0},
+    "gpt-4o": {"input": 5.0, "output": 15.0},
+    "gpt-4o-mini": {"input": 0.15, "output": 0.6},
+    "grok-3-latest": {"input": 5.0, "output": 15.0},
+    "grok-3-mini": {"input": 1.5, "output": 4.5},
+    "grok-2-mini": {"input": 0.5, "output": 1.5},
 }
 
 
@@ -71,7 +116,9 @@ class ModelRouter:
     def __init__(self, log_path: Optional[str] = None):
         self.log_path = Path(log_path or os.getenv("PERMANENCE_MODEL_ROUTING_LOG", "logs/model_routing.jsonl"))
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        self.provider = self._normalize_provider(os.getenv("PERMANENCE_MODEL_PROVIDER", "anthropic"))
         self.model_by_task = self._build_model_map()
+        self.tier_model_index = self._build_tier_model_index()
         self.cost_plan_path = Path(
             os.getenv("PERMANENCE_COST_RECOVERY_PLAN_PATH", str(DEFAULT_COST_PLAN_PATH))
         )
@@ -99,26 +146,65 @@ class ModelRouter:
             ),
         )
 
+    @staticmethod
+    def _normalize_provider(value: str) -> str:
+        token = str(value or "").strip().lower()
+        if token in {"claude", "anthropic"}:
+            return "anthropic"
+        if token in {"openai", "gpt"}:
+            return "openai"
+        if token in {"xai", "grok"}:
+            return "xai"
+        return "anthropic"
+
+    @staticmethod
+    def _task_default_tier(task_type: str) -> str:
+        key = str(task_type or "").strip().lower()
+        if key in TASKS_OPUS:
+            return "opus"
+        if key in TASKS_HAIKU:
+            return "haiku"
+        return "sonnet"
+
     def _build_model_map(self) -> Dict[str, str]:
-        model_map = dict(DEFAULT_MODEL_BY_TASK)
+        defaults = DEFAULT_MODEL_BY_TASK_BY_PROVIDER.get(self.provider, DEFAULT_MODEL_BY_TASK_BY_PROVIDER["anthropic"])
+        model_map = dict(defaults)
         opus = os.getenv("PERMANENCE_MODEL_OPUS")
         sonnet = os.getenv("PERMANENCE_MODEL_SONNET")
         haiku = os.getenv("PERMANENCE_MODEL_HAIKU")
         default_model = os.getenv("PERMANENCE_DEFAULT_MODEL")
 
         if opus:
-            for key in ("canon_interpretation", "strategy", "code_generation", "adversarial_review"):
+            for key in TASKS_OPUS:
                 model_map[key] = opus
         if sonnet:
-            for key in ("research_synthesis", "planning", "review", "execution", "conciliation"):
+            for key in TASKS_SONNET:
                 model_map[key] = sonnet
         if haiku:
-            for key in ("classification", "summarization", "tagging", "formatting"):
+            for key in TASKS_HAIKU:
                 model_map[key] = haiku
         if default_model:
             model_map["default"] = default_model
 
         return model_map
+
+    def _build_tier_model_index(self) -> Dict[str, set[str]]:
+        index: Dict[str, set[str]] = {"opus": set(), "sonnet": set(), "haiku": set()}
+        for task_type, model_name in self.model_by_task.items():
+            tier = self._task_default_tier(task_type)
+            token = str(model_name or "").strip().lower()
+            if token:
+                index[tier].add(token)
+        return index
+
+    def _model_for_tier(self, tier: str) -> str:
+        normalized = str(tier or "sonnet").strip().lower() or "sonnet"
+        defaults = DEFAULT_MODEL_BY_TASK_BY_PROVIDER.get(self.provider, DEFAULT_MODEL_BY_TASK_BY_PROVIDER["anthropic"])
+        if normalized == "opus":
+            return self.model_by_task.get("strategy", defaults["strategy"])
+        if normalized == "haiku":
+            return self.model_by_task.get("summarization", defaults["summarization"])
+        return self.model_by_task.get("execution", defaults["execution"])
 
     def _load_cost_plan(self) -> Dict[str, Any]:
         if not self.cost_plan_path.exists():
@@ -177,12 +263,8 @@ class ModelRouter:
                 continue
             rates = pricing.get(model)
             if rates is None:
-                tier = self._tier_for_model(model)
-                fallback = {
-                    "opus": "claude-opus-4-6",
-                    "sonnet": "claude-sonnet-4-6",
-                    "haiku": "claude-haiku-4-5-20251001",
-                }.get(tier, "claude-sonnet-4-6")
+                tier = self._tier_for_model(model_name=model, task_type="")
+                fallback = self._model_for_tier(tier)
                 rates = pricing.get(fallback, {"input": 0.0, "output": 0.0})
             in_tokens = max(0, _safe_int(row.get("input_tokens"), 0))
             out_tokens = max(0, _safe_int(row.get("output_tokens"), 0))
@@ -207,24 +289,24 @@ class ModelRouter:
 
     def _budget_adjusted_model(self, task_type: str, model: str, snapshot: Dict[str, float]) -> tuple[str, str]:
         ratio = float(snapshot.get("ratio", 0.0))
-        lowered = str(model or "").lower()
-        high_stakes = {"canon_interpretation", "strategy", "adversarial_review", "code_generation"}
-        medium_stakes = {"research_synthesis", "planning", "review", "conciliation"}
-        low_stakes = {"classification", "summarization", "tagging", "formatting"}
-        sonnet_model = self.model_by_task.get("execution", DEFAULT_MODEL_BY_TASK["execution"])
-        haiku_model = self.model_by_task.get("summarization", DEFAULT_MODEL_BY_TASK["summarization"])
+        model_tier = self._tier_for_model(model_name=model, task_type=task_type)
+        high_stakes = set(TASKS_OPUS)
+        medium_stakes = set(TASKS_SONNET)
+        low_stakes = set(TASKS_HAIKU)
+        sonnet_model = self._model_for_tier("sonnet")
+        haiku_model = self._model_for_tier("haiku")
 
         if ratio >= self.budget_critical_ratio:
-            if task_type in high_stakes and "opus" in lowered:
+            if task_type in high_stakes and model_tier == "opus":
                 return sonnet_model, "budget_critical_downgrade_high_to_sonnet"
-            if task_type in medium_stakes and "haiku" not in lowered:
+            if task_type in medium_stakes and model_tier != "haiku":
                 return haiku_model, "budget_critical_downgrade_medium_to_haiku"
-            if task_type in low_stakes and "haiku" not in lowered:
+            if task_type in low_stakes and model_tier != "haiku":
                 return haiku_model, "budget_critical_downgrade_low_to_haiku"
             return model, "budget_critical_no_change"
 
         if ratio >= self.budget_warning_ratio:
-            if "opus" in lowered:
+            if model_tier == "opus":
                 return sonnet_model, "budget_warning_downgrade_opus_to_sonnet"
             return model, "budget_warning_no_change"
 
@@ -265,27 +347,41 @@ class ModelRouter:
         Return provider adapter for a task type, or None if unavailable.
         """
         model_name = self.route(task_type)
-        tier = self._tier_for_model(model_name)
+        tier = self._tier_for_model(model_name=model_name, task_type=task_type)
         try:
             from models.registry import registry
 
-            return registry.get_by_tier(tier)
+            return registry.get_by_tier(tier=tier, model_name=model_name, provider=self.provider)
         except Exception as exc:
             self._log_decision(
                 task_type=task_type,
                 model=model_name,
-                context={"warning": f"adapter_unavailable: {exc.__class__.__name__}"},
+                context={
+                    "warning": f"adapter_unavailable: {exc.__class__.__name__}",
+                    "provider": self.provider,
+                },
             )
             return None
 
-    @staticmethod
-    def _tier_for_model(model_name: str) -> str:
+    def _tier_for_model(self, model_name: str, task_type: str = "") -> str:
         lower = (model_name or "").lower()
+        if not lower:
+            return self._task_default_tier(task_type)
         if "opus" in lower:
             return "opus"
         if "haiku" in lower:
             return "haiku"
-        return "sonnet"
+        if "gpt-4o-mini" in lower or "gpt-5-nano" in lower or "grok-2-mini" in lower:
+            return "haiku"
+        if "gpt-4.1" in lower or "gpt-5" in lower or "grok-3-latest" in lower:
+            return "opus"
+        if lower in self.tier_model_index.get("opus", set()):
+            return "opus"
+        if lower in self.tier_model_index.get("haiku", set()):
+            return "haiku"
+        if lower in self.tier_model_index.get("sonnet", set()):
+            return "sonnet"
+        return self._task_default_tier(task_type)
 
     def _log_decision(
         self,
@@ -299,6 +395,7 @@ class ModelRouter:
         entry = {
             "timestamp": _utc_iso(),
             "task_type": task_type,
+            "provider": self.provider,
             "model_assigned": model,
             "raw_model": raw_model or model,
             "budget_policy": budget_policy or "unknown",

@@ -73,6 +73,15 @@ TARGETS = {
         help_text="Telegram bot token used for world-watch alert dispatch.",
         pattern=re.compile(r"^\d{5,}:[A-Za-z0-9_-]{20,}$"),
     ),
+    "openai-api-key": Target(
+        name="openai-api-key",
+        env_key="OPENAI_API_KEY",
+        service_env="OPENAI_KEYCHAIN_SERVICE",
+        account_env="OPENAI_KEYCHAIN_ACCOUNT",
+        default_service="permanence_os_openai_api_key",
+        help_text="OpenAI API key used for OpenAI model/API access.",
+        pattern=re.compile(r"^sk-[A-Za-z0-9._\-]{16,}$"),
+    ),
     "xai-api-key": Target(
         name="xai-api-key",
         env_key="XAI_API_KEY",

@@ -61,6 +61,12 @@ def _inject_keychain_env(env: dict[str, str]) -> None:
             "permanence_os_anthropic_api_key",
         ),
         (
+            "OPENAI_API_KEY",
+            "OPENAI_KEYCHAIN_SERVICE",
+            "OPENAI_KEYCHAIN_ACCOUNT",
+            "permanence_os_openai_api_key",
+        ),
+        (
             "PERMANENCE_GITHUB_READ_TOKEN",
             "PERMANENCE_GITHUB_READ_KEYCHAIN_SERVICE",
             "PERMANENCE_GITHUB_READ_KEYCHAIN_ACCOUNT",

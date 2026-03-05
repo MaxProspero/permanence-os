@@ -214,6 +214,8 @@ python cli.py telegram-control --action poll --chat-agent --max-chat-replies 3
 python cli.py ophtxn-simulation --seed 11 --memory-trials 300 --habit-days 90
 python cli.py ophtxn-completion
 python cli.py ophtxn-completion --target 95 --strict
+bash automation/setup_completion_automation.sh /Users/paytonhicks/Code/permanence-os 21600
+bash automation/disable_completion_automation.sh /Users/paytonhicks/Code/permanence-os
 python cli.py telegram-control --action poll --voice-priority high --voice-channel telegram-voice
 python cli.py telegram-control --action poll --voice-transcribe-queue ~/permanence-os/memory/working/transcription_queue.json
 python cli.py glasses-autopilot --action run
@@ -435,14 +437,26 @@ This keeps `ANTHROPIC_API_KEY=` blank in `.env` and loads the key from macOS Key
 
 Connector keychain workflow (recommended):
 ```bash
+python cli.py connector-keychain --target openai-api-key --from-file /absolute/path/to/openai_api_key.txt --remove-source
 python cli.py connector-keychain --target github-read --from-file /absolute/path/to/github_read_token.txt --remove-source
 python cli.py connector-keychain --target social-read --from-file /absolute/path/to/social_read_token.txt --remove-source
 python cli.py connector-keychain --target xai-api-key --from-file /absolute/path/to/xai_api_key.txt --remove-source
+python cli.py connector-keychain --target openai-api-key --status
 python cli.py connector-keychain --target github-read --status
 python cli.py connector-keychain --target social-read --status
 python cli.py connector-keychain --target xai-api-key --status
 ```
-This keeps `PERMANENCE_GITHUB_READ_TOKEN=`, `PERMANENCE_SOCIAL_READ_TOKEN=`, and `XAI_API_KEY=` blank in `.env` and loads them from Keychain at runtime.
+This keeps `OPENAI_API_KEY=`, `PERMANENCE_GITHUB_READ_TOKEN=`, `PERMANENCE_SOCIAL_READ_TOKEN=`, and `XAI_API_KEY=` blank in `.env` and loads them from Keychain at runtime.
+
+Model provider routing defaults to Anthropic, with optional OpenAI/xAI fallback:
+```bash
+export PERMANENCE_MODEL_PROVIDER=anthropic
+export PERMANENCE_MODEL_PROVIDER_FALLBACKS=anthropic,openai,xai
+# optional explicit tier overrides
+export PERMANENCE_MODEL_OPUS=claude-opus-4-6
+export PERMANENCE_MODEL_SONNET=claude-sonnet-4-6
+export PERMANENCE_MODEL_HAIKU=claude-haiku-4-5-20251001
+```
 
 Secret leak guard (recommended before every push):
 ```bash

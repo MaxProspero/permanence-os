@@ -14,36 +14,80 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from core.model_router import ModelRouter  # noqa: E402
 
 
+MODEL_ENV_KEYS = [
+    "PERMANENCE_MODEL_PROVIDER",
+    "PERMANENCE_MODEL_OPUS",
+    "PERMANENCE_MODEL_SONNET",
+    "PERMANENCE_MODEL_HAIKU",
+    "PERMANENCE_DEFAULT_MODEL",
+]
+
+
+def _restore_env(snapshot: dict[str, str | None]) -> None:
+    for key, value in snapshot.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+
+
 def test_model_router_keeps_opus_when_budget_ok() -> None:
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = Path(tmp) / "routing.jsonl"
-        router = ModelRouter(log_path=str(log_path))
-        router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 10.0, "ratio": 0.2}  # type: ignore[assignment]
-        model = router.route("strategy")
-        assert "opus" in model
+        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
+        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
+        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
+        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
+        try:
+            router = ModelRouter(log_path=str(log_path))
+            router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 10.0, "ratio": 0.2}  # type: ignore[assignment]
+            model = router.route("strategy")
+            assert "opus" in model
+        finally:
+            _restore_env(snapshot)
 
 
 def test_model_router_downgrades_opus_to_sonnet_on_warning() -> None:
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = Path(tmp) / "routing.jsonl"
-        router = ModelRouter(log_path=str(log_path))
-        router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 42.0, "ratio": 0.84}  # type: ignore[assignment]
-        model = router.route("strategy")
-        assert "sonnet" in model
+        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
+        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
+        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
+        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
+        try:
+            router = ModelRouter(log_path=str(log_path))
+            router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 42.0, "ratio": 0.84}  # type: ignore[assignment]
+            model = router.route("strategy")
+            assert "sonnet" in model
 
-        rows = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines() if line.strip()]
-        assert rows
-        assert rows[-1].get("budget_policy") == "budget_warning_downgrade_opus_to_sonnet"
-        assert float(rows[-1].get("budget_ratio", 0.0)) >= 0.84
+            rows = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            assert rows
+            assert rows[-1].get("budget_policy") == "budget_warning_downgrade_opus_to_sonnet"
+            assert float(rows[-1].get("budget_ratio", 0.0)) >= 0.84
+        finally:
+            _restore_env(snapshot)
 
 
 def test_model_router_downgrades_medium_to_haiku_on_critical() -> None:
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = Path(tmp) / "routing.jsonl"
-        router = ModelRouter(log_path=str(log_path))
-        router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 49.0, "ratio": 0.98}  # type: ignore[assignment]
-        model = router.route("planning")
-        assert "haiku" in model
+        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
+        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
+        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
+        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
+        try:
+            router = ModelRouter(log_path=str(log_path))
+            router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 49.0, "ratio": 0.98}  # type: ignore[assignment]
+            model = router.route("planning")
+            assert "haiku" in model
+        finally:
+            _restore_env(snapshot)
 
 
 if __name__ == "__main__":

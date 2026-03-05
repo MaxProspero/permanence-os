@@ -217,6 +217,44 @@ def test_connector_keychain_installs_xai_api_key():
         assert "XAI_KEYCHAIN_ACCOUNT=acct.xai" in text
 
 
+def test_connector_keychain_installs_openai_api_key():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        env_path = root / ".env"
+        env_path.write_text("", encoding="utf-8")
+        token_path = root / "openai.key"
+        token_path.write_text("sk-openai-test-key-abcdefghijklmnopqrstuvwxyz123456\n", encoding="utf-8")
+
+        original = {
+            "BASE_DIR": mod.BASE_DIR,
+            "_set_keychain": mod._set_keychain,
+        }
+        try:
+            mod.BASE_DIR = root
+            mod._set_keychain = lambda service, account, secret: True  # type: ignore[assignment]
+            rc = mod.main(
+                [
+                    "--target",
+                    "openai-api-key",
+                    "--from-file",
+                    str(token_path),
+                    "--service",
+                    "svc.openai",
+                    "--account",
+                    "acct.openai",
+                ]
+            )
+        finally:
+            mod.BASE_DIR = original["BASE_DIR"]
+            mod._set_keychain = original["_set_keychain"]
+
+        assert rc == 0
+        text = env_path.read_text(encoding="utf-8")
+        assert "OPENAI_API_KEY=\n" in text
+        assert "OPENAI_KEYCHAIN_SERVICE=svc.openai" in text
+        assert "OPENAI_KEYCHAIN_ACCOUNT=acct.openai" in text
+
+
 if __name__ == "__main__":
     test_connector_keychain_install_updates_env()
     test_connector_keychain_rejects_invalid_social_token()
@@ -224,4 +262,5 @@ if __name__ == "__main__":
     test_connector_keychain_installs_discord_bot_token()
     test_connector_keychain_installs_market_api_key()
     test_connector_keychain_installs_xai_api_key()
+    test_connector_keychain_installs_openai_api_key()
     print("✓ Connector keychain tests passed")

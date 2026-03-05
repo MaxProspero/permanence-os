@@ -47,6 +47,7 @@ Install/check/remove Anthropic API key in macOS Keychain and keep `.env` key bla
 
 ### `python cli.py connector-keychain`
 Install/check/remove connector read tokens in macOS Keychain and keep token vars blank in `.env`.
+- OpenAI API key: `python cli.py connector-keychain --target openai-api-key --from-file /path/to/openai_api_key.txt --remove-source`
 - GitHub read token: `python cli.py connector-keychain --target github-read --from-file /path/to/github_token.txt --remove-source`
 - Social read token: `python cli.py connector-keychain --target social-read --from-file /path/to/social_token.txt --remove-source`
 - Discord alert webhook: `python cli.py connector-keychain --target discord-alert-webhook --from-file /path/to/discord_webhook.txt --remove-source`
@@ -549,6 +550,9 @@ Score progress to 100% from live telemetry and list blockers/actions.
   - report markdown: `outputs/ophtxn_completion_*.md`
   - latest report: `outputs/ophtxn_completion_latest.md`
   - tool payload: `memory/tool/ophtxn_completion_*.json`
+- Optional automation loop (governed-learning + completion check every 6h):
+`bash automation/setup_completion_automation.sh /Users/paytonhicks/Code/permanence-os 21600`
+`bash automation/disable_completion_automation.sh /Users/paytonhicks/Code/permanence-os`
 
 ### `python cli.py ophtxn-brain`
 Sync and query the persistent Ophtxn brain vault from docs/reports/memory/intake files.

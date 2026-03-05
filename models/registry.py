@@ -34,40 +34,122 @@ class ModelRegistry:
         "tagging": "haiku",
         "formatting": "haiku",
     }
-    
+
+    SUPPORTED_PROVIDERS = ("anthropic", "openai", "xai")
+    PROVIDER_ALIASES = {
+        "anthropic": "anthropic",
+        "claude": "anthropic",
+        "openai": "openai",
+        "gpt": "openai",
+        "xai": "xai",
+        "grok": "xai",
+    }
+    DEFAULT_PROVIDER = "anthropic"
+    DEFAULT_FALLBACKS = "anthropic,openai,xai"
+
     def __init__(self):
         self._adapters = {}
-    
-    def get(self, task_type: str = "execution") -> BaseModel:
+
+    @classmethod
+    def _normalize_provider(cls, value: str) -> str:
+        token = str(value or "").strip().lower()
+        return cls.PROVIDER_ALIASES.get(token, token)
+
+    def _infer_provider_from_model_name(self, model_name: str) -> str:
+        token = str(model_name or "").strip().lower()
+        if not token:
+            return ""
+        if token.startswith("claude") or "anthropic" in token:
+            return "anthropic"
+        if token.startswith("grok") or token.startswith("xai"):
+            return "xai"
+        if token.startswith("gpt") or token.startswith("o1") or token.startswith("o3") or token.startswith("o4"):
+            return "openai"
+        return ""
+
+    def _provider_candidates(self, provider: str = "", model_name: str = "") -> list[str]:
+        configured = self._normalize_provider(os.getenv("PERMANENCE_MODEL_PROVIDER", self.DEFAULT_PROVIDER))
+        fallback_raw = os.getenv("PERMANENCE_MODEL_PROVIDER_FALLBACKS", self.DEFAULT_FALLBACKS)
+        inferred = self._normalize_provider(self._infer_provider_from_model_name(model_name))
+        explicit = self._normalize_provider(provider)
+
+        ordered = []
+        for token in (explicit, inferred, configured):
+            if token and token in self.SUPPORTED_PROVIDERS and token not in ordered:
+                ordered.append(token)
+
+        for raw in str(fallback_raw or "").split(","):
+            token = self._normalize_provider(raw)
+            if token and token in self.SUPPORTED_PROVIDERS and token not in ordered:
+                ordered.append(token)
+
+        if not ordered:
+            ordered.append(self.DEFAULT_PROVIDER)
+        return ordered
+
+    @staticmethod
+    def _provider_class(provider: str):
+        normalized = str(provider or "").strip().lower()
+        if normalized == "anthropic":
+            from models.claude import ClaudeModel
+
+            return ClaudeModel
+        if normalized == "openai":
+            from models.openai_model import OpenAIModel
+
+            return OpenAIModel
+        if normalized == "xai":
+            from models.xai import XAIModel
+
+            return XAIModel
+        raise ValueError(f"Unsupported model provider: {provider}")
+
+    @staticmethod
+    def _cache_key(provider: str, tier: str, model_name: str) -> str:
+        return f"{provider}:{tier}:{model_name or ''}"
+
+    def get(self, task_type: str = "execution", model_name: str = "", provider: str = "") -> BaseModel:
         """
         Get the appropriate model for a task type.
         Returns cached adapter to avoid re-initializing clients.
         """
         tier = self.ROUTING.get(task_type, "sonnet")
-        
-        if tier not in self._adapters:
-            from models.claude import ClaudeModel
-            self._adapters[tier] = ClaudeModel(tier=tier)
-        
-        return self._adapters[tier]
-    
-    def get_by_tier(self, tier: str) -> BaseModel:
-        """Get model directly by tier (opus/sonnet/haiku)."""
-        if tier not in self._adapters:
-            from models.claude import ClaudeModel
-            self._adapters[tier] = ClaudeModel(tier=tier)
-        return self._adapters[tier]
-    
+        return self.get_by_tier(tier=tier, model_name=model_name, provider=provider)
+
+    def get_by_tier(self, tier: str, model_name: str = "", provider: str = "") -> BaseModel:
+        """Get model directly by tier (opus/sonnet/haiku) with provider fallback."""
+        normalized_tier = str(tier or "sonnet").strip().lower() or "sonnet"
+        candidates = self._provider_candidates(provider=provider, model_name=model_name)
+        errors: list[str] = []
+
+        for provider_name in candidates:
+            cache_key = self._cache_key(provider_name, normalized_tier, model_name)
+            cached = self._adapters.get(cache_key)
+            if cached is not None:
+                return cached
+            try:
+                adapter_cls = self._provider_class(provider_name)
+                adapter = adapter_cls(tier=normalized_tier, model_id=(model_name or None))
+                self._adapters[cache_key] = adapter
+                return adapter
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"{provider_name}:{exc.__class__.__name__}")
+                continue
+
+        detail = ", ".join(errors) if errors else "no providers attempted"
+        raise RuntimeError(f"No model provider available for tier='{normalized_tier}': {detail}")
+
     def available_tiers(self) -> list:
         return ["opus", "sonnet", "haiku"]
-    
+
     @staticmethod
     def route_for(task_type: str) -> str:
         """Return the tier string without instantiating a model."""
         routing = {
             "canon_interpretation": "opus", "strategy": "opus", "code_generation": "opus",
             "research_synthesis": "sonnet", "planning": "sonnet", "review": "sonnet",
-            "execution": "sonnet", "classification": "haiku", "summarization": "haiku"
+            "execution": "sonnet", "conciliation": "sonnet",
+            "classification": "haiku", "summarization": "haiku", "tagging": "haiku", "formatting": "haiku",
         }
         return routing.get(task_type, "sonnet")
 

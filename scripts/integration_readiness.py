@@ -131,10 +131,31 @@ def _require_revenue_links() -> bool:
     return _is_true(raw)
 
 
+def _model_provider() -> str:
+    raw = str(os.getenv("PERMANENCE_MODEL_PROVIDER", "anthropic")).strip().lower()
+    if raw in {"claude", "anthropic"}:
+        return "anthropic"
+    if raw in {"openai", "gpt"}:
+        return "openai"
+    if raw in {"xai", "grok"}:
+        return "xai"
+    return "anthropic"
+
+
 def _checks() -> list[Check]:
     require_revenue_links = _require_revenue_links()
+    model_provider = _model_provider()
+    anthropic_required = model_provider == "anthropic"
+    openai_required = model_provider == "openai"
+    xai_required = model_provider == "xai"
     return [
-        Check("ANTHROPIC_API_KEY", True, "secret", "Required for live Claude model calls."),
+        Check("PERMANENCE_MODEL_PROVIDER", False, "text", "Primary model provider for routing (anthropic/openai/xai)."),
+        Check(
+            "ANTHROPIC_API_KEY",
+            anthropic_required,
+            "secret",
+            "Required when PERMANENCE_MODEL_PROVIDER=anthropic.",
+        ),
         Check("PERMANENCE_GMAIL_CREDENTIALS", True, "path", "Google OAuth client credentials JSON."),
         Check("PERMANENCE_GMAIL_TOKEN", True, "path", "Google OAuth token JSON (run gmail-ingest once to authorize)."),
         Check("PERMANENCE_BOOKING_LINK", require_revenue_links, "url", "Booking link used in outreach and offers."),
@@ -167,8 +188,8 @@ def _checks() -> list[Check]:
             "text",
             "Set to 1 only when you are actively running booking/payment outreach flows.",
         ),
-        Check("OPENAI_API_KEY", False, "secret", "Optional for OpenAI skills."),
-        Check("XAI_API_KEY", False, "secret", "Optional for Grok/xAI model access."),
+        Check("OPENAI_API_KEY", openai_required, "secret", "Required when PERMANENCE_MODEL_PROVIDER=openai."),
+        Check("XAI_API_KEY", xai_required, "secret", "Required when PERMANENCE_MODEL_PROVIDER=xai."),
         Check("GH_TOKEN", False, "secret", "Optional for GitHub automation."),
         Check("ALPHA_VANTAGE_API_KEY", False, "secret", "Optional higher-coverage equities and FX intraday data."),
         Check("FINNHUB_API_KEY", False, "secret", "Optional equities/news/sentiment market data API."),
