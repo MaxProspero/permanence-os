@@ -3,615 +3,664 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Permanence OS Foundation Setup</title>
-  <meta name="description" content="7-day governed AI operating system setup for Mac operators.">
+  <title>Ophtxn | Personal Intelligence Operating System</title>
+  <meta name="description" content="Ophtxn is a governed personal intelligence operating system built for execution, memory, and daily leverage.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b1115;
-      --bg-elev: #111a20;
-      --ink: #e7ecef;
-      --muted: #9db0bb;
-      --line: rgba(255, 255, 255, 0.14);
-      --accent: #4de2c0;
-      --accent-2: #f5bb5a;
-      --danger: #ff6b6b;
-      --radius: 18px;
-      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      --bg: #0a1118;
+      --bg-elev: rgba(15, 27, 38, 0.82);
+      --line: rgba(146, 188, 214, 0.24);
+      --ink: #e7f4ff;
+      --muted: #9ab0c1;
+      --c1: #44d7b6;
+      --c2: #efbb5f;
+      --c3: #73b8ff;
+      --danger: #ff8d8d;
+      --radius: 20px;
+      --shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(1200px 700px at 10% -10%, #1d2b32 0%, transparent 60%),
-                  radial-gradient(1000px 600px at 100% 0%, #2d2920 0%, transparent 55%),
-                  var(--bg);
-      color: var(--ink);
-      font-family: "Space Grotesk", system-ui, sans-serif;
-      min-height: 100%;
-    }
-
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
     body {
+      color: var(--ink);
+      font-family: "Sora", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 720px at -8% -20%, #21466a 0%, transparent 58%),
+        radial-gradient(900px 560px at 108% -8%, #3f341f 0%, transparent 56%),
+        radial-gradient(900px 520px at 50% 120%, #17342d 0%, transparent 52%),
+        var(--bg);
       line-height: 1.45;
     }
 
-    .shell {
-      width: min(1120px, 92vw);
+    .layout {
+      width: min(1140px, 92vw);
       margin: 0 auto;
-      padding: 28px 0 72px;
+      padding: 28px 0 78px;
     }
 
-    .topbar {
+    .nav {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 28px;
-      animation: rise 420ms ease both;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 26px;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: rise 520ms ease forwards;
     }
 
-    .badge {
+    .brand {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand img {
+      width: 38px;
+      height: 38px;
+    }
+
+    .brand span {
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-links {
+      display: inline-flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
       border: 1px solid var(--line);
       border-radius: 999px;
       padding: 8px 12px;
-      color: var(--muted);
       font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-family: "IBM Plex Mono", monospace;
+      transition: color 160ms ease, border-color 160ms ease, transform 160ms ease;
       background: rgba(255, 255, 255, 0.02);
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-    }
-
-    .cta-link {
-      font-family: "Space Mono", monospace;
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(77, 226, 192, 0.45);
-      padding-bottom: 2px;
+    .nav-links a:hover {
+      color: var(--ink);
+      border-color: rgba(116, 188, 255, 0.6);
+      transform: translateY(-1px);
     }
 
     .hero {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+      box-shadow: var(--shadow);
+      padding: clamp(24px, 4vw, 46px);
       display: grid;
-      grid-template-columns: 1.3fr 1fr;
-      gap: 26px;
-      margin-bottom: 26px;
+      gap: 24px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise 620ms ease 140ms forwards;
     }
 
-    .panel {
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow);
-      animation: rise 520ms ease both;
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -8% -40% auto;
+      width: 420px;
+      height: 420px;
+      border-radius: 999px;
+      background: radial-gradient(circle at center, rgba(68, 215, 182, 0.3), transparent 66%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--c2);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
     }
 
     h1 {
-      margin: 0 0 14px;
-      font-size: clamp(30px, 5vw, 56px);
-      line-height: 0.98;
-      letter-spacing: -0.02em;
-    }
-
-    h2 {
-      margin: 0 0 10px;
-      font-size: 20px;
-      letter-spacing: -0.01em;
-    }
-
-    p {
       margin: 0;
+      font-size: clamp(34px, 7vw, 72px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      max-width: 920px;
+    }
+
+    .hero-copy {
       color: var(--muted);
+      max-width: 760px;
+      font-size: clamp(15px, 2vw, 18px);
     }
 
-    .kicker {
-      color: var(--accent-2);
-      font-family: "Space Mono", monospace;
-      font-size: 12px;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .hero-points {
-      list-style: none;
-      margin: 16px 0 20px;
-      padding: 0;
-      display: grid;
-      gap: 10px;
-    }
-
-    .hero-points li {
-      border-left: 3px solid rgba(77, 226, 192, 0.65);
-      padding-left: 10px;
-      color: #cdd9df;
-      font-size: 15px;
-    }
-
-    .row {
-      display: flex;
-      gap: 12px;
+    .hero-cta {
+      display: inline-flex;
       flex-wrap: wrap;
-      margin-top: 16px;
+      gap: 10px;
     }
 
     .btn {
       appearance: none;
-      border: none;
+      border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px 16px;
-      cursor: pointer;
-      font: inherit;
-      font-weight: 600;
+      color: var(--ink);
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: transform 160ms ease, opacity 160ms ease;
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .btn:hover {
       transform: translateY(-1px);
+      border-color: rgba(116, 188, 255, 0.7);
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #3bcfb0);
-      color: #03231d;
+    .btn.primary {
+      border-color: transparent;
+      color: #03261f;
+      background: linear-gradient(135deg, var(--c1), #6ee3ca);
     }
 
-    .btn-alt {
-      background: transparent;
-      color: var(--ink);
-      border: 1px solid var(--line);
-    }
-
-    .stack {
+    .stats {
       display: grid;
-      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
-    .metric {
+    .stat {
       border: 1px solid var(--line);
       border-radius: 14px;
-      padding: 14px;
-      background: rgba(11, 17, 21, 0.5);
-    }
-
-    .metric .label {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .metric .value {
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 22px;
-    }
-
-    .tier {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px;
       background: var(--bg-elev);
+      padding: 14px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise 560ms ease forwards;
     }
 
-    .tier h3 {
-      margin: 0 0 6px;
-      font-size: 18px;
-    }
+    .stat:nth-child(1) { animation-delay: 180ms; }
+    .stat:nth-child(2) { animation-delay: 240ms; }
+    .stat:nth-child(3) { animation-delay: 300ms; }
+    .stat:nth-child(4) { animation-delay: 360ms; }
 
-    .tier .price {
-      font-family: "Space Mono", monospace;
-      color: var(--accent);
-      margin-bottom: 10px;
-      font-size: 18px;
-    }
-
-    .tier ul {
-      margin: 0;
-      padding-left: 18px;
+    .stat .k {
       color: var(--muted);
-      display: grid;
-      gap: 6px;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      margin-bottom: 4px;
     }
 
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 22px;
+    .stat .v {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
     }
 
-    .checklist {
-      list-style: none;
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg-elev);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise 620ms ease forwards;
+    }
+
+    .card:nth-child(1) { animation-delay: 220ms; }
+    .card:nth-child(2) { animation-delay: 290ms; }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 19px;
+      letter-spacing: -0.01em;
+    }
+
+    .list {
       margin: 0;
-      padding: 0;
+      padding-left: 16px;
+      color: var(--muted);
       display: grid;
       gap: 8px;
     }
 
-    .checklist li {
-      padding-left: 20px;
-      position: relative;
-      color: #c8d4da;
-    }
-
-    .checklist li::before {
-      content: ">";
-      position: absolute;
-      left: 0;
-      top: 0;
-      color: var(--accent);
-      font-family: "Space Mono", monospace;
-      font-weight: 700;
-    }
-
-    form {
+    .pillars {
       display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pillar {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(11, 23, 35, 0.84);
+      padding: 14px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise 560ms ease forwards;
+    }
+
+    .pillar:nth-child(1) { animation-delay: 260ms; }
+    .pillar:nth-child(2) { animation-delay: 320ms; }
+    .pillar:nth-child(3) { animation-delay: 380ms; }
+
+    .pillar h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .pillar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .path {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(115, 184, 255, 0.1), rgba(239, 187, 95, 0.06));
+      padding: 16px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise 620ms ease 340ms forwards;
+    }
+
+    .path h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .steps {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--ink);
+    }
+
+    .steps span {
+      color: var(--muted);
+      font-size: 14px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .lead-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg-elev);
+      padding: 16px;
+      margin-top: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .lead-panel h2 {
+      margin: 0 0 10px;
+      font-size: 19px;
+    }
+
+    .lead-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
 
-    label {
-      font-size: 13px;
+    .lead-field {
+      display: grid;
+      gap: 6px;
       color: var(--muted);
+      font-size: 13px;
     }
 
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid var(--line);
+    .lead-field input,
+    .lead-field select,
+    .lead-field textarea {
+      border: 1px solid rgba(146, 188, 214, 0.28);
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(3, 10, 17, 0.72);
       color: var(--ink);
-      padding: 10px 12px;
       font: inherit;
+      padding: 10px 11px;
+      width: 100%;
     }
 
-    textarea {
-      min-height: 84px;
+    .lead-field textarea {
+      min-height: 92px;
       resize: vertical;
     }
 
-    .small {
-      font-size: 12px;
+    .lead-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .lead-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .lead-status {
       color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      min-height: 16px;
     }
 
-    .danger {
-      color: var(--danger);
-    }
-
-    .success {
-      color: var(--accent);
-    }
-
-    footer {
-      margin-top: 18px;
-      text-align: center;
+    .footer {
+      margin-top: 14px;
       color: var(--muted);
       font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      opacity: 0.86;
     }
 
     @keyframes rise {
-      from {
-        transform: translateY(10px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 980px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-      .grid-3 {
-        grid-template-columns: 1fr;
-      }
-      .split {
-        grid-template-columns: 1fr;
-      }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+      .pillars { grid-template-columns: 1fr; }
+      .lead-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: 1fr; }
+      .hero { padding: 20px; }
+      .nav { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <div class="topbar">
-      <div class="badge"><span class="dot"></span> Foundation Setup | 7-Day Delivery</div>
-      <a class="cta-link" data-track-event="cta_click" data-track-channel="email_topbar" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20Intake">hello@permanencesystems.com</a>
-    </div>
+  <main class="layout">
+    <header class="nav">
+      <a class="brand" href="./index.html">
+        <img src="./assets/ophtxn_mark.svg" alt="Ophtxn logo">
+        <span>Ophtxn by Permanence OS</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="./official_app.html">App Studio</a>
+        <a href="./ai_school.html">AI School</a>
+        <a href="./press_kit.html">Press Kit</a>
+        <a href="http://127.0.0.1:8797/app/ophtxn">Live Shell</a>
+      </nav>
+    </header>
 
     <section class="hero">
-      <article class="panel">
-        <div class="kicker">Permanence Systems</div>
-        <h1>Install a governed AI operating system on your Mac in 7 days.</h1>
-        <p>You stop juggling disconnected tools. We wire your command center, automations, money loop, and governance so execution is daily, traceable, and controlled.</p>
-        <ul class="hero-points">
-          <li>Local command center + live operator dashboard</li>
-          <li>Daily automation cadence (7 / 12 / 19 local)</li>
-          <li>Revenue loop: inbox triage, action queue, execution board</li>
-          <li>Governance gates + audit trail for every run</li>
+      <p class="eyebrow">Official v1</p>
+      <h1>A personal intelligence operating system built for real execution.</h1>
+      <p class="hero-copy">
+        Ophtxn combines memory, research, communications, and approval governance into one system.
+        You can think, decide, and ship faster while keeping spend and risk controlled.
+      </p>
+      <div class="hero-cta">
+        <a class="btn primary" href="./official_app.html" data-cta="open_app_studio">Open App Studio</a>
+        <a class="btn" href="./ai_school.html" data-cta="open_ai_school">Open AI School</a>
+        <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" data-cta="open_live_shell">Open Live Ops Shell</a>
+        <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Get Brand Assets</a>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat">
+        <div class="k">Model Spend</div>
+        <div class="v">$0 default</div>
+      </article>
+      <article class="stat">
+        <div class="k">Control Layer</div>
+        <div class="v">Human approved</div>
+      </article>
+      <article class="stat">
+        <div class="k">Core Channels</div>
+        <div class="v">Telegram + Discord</div>
+      </article>
+      <article class="stat">
+        <div class="k">Runtime Mode</div>
+        <div class="v">No-spend local</div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>What makes this different</h2>
+        <ul class="list">
+          <li>Governed actions: ranked ideas and execution steps pass through explicit approvals.</li>
+          <li>Memory over time: profile, habits, context, and intake signals compound instead of resetting.</li>
+          <li>Operator-grade controls: low-cost mode, provider caps, audit trails, queue triage.</li>
+          <li>Cross-channel flow: one assistant brain across Telegram, Discord, and terminal operations.</li>
         </ul>
-        <div class="row">
-          <a class="btn btn-primary" data-track-event="cta_click" data-track-channel="start_intake" href="#intake">Start Intake</a>
-          <a class="btn btn-alt" data-track-event="cta_click" data-track-channel="see_packages" href="#packages">See Packages</a>
-          <a class="btn btn-alt" data-track-event="cta_click" data-track-channel="open_ophtxn_shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">Open Ophtxn Shell</a>
+      </article>
+      <article class="card">
+        <h2>Immediate outcomes</h2>
+        <ul class="list">
+          <li>Turn high-volume links and ideas into ranked, filterable opportunities.</li>
+          <li>Reduce chaos with daily ops packs and safe batch approval actions.</li>
+          <li>Keep conversation and action history tied to one operating context.</li>
+          <li>Move from tool-hopping to a single system of execution.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="pillars">
+      <article class="pillar">
+        <h3>Personal OS</h3>
+        <p>Build your own second-brain runtime with memory, habits, and strategic decision loops.</p>
+      </article>
+      <article class="pillar">
+        <h3>Vertical Packs</h3>
+        <p>Add domain modules for finance, creator ops, audit workflows, and research lanes.</p>
+      </article>
+      <article class="pillar">
+        <h3>Team Expansion</h3>
+        <p>Evolve into multi-user and enterprise modes once personal runtime quality is proven.</p>
+      </article>
+    </section>
+
+    <section class="path">
+      <h2>Execution Path</h2>
+      <ol class="steps">
+        <li>Stabilize personal runtime and daily no-spend operations.<span>Done and actively improving.</span></li>
+        <li>Ship official app shell + onboarding studio + brand kit.<span>This release.</span></li>
+        <li>Launch one monetized vertical pack with strict governance.<span>Next 30 days.</span></li>
+        <li>Expand to team mode and managed deployment paths.<span>After repeatable user results.</span></li>
+      </ol>
+    </section>
+
+    <section class="lead-panel">
+      <h2>Join Early Access</h2>
+      <form id="leadForm" novalidate>
+        <div class="lead-grid">
+          <label class="lead-field">Name
+            <input id="leadName" name="name" autocomplete="name" required>
+          </label>
+          <label class="lead-field">Email
+            <input id="leadEmail" name="email" type="email" autocomplete="email" required>
+          </label>
+          <label class="lead-field">Primary Workflow
+            <input id="leadWorkflow" name="workflow" placeholder="e.g. founder ops, finance research, execution stack">
+          </label>
+          <label class="lead-field">Package
+            <select id="leadPackage" name="package">
+              <option value="Pilot">Pilot</option>
+              <option value="Core" selected>Core</option>
+              <option value="Operator">Operator</option>
+            </select>
+          </label>
+          <label class="lead-field full">Current Blocker
+            <textarea id="leadBlocker" name="blocker" placeholder="What is blocking execution right now?"></textarea>
+          </label>
         </div>
-        <p class="small" style="margin-top:12px">Locked weekly CTA: <strong>DM "FOUNDATION"</strong></p>
-      </article>
-
-      <aside class="panel">
-        <h2>What You Get</h2>
-        <div class="stack">
-          <div class="metric">
-            <span class="label">Delivery Window</span>
-            <span class="value">7 Days</span>
-          </div>
-          <div class="metric">
-            <span class="label">Setup Surface</span>
-            <span class="value">App + Ops Loop</span>
-          </div>
-          <div class="metric">
-            <span class="label">Primary Outcome</span>
-            <span class="value">Daily Executable System</span>
-          </div>
-        </div>
-      </aside>
-    </section>
-
-    <section id="packages" class="grid-3">
-      <article class="tier">
-        <h3>Pilot</h3>
-        <div class="price">$750</div>
-        <ul>
-          <li>Single-machine baseline setup</li>
-          <li>Core command center wiring</li>
-          <li>Basic runbook</li>
-        </ul>
-      </article>
-      <article class="tier">
-        <h3>Core</h3>
-        <div class="price">$1,500</div>
-        <ul>
-          <li>Pilot + full money loop</li>
-          <li>Governance tuning + verification</li>
-          <li>Daily execution board</li>
-        </ul>
-      </article>
-      <article class="tier">
-        <h3>Operator</h3>
-        <div class="price">$3,000</div>
-        <ul>
-          <li>Core + custom workflows</li>
-          <li>Two-week support window</li>
-          <li>Higher-leverage conversion stack</li>
-        </ul>
-      </article>
-    </section>
-
-    <section class="split">
-      <article class="panel">
-        <h2>Qualification</h2>
-        <ul class="checklist">
-          <li>Mac as primary operating machine</li>
-          <li>At least one workflow to automate now</li>
-          <li>Willing to run daily cadence and close loops</li>
-        </ul>
-      </article>
-      <article class="panel">
-        <h2>Process</h2>
-        <ul class="checklist">
-          <li>Intake + 20-minute fit call</li>
-          <li>Scope lock and same-day invoice</li>
-          <li>7-day implementation sprint</li>
-          <li>Handoff with launchers + playbook</li>
-        </ul>
-      </article>
-    </section>
-
-    <section id="intake" class="panel">
-      <h2>FOUNDATION Intake</h2>
-      <p style="margin-bottom:14px">Fill this quickly and send it. We use this to decide fit, package, and kickoff date.</p>
-      <form id="intakeForm">
-        <label>Name
-          <input name="name" required>
-        </label>
-        <label>Email
-          <input type="email" name="email" required>
-        </label>
-        <label>Top workflow to improve first
-          <select name="workflow">
-            <option value="Content">Content</option>
-            <option value="Research">Research</option>
-            <option value="Operations">Operations</option>
-            <option value="All three">All three</option>
-          </select>
-        </label>
-        <label>Preferred package
-          <select name="package">
-            <option value="Pilot">Pilot</option>
-            <option value="Core" selected>Core</option>
-            <option value="Operator">Operator</option>
-          </select>
-        </label>
-        <label>Biggest blocker
-          <textarea name="blocker" placeholder="What is wasting your time right now?"></textarea>
-        </label>
-        <div class="row">
-          <button class="btn btn-primary" type="submit">Send Intake</button>
-          <a class="btn btn-alt" data-track-event="cta_click" data-track-channel="dm_foundation" href="mailto:hello@permanencesystems.com?subject=FOUNDATION%20DM">DM FOUNDATION</a>
+        <div class="lead-actions">
+          <button class="btn primary" type="submit" data-cta="submit_early_access">Request Access</button>
+          <span class="lead-status" id="leadStatus">Lead capture ready.</span>
         </div>
       </form>
-      <p id="intakeStatus" class="small" style="margin-top:12px"></p>
-      <p class="small" style="margin-top:12px">No autopublish or auto-send happens without human approval.</p>
-      <p class="small danger">This page is a lead-capture surface, not legal or financial advice.</p>
     </section>
 
-    <footer>
-      Permanence Systems | FOUNDATION | Governance-first operator infrastructure
-    </footer>
+    <p class="footer">Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.</p>
   </main>
+  <script src="./runtime.config.js"></script>
   <script>
-    const form = document.getElementById("intakeForm");
-    const statusEl = document.getElementById("intakeStatus");
-    const intakeEndpoints = [
-      `${window.location.origin}/api/revenue/intake`,
-      "http://127.0.0.1:8000/api/revenue/intake",
-      "http://localhost:8000/api/revenue/intake",
-    ];
-    const siteEventEndpoints = intakeEndpoints.map((url) => url.replace("/revenue/intake", "/revenue/site-event"));
-
-    function ensureSessionId() {
-      const key = "permanence_foundation_session_id";
-      let current = "";
-      try {
-        current = String(window.localStorage.getItem(key) || "").trim();
-      } catch (_error) {
-        current = "";
+    (function () {
+      const runtime = window.__OPHTXN_RUNTIME || {};
+      const apiBaseRaw = String(runtime.apiBase || "").trim();
+      const apiBase = apiBaseRaw.replace(/\/$/, "");
+      const source = String(runtime.source || "foundation_site").trim() || "foundation_site";
+      const analyticsEnabled = runtime.analyticsEnabled !== false;
+      const trackPageViews = runtime.trackPageViews !== false;
+      const trackCtas = runtime.trackCtas !== false;
+      const leadCaptureEnabled = runtime.leadCaptureEnabled !== false;
+      const leadCaptureEndpoint = String(runtime.leadCaptureEndpoint || "/api/revenue/intake").trim() || "/api/revenue/intake";
+      const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
+      const fallbackEmail = String(runtime.fallbackEmail || "").trim() || "paybhicks7@gmail.com";
+      const sessionKey = "ophtxn_session_id";
+      let sessionId = localStorage.getItem(sessionKey);
+      if (!sessionId) {
+        sessionId = "sess_" + Math.random().toString(36).slice(2, 11);
+        localStorage.setItem(sessionKey, sessionId);
       }
-      if (current) return current;
-      const generated = `FS-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-      try {
-        window.localStorage.setItem(key, generated);
-      } catch (_error) {
-      }
-      return generated;
-    }
 
-    async function trackSiteEvent(eventType, channel = "", meta = {}) {
-      const payload = {
-        event_type: String(eventType || "").trim().toLowerCase(),
-        source: "foundation_site",
-        session_id: ensureSessionId(),
-        channel: String(channel || "").trim(),
-        meta: meta && typeof meta === "object" ? meta : {},
-      };
-      for (const endpoint of siteEventEndpoints) {
+      const byId = (id) => document.getElementById(id);
+      const statusEl = byId("leadStatus");
+
+      function endpoint(path) {
+        if (!path) return "";
+        if (/^https?:\/\//i.test(path)) return path;
+        return apiBase ? apiBase + path : "";
+      }
+
+      async function track(eventType, meta) {
+        if (!analyticsEnabled) return false;
+        const url = endpoint(siteEventEndpoint);
+        if (!url) return false;
         try {
-          const response = await fetch(endpoint, {
+          const res = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({
+              event_type: eventType,
+              source: source,
+              session_id: sessionId,
+              channel: "web",
+              meta: meta || {},
+            }),
           });
-          if (response.ok) return true;
-        } catch (_error) {
-          continue;
+          return res.ok;
+        } catch (_err) {
+          return false;
         }
       }
-      return false;
-    }
 
-    async function submitToApi(payload) {
-      for (const endpoint of intakeEndpoints) {
-        try {
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (!response.ok) continue;
-          const result = await response.json();
-          if (String(result.status || "").toUpperCase() === "CAPTURED") {
-            return result;
-          }
-        } catch (_error) {
-          continue;
-        }
-      }
-      return null;
-    }
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      const payload = {
-        name: String(data.get("name") || "").trim(),
-        email: String(data.get("email") || "").trim(),
-        workflow: String(data.get("workflow") || ""),
-        package: String(data.get("package") || ""),
-        blocker: String(data.get("blocker") || ""),
-        source: "foundation_site",
-        create_lead: true,
-      };
-
-      statusEl.textContent = "Submitting intake...";
-      statusEl.className = "small";
-      await trackSiteEvent("intake_submit", "intake_form", {
-        package: payload.package,
-        workflow: payload.workflow,
-      });
-
-      const apiResult = await submitToApi(payload);
-      if (apiResult) {
-        const leadId = apiResult.lead_id ? ` | lead ${apiResult.lead_id}` : "";
-        statusEl.textContent = `Intake captured in local Revenue Ops${leadId}.`;
-        statusEl.className = "small success";
-        await trackSiteEvent("intake_captured", "api_capture", {
-          lead_id: String(apiResult.lead_id || ""),
+      if (trackPageViews) {
+        track("page_view", {
+          path: location.pathname,
+          referrer: document.referrer || "",
+          user_agent: navigator.userAgent,
+          ts: new Date().toISOString(),
         });
-        form.reset();
-        return;
       }
 
-      const lines = [
-        "FOUNDATION Intake",
-        "",
-        `Name: ${payload.name}`,
-        `Email: ${payload.email}`,
-        `Workflow: ${payload.workflow}`,
-        `Package: ${payload.package}`,
-        `Blocker: ${payload.blocker}`,
-      ];
-      const subject = encodeURIComponent("FOUNDATION Intake");
-      const body = encodeURIComponent(lines.join("\n"));
-      statusEl.textContent = "Could not reach local API. Opening email fallback...";
-      statusEl.className = "small danger";
-      await trackSiteEvent("intake_fallback", "mailto_fallback", {
-        package: payload.package,
-      });
-      window.location.href = `mailto:hello@permanencesystems.com?subject=${subject}&body=${body}`;
-    });
+      if (trackCtas) {
+        document.querySelectorAll("[data-cta]").forEach((node) => {
+          node.addEventListener("click", () => {
+            track("cta_click", { cta: node.getAttribute("data-cta") || "unknown" });
+          });
+        });
+      }
 
-    const trackedLinks = document.querySelectorAll("[data-track-event]");
-    trackedLinks.forEach((node) => {
-      node.addEventListener("click", () => {
-        const eventType = String(node.getAttribute("data-track-event") || "");
-        const channel = String(node.getAttribute("data-track-channel") || "");
-        void trackSiteEvent(eventType, channel);
+      const form = byId("leadForm");
+      if (!form) return;
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const name = String(byId("leadName")?.value || "").trim();
+        const email = String(byId("leadEmail")?.value || "").trim();
+        const workflow = String(byId("leadWorkflow")?.value || "").trim();
+        const pkg = String(byId("leadPackage")?.value || "Core").trim() || "Core";
+        const blocker = String(byId("leadBlocker")?.value || "").trim();
+
+        if (!name || !email || !email.includes("@")) {
+          if (statusEl) statusEl.textContent = "Name and valid email are required.";
+          return;
+        }
+
+        await track("intake_submit", { package: pkg });
+        const intakeUrl = endpoint(leadCaptureEndpoint);
+        if (!leadCaptureEnabled || !intakeUrl) {
+          const subject = encodeURIComponent("Ophtxn Early Access");
+          const body = encodeURIComponent(
+            "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker
+          );
+          location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
+          await track("intake_fallback", { reason: "missing_endpoint", package: pkg });
+          return;
+        }
+
+        try {
+          const response = await fetch(intakeUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: name,
+              email: email,
+              workflow: workflow,
+              package: pkg,
+              blocker: blocker,
+              source: source + ":website",
+              create_lead: true,
+            }),
+          });
+          if (!response.ok) {
+            throw new Error("Intake request failed");
+          }
+          const payload = await response.json();
+          const leadId = payload && payload.lead_id ? String(payload.lead_id) : "";
+          if (statusEl) {
+            statusEl.textContent = leadId
+              ? "Captured. Lead ID: " + leadId
+              : "Captured. We will follow up shortly.";
+          }
+          form.reset();
+          await track("intake_captured", { lead_id: leadId, package: pkg });
+        } catch (_err) {
+          const subject = encodeURIComponent("Ophtxn Early Access (fallback)");
+          const body = encodeURIComponent(
+            "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker
+          );
+          location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
+          if (statusEl) statusEl.textContent = "Fallback opened in mail client.";
+          await track("intake_fallback", { reason: "post_failed", package: pkg });
+        }
       });
-    });
-    void trackSiteEvent("page_view", "foundation_landing", {
-      path: window.location.pathname,
-      referrer: document.referrer || "",
-    });
+    })();
   </script>
 </body>
 </html>

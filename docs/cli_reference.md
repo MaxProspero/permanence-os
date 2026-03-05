@@ -422,6 +422,7 @@ Serve `site/foundation/index.html` locally.
 - `--site-dir` override site root
 - Intake form posts to local Command Center API (`/api/revenue/intake`) when available, otherwise falls back to email.
 - Additional pages:
+  - `/ai_school.html`
   - `/official_app.html`
   - `/press_kit.html`
 
