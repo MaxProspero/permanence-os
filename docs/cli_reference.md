@@ -539,6 +539,17 @@ Run offline simulations for Ophtxn memory retrieval and habit logic.
   - latest report: `outputs/ophtxn_simulation_latest.md`
   - includes memory retrieval, habit streak consistency, profile conflict logging, and habit nudge checks
 
+### `python cli.py ophtxn-completion`
+Score progress to 100% from live telemetry and list blockers/actions.
+- Standard run:
+`python cli.py ophtxn-completion`
+- Strict target gate (non-zero exit if below target):
+`python cli.py ophtxn-completion --target 95 --strict`
+- Outputs:
+  - report markdown: `outputs/ophtxn_completion_*.md`
+  - latest report: `outputs/ophtxn_completion_latest.md`
+  - tool payload: `memory/tool/ophtxn_completion_*.json`
+
 ### `python cli.py ophtxn-brain`
 Sync and query the persistent Ophtxn brain vault from docs/reports/memory/intake files.
 - Status:

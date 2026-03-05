@@ -212,6 +212,8 @@ python cli.py telegram-control --action poll --ack
 python cli.py telegram-control --action poll --enable-commands --ack --max-commands 3
 python cli.py telegram-control --action poll --chat-agent --max-chat-replies 3
 python cli.py ophtxn-simulation --seed 11 --memory-trials 300 --habit-days 90
+python cli.py ophtxn-completion
+python cli.py ophtxn-completion --target 95 --strict
 python cli.py telegram-control --action poll --voice-priority high --voice-channel telegram-voice
 python cli.py telegram-control --action poll --voice-transcribe-queue ~/permanence-os/memory/working/transcription_queue.json
 python cli.py glasses-autopilot --action run
