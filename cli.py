@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-ops-pack, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
 """
 
 import argparse
@@ -237,9 +238,16 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_ingest_sources_append.py"),
         os.path.join(BASE_DIR, "tests", "test_gmail_ingest.py"),
         os.path.join(BASE_DIR, "tests", "test_research_inbox.py"),
+        os.path.join(BASE_DIR, "tests", "test_idea_intake.py"),
         os.path.join(BASE_DIR, "tests", "test_glasses_bridge.py"),
         os.path.join(BASE_DIR, "tests", "test_telegram_control.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_idea_intake.py"),
         os.path.join(BASE_DIR, "tests", "test_ophtxn_brain.py"),
+        os.path.join(BASE_DIR, "tests", "test_ophtxn_daily_ops.py"),
+        os.path.join(BASE_DIR, "tests", "test_ophtxn_launchpad.py"),
+        os.path.join(BASE_DIR, "tests", "test_ophtxn_production_ops.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_ophtxn_launchpad.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_ophtxn_production_ops.py"),
         os.path.join(BASE_DIR, "tests", "test_terminal_task_queue.py"),
         os.path.join(BASE_DIR, "tests", "test_glasses_autopilot.py"),
         os.path.join(BASE_DIR, "tests", "test_discord_feed_manager.py"),
@@ -281,7 +289,19 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_opportunity_ranker.py"),
         os.path.join(BASE_DIR, "tests", "test_opportunity_approval_queue.py"),
         os.path.join(BASE_DIR, "tests", "test_phase3_refresh.py"),
+        os.path.join(BASE_DIR, "tests", "test_approval_triage.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_approval_triage.py"),
         os.path.join(BASE_DIR, "tests", "test_approval_execution_board.py"),
+        os.path.join(BASE_DIR, "tests", "test_chronicle_refinement.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_chronicle_refinement.py"),
+        os.path.join(BASE_DIR, "tests", "test_chronicle_approval_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_chronicle_approval_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_chronicle_execution_board.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_chronicle_execution_board.py"),
+        os.path.join(BASE_DIR, "tests", "test_chronicle_approve.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_chronicle_approve.py"),
+        os.path.join(BASE_DIR, "tests", "test_chronicle_control.py"),
+        os.path.join(BASE_DIR, "tests", "test_cli_chronicle_control.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_report.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_init.py"),
     ]
@@ -1193,6 +1213,48 @@ def main() -> int:
         )
     )
 
+    idea_intake_p = sub.add_parser(
+        "idea-intake",
+        help="Rank incoming idea links from intake and optionally queue approvals",
+    )
+    idea_intake_p.add_argument("--action", choices=["status", "process", "intake"], default="status")
+    idea_intake_p.add_argument("--text", help="Text payload for intake action")
+    idea_intake_p.add_argument("--source", help="Source label for intake action")
+    idea_intake_p.add_argument("--channel", help="Channel label for intake action")
+    idea_intake_p.add_argument("--intake-path", help="Intake JSONL path")
+    idea_intake_p.add_argument("--state-path", help="State JSON path")
+    idea_intake_p.add_argument("--policy-path", help="Policy JSON path")
+    idea_intake_p.add_argument("--max-items", type=int, help="Max ranked ideas to keep")
+    idea_intake_p.add_argument("--min-score", type=float, help="Minimum idea score to keep")
+    idea_intake_p.add_argument("--queue-approvals", action="store_true", help="Queue top ideas to approvals")
+    idea_intake_p.add_argument("--queue-limit", type=int, help="Max idea approvals queued")
+    idea_intake_p.add_argument("--queue-min-score", type=float, help="Min score for queued ideas")
+    idea_intake_p.add_argument("--force-policy", action="store_true", help="Rewrite idea-intake policy template")
+    idea_intake_p.add_argument("--strict", action="store_true", help="Fail when warnings are emitted")
+    idea_intake_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "idea_intake.py"),
+                "--action",
+                args.action,
+                *(["--text", args.text] if args.text else []),
+                *(["--source", args.source] if args.source else []),
+                *(["--channel", args.channel] if args.channel else []),
+                *(["--intake-path", args.intake_path] if args.intake_path else []),
+                *(["--state-path", args.state_path] if args.state_path else []),
+                *(["--policy-path", args.policy_path] if args.policy_path else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
+                *(["--min-score", str(args.min_score)] if args.min_score is not None else []),
+                *(["--queue-approvals"] if args.queue_approvals else []),
+                *(["--queue-limit", str(args.queue_limit)] if args.queue_limit else []),
+                *(["--queue-min-score", str(args.queue_min_score)] if args.queue_min_score is not None else []),
+                *(["--force-policy"] if args.force_policy else []),
+                *(["--strict"] if args.strict else []),
+            ]
+        )
+    )
+
     glasses_bridge_p = sub.add_parser(
         "glasses-bridge",
         help="Ingest smart-glasses events into attachment, reception, and research queues",
@@ -1409,6 +1471,205 @@ def main() -> int:
                 str(args.memory_trials),
                 "--habit-days",
                 str(args.habit_days),
+            ]
+        )
+    )
+
+    ophtxn_daily_ops_p = sub.add_parser(
+        "ophtxn-daily-ops",
+        help="Generate no-spend daily operating brief (morning/midday/evening/hygiene)",
+    )
+    ophtxn_daily_ops_p.add_argument(
+        "--action",
+        choices=["status", "morning", "midday", "evening", "hygiene", "cycle"],
+        default="status",
+    )
+    ophtxn_daily_ops_p.add_argument("--queue-path", help="Terminal task queue JSONL path override")
+    ophtxn_daily_ops_p.add_argument("--approvals-path", help="Approvals JSON path override")
+    ophtxn_daily_ops_p.add_argument("--target-pending", type=int, default=1, help="Target max pending tasks")
+    ophtxn_daily_ops_p.add_argument("--max-items", type=int, default=5, help="Max pending items listed")
+    ophtxn_daily_ops_p.add_argument(
+        "--freshness-minutes",
+        type=int,
+        default=360,
+        help="Max freshness age before stale",
+    )
+    ophtxn_daily_ops_p.add_argument("--strict", action="store_true", help="Exit non-zero when checks fail")
+    ophtxn_daily_ops_p.add_argument("--output", help="Optional markdown output path")
+    ophtxn_daily_ops_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ophtxn_daily_ops.py"),
+                "--action",
+                args.action,
+                *(["--queue-path", args.queue_path] if args.queue_path else []),
+                *(["--approvals-path", args.approvals_path] if args.approvals_path else []),
+                *(["--target-pending", str(args.target_pending)] if args.target_pending is not None else []),
+                *(["--max-items", str(args.max_items)] if args.max_items is not None else []),
+                *(["--freshness-minutes", str(args.freshness_minutes)] if args.freshness_minutes is not None else []),
+                *(["--strict"] if args.strict else []),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    ophtxn_ops_pack_p = sub.add_parser(
+        "ophtxn-ops-pack",
+        help="Run Ophtxn shortcut pack (ops cycle + no-spend audit + approvals top + optional safe batch)",
+    )
+    ophtxn_ops_pack_p.add_argument("--action", choices=["status", "run"], default="run")
+    ophtxn_ops_pack_p.add_argument("--strict", action="store_true", help="Exit non-zero when any step fails")
+    ophtxn_ops_pack_p.add_argument("--timeout", type=int, default=300, help="Per-step timeout seconds")
+    ophtxn_ops_pack_p.add_argument("--approval-source", action="append", default=[], help="Approval source filter")
+    ophtxn_ops_pack_p.add_argument("--approval-limit", type=int, default=12, help="Approval top-list limit")
+    ophtxn_ops_pack_p.add_argument(
+        "--approval-decision",
+        choices=["approve", "reject", "defer"],
+        help="Optional safe-batch decision to apply",
+    )
+    ophtxn_ops_pack_p.add_argument("--approval-batch-size", type=int, default=3, help="Safe batch size when decision is set")
+    ophtxn_ops_pack_p.add_argument(
+        "--safe-max-priority",
+        choices=["low", "medium", "high", "critical"],
+        default="low",
+        help="Safe batch priority ceiling",
+    )
+    ophtxn_ops_pack_p.add_argument(
+        "--safe-max-risk",
+        choices=["low", "medium", "high", "critical"],
+        default="medium",
+        help="Safe batch risk ceiling",
+    )
+    ophtxn_ops_pack_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ophtxn_ops_pack.py"),
+                "--action",
+                args.action,
+                *(["--strict"] if args.strict else []),
+                *(["--timeout", str(args.timeout)] if args.timeout is not None else []),
+                *([arg for source in args.approval_source for arg in ("--approval-source", source)] if args.approval_source else []),
+                *(["--approval-limit", str(args.approval_limit)] if args.approval_limit is not None else []),
+                *(["--approval-decision", args.approval_decision] if args.approval_decision else []),
+                *(
+                    ["--approval-batch-size", str(args.approval_batch_size)]
+                    if args.approval_batch_size is not None
+                    else []
+                ),
+                *(["--safe-max-priority", args.safe_max_priority] if args.safe_max_priority else []),
+                *(["--safe-max-risk", args.safe_max_risk] if args.safe_max_risk else []),
+            ]
+        )
+    )
+
+    ophtxn_launchpad_p = sub.add_parser(
+        "ophtxn-launchpad",
+        help="Generate launch readiness score + official plan for Ophtxn",
+    )
+    ophtxn_launchpad_p.add_argument(
+        "--action",
+        choices=["status", "plan"],
+        default="status",
+        help="Launchpad action",
+    )
+    ophtxn_launchpad_p.add_argument("--strict", action="store_true", help="Fail when readiness score is below min-score")
+    ophtxn_launchpad_p.add_argument("--min-score", type=float, default=75.0, help="Strict readiness score threshold")
+    ophtxn_launchpad_p.add_argument("--output", help="Optional markdown output path")
+    ophtxn_launchpad_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ophtxn_launchpad.py"),
+                "--action",
+                args.action,
+                *(["--strict"] if args.strict else []),
+                *(["--min-score", str(args.min_score)] if args.min_score is not None else []),
+                *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    ophtxn_production_p = sub.add_parser(
+        "ophtxn-production",
+        help="Run production deployment operations (domain/hosting/analytics/lead-capture)",
+    )
+    ophtxn_production_p.add_argument(
+        "--action",
+        choices=["init", "configure", "preflight", "render-runtime", "status", "estimate", "deploy-plan"],
+        default="status",
+        help="Production action",
+    )
+    ophtxn_production_p.add_argument("--config", help="Config JSON path")
+    ophtxn_production_p.add_argument("--force-template", action="store_true", help="Overwrite template on init")
+    ophtxn_production_p.add_argument("--check-api", action="store_true", help="Probe configured API /api/status")
+    ophtxn_production_p.add_argument("--check-wrangler", action="store_true", help="Probe wrangler auth status")
+    ophtxn_production_p.add_argument("--strict", action="store_true", help="Fail when required checks are missing")
+    ophtxn_production_p.add_argument("--min-score", type=float, default=80.0, help="Strict readiness threshold")
+    ophtxn_production_p.add_argument("--site-url", help="Set hosting.primary_url")
+    ophtxn_production_p.add_argument("--api-base", help="Set hosting.api_base_url")
+    ophtxn_production_p.add_argument("--domain", help="Set domain.primary_domain")
+    ophtxn_production_p.add_argument("--api-domain", help="Set domain.api_domain")
+    ophtxn_production_p.add_argument("--fallback-email", help="Set lead_capture.fallback_email")
+    ophtxn_production_p.add_argument("--monthly-hosting", type=float, help="Set budget.monthly_hosting_usd")
+    ophtxn_production_p.add_argument("--monthly-analytics", type=float, help="Set budget.monthly_analytics_usd")
+    ophtxn_production_p.add_argument(
+        "--monthly-lead-capture",
+        type=float,
+        help="Set budget.monthly_lead_capture_usd",
+    )
+    ophtxn_production_p.add_argument("--monthly-monitoring", type=float, help="Set budget.monthly_monitoring_usd")
+    ophtxn_production_p.add_argument("--monthly-contingency", type=float, help="Set budget.monthly_contingency_usd")
+    ophtxn_production_p.add_argument("--annual-domain-cost", type=float, help="Set domain.annual_cost_usd")
+    ophtxn_production_p.add_argument("--no-spend", action="store_true", help="Set monthly production budget to zero")
+    ophtxn_production_p.add_argument("--output", help="Optional markdown output path")
+    ophtxn_production_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ophtxn_production_ops.py"),
+                "--action",
+                args.action,
+                *(["--config", args.config] if args.config else []),
+                *(["--force-template"] if args.force_template else []),
+                *(["--check-api"] if args.check_api else []),
+                *(["--check-wrangler"] if args.check_wrangler else []),
+                *(["--strict"] if args.strict else []),
+                *(["--min-score", str(args.min_score)] if args.min_score is not None else []),
+                *(["--site-url", args.site_url] if args.site_url else []),
+                *(["--api-base", args.api_base] if args.api_base else []),
+                *(["--domain", args.domain] if args.domain else []),
+                *(["--api-domain", args.api_domain] if args.api_domain else []),
+                *(["--fallback-email", args.fallback_email] if args.fallback_email else []),
+                *(["--monthly-hosting", str(args.monthly_hosting)] if args.monthly_hosting is not None else []),
+                *(
+                    ["--monthly-analytics", str(args.monthly_analytics)]
+                    if args.monthly_analytics is not None
+                    else []
+                ),
+                *(
+                    ["--monthly-lead-capture", str(args.monthly_lead_capture)]
+                    if args.monthly_lead_capture is not None
+                    else []
+                ),
+                *(
+                    ["--monthly-monitoring", str(args.monthly_monitoring)]
+                    if args.monthly_monitoring is not None
+                    else []
+                ),
+                *(
+                    ["--monthly-contingency", str(args.monthly_contingency)]
+                    if args.monthly_contingency is not None
+                    else []
+                ),
+                *(
+                    ["--annual-domain-cost", str(args.annual_domain_cost)]
+                    if args.annual_domain_cost is not None
+                    else []
+                ),
+                *(["--no-spend"] if args.no_spend else []),
+                *(["--output", args.output] if args.output else []),
             ]
         )
     )
@@ -2451,6 +2712,39 @@ def main() -> int:
         )
     )
 
+    no_spend_audit_p = sub.add_parser(
+        "no-spend-audit",
+        help="Audit no-spend guardrails and recent model provider usage",
+    )
+    no_spend_audit_p.add_argument("--env-path", help="Override .env path")
+    no_spend_audit_p.add_argument("--calls-log", help="Override logs/model_calls.jsonl path")
+    no_spend_audit_p.add_argument(
+        "--lookback-hours",
+        type=int,
+        default=24,
+        help="Model calls lookback window in hours",
+    )
+    no_spend_audit_p.add_argument(
+        "--max-recent-calls",
+        type=int,
+        default=200,
+        help="Max model call rows sampled from the tail",
+    )
+    no_spend_audit_p.add_argument("--strict", action="store_true", help="Exit non-zero when violations are found")
+    no_spend_audit_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "no_spend_audit.py"),
+                *(["--env-path", args.env_path] if args.env_path else []),
+                *(["--calls-log", args.calls_log] if args.calls_log else []),
+                *(["--lookback-hours", str(args.lookback_hours)] if args.lookback_hours is not None else []),
+                *(["--max-recent-calls", str(args.max_recent_calls)] if args.max_recent_calls is not None else []),
+                *(["--strict"] if args.strict else []),
+            ]
+        )
+    )
+
     money_gate_p = sub.add_parser(
         "money-first-gate",
         help="Gate feature work until first revenue milestone is reached",
@@ -2653,6 +2947,56 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "phase3_refresh.py"),
                 *(["--strict"] if args.strict else []),
                 *(["--timeout", str(args.timeout)] if args.timeout else []),
+            ]
+        )
+    )
+
+    approval_triage_p = sub.add_parser(
+        "approval-triage",
+        help="Review and decide pending approvals queue quickly",
+    )
+    approval_triage_p.add_argument(
+        "--action",
+        choices=["status", "list", "top", "decide", "decide-batch", "decide-batch-safe"],
+        default="status",
+    )
+    approval_triage_p.add_argument("--approvals-path", help="Override approvals JSON path")
+    approval_triage_p.add_argument("--source", action="append", default=[], help="Source scope filter (repeatable)")
+    approval_triage_p.add_argument("--limit", type=int, default=12, help="Pending rows included in report")
+    approval_triage_p.add_argument("--decision", choices=["approve", "reject", "defer"], help="Decision verb")
+    approval_triage_p.add_argument("--proposal-id", help="Proposal/approval id")
+    approval_triage_p.add_argument("--batch-size", type=int, default=3, help="Batch size for decide-batch")
+    approval_triage_p.add_argument(
+        "--safe-max-priority",
+        choices=["low", "medium", "high", "critical"],
+        default="medium",
+        help="For decide-batch-safe: highest allowed priority",
+    )
+    approval_triage_p.add_argument(
+        "--safe-max-risk",
+        choices=["low", "medium", "high", "critical"],
+        default="high",
+        help="For decide-batch-safe: highest allowed effective risk level",
+    )
+    approval_triage_p.add_argument("--decided-by", default="operator", help="Decision actor")
+    approval_triage_p.add_argument("--note", help="Optional decision note")
+    approval_triage_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "approval_triage.py"),
+                "--action",
+                args.action,
+                *(["--approvals-path", args.approvals_path] if args.approvals_path else []),
+                *([arg for value in args.source for arg in ("--source", value)] if args.source else []),
+                *(["--limit", str(args.limit)] if args.limit is not None else []),
+                *(["--decision", args.decision] if args.decision else []),
+                *(["--proposal-id", args.proposal_id] if args.proposal_id else []),
+                *(["--batch-size", str(args.batch_size)] if args.batch_size is not None else []),
+                *(["--safe-max-priority", args.safe_max_priority] if args.safe_max_priority else []),
+                *(["--safe-max-risk", args.safe_max_risk] if args.safe_max_risk else []),
+                *(["--decided-by", args.decided_by] if args.decided_by else []),
+                *(["--note", args.note] if args.note else []),
             ]
         )
     )
@@ -3286,6 +3630,150 @@ def main() -> int:
                 *(["--max-events", str(args.max_events)] if args.max_events else []),
                 *(["--max-commits", str(args.max_commits)] if args.max_commits else []),
                 *(["--output", args.output] if args.output else []),
+            ]
+        )
+    )
+
+    chronicle_refine_p = sub.add_parser(
+        "chronicle-refinement",
+        help="Convert chronicle signals into backlog + canon refinement recommendations",
+    )
+    chronicle_refine_p.add_argument("--report-json", help="Chronicle report JSON path")
+    chronicle_refine_p.add_argument("--max-backlog-items", type=int, default=3, help="Max backlog updates to propose")
+    chronicle_refine_p.add_argument("--max-canon-checks", type=int, default=1, help="Max canon checks to propose")
+    chronicle_refine_p.add_argument("--backlog-path", help="Output path for synced backlog recommendation JSON")
+    chronicle_refine_p.add_argument("--output", help="Output markdown path")
+    chronicle_refine_p.add_argument("--no-sync-backlog", action="store_true", help="Do not write backlog sync JSON")
+    chronicle_refine_p.add_argument("--strict", action="store_true", help="Fail when chronicle source is missing")
+    chronicle_refine_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_refinement.py"),
+                *(["--report-json", args.report_json] if args.report_json else []),
+                *(["--max-backlog-items", str(args.max_backlog_items)] if args.max_backlog_items else []),
+                *(["--max-canon-checks", str(args.max_canon_checks)] if args.max_canon_checks else []),
+                *(["--backlog-path", args.backlog_path] if args.backlog_path else []),
+                *(["--output", args.output] if args.output else []),
+                *(["--no-sync-backlog"] if args.no_sync_backlog else []),
+                *(["--strict"] if args.strict else []),
+            ]
+        )
+    )
+
+    chronicle_queue_p = sub.add_parser(
+        "chronicle-approval-queue",
+        help="Queue chronicle refinement recommendations into manual approvals",
+    )
+    chronicle_queue_p.add_argument("--force-policy", action="store_true", help="Rewrite queue policy template file")
+    chronicle_queue_p.add_argument("--max-items", type=int, help="Max new queue items for this run")
+    chronicle_queue_p.add_argument("--no-canon-checks", action="store_true", help="Skip canon-check entries this run")
+    chronicle_queue_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_approval_queue.py"),
+                *(["--force-policy"] if args.force_policy else []),
+                *(["--max-items", str(args.max_items)] if args.max_items else []),
+                *(["--no-canon-checks"] if args.no_canon_checks else []),
+            ]
+        )
+    )
+
+    chronicle_exec_p = sub.add_parser(
+        "chronicle-execution-board",
+        help="Build scoped execution tasks from approved chronicle approvals",
+    )
+    chronicle_exec_p.add_argument("--limit", type=int, default=8, help="Max surfaced tasks")
+    chronicle_exec_p.add_argument(
+        "--source",
+        action="append",
+        default=[],
+        help="Approval source filter (repeatable; default: chronicle_refinement_queue)",
+    )
+    chronicle_exec_p.add_argument("--no-canon", action="store_true", help="Exclude canon_amendment items")
+    chronicle_exec_p.add_argument(
+        "--no-mark-queued",
+        action="store_true",
+        help="Do not update approvals with execution metadata",
+    )
+    chronicle_exec_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_execution_board.py"),
+                *(["--limit", str(args.limit)] if args.limit else []),
+                *([arg for token in args.source for arg in ("--source", token)] if args.source else []),
+                *(["--no-canon"] if args.no_canon else []),
+                *(["--no-mark-queued"] if args.no_mark_queued else []),
+            ]
+        )
+    )
+
+    chronicle_decide_p = sub.add_parser(
+        "chronicle-approve",
+        help="Review/list and decide chronicle approval queue items",
+    )
+    chronicle_decide_p.add_argument("--action", choices=["status", "list", "decide"], default="status")
+    chronicle_decide_p.add_argument("--approvals-path", help="Override approvals JSON path")
+    chronicle_decide_p.add_argument("--source", action="append", default=[], help="Source filter (repeatable)")
+    chronicle_decide_p.add_argument("--limit", type=int, default=12, help="Max pending rows in report")
+    chronicle_decide_p.add_argument("--decision", choices=["approve", "reject", "defer"], help="Decision for decide")
+    chronicle_decide_p.add_argument("--proposal-id", help="Target id (default: oldest pending in scope)")
+    chronicle_decide_p.add_argument("--decided-by", default="operator", help="Decision actor")
+    chronicle_decide_p.add_argument("--note", default="", help="Decision note")
+    chronicle_decide_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_approve.py"),
+                "--action",
+                args.action,
+                *(["--approvals-path", args.approvals_path] if args.approvals_path else []),
+                *([arg for token in args.source for arg in ("--source", token)] if args.source else []),
+                *(["--limit", str(args.limit)] if args.limit else []),
+                *(["--decision", args.decision] if args.decision else []),
+                *(["--proposal-id", args.proposal_id] if args.proposal_id else []),
+                *(["--decided-by", args.decided_by] if args.decided_by else []),
+                *(["--note", args.note] if args.note else []),
+            ]
+        )
+    )
+
+    chronicle_control_p = sub.add_parser(
+        "chronicle-control",
+        help="Chronicle pipeline control plane (status/run)",
+    )
+    chronicle_control_p.add_argument("--action", choices=["status", "run"], default="status")
+    chronicle_control_p.add_argument("--strict", action="store_true", help="Fail when run step fails")
+    chronicle_control_p.add_argument("--timeout", type=int, default=900, help="Per-step timeout seconds")
+    chronicle_control_p.add_argument(
+        "--source-filter",
+        default="chronicle_refinement_queue",
+        help="Source filter for approval summary",
+    )
+    chronicle_control_p.add_argument("--skip-refinement", action="store_true", help="Skip chronicle-refinement")
+    chronicle_control_p.add_argument("--skip-queue", action="store_true", help="Skip chronicle-approval-queue")
+    chronicle_control_p.add_argument("--skip-execution", action="store_true", help="Skip chronicle-execution-board")
+    chronicle_control_p.add_argument("--queue-max-items", type=int, help="Forwarded queue max items")
+    chronicle_control_p.add_argument("--execution-limit", type=int, help="Forwarded execution board limit")
+    chronicle_control_p.add_argument("--no-canon", action="store_true", help="Forward to execution board")
+    chronicle_control_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "chronicle_control.py"),
+                "--action",
+                args.action,
+                *(["--strict"] if args.strict else []),
+                *(["--timeout", str(args.timeout)] if args.timeout else []),
+                *(["--source-filter", args.source_filter] if args.source_filter else []),
+                *(["--skip-refinement"] if args.skip_refinement else []),
+                *(["--skip-queue"] if args.skip_queue else []),
+                *(["--skip-execution"] if args.skip_execution else []),
+                *(["--queue-max-items", str(args.queue_max_items)] if args.queue_max_items else []),
+                *(["--execution-limit", str(args.execution_limit)] if args.execution_limit else []),
+                *(["--no-canon"] if args.no_canon else []),
             ]
         )
     )

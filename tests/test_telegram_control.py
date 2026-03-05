@@ -114,14 +114,193 @@ def test_command_argv_maps_known_command() -> None:
     x_list = telegram_mod._command_argv("x-watch-list")
     assert "x-account-watch" in x_list
     assert "list" in x_list
+    idea_status = telegram_mod._command_argv("idea-status")
+    assert "idea-intake" in idea_status
+    assert "--action" in idea_status and "status" in idea_status
+    idea_intake = telegram_mod._command_argv("idea-intake", "https://github.com/openai/symphony")
+    assert "idea-intake" in idea_intake
+    assert "--action" in idea_intake and "intake" in idea_intake
+    assert "--text" in idea_intake and "https://github.com/openai/symphony" in idea_intake
+    assert "--source" in idea_intake and "telegram-command" in idea_intake
+    assert "--channel" in idea_intake and "telegram" in idea_intake
+    idea_intake_empty = telegram_mod._command_argv("idea-intake", "")
+    assert "idea-intake" in idea_intake_empty
+    assert "--action" in idea_intake_empty and "status" in idea_intake_empty
+    idea_run = telegram_mod._command_argv("idea-run", "max=22 min-score=45 queue=1")
+    assert "idea-intake" in idea_run
+    assert "--action" in idea_run and "process" in idea_run
+    assert "--max-items" in idea_run and "22" in idea_run
+    assert "--min-score" in idea_run and "45" in idea_run
+    assert "--queue-approvals" in idea_run
+    idea_queue = telegram_mod._command_argv("idea-queue", "18")
+    assert "idea-intake" in idea_queue
+    assert "--queue-approvals" in idea_queue
+    assert "--max-items" in idea_queue and "18" in idea_queue
+    launch_status = telegram_mod._command_argv("launch-status", "min-score=82 strict")
+    assert "ophtxn-launchpad" in launch_status
+    assert "--action" in launch_status and "status" in launch_status
+    assert "--min-score" in launch_status and "82" in launch_status
+    assert "--strict" in launch_status
+    launch_plan = telegram_mod._command_argv("launch-plan")
+    assert "ophtxn-launchpad" in launch_plan
+    assert "--action" in launch_plan and "plan" in launch_plan
+    prod_status = telegram_mod._command_argv("prod-status", "min-score=84 strict")
+    assert "ophtxn-production" in prod_status
+    assert "--action" in prod_status and "status" in prod_status
+    assert "--min-score" in prod_status and "84" in prod_status
+    assert "--strict" in prod_status
+    prod_preflight = telegram_mod._command_argv("prod-preflight", "strict")
+    assert "ophtxn-production" in prod_preflight
+    assert "--action" in prod_preflight and "preflight" in prod_preflight
+    assert "--check-wrangler" in prod_preflight
+    assert "--strict" in prod_preflight
+    prod_estimate = telegram_mod._command_argv("prod-estimate")
+    assert "ophtxn-production" in prod_estimate
+    assert "--action" in prod_estimate and "estimate" in prod_estimate
+    prod_plan = telegram_mod._command_argv("prod-plan")
+    assert "ophtxn-production" in prod_plan
+    assert "--action" in prod_plan and "deploy-plan" in prod_plan
+    prod_runtime = telegram_mod._command_argv("prod-runtime")
+    assert "ophtxn-production" in prod_runtime
+    assert "--action" in prod_runtime and "render-runtime" in prod_runtime
+    prod_config = telegram_mod._command_argv(
+        "prod-config",
+        "domain=ophtxn.com api-domain=api.ophtxn.com site-url=https://ophtxn.com no-spend",
+    )
+    assert "ophtxn-production" in prod_config
+    assert "--action" in prod_config and "configure" in prod_config
+    assert "--domain" in prod_config and "ophtxn.com" in prod_config
+    assert "--api-domain" in prod_config and "api.ophtxn.com" in prod_config
+    assert "--site-url" in prod_config and "https://ophtxn.com" in prod_config
+    assert "--monthly-hosting" in prod_config and "0" in prod_config
+    assert "--monthly-analytics" in prod_config and "0" in prod_config
+    assert "--monthly-lead-capture" in prod_config and "0" in prod_config
+    assert "--monthly-monitoring" in prod_config and "0" in prod_config
+    assert "--monthly-contingency" in prod_config and "0" in prod_config
     platform_watch = telegram_mod._command_argv("platform-watch", "strict no-queue")
     assert "platform-change-watch" in platform_watch
     assert "--strict" in platform_watch
     assert "--no-queue" in platform_watch
+    low_cost_status = telegram_mod._command_argv("low-cost-status")
+    assert "low-cost-mode" in low_cost_status
+    assert "--action" in low_cost_status and "status" in low_cost_status
+    low_cost_enable = telegram_mod._command_argv("low-cost-enable", "budget=15 milestone=700 chat-agent=1")
+    assert "low-cost-mode" in low_cost_enable
+    assert "--action" in low_cost_enable and "enable" in low_cost_enable
+    assert "--monthly-budget" in low_cost_enable and "15" in low_cost_enable
+    assert "--milestone-usd" in low_cost_enable and "700" in low_cost_enable
+    assert "--chat-agent" in low_cost_enable
+    low_cost_disable = telegram_mod._command_argv("low-cost-disable")
+    assert "low-cost-mode" in low_cost_disable
+    assert "--action" in low_cost_disable and "disable" in low_cost_disable
+    no_spend_audit = telegram_mod._command_argv("no-spend-audit", "strict")
+    assert "no-spend-audit" in no_spend_audit
+    assert "--strict" in no_spend_audit
+    ops_status = telegram_mod._command_argv("ops-status")
+    assert "ophtxn-daily-ops" in ops_status
+    assert "--action" in ops_status and "status" in ops_status
+    ops_cycle = telegram_mod._command_argv("ops-cycle")
+    assert "ophtxn-daily-ops" in ops_cycle
+    assert "--action" in ops_cycle and "cycle" in ops_cycle
+    ops_pack = telegram_mod._command_argv(
+        "ops-pack",
+        "strict decision=defer count=4 source=phase3_opportunity_queue max-priority=low max-risk=medium",
+    )
+    assert "ophtxn-ops-pack" in ops_pack
+    assert "--action" in ops_pack and "run" in ops_pack
+    assert "--strict" in ops_pack
+    assert "--approval-decision" in ops_pack and "defer" in ops_pack
+    assert "--approval-batch-size" in ops_pack and "4" in ops_pack
+    assert "--approval-source" in ops_pack and "phase3_opportunity_queue" in ops_pack
+    assert "--safe-max-priority" in ops_pack and "low" in ops_pack
+    assert "--safe-max-risk" in ops_pack and "medium" in ops_pack
+    ops_pack_status = telegram_mod._command_argv("ops-pack", "status source=chronicle_refinement_queue")
+    assert "--action" in ops_pack_status and "status" in ops_pack_status
+    ops_hygiene = telegram_mod._command_argv("ops-hygiene", "2")
+    assert "ophtxn-daily-ops" in ops_hygiene
+    assert "--action" in ops_hygiene and "hygiene" in ops_hygiene
+    assert "--target-pending" in ops_hygiene and "2" in ops_hygiene
+    approvals_status = telegram_mod._command_argv("approvals-status", "source=chronicle_refinement_queue")
+    assert "approval-triage" in approvals_status
+    assert "--action" in approvals_status and "status" in approvals_status
+    assert "--source" in approvals_status and "chronicle_refinement_queue" in approvals_status
+    approvals_list = telegram_mod._command_argv("approvals-list", "7 source=phase3_opportunity_queue")
+    assert "approval-triage" in approvals_list
+    assert "--action" in approvals_list and "list" in approvals_list
+    assert "--limit" in approvals_list and "7" in approvals_list
+    assert "--source" in approvals_list and "phase3_opportunity_queue" in approvals_list
+    approvals_top = telegram_mod._command_argv("approvals-top", "9 source=chronicle_refinement_queue")
+    assert "approval-triage" in approvals_top
+    assert "--action" in approvals_top and "top" in approvals_top
+    assert "--limit" in approvals_top and "9" in approvals_top
+    assert "--source" in approvals_top and "chronicle_refinement_queue" in approvals_top
+    approve_next = telegram_mod._command_argv("approve-next", "source=phase3_opportunity_queue ship this")
+    assert "approval-triage" in approve_next
+    assert "--decision" in approve_next and "approve" in approve_next
+    assert "--decided-by" in approve_next and "telegram" in approve_next
+    assert "--source" in approve_next and "phase3_opportunity_queue" in approve_next
+    assert "--note" in approve_next and "ship this" in approve_next
+    reject_next = telegram_mod._command_argv("reject-next", "APR-123 low-confidence")
+    assert "--decision" in reject_next and "reject" in reject_next
+    assert "--proposal-id" in reject_next and "APR-123" in reject_next
+    assert "--note" in reject_next and "low-confidence" in reject_next
+    defer_next = telegram_mod._command_argv("defer-next")
+    assert "--decision" in defer_next and "defer" in defer_next
+    approve_batch = telegram_mod._command_argv("approve-batch", "5 source=phase3_opportunity_queue quick-pass")
+    assert "approval-triage" in approve_batch
+    assert "--action" in approve_batch and "decide-batch" in approve_batch
+    assert "--decision" in approve_batch and "approve" in approve_batch
+    assert "--batch-size" in approve_batch and "5" in approve_batch
+    assert "--source" in approve_batch and "phase3_opportunity_queue" in approve_batch
+    assert "--note" in approve_batch and "quick-pass" in approve_batch
+    reject_batch = telegram_mod._command_argv("reject-batch", "3")
+    assert "--decision" in reject_batch and "reject" in reject_batch
+    assert "--batch-size" in reject_batch and "3" in reject_batch
+    defer_batch = telegram_mod._command_argv("defer-batch")
+    assert "--decision" in defer_batch and "defer" in defer_batch
+    safe_batch = telegram_mod._command_argv(
+        "approve-batch-safe",
+        "4 source=phase3_opportunity_queue max-priority=low max-risk=medium fast-pass",
+    )
+    assert "approval-triage" in safe_batch
+    assert "--action" in safe_batch and "decide-batch-safe" in safe_batch
+    assert "--batch-size" in safe_batch and "4" in safe_batch
+    assert "--safe-max-priority" in safe_batch and "low" in safe_batch
+    assert "--safe-max-risk" in safe_batch and "medium" in safe_batch
+    assert "--source" in safe_batch and "phase3_opportunity_queue" in safe_batch
+    assert "--note" in safe_batch and "fast-pass" in safe_batch
     brain_recall = telegram_mod._command_argv("brain-recall", "market focus and ophtxn")
     assert "ophtxn-brain" in brain_recall
     assert "recall" in brain_recall
     assert "--query" in brain_recall
+    chronicle_status = telegram_mod._command_argv("chronicle-status", "source=chronicle_refinement_queue")
+    assert "chronicle-control" in chronicle_status
+    assert "--action" in chronicle_status and "status" in chronicle_status
+    assert "--source-filter" in chronicle_status
+    chronicle_run = telegram_mod._command_argv("chronicle-run", "strict no-canon queue=7 exec=4")
+    assert "chronicle-control" in chronicle_run
+    assert "run" in chronicle_run
+    assert "--strict" in chronicle_run
+    assert "--no-canon" in chronicle_run
+    assert "--queue-max-items" in chronicle_run and "7" in chronicle_run
+    assert "--execution-limit" in chronicle_run and "4" in chronicle_run
+    chronicle_list = telegram_mod._command_argv("chronicle-list", "8")
+    assert "chronicle-approve" in chronicle_list
+    assert "--action" in chronicle_list and "list" in chronicle_list
+    assert "--limit" in chronicle_list and "8" in chronicle_list
+    chronicle_approve = telegram_mod._command_argv("chronicle-approve", "CHR-CRB-xyz ship now")
+    assert "chronicle-approve" in chronicle_approve
+    assert "--decision" in chronicle_approve and "approve" in chronicle_approve
+    assert "--proposal-id" in chronicle_approve and "CHR-CRB-XYZ" in chronicle_approve
+    assert "--note" in chronicle_approve and "ship now" in chronicle_approve
+    chronicle_reject = telegram_mod._command_argv("chronicle-reject", "proposal=CHR-CRB-abc note=not-now")
+    assert "--decision" in chronicle_reject and "reject" in chronicle_reject
+    assert "--proposal-id" in chronicle_reject and "CHR-CRB-ABC" in chronicle_reject
+    assert "--note" in chronicle_reject and "not-now" in chronicle_reject
+    chronicle_exec = telegram_mod._command_argv("chronicle-execution", "5 no-canon")
+    assert "chronicle-execution-board" in chronicle_exec
+    assert "--limit" in chronicle_exec and "5" in chronicle_exec
+    assert "--no-canon" in chronicle_exec
 
 
 def test_command_help_text_includes_escalation_controls() -> None:
@@ -142,11 +321,54 @@ def test_command_help_text_includes_escalation_controls() -> None:
     assert "/improve-pitch" in text
     assert "/improve-list" in text
     assert "/improve-approve" in text
+    assert "/idea-status" in text
+    assert "/idea-intake <links/text>" in text
+    assert "/idea-run [max=<n>] [min-score=<n>] [queue=1]" in text
+    assert "/idea-queue [max=<n>] [min-score=<n>]" in text
+    assert "/launch-status [min-score=<n>] [strict]" in text
+    assert "/launch-plan" in text
+    assert "/prod-status [min-score=<n>] [strict]" in text
+    assert "/prod-preflight [strict]" in text
+    assert "/prod-estimate" in text
+    assert "/prod-plan" in text
+    assert "/prod-runtime" in text
+    assert "/prod-config domain=<domain> api-domain=<domain> [no-spend|monthly-hosting=<usd> ...]" in text
     assert "/platform-watch [strict] [no-queue]" in text
     assert "/brain-sync" in text
     assert "/brain-recall <query>" in text
     assert "/terminal <task>" in text
     assert "/terminal-list" in text
+    assert "/terminal-status" in text
+    assert "/terminal-complete <task-id|latest>" in text
+    assert "/low-cost-status" in text
+    assert "/low-cost-enable [budget=<usd>] [milestone=<usd>] [chat-agent=1]" in text
+    assert "/low-cost-disable" in text
+    assert "/no-spend-audit [strict]" in text
+    assert "/ops-status" in text
+    assert "/ops-morning" in text
+    assert "/ops-midday" in text
+    assert "/ops-evening" in text
+    assert "/ops-cycle" in text
+    assert "/ops-pack [status|strict] [decision=approve|reject|defer] [count=<n>] [source=<source>] [max-priority=<level>] [max-risk=<level>]" in text
+    assert "/ops-hygiene [target-pending]" in text
+    assert "/approvals-status [source=<source>]" in text
+    assert "/approvals-list [limit] [source=<source>]" in text
+    assert "/approvals-top [limit] [source=<source>]" in text
+    assert "/approve-next [proposal-id] [source=<source>] [optional note]" in text
+    assert "/reject-next [proposal-id] [source=<source>] [optional note]" in text
+    assert "/defer-next [proposal-id] [source=<source>] [optional note]" in text
+    assert "/approve-batch [count] [source=<source>] [optional note]" in text
+    assert "/reject-batch [count] [source=<source>] [optional note]" in text
+    assert "/defer-batch [count] [source=<source>] [optional note]" in text
+    assert "/approve-batch-safe [count] [source=<source>] [max-priority=<level>] [max-risk=<level>] [optional note]" in text
+    assert "/chronicle-status [source=<source>]" in text
+    assert "/chronicle-help" in text
+    assert "/chronicle-run [strict] [no-canon] [queue=<n>] [exec=<n>]" in text
+    assert "/chronicle-list [limit]" in text
+    assert "/chronicle-approve [proposal-id] [optional note]" in text
+    assert "/chronicle-reject [proposal-id] [optional note]" in text
+    assert "/chronicle-defer [proposal-id] [optional note]" in text
+    assert "/chronicle-execution [limit] [no-canon]" in text
 
 
 def test_parse_allowlist_and_command_user_gate() -> None:
@@ -163,9 +385,41 @@ def test_parse_allowlist_and_command_user_gate() -> None:
     assert telegram_mod._is_public_command("share") is True
     assert telegram_mod._is_public_command("terminal") is True
     assert telegram_mod._is_public_command("terminal-list") is True
+    assert telegram_mod._is_public_command("terminal-status") is True
+    assert telegram_mod._is_public_command("terminal-complete") is True
+    assert telegram_mod._is_public_command("low-cost-enable") is False
+    assert telegram_mod._is_public_command("no-spend-audit") is True
+    assert telegram_mod._is_public_command("idea-status") is True
+    assert telegram_mod._is_public_command("idea-run") is True
+    assert telegram_mod._is_public_command("idea-queue") is True
+    assert telegram_mod._is_public_command("launch-status") is True
+    assert telegram_mod._is_public_command("launch-plan") is True
+    assert telegram_mod._is_public_command("prod-status") is True
+    assert telegram_mod._is_public_command("prod-preflight") is True
+    assert telegram_mod._is_public_command("prod-estimate") is True
+    assert telegram_mod._is_public_command("prod-plan") is True
+    assert telegram_mod._is_public_command("prod-runtime") is True
+    assert telegram_mod._is_public_command("prod-config") is True
+    assert telegram_mod._is_public_command("ops-morning") is True
+    assert telegram_mod._is_public_command("ops-cycle") is True
+    assert telegram_mod._is_public_command("ops-pack") is True
+    assert telegram_mod._is_public_command("approvals-status") is True
+    assert telegram_mod._is_public_command("approvals-list") is True
+    assert telegram_mod._is_public_command("approvals-top") is True
+    assert telegram_mod._is_public_command("approve-next") is False
+    assert telegram_mod._is_public_command("approve-batch") is False
+    assert telegram_mod._is_public_command("approve-batch-safe") is False
     assert telegram_mod._is_public_command("improve-pitch") is True
     assert telegram_mod._is_public_command("platform-watch") is True
+    assert telegram_mod._is_public_command("chronicle-run") is False
     assert telegram_mod._is_public_command("comms-status") is False
+
+
+def test_chat_fallback_mentions_chronicle_status() -> None:
+    text = telegram_mod._chat_fallback_reply_text("hello", command_prefix="/")
+    assert "/chronicle-status" in text
+    assert "/approvals-status" in text
+    assert "/comms-status" in text
 
 
 def test_redact_sensitive_text_masks_card_and_payment_link() -> None:
@@ -268,6 +522,53 @@ def test_memory_command_terminal_queue_roundtrip() -> None:
         assert listing["handled"] is True
         assert listing["ok"] is True
         assert "Recent terminal tasks" in str(listing.get("summary") or "")
+
+        status = telegram_mod._execute_memory_command(
+            command="terminal-status",
+            command_args="",
+            store=store,  # type: ignore[arg-type]
+            memory_key=key,
+            chat_id="-1001",
+            sender_user_id="123",
+            sender_name="payton",
+            max_notes=200,
+            terminal_queue_path=queue_path,
+            prefix="/",
+        )
+        assert status["handled"] is True
+        assert status["ok"] is True
+        assert "Pending: 1" in str(status.get("summary") or "")
+
+        complete = telegram_mod._execute_memory_command(
+            command="terminal-complete",
+            command_args="latest",
+            store=store,  # type: ignore[arg-type]
+            memory_key=key,
+            chat_id="-1001",
+            sender_user_id="123",
+            sender_name="payton",
+            max_notes=200,
+            terminal_queue_path=queue_path,
+            prefix="/",
+        )
+        assert complete["handled"] is True
+        assert complete["ok"] is True
+        assert "Completed terminal task" in str(complete.get("summary") or "")
+
+        status_after = telegram_mod._execute_memory_command(
+            command="terminal-status",
+            command_args="",
+            store=store,  # type: ignore[arg-type]
+            memory_key=key,
+            chat_id="-1001",
+            sender_user_id="123",
+            sender_name="payton",
+            max_notes=200,
+            terminal_queue_path=queue_path,
+            prefix="/",
+        )
+        assert status_after["ok"] is True
+        assert "Pending: 0" in str(status_after.get("summary") or "")
 
 
 def test_configured_target_chat_ids_combines_env_and_cli() -> None:

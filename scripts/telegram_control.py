@@ -230,6 +230,10 @@ def _model_provider_fallbacks() -> list[str]:
     return out
 
 
+def _no_spend_mode_enabled() -> bool:
+    return _is_true(os.getenv("PERMANENCE_NO_SPEND_MODE", "0"))
+
+
 def _update_env_key(path: Path, key: str, value: str) -> tuple[bool, str]:
     lines: list[str] = []
     if path.exists():
@@ -260,9 +264,11 @@ def _provider_status_text(prefix: str = "/") -> str:
     provider = _normalize_model_provider(os.getenv("PERMANENCE_MODEL_PROVIDER", "anthropic")) or "anthropic"
     fallbacks = _model_provider_fallbacks()
     caps = str(os.getenv("PERMANENCE_MODEL_PROVIDER_CAPS_USD", "")).strip() or "-"
+    no_spend = _no_spend_mode_enabled()
     lines = [
         f"Active model provider: {provider}",
         f"Fallback order: {', '.join(fallbacks)}",
+        f"No-spend mode: {no_spend}",
         f"Provider caps: {caps}",
         f"Set provider with `{prefix}provider-set <anthropic|openai|xai|ollama>`.",
     ]
@@ -274,6 +280,11 @@ def _set_model_provider(provider_value: str) -> tuple[bool, str]:
     if provider not in MODEL_PROVIDER_ORDER:
         allowed = ", ".join(MODEL_PROVIDER_ORDER)
         return False, f"Unknown provider `{provider_value}`. Allowed: {allowed}."
+    if _no_spend_mode_enabled() and provider != "ollama":
+        return (
+            False,
+            "No-spend mode is active. Keep provider on `ollama` or disable no-spend mode first.",
+        )
     os.environ["PERMANENCE_MODEL_PROVIDER"] = provider
     env_path = BASE_DIR / ".env"
     ok, error = _update_env_key(env_path, "PERMANENCE_MODEL_PROVIDER", provider)
@@ -376,6 +387,13 @@ def _default_brain_vault_path() -> Path:
 def _safe_int(value: Any, default: int = 0) -> int:
     try:
         return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
     except (TypeError, ValueError):
         return default
 
@@ -623,6 +641,53 @@ def _is_public_command(command: str) -> bool:
         "terminal-list",
         "task-list",
         "todo-list",
+        "terminal-status",
+        "task-status",
+        "todo-status",
+        "terminal-complete",
+        "task-complete",
+        "todo-complete",
+        "ops-status",
+        "daily-ops-status",
+        "ops-morning",
+        "ops-midday",
+        "ops-evening",
+        "ops-cycle",
+        "ops-pack",
+        "daily-pack",
+        "ops-hygiene",
+        "no-spend-audit",
+        "idea-status",
+        "ideas-status",
+        "idea-intake",
+        "ideas-intake",
+        "idea-run",
+        "ideas-run",
+        "idea-queue",
+        "ideas-queue",
+        "launch-status",
+        "launch-plan",
+        "official-status",
+        "official-plan",
+        "prod-status",
+        "prod-preflight",
+        "prod-estimate",
+        "prod-plan",
+        "prod-runtime",
+        "prod-config",
+        "production-status",
+        "production-estimate",
+        "production-plan",
+        "production-runtime",
+        "production-config",
+        "approvals-status",
+        "approval-status",
+        "approvals-list",
+        "approval-list",
+        "pending-approvals",
+        "approvals-top",
+        "approval-top",
+        "pending-top",
         "improve-status",
         "improve-pitch",
         "improve-list",
@@ -1541,7 +1606,7 @@ def _append_terminal_task(
     return True, task_id
 
 
-def _terminal_queue_recent(queue_path: Path, limit: int = 5) -> list[dict[str, Any]]:
+def _terminal_queue_rows(queue_path: Path, max_scan: int = 4000) -> list[dict[str, Any]]:
     if not queue_path.exists():
         return []
     rows: list[dict[str, Any]] = []
@@ -1549,7 +1614,8 @@ def _terminal_queue_recent(queue_path: Path, limit: int = 5) -> list[dict[str, A
         raw_lines = queue_path.read_text(encoding="utf-8", errors="ignore").splitlines()
     except OSError:
         return []
-    for raw in raw_lines[-400:]:
+    scan_window = raw_lines if max_scan <= 0 else raw_lines[-max(1, int(max_scan)) :]
+    for raw in scan_window:
         line = raw.strip()
         if not line:
             continue
@@ -1559,10 +1625,89 @@ def _terminal_queue_recent(queue_path: Path, limit: int = 5) -> list[dict[str, A
             continue
         if isinstance(payload, dict):
             rows.append(payload)
+    return rows
+
+
+def _terminal_queue_write_rows(queue_path: Path, rows: list[dict[str, Any]]) -> bool:
+    queue_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with queue_path.open("w", encoding="utf-8") as handle:
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                handle.write(json.dumps(row, ensure_ascii=True) + "\n")
+    except OSError:
+        return False
+    return True
+
+
+def _terminal_queue_recent(queue_path: Path, limit: int = 5) -> list[dict[str, Any]]:
+    rows = _terminal_queue_rows(queue_path, max_scan=400)
     if not rows:
         return []
     cap = max(1, int(limit))
     return rows[-cap:]
+
+
+def _terminal_queue_counts(rows: list[dict[str, Any]]) -> tuple[int, int]:
+    pending = 0
+    done = 0
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        status = str(row.get("status") or "PENDING").strip().upper()
+        if status == "DONE":
+            done += 1
+        else:
+            pending += 1
+    return pending, done
+
+
+def _terminal_queue_complete(queue_path: Path, task_ref: str) -> tuple[bool, str]:
+    token = str(task_ref or "").strip()
+    if not token:
+        return False, "task id is required"
+    rows = _terminal_queue_rows(queue_path, max_scan=0)
+    if not rows:
+        return False, "queue is empty"
+
+    target_id = token
+    if token.strip().lower() in {"latest", "last"}:
+        target_id = ""
+        for row in reversed(rows):
+            if not isinstance(row, dict):
+                continue
+            status = str(row.get("status") or "PENDING").strip().upper()
+            if status != "DONE":
+                target_id = str(row.get("task_id") or "").strip()
+                break
+        if not target_id:
+            return False, "no pending tasks to complete"
+
+    target_key = str(target_id).strip().upper()
+    matched = False
+    already_done = False
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        rid = str(row.get("task_id") or "").strip().upper()
+        if rid != target_key:
+            continue
+        status = str(row.get("status") or "PENDING").strip().upper()
+        if status == "DONE":
+            already_done = True
+        else:
+            row["status"] = "DONE"
+            row["completed_at"] = _now_iso()
+        matched = True
+        break
+    if not matched:
+        return False, f"task id not found: {target_id}"
+    if (not already_done) and (not _terminal_queue_write_rows(queue_path, rows)):
+        return False, "failed to persist queue update"
+    if already_done:
+        return True, f"{target_id} (already DONE)"
+    return True, str(target_id)
 
 
 def _memory_recent_notes(store: dict[str, Any], key: str, limit: int) -> list[dict[str, Any]]:
@@ -1598,6 +1743,8 @@ def _memory_help_text(prefix: str = "/") -> str:
         f"- {prefix}habit-drop <name>\n"
         f"- {prefix}terminal <task>\n"
         f"- {prefix}terminal-list\n"
+        f"- {prefix}terminal-status\n"
+        f"- {prefix}terminal-complete <task-id|latest>\n"
         f"- {prefix}provider-status\n"
         f"- {prefix}provider-set <anthropic|openai|xai|ollama>\n"
         f"- {prefix}forget-last"
@@ -1912,6 +2059,67 @@ def _execute_memory_command(
             "ok": True,
             "summary": "\n".join(lines),
             "changed": False,
+        }
+    if cmd in {"terminal-status", "task-status", "todo-status"}:
+        rows = _terminal_queue_rows(resolved_terminal_queue_path, max_scan=0)
+        pending, done = _terminal_queue_counts(rows)
+        if not rows:
+            summary = f"Terminal queue is empty. Use `{prefix}terminal <task>`."
+        else:
+            latest_pending = "-"
+            for row in reversed(rows):
+                status = str(row.get("status") or "PENDING").strip().upper()
+                if status == "DONE":
+                    continue
+                latest_pending = str(row.get("task_id") or "-").strip() or "-"
+                break
+            summary = (
+                f"Terminal queue status:\n"
+                f"- Pending: {pending}\n"
+                f"- Done: {done}\n"
+                f"- Latest pending: {latest_pending}\n"
+                f"- Queue path: {resolved_terminal_queue_path}"
+            )
+        return {
+            "handled": True,
+            "command": command,
+            "ok": True,
+            "summary": summary,
+            "changed": False,
+        }
+    if cmd in {"terminal-complete", "task-complete", "todo-complete"}:
+        task_ref = " ".join(str(args or "").split())
+        if not task_ref:
+            return {
+                "handled": True,
+                "command": command,
+                "ok": False,
+                "summary": f"Usage: `{prefix}terminal-complete <task-id|latest>`",
+                "changed": False,
+            }
+        ok, detail = _terminal_queue_complete(resolved_terminal_queue_path, task_ref=task_ref)
+        if not ok:
+            return {
+                "handled": True,
+                "command": command,
+                "ok": False,
+                "summary": f"Failed to complete terminal task: {detail}",
+                "changed": False,
+            }
+        rows = _terminal_queue_rows(resolved_terminal_queue_path, max_scan=0)
+        pending, done = _terminal_queue_counts(rows)
+        summary = (
+            f"Completed terminal task `{detail}`.\n"
+            f"- Pending: {pending}\n"
+            f"- Done: {done}\n"
+            f"- Queue path: {resolved_terminal_queue_path}"
+        )
+        return {
+            "handled": True,
+            "command": command,
+            "ok": True,
+            "summary": summary,
+            "changed": True,
         }
     if cmd in {"provider-status", "model-provider-status"}:
         return {
@@ -2232,6 +2440,8 @@ def _chat_fallback_reply_text(user_text: str, command_prefix: str = "/") -> str:
         f"- {command_prefix}comms-status\n"
         f"- {command_prefix}comms-doctor\n"
         f"- {command_prefix}comms-run\n"
+        f"- {command_prefix}approvals-status\n"
+        f"- {command_prefix}chronicle-status\n"
         f"- {command_prefix}memory-help"
     )
 
@@ -2593,9 +2803,374 @@ def _parse_x_watch_args(command_args: str) -> tuple[str, bool]:
     return handle, include_replies
 
 
+def _parse_chronicle_decision_args(command_args: str) -> tuple[str, str]:
+    proposal_id = ""
+    note_parts: list[str] = []
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        if "=" in token:
+            key, value = token.split("=", 1)
+            key = key.strip().lower()
+            value = value.strip()
+            if key in {"id", "proposal", "proposal-id"} and (not proposal_id):
+                proposal_id = value.upper()
+                continue
+            if key in {"note", "reason", "message"}:
+                if value:
+                    note_parts.append(value)
+                continue
+        upper = token.upper()
+        if (not proposal_id) and (
+            upper.startswith("CHR-") or upper.startswith("CRB-") or upper.startswith("CANON-")
+        ):
+            proposal_id = upper
+            continue
+        note_parts.append(token)
+    note = " ".join(note_parts).strip()
+    return proposal_id, note
+
+
+def _parse_source_filters(command_args: str) -> list[str]:
+    sources: list[str] = []
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        if "=" not in token:
+            continue
+        key, value = token.split("=", 1)
+        key = key.strip().lower()
+        value = value.strip().lower()
+        if key not in {"source", "sources", "scope"}:
+            continue
+        for item in re.split(r"[,;|]", value):
+            normalized = item.strip().lower()
+            if normalized and normalized not in sources:
+                sources.append(normalized)
+    return sources
+
+
+def _parse_approval_decision_args(command_args: str) -> tuple[str, str, list[str]]:
+    proposal_id = ""
+    note_parts: list[str] = []
+    sources = _parse_source_filters(command_args)
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        if "=" in token:
+            key, value = token.split("=", 1)
+            key = key.strip().lower()
+            value = value.strip()
+            if key in {"id", "proposal", "proposal-id"} and (not proposal_id):
+                proposal_id = value
+                continue
+            if key in {"source", "sources", "scope"}:
+                continue
+            if key in {"note", "reason", "message"}:
+                if value:
+                    note_parts.append(value)
+                continue
+        if (not proposal_id) and re.match(r"^[A-Za-z]{2,}-[A-Za-z0-9._-]{3,}$", token):
+            proposal_id = token
+            continue
+        note_parts.append(token)
+    note = " ".join(note_parts).strip()
+    return proposal_id, note, sources
+
+
+def _parse_approval_batch_args(command_args: str) -> tuple[int, str, list[str]]:
+    batch_size = _parse_limit_arg(command_args, default=3, minimum=1, maximum=20)
+    sources = _parse_source_filters(command_args)
+    note_parts: list[str] = []
+    consumed_numeric = False
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        lowered = token.lower()
+        if "=" in token:
+            key, value = token.split("=", 1)
+            key = key.strip().lower()
+            value = value.strip()
+            if key in {
+                "source",
+                "sources",
+                "scope",
+                "limit",
+                "max",
+                "n",
+                "batch",
+                "batch-size",
+                "batch_size",
+                "max-priority",
+                "max_priority",
+                "priority",
+                "safe-priority",
+                "safe_priority",
+                "max-risk",
+                "max_risk",
+                "risk",
+                "safe-risk",
+                "safe_risk",
+            }:
+                continue
+            if key in {"note", "reason", "message"}:
+                if value:
+                    note_parts.append(value)
+                continue
+        if (not consumed_numeric) and lowered.lstrip("-").isdigit():
+            if int(lowered) == int(batch_size):
+                consumed_numeric = True
+                continue
+        note_parts.append(token)
+    note = " ".join(note_parts).strip()
+    return max(1, int(batch_size)), note, sources
+
+
+def _parse_approval_safety_args(command_args: str) -> tuple[str, str]:
+    max_priority = "medium"
+    max_risk = "high"
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        if "=" not in token:
+            continue
+        key, value = token.split("=", 1)
+        key = key.strip().lower()
+        value = value.strip().lower()
+        if key in {"max-priority", "max_priority", "priority", "safe-priority", "safe_priority"} and value in {
+            "low",
+            "medium",
+            "high",
+            "critical",
+        }:
+            max_priority = value
+        if key in {"max-risk", "max_risk", "risk", "safe-risk", "safe_risk"} and value in {
+            "low",
+            "medium",
+            "high",
+            "critical",
+        }:
+            max_risk = value
+    return max_priority, max_risk
+
+
+def _parse_ops_pack_args(command_args: str) -> tuple[str, int, list[str], str, str, bool, str]:
+    action = "run"
+    batch_size = 3
+    sources = _parse_source_filters(command_args)
+    max_priority, max_risk = _parse_approval_safety_args(command_args)
+    strict = False
+    decision = ""
+
+    tokens = [token.strip().lower() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+    for token in tokens:
+        if token in {"status", "--status"}:
+            action = "status"
+            continue
+        if token in {"run", "--run"}:
+            action = "run"
+            continue
+        if token in {"strict", "--strict"}:
+            strict = True
+            continue
+        if token in {"approve", "reject", "defer"}:
+            decision = token
+            continue
+        if "=" in token:
+            key, value = token.split("=", 1)
+            if key in {"action"} and value in {"status", "run"}:
+                action = value
+                continue
+            if key in {"decision"} and value in {"approve", "reject", "defer"}:
+                decision = value
+                continue
+            if key in {"batch", "batch-size", "batch_size", "count", "n", "limit"} and value.lstrip("-").isdigit():
+                batch_size = max(1, min(20, int(value)))
+                continue
+
+    return action, batch_size, sources, max_priority, max_risk, strict, decision
+
+
+def _parse_limit_arg(command_args: str, default: int = 12, minimum: int = 1, maximum: int = 50) -> int:
+    value = int(default)
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        lowered = token.lower()
+        if "=" in token:
+            key, raw = token.split("=", 1)
+            key = key.strip().lower()
+            raw = raw.strip()
+            if key in {"limit", "max", "n"} and raw.lstrip("-").isdigit():
+                value = int(raw)
+                break
+        elif lowered.lstrip("-").isdigit():
+                value = int(lowered)
+                break
+    return max(int(minimum), min(int(maximum), int(value)))
+
+
+def _parse_idea_run_args(command_args: str) -> tuple[int, float, bool]:
+    max_items = 30
+    min_score = 28.0
+    queue = False
+    tokens = [token.strip() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+    for token in tokens:
+        lowered = token.lower()
+        if lowered in {"queue", "--queue", "queue=1", "queue=true", "queue=yes"}:
+            queue = True
+            continue
+        if "=" in token:
+            key, raw = token.split("=", 1)
+            key = key.strip().lower()
+            raw = raw.strip()
+            if key in {"max", "max-items", "max_items", "count", "limit", "n"}:
+                parsed = _safe_int(raw, max_items)
+                if parsed > 0:
+                    max_items = parsed
+                continue
+            if key in {"min", "min-score", "min_score", "score"}:
+                parsed = _safe_float(raw, min_score)
+                if parsed >= 0:
+                    min_score = parsed
+                continue
+            if key in {"queue"}:
+                queue = _is_true(raw)
+                continue
+        if token.lstrip("-").isdigit():
+            parsed = _safe_int(token, max_items)
+            if parsed > 0:
+                max_items = parsed
+                continue
+    return max(5, min(120, int(max_items))), max(0.0, min(99.0, float(min_score))), bool(queue)
+
+
+def _parse_low_cost_args(command_args: str) -> tuple[float, int, bool]:
+    monthly_budget = 10.0
+    milestone_usd = 500
+    chat_agent = False
+    budget_set = False
+    milestone_set = False
+    positional: list[str] = []
+    tokens = [token.strip() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+    for token in tokens:
+        lowered = token.lower()
+        if lowered in {"chat-agent", "--chat-agent", "chat=1", "chat-agent=1", "chat_agent=1"}:
+            chat_agent = True
+            continue
+        if lowered in {"chat=0", "chat-agent=0", "chat_agent=0"}:
+            chat_agent = False
+            continue
+        if "=" in token:
+            key, raw = token.split("=", 1)
+            key = key.strip().lower()
+            raw = raw.strip()
+            if key in {"budget", "monthly-budget", "monthly_budget"}:
+                parsed = _safe_float(raw, -1.0)
+                if parsed > 0:
+                    monthly_budget = parsed
+                    budget_set = True
+                continue
+            if key in {"milestone", "milestone-usd", "milestone_usd"}:
+                parsed = _safe_int(raw, -1)
+                if parsed > 0:
+                    milestone_usd = parsed
+                    milestone_set = True
+                continue
+            if key in {"chat", "chat-agent", "chat_agent"}:
+                chat_agent = _is_true(raw)
+                continue
+        positional.append(token)
+
+    for token in positional:
+        if (not budget_set):
+            parsed = _safe_float(token, -1.0)
+            if parsed > 0:
+                monthly_budget = parsed
+                budget_set = True
+                continue
+        if (not milestone_set):
+            parsed = _safe_int(token, -1)
+            if parsed > 0:
+                milestone_usd = parsed
+                milestone_set = True
+                continue
+
+    return max(1.0, float(monthly_budget)), max(1, int(milestone_usd)), bool(chat_agent)
+
+
+def _parse_launch_status_args(command_args: str) -> tuple[float, bool]:
+    min_score = 75.0
+    strict = False
+    tokens = [token.strip().lower() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+    for token in tokens:
+        if token in {"strict", "--strict"}:
+            strict = True
+            continue
+        if "=" in token:
+            key, raw = token.split("=", 1)
+            key = key.strip().lower()
+            raw = raw.strip()
+            if key in {"min", "min-score", "min_score", "score"}:
+                parsed = _safe_float(raw, min_score)
+                if parsed >= 0:
+                    min_score = parsed
+                continue
+    return max(0.0, min(100.0, float(min_score))), bool(strict)
+
+
+def _parse_prod_config_args(command_args: str) -> list[str]:
+    mapping = {
+        "domain": "--domain",
+        "api-domain": "--api-domain",
+        "api_domain": "--api-domain",
+        "site-url": "--site-url",
+        "site_url": "--site-url",
+        "api-base": "--api-base",
+        "api_base": "--api-base",
+        "fallback-email": "--fallback-email",
+        "fallback_email": "--fallback-email",
+        "monthly-hosting": "--monthly-hosting",
+        "monthly_hosting": "--monthly-hosting",
+        "monthly-analytics": "--monthly-analytics",
+        "monthly_analytics": "--monthly-analytics",
+        "monthly-lead-capture": "--monthly-lead-capture",
+        "monthly_lead_capture": "--monthly-lead-capture",
+        "monthly-monitoring": "--monthly-monitoring",
+        "monthly_monitoring": "--monthly-monitoring",
+        "monthly-contingency": "--monthly-contingency",
+        "monthly_contingency": "--monthly-contingency",
+        "annual-domain-cost": "--annual-domain-cost",
+        "annual_domain_cost": "--annual-domain-cost",
+    }
+    out: list[str] = []
+    tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+    for token in tokens:
+        lowered = token.lower()
+        if lowered in {"no-spend", "nospend", "zero-budget", "zero", "free"}:
+            out.extend(
+                [
+                    "--monthly-hosting",
+                    "0",
+                    "--monthly-analytics",
+                    "0",
+                    "--monthly-lead-capture",
+                    "0",
+                    "--monthly-monitoring",
+                    "0",
+                    "--monthly-contingency",
+                    "0",
+                ]
+            )
+            continue
+        if "=" not in token:
+            continue
+        key, raw = token.split("=", 1)
+        flag = mapping.get(key.strip().lower())
+        value = raw.strip()
+        if not flag or (not value):
+            continue
+        out.extend([flag, value])
+    return out
+
+
 def _command_argv(command: str, command_args: str = "") -> list[str]:
     cmd = str(command or "").strip().lower()
-    if cmd in {"help", "start", "comms-help", "whoami", "comms-whoami", "mode", "comms-mode"}:
+    if cmd in {"help", "start", "comms-help", "whoami", "comms-whoami", "mode", "comms-mode", "chronicle-help"}:
         return []
     if cmd in {"comms-status", "status"}:
         return [sys.executable, str(BASE_DIR / "cli.py"), "comms-status"]
@@ -2727,6 +3302,112 @@ def _command_argv(command: str, command_args: str = "") -> list[str]:
         return argv
     if cmd in {"x-watch-list", "x-account-watch-list"}:
         return [sys.executable, str(BASE_DIR / "cli.py"), "x-account-watch", "--action", "list"]
+    if cmd in {"idea-status", "ideas-status"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "idea-intake", "--action", "status"]
+    if cmd in {"idea-intake", "ideas-intake"}:
+        text = " ".join(str(command_args or "").split())
+        if not text:
+            return [sys.executable, str(BASE_DIR / "cli.py"), "idea-intake", "--action", "status"]
+        return [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "idea-intake",
+            "--action",
+            "intake",
+            "--text",
+            text,
+            "--source",
+            "telegram-command",
+            "--channel",
+            "telegram",
+        ]
+    if cmd in {"idea-run", "ideas-run"}:
+        max_items, min_score, queue = _parse_idea_run_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "idea-intake",
+            "--action",
+            "process",
+            "--max-items",
+            str(max_items),
+            "--min-score",
+            f"{min_score:g}",
+        ]
+        if queue:
+            argv.append("--queue-approvals")
+        return argv
+    if cmd in {"idea-queue", "ideas-queue"}:
+        max_items, min_score, _queue = _parse_idea_run_args(command_args)
+        return [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "idea-intake",
+            "--action",
+            "process",
+            "--max-items",
+            str(max_items),
+            "--min-score",
+            f"{min_score:g}",
+            "--queue-approvals",
+        ]
+    if cmd in {"launch-status", "official-status", "launchpad"}:
+        min_score, strict = _parse_launch_status_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "ophtxn-launchpad",
+            "--action",
+            "status",
+            "--min-score",
+            f"{min_score:g}",
+        ]
+        if strict:
+            argv.append("--strict")
+        return argv
+    if cmd in {"launch-plan", "official-plan"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-launchpad", "--action", "plan"]
+    if cmd in {"prod-status", "production-status"}:
+        min_score, strict = _parse_launch_status_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "ophtxn-production",
+            "--action",
+            "status",
+            "--min-score",
+            f"{min_score:g}",
+        ]
+        if strict:
+            argv.append("--strict")
+        return argv
+    if cmd in {"prod-preflight", "production-preflight"}:
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "ophtxn-production",
+            "--action",
+            "preflight",
+            "--check-wrangler",
+        ]
+        tokens = {
+            token.strip().lower()
+            for token in str(command_args or "").replace(",", " ").split()
+            if token.strip()
+        }
+        if "strict" in tokens or "--strict" in tokens:
+            argv.append("--strict")
+        return argv
+    if cmd in {"prod-estimate", "production-estimate"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-production", "--action", "estimate"]
+    if cmd in {"prod-plan", "production-plan"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-production", "--action", "deploy-plan"]
+    if cmd in {"prod-runtime", "production-runtime"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-production", "--action", "render-runtime"]
+    if cmd in {"prod-config", "production-config"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-production", "--action", "configure"]
+        argv.extend(_parse_prod_config_args(command_args))
+        return argv
     if cmd in {"platform-watch", "platform-change-watch"}:
         argv = [sys.executable, str(BASE_DIR / "cli.py"), "platform-change-watch"]
         tokens = {
@@ -2738,6 +3419,260 @@ def _command_argv(command: str, command_args: str = "") -> list[str]:
             argv.append("--strict")
         if "no-queue" in tokens or "--no-queue" in tokens:
             argv.append("--no-queue")
+        return argv
+    if cmd in {"low-cost-status", "lowcost-status", "budget-status"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "low-cost-mode", "--action", "status"]
+    if cmd in {"low-cost-enable", "lowcost-enable", "budget-enable"}:
+        monthly_budget, milestone_usd, chat_agent = _parse_low_cost_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "low-cost-mode",
+            "--action",
+            "enable",
+            "--monthly-budget",
+            f"{monthly_budget:g}",
+            "--milestone-usd",
+            str(milestone_usd),
+        ]
+        if chat_agent:
+            argv.append("--chat-agent")
+        return argv
+    if cmd in {"low-cost-disable", "lowcost-disable", "budget-disable"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "low-cost-mode", "--action", "disable"]
+    if cmd in {"no-spend-audit", "nospend-audit", "budget-audit"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "no-spend-audit"]
+        tokens = [token.strip().lower() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+        if "strict" in tokens or "--strict" in tokens:
+            argv.append("--strict")
+        return argv
+    if cmd in {"ops-status", "daily-ops-status"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-daily-ops", "--action", "status"]
+    if cmd in {"ops-morning", "daily-ops-morning", "day-start"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-daily-ops", "--action", "morning"]
+    if cmd in {"ops-midday", "daily-ops-midday", "day-midday"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-daily-ops", "--action", "midday"]
+    if cmd in {"ops-evening", "daily-ops-evening", "day-end"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-daily-ops", "--action", "evening"]
+    if cmd in {"ops-cycle", "daily-ops-cycle", "day-cycle"}:
+        return [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-daily-ops", "--action", "cycle"]
+    if cmd in {"ops-pack", "daily-pack"}:
+        action, batch_size, sources, max_priority, max_risk, strict, decision = _parse_ops_pack_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "ophtxn-ops-pack",
+            "--action",
+            action,
+            "--approval-batch-size",
+            str(batch_size),
+            "--safe-max-priority",
+            max_priority,
+            "--safe-max-risk",
+            max_risk,
+        ]
+        if strict:
+            argv.append("--strict")
+        if decision:
+            argv.extend(["--approval-decision", decision])
+        for source in sources:
+            argv.extend(["--approval-source", source])
+        return argv
+    if cmd in {"ops-hygiene", "daily-ops-hygiene", "queue-hygiene"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "ophtxn-daily-ops", "--action", "hygiene"]
+        limit = _parse_limit_arg(command_args, default=1, minimum=0, maximum=20)
+        argv.extend(["--target-pending", str(limit)])
+        return argv
+    if cmd in {"approvals-status", "approval-status", "pending-status"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "approval-triage", "--action", "status"]
+        for source in _parse_source_filters(command_args):
+            argv.extend(["--source", source])
+        return argv
+    if cmd in {"approvals-list", "approval-list", "pending-approvals"}:
+        limit = _parse_limit_arg(command_args, default=12, minimum=1, maximum=50)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "approval-triage",
+            "--action",
+            "list",
+            "--limit",
+            str(limit),
+        ]
+        for source in _parse_source_filters(command_args):
+            argv.extend(["--source", source])
+        return argv
+    if cmd in {"approvals-top", "approval-top", "pending-top"}:
+        limit = _parse_limit_arg(command_args, default=12, minimum=1, maximum=50)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "approval-triage",
+            "--action",
+            "top",
+            "--limit",
+            str(limit),
+        ]
+        for source in _parse_source_filters(command_args):
+            argv.extend(["--source", source])
+        return argv
+    if cmd in {"approve-next", "reject-next", "defer-next"}:
+        decision = "approve"
+        if cmd.startswith("reject"):
+            decision = "reject"
+        elif cmd.startswith("defer"):
+            decision = "defer"
+        proposal_id, note, sources = _parse_approval_decision_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "approval-triage",
+            "--action",
+            "decide",
+            "--decision",
+            decision,
+            "--decided-by",
+            "telegram",
+        ]
+        if proposal_id:
+            argv.extend(["--proposal-id", proposal_id])
+        if note:
+            argv.extend(["--note", note])
+        for source in sources:
+            argv.extend(["--source", source])
+        return argv
+    if cmd in {"approve-batch-safe", "reject-batch-safe", "defer-batch-safe"}:
+        decision = "approve"
+        if cmd.startswith("reject"):
+            decision = "reject"
+        elif cmd.startswith("defer"):
+            decision = "defer"
+        batch_size, note, sources = _parse_approval_batch_args(command_args)
+        max_priority, max_risk = _parse_approval_safety_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "approval-triage",
+            "--action",
+            "decide-batch-safe",
+            "--decision",
+            decision,
+            "--batch-size",
+            str(batch_size),
+            "--safe-max-priority",
+            max_priority,
+            "--safe-max-risk",
+            max_risk,
+            "--decided-by",
+            "telegram",
+        ]
+        if note:
+            argv.extend(["--note", note])
+        for source in sources:
+            argv.extend(["--source", source])
+        return argv
+    if cmd in {"approve-batch", "reject-batch", "defer-batch"}:
+        decision = "approve"
+        if cmd.startswith("reject"):
+            decision = "reject"
+        elif cmd.startswith("defer"):
+            decision = "defer"
+        batch_size, note, sources = _parse_approval_batch_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "approval-triage",
+            "--action",
+            "decide-batch",
+            "--decision",
+            decision,
+            "--batch-size",
+            str(batch_size),
+            "--decided-by",
+            "telegram",
+        ]
+        if note:
+            argv.extend(["--note", note])
+        for source in sources:
+            argv.extend(["--source", source])
+        return argv
+    if cmd in {"chronicle-status", "chronicle-control-status"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "chronicle-control", "--action", "status"]
+        tokens = [token.strip() for token in str(command_args or "").split() if token.strip()]
+        for token in tokens:
+            if "=" not in token:
+                continue
+            key, value = token.split("=", 1)
+            key = key.strip().lower()
+            value = value.strip()
+            if key in {"source", "source-filter", "scope"} and value:
+                argv.extend(["--source-filter", value])
+                break
+        return argv
+    if cmd in {"chronicle-run", "chronicle-control-run"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "chronicle-control", "--action", "run"]
+        tokens = [token.strip().lower() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+        for token in tokens:
+            if token in {"strict", "--strict"}:
+                argv.append("--strict")
+            elif token in {"no-canon", "--no-canon"}:
+                argv.append("--no-canon")
+            elif token in {"skip-queue", "--skip-queue"}:
+                argv.append("--skip-queue")
+            elif token in {"skip-refinement", "--skip-refinement"}:
+                argv.append("--skip-refinement")
+            elif token in {"skip-execution", "--skip-execution"}:
+                argv.append("--skip-execution")
+            elif "=" in token:
+                key, value = token.split("=", 1)
+                if value.lstrip("-").isdigit():
+                    if key in {"queue", "queue-max", "queue-max-items"}:
+                        argv.extend(["--queue-max-items", value])
+                    elif key in {"exec", "execution", "execution-limit", "limit"}:
+                        argv.extend(["--execution-limit", value])
+        return argv
+    if cmd in {"chronicle-list", "chronicle-pending", "chronicle-queue"}:
+        limit = _parse_limit_arg(command_args, default=12, minimum=1, maximum=50)
+        return [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "chronicle-approve",
+            "--action",
+            "list",
+            "--limit",
+            str(limit),
+        ]
+    if cmd in {"chronicle-approve", "chronicle-reject", "chronicle-defer"}:
+        decision = "approve"
+        if cmd.endswith("reject"):
+            decision = "reject"
+        elif cmd.endswith("defer"):
+            decision = "defer"
+        proposal_id, note = _parse_chronicle_decision_args(command_args)
+        argv = [
+            sys.executable,
+            str(BASE_DIR / "cli.py"),
+            "chronicle-approve",
+            "--action",
+            "decide",
+            "--decision",
+            decision,
+            "--decided-by",
+            "telegram",
+        ]
+        if proposal_id:
+            argv.extend(["--proposal-id", proposal_id])
+        if note:
+            argv.extend(["--note", note])
+        return argv
+    if cmd in {"chronicle-execution", "chronicle-execution-board"}:
+        argv = [sys.executable, str(BASE_DIR / "cli.py"), "chronicle-execution-board"]
+        tokens = [token.strip().lower() for token in str(command_args or "").replace(",", " ").split() if token.strip()]
+        if "no-canon" in tokens or "--no-canon" in tokens:
+            argv.append("--no-canon")
+        limit = _parse_limit_arg(command_args, default=0, minimum=0, maximum=20)
+        if limit > 0:
+            argv.extend(["--limit", str(limit)])
         return argv
     return [""]
 
@@ -2778,6 +3713,8 @@ def _command_help_text(prefix: str = "/") -> str:
         f"{prefix}forget-last",
         f"{prefix}terminal <task>",
         f"{prefix}terminal-list",
+        f"{prefix}terminal-status",
+        f"{prefix}terminal-complete <task-id|latest>",
         f"{prefix}provider-status",
         f"{prefix}provider-set <anthropic|openai|xai|ollama>",
         f"{prefix}comms-status",
@@ -2806,7 +3743,50 @@ def _command_help_text(prefix: str = "/") -> str:
         f"{prefix}x-watch <handle|url>",
         f"{prefix}x-unwatch <handle|url>",
         f"{prefix}x-watch-list",
+        f"{prefix}idea-status",
+        f"{prefix}idea-intake <links/text>",
+        f"{prefix}idea-run [max=<n>] [min-score=<n>] [queue=1]",
+        f"{prefix}idea-queue [max=<n>] [min-score=<n>]",
+        f"{prefix}launch-status [min-score=<n>] [strict]",
+        f"{prefix}launch-plan",
+        f"{prefix}prod-status [min-score=<n>] [strict]",
+        f"{prefix}prod-preflight [strict]",
+        f"{prefix}prod-estimate",
+        f"{prefix}prod-plan",
+        f"{prefix}prod-runtime",
+        f"{prefix}prod-config domain=<domain> api-domain=<domain> [no-spend|monthly-hosting=<usd> ...]",
         f"{prefix}platform-watch [strict] [no-queue]",
+        f"{prefix}low-cost-status",
+        f"{prefix}low-cost-enable [budget=<usd>] [milestone=<usd>] [chat-agent=1]",
+        f"{prefix}low-cost-disable",
+        f"{prefix}no-spend-audit [strict]",
+        f"{prefix}ops-status",
+        f"{prefix}ops-morning",
+        f"{prefix}ops-midday",
+        f"{prefix}ops-evening",
+        f"{prefix}ops-cycle",
+        f"{prefix}ops-pack [status|strict] [decision=approve|reject|defer] [count=<n>] [source=<source>] [max-priority=<level>] [max-risk=<level>]",
+        f"{prefix}ops-hygiene [target-pending]",
+        f"{prefix}approvals-status [source=<source>]",
+        f"{prefix}approvals-list [limit] [source=<source>]",
+        f"{prefix}approvals-top [limit] [source=<source>]",
+        f"{prefix}approve-next [proposal-id] [source=<source>] [optional note]",
+        f"{prefix}reject-next [proposal-id] [source=<source>] [optional note]",
+        f"{prefix}defer-next [proposal-id] [source=<source>] [optional note]",
+        f"{prefix}approve-batch [count] [source=<source>] [optional note]",
+        f"{prefix}reject-batch [count] [source=<source>] [optional note]",
+        f"{prefix}defer-batch [count] [source=<source>] [optional note]",
+        f"{prefix}approve-batch-safe [count] [source=<source>] [max-priority=<level>] [max-risk=<level>] [optional note]",
+        f"{prefix}reject-batch-safe [count] [source=<source>] [max-priority=<level>] [max-risk=<level>] [optional note]",
+        f"{prefix}defer-batch-safe [count] [source=<source>] [max-priority=<level>] [max-risk=<level>] [optional note]",
+        f"{prefix}chronicle-help",
+        f"{prefix}chronicle-status [source=<source>]",
+        f"{prefix}chronicle-run [strict] [no-canon] [queue=<n>] [exec=<n>]",
+        f"{prefix}chronicle-list [limit]",
+        f"{prefix}chronicle-approve [proposal-id] [optional note]",
+        f"{prefix}chronicle-reject [proposal-id] [optional note]",
+        f"{prefix}chronicle-defer [proposal-id] [optional note]",
+        f"{prefix}chronicle-execution [limit] [no-canon]",
     ]
     return "Available commands:\n" + "\n".join(f"- {row}" for row in commands)
 
@@ -2820,12 +3800,19 @@ def _command_mode_text(prefix: str = "/") -> str:
         f"- Long-form context share: `{prefix}share <long note>`.\n"
         f"- Habit + personality controls: `{prefix}habit-list`, `{prefix}habit-nudge`, `{prefix}personality`.\n"
         f"- Model provider controls: `{prefix}provider-status`, `{prefix}provider-set` (supports anthropic/openai/xai/ollama).\n"
-        f"- Terminal queue controls: `{prefix}terminal <task>`, `{prefix}terminal-list`.\n"
+        f"- Terminal queue controls: `{prefix}terminal <task>`, `{prefix}terminal-list`, `{prefix}terminal-status`, `{prefix}terminal-complete`.\n"
         f"- Governed learning controls: `{prefix}learn-status`, `{prefix}learn-run`.\n"
         f"- Improvement pitch controls: `{prefix}improve-pitch`, `{prefix}improve-list`, `{prefix}improve-approve`.\n"
         f"- Brain controls: `{prefix}brain-sync`, `{prefix}brain-recall <query>`.\n"
         f"- Read-only X watch controls: `{prefix}x-watch`, `{prefix}x-unwatch`, `{prefix}x-watch-list`.\n"
+        f"- Idea pipeline controls: `{prefix}idea-status`, `{prefix}idea-intake`, `{prefix}idea-run`, `{prefix}idea-queue`.\n"
+        f"- Launch controls: `{prefix}launch-status`, `{prefix}launch-plan`.\n"
+        f"- Production controls: `{prefix}prod-status`, `{prefix}prod-preflight`, `{prefix}prod-estimate`, `{prefix}prod-plan`, `{prefix}prod-runtime`, `{prefix}prod-config`.\n"
         f"- Platform drift watch: `{prefix}platform-watch` (add `strict` for fail-on-critical mode).\n"
+        f"- Budget profile controls: `{prefix}low-cost-status`, `{prefix}low-cost-enable`, `{prefix}low-cost-disable`, `{prefix}no-spend-audit`.\n"
+        f"- Daily ops controls: `{prefix}ops-status`, `{prefix}ops-morning`, `{prefix}ops-midday`, `{prefix}ops-evening`, `{prefix}ops-cycle`, `{prefix}ops-pack`, `{prefix}ops-hygiene`.\n"
+        f"- Approval triage controls: `{prefix}approvals-status`, `{prefix}approvals-list`, `{prefix}approvals-top`, `{prefix}approve-next`, `{prefix}reject-next`, `{prefix}defer-next`, `{prefix}approve-batch`, `{prefix}approve-batch-safe`.\n"
+        f"- Chronicle controls: `{prefix}chronicle-status`, `{prefix}chronicle-run`, `{prefix}chronicle-list`, `{prefix}chronicle-approve`.\n"
         f"- Use `{prefix}comms-help` for command list."
     )
 
