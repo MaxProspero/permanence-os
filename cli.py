@@ -1623,6 +1623,8 @@ def main() -> int:
     discord_telegram_relay_p.add_argument("--escalation-max-notify", type=int, default=5, help="Max escalation rows in notify")
     discord_telegram_relay_p.add_argument("--escalation-webhook-url", help="Discord webhook override for escalations")
     discord_telegram_relay_p.add_argument("--escalation-notify-timeout", type=int, default=15, help="Escalation notify timeout")
+    discord_telegram_relay_p.add_argument("--intake-path", help="Shared intake JSONL path for mirrored Discord rows")
+    discord_telegram_relay_p.add_argument("--no-intake-mirror", action="store_true", help="Disable intake mirroring")
     discord_telegram_relay_p.add_argument("--dry-run", action="store_true", help="Fetch only; do not send Telegram")
     discord_telegram_relay_p.add_argument("--no-commit-state", action="store_true", help="Do not persist relay state")
     discord_telegram_relay_p.set_defaults(
@@ -1671,6 +1673,8 @@ def main() -> int:
                     if args.escalation_notify_timeout is not None
                     else []
                 ),
+                *(["--intake-path", args.intake_path] if args.intake_path else []),
+                *(["--no-intake-mirror"] if args.no_intake_mirror else []),
                 *(["--dry-run"] if args.dry_run else []),
                 *(["--no-commit-state"] if args.no_commit_state else []),
             ]

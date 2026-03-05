@@ -658,8 +658,10 @@ Relay new Discord messages (from enabled feed rows) into your Telegram channel.
 `python cli.py discord-telegram-relay --action run --escalate --escalation-keyword outage --escalation-min-priority high`
 - Priority-based multi-destination escalation notify:
 `python cli.py discord-telegram-relay --action run --escalation-notify --escalation-telegram-min-priority high --escalation-discord-min-priority urgent`
+- Mirror Discord messages into shared Ophtxn intake (single memory stream with Telegram):
+`python cli.py discord-telegram-relay --action run --intake-path /path/to/telegram_share_intake.jsonl`
 - Optional flags:
-`--feeds-path`, `--state-path`, `--chat-id`, `--max-per-feed`, `--escalate`, `--no-escalate`, `--escalation-keyword`, `--escalation-min-priority`, `--escalations-path`, `--escalate-to-reception`, `--no-escalate-to-reception`, `--escalation-notify`, `--no-escalation-notify`, `--escalation-telegram-min-priority`, `--escalation-discord-min-priority`, `--escalation-max-notify`, `--escalation-webhook-url`, `--escalation-notify-timeout`, `--no-commit-state`
+`--feeds-path`, `--state-path`, `--chat-id`, `--max-per-feed`, `--escalate`, `--no-escalate`, `--escalation-keyword`, `--escalation-min-priority`, `--escalations-path`, `--escalate-to-reception`, `--no-escalate-to-reception`, `--escalation-notify`, `--no-escalation-notify`, `--escalation-telegram-min-priority`, `--escalation-discord-min-priority`, `--escalation-max-notify`, `--escalation-webhook-url`, `--escalation-notify-timeout`, `--intake-path`, `--no-intake-mirror`, `--no-commit-state`
 
 ### `python cli.py comms-digest`
 Build a compact communication digest from latest relay/poll/autopilot runs and optionally send to Telegram.

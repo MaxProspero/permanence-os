@@ -221,6 +221,7 @@ python cli.py discord-feed-manager --action add --channel-id <channel_id> --prio
 python cli.py discord-feed-manager --action add --channel-id <channel_id> --include-keyword gold --include-keyword xauusd --exclude-keyword spam --min-chars 15
 python cli.py discord-telegram-relay --action status
 python cli.py discord-telegram-relay --action run
+python cli.py discord-telegram-relay --action run --intake-path /Users/paytonhicks/Code/permanence-os/memory/inbox/telegram_share_intake.jsonl
 python cli.py discord-telegram-relay --action run --escalate --escalation-keyword outage --escalation-min-priority high
 python cli.py discord-telegram-relay --action run --escalation-notify --escalation-telegram-min-priority high --escalation-discord-min-priority urgent
 python cli.py comms-digest --send
