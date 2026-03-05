@@ -1263,6 +1263,42 @@ def _expanded_keyword_set(text: str) -> set[str]:
     return expanded
 
 
+def _char_trigram_set(text: str) -> set[str]:
+    compact = " ".join(str(text or "").strip().casefold().split())
+    if not compact:
+        return set()
+    if len(compact) < 3:
+        return {compact}
+    return {compact[idx : idx + 3] for idx in range(0, len(compact) - 2)}
+
+
+def _memory_reranker_score(
+    *,
+    query_text: str,
+    note_text: str,
+    query_tokens: set[str],
+    query_trigrams: set[str],
+) -> float:
+    if not query_text or not note_text:
+        return 0.0
+    semantic = _memory_similarity_score(query_text, note_text)
+    note_tokens = _expanded_keyword_set(note_text)
+    overlap = len(query_tokens & note_tokens)
+    token_coverage = float(overlap) / float(len(query_tokens) or 1)
+    note_trigrams = _char_trigram_set(note_text)
+    trigram_jaccard = float(len(query_trigrams & note_trigrams)) / float(len(query_trigrams | note_trigrams) or 1)
+    fuzzy = difflib.SequenceMatcher(None, query_text.casefold(), note_text.casefold()).ratio()
+    phrase_bonus = 1.0 if query_text.casefold() in note_text.casefold() else 0.0
+    return (
+        semantic
+        + (float(overlap) * 1.8)
+        + (token_coverage * 1.6)
+        + (trigram_jaccard * 1.4)
+        + (fuzzy * 0.8)
+        + phrase_bonus
+    )
+
+
 def _memory_similarity_score(query: str, note_text: str) -> float:
     query_fold = str(query or "").strip().casefold()
     text_fold = str(note_text or "").strip().casefold()
@@ -1311,6 +1347,35 @@ def _select_memory_notes(notes: list[dict[str, Any]], query: str, limit: int) ->
             scored.append((score, idx))
         for _score, idx in sorted(scored, key=lambda item: (-item[0], -item[1]))[:cap]:
             selected_indexes.append(idx)
+        if not selected_indexes:
+            query_trigrams = _char_trigram_set(query_text)
+            reranked: list[tuple[float, int]] = []
+            for idx, row in enumerate(notes):
+                text = str(row.get("text") or "").strip()
+                if not text:
+                    continue
+                recency = float(idx + 1) / float(total)
+                source = str(row.get("source") or "").strip().lower()
+                source_bonus = {
+                    "manual": 0.45,
+                    "profile": 0.55,
+                    "chat": 0.2,
+                }.get(source, 0.1)
+                score = _memory_reranker_score(
+                    query_text=query_text,
+                    note_text=text,
+                    query_tokens=query_tokens,
+                    query_trigrams=query_trigrams,
+                )
+                score += (recency * 0.5) + source_bonus
+                reranked.append((score, idx))
+            min_score = 1.05 if query_tokens else 0.85
+            for score, idx in sorted(reranked, key=lambda item: (-item[0], -item[1])):
+                if score < min_score:
+                    continue
+                selected_indexes.append(idx)
+                if len(selected_indexes) >= cap:
+                    break
     selected = set(selected_indexes)
     if len(selected_indexes) < cap:
         for idx in range(len(notes) - 1, -1, -1):

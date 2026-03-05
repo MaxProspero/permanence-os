@@ -489,6 +489,16 @@ def test_memory_select_notes_uses_semantic_synonyms() -> None:
     assert "deep work blocks" in str(selected[0].get("text") or "").lower()
 
 
+def test_memory_select_notes_reranker_handles_inflection_drift() -> None:
+    notes = [
+        {"text": "When I procrastinate, start with a five minute timer and ship the ugly draft.", "source": "manual"},
+        {"text": "Keep outreach concise and respectful.", "source": "manual"},
+    ]
+    selected = telegram_mod._select_memory_notes(notes, query="procrastinating before tasks", limit=1)
+    assert selected
+    assert "procrastinate" in str(selected[0].get("text") or "").lower()
+
+
 def test_profile_history_and_conflicts_are_logged() -> None:
     store = {"profiles": {}, "updated_at": ""}
     key = telegram_mod._memory_key(chat_id="-1001", sender_user_id="42", sender_name="payton")

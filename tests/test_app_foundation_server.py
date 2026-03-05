@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 import tempfile
@@ -81,7 +82,67 @@ def test_foundation_auth_onboarding_and_memory_flow() -> None:
             os.environ["PERMANENCE_FOUNDATION_PASSCODE"] = snapshot_passcode
 
 
+def test_foundation_ophtxn_shell_and_ops_summary() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        tool_root = root / "tool"
+        tool_root.mkdir(parents=True, exist_ok=True)
+
+        (tool_root / "ophtxn_completion_20260305-000000.json").write_text(
+            json.dumps({"completion_pct": 100, "blockers": [], "latest_markdown": "/tmp/completion.md"}) + "\n",
+            encoding="utf-8",
+        )
+        (tool_root / "money_first_gate_20260305-000000.json").write_text(
+            json.dumps(
+                {
+                    "status": {"gate_pass": True, "won_revenue_usd": 1500, "won_deals": 1},
+                    "latest_markdown": "/tmp/money.md",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (tool_root / "comms_status_20260305-000000.json").write_text(
+            json.dumps({"warnings": [], "latest_markdown": "/tmp/comms.md"}) + "\n",
+            encoding="utf-8",
+        )
+        (tool_root / "self_improvement_20260305-000000.json").write_text(
+            json.dumps({"pending_count": 0, "latest_markdown": "/tmp/improve.md"}) + "\n",
+            encoding="utf-8",
+        )
+        (tool_root / "approval_execution_board_20260305-000000.json").write_text(
+            json.dumps({"task_count": 12, "marked_queued_count": 3, "latest_markdown": "/tmp/approval.md"}) + "\n",
+            encoding="utf-8",
+        )
+
+        app = create_app(storage_root=(root / "app"), tool_root=tool_root)
+        client = app.test_client()
+
+        shell = client.get("/app/ophtxn")
+        assert shell.status_code == 200
+        assert "Ophtxn App Shell" in (shell.get_data(as_text=True) or "")
+
+        unauthorized = client.get("/ops/summary")
+        assert unauthorized.status_code == 401
+
+        auth = client.post("/auth/session", json={"user_id": "payton"})
+        assert auth.status_code == 200
+        token = str((auth.get_json() or {}).get("token") or "")
+        assert token
+        headers = {"X-Session-Token": token}
+
+        summary = client.get("/ops/summary", headers=headers)
+        assert summary.status_code == 200
+        payload = summary.get_json() or {}
+        assert payload.get("ok") is True
+        metrics = payload.get("summary") or {}
+        assert int(metrics.get("completion_pct") or 0) == 100
+        assert bool(metrics.get("feature_work_unlocked")) is True
+        assert int(metrics.get("approved_execution_tasks") or 0) == 12
+
+
 if __name__ == "__main__":
     test_foundation_health_endpoint()
     test_foundation_auth_onboarding_and_memory_flow()
+    test_foundation_ophtxn_shell_and_ops_summary()
     print("✓ Foundation API scaffold tests passed")

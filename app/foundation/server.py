@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 
 from app.foundation.storage import append_jsonl, ensure_root, load_json, read_jsonl, save_json
 
@@ -32,9 +32,19 @@ def _storage_root(base_dir: Path) -> Path:
     return ensure_root(base_dir / "memory" / "working" / "app_foundation")
 
 
-def create_app(storage_root: Path | None = None) -> Flask:
+def _latest_tool_payload(tool_root: Path, prefix: str) -> dict[str, Any]:
+    rows = sorted(tool_root.glob(f"{prefix}_*.json"), key=lambda row: row.stat().st_mtime, reverse=True)
+    if not rows:
+        return {}
+    payload = load_json(rows[0], {})
+    return payload if isinstance(payload, dict) else {}
+
+
+def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
     base_dir = Path(__file__).resolve().parents[2]
     root = ensure_root(storage_root or _storage_root(base_dir))
+    tool_dir = ensure_root(tool_root or (base_dir / "memory" / "tool"))
+    shell_html_path = Path(shell_path or (base_dir / "site" / "foundation" / "ophtxn_shell.html"))
     sessions_path = root / "sessions.json"
     profiles_path = root / "profiles.json"
     memory_path = root / "memory_entries.jsonl"
@@ -88,6 +98,14 @@ def create_app(storage_root: Path | None = None) -> Flask:
                 "timestamp": _now_iso(),
             }
         )
+
+    @app.get("/app/ophtxn")
+    def ophtxn_shell() -> Any:
+        try:
+            html = shell_html_path.read_text(encoding="utf-8")
+        except OSError:
+            return jsonify({"ok": False, "error": "ophtxn shell not found"}), 404
+        return Response(html, mimetype="text/html; charset=utf-8")
 
     @app.post("/auth/session")
     def auth_session() -> Any:
@@ -147,6 +165,45 @@ def create_app(storage_root: Path | None = None) -> Flask:
             payload = json.loads(schema_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             payload = {"schema_version": "unknown", "entities": {}}
+        return jsonify(payload)
+
+    @app.get("/ops/summary")
+    def ops_summary() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        user_id = str(session.get("user_id") or "").strip()
+
+        completion = _latest_tool_payload(tool_dir, "ophtxn_completion")
+        money_gate = _latest_tool_payload(tool_dir, "money_first_gate")
+        comms_status = _latest_tool_payload(tool_dir, "comms_status")
+        self_improvement = _latest_tool_payload(tool_dir, "self_improvement")
+        approvals = _latest_tool_payload(tool_dir, "approval_execution_board")
+
+        money_status = money_gate.get("status") if isinstance(money_gate.get("status"), dict) else {}
+        payload = {
+            "ok": True,
+            "user_id": user_id,
+            "generated_at": _now_iso(),
+            "summary": {
+                "completion_pct": int(float(completion.get("completion_pct") or 0)),
+                "completion_blockers": len(completion.get("blockers") or []),
+                "feature_work_unlocked": bool(money_status.get("gate_pass")),
+                "won_revenue_usd": float(money_status.get("won_revenue_usd") or 0.0),
+                "won_deals": int(float(money_status.get("won_deals") or 0)),
+                "comms_warnings": len(comms_status.get("warnings") or []),
+                "self_improvement_pending": int(float(self_improvement.get("pending_count") or 0)),
+                "approved_execution_tasks": int(float(approvals.get("task_count") or 0)),
+                "newly_queued_tasks": int(float(approvals.get("marked_queued_count") or 0)),
+            },
+            "sources": {
+                "completion": str(completion.get("latest_markdown") or ""),
+                "money_first_gate": str(money_gate.get("latest_markdown") or ""),
+                "comms_status": str(comms_status.get("latest_markdown") or ""),
+                "self_improvement": str(self_improvement.get("latest_markdown") or ""),
+                "approval_execution_board": str(approvals.get("latest_markdown") or ""),
+            },
+        }
         return jsonify(payload)
 
     @app.post("/memory/entry")

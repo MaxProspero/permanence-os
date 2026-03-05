@@ -43,6 +43,9 @@ TELEGRAM_CHAT_AGENT="${PERMANENCE_TELEGRAM_CHAT_LOOP_CHAT_AGENT:-${PERMANENCE_TE
 TELEGRAM_CHAT_MAX_REPLIES="${PERMANENCE_TELEGRAM_CHAT_LOOP_MAX_REPLIES:-8}"
 TELEGRAM_CHAT_MAX_COMMANDS="${PERMANENCE_TELEGRAM_CHAT_LOOP_MAX_COMMANDS:-5}"
 TELEGRAM_CHAT_SCOPE="${PERMANENCE_TELEGRAM_CHAT_LOOP_CHAT_IDS:-${PERMANENCE_TELEGRAM_CONTROL_TARGET_CHAT_IDS:-${PERMANENCE_TELEGRAM_CHAT_IDS:-${PERMANENCE_TELEGRAM_CHAT_ID:-}}}}"
+TELEGRAM_CHAT_REQUIRE_ALLOWLIST="${PERMANENCE_TELEGRAM_CHAT_LOOP_REQUIRE_COMMAND_ALLOWLIST:-1}"
+TELEGRAM_CHAT_ALLOW_USER_IDS="${PERMANENCE_TELEGRAM_CHAT_LOOP_COMMAND_ALLOW_USER_IDS:-${PERMANENCE_TELEGRAM_CONTROL_COMMAND_USER_IDS:-}}"
+TELEGRAM_CHAT_ALLOW_CHAT_IDS="${PERMANENCE_TELEGRAM_CHAT_LOOP_COMMAND_ALLOW_CHAT_IDS:-${PERMANENCE_TELEGRAM_CONTROL_COMMAND_CHAT_IDS:-${TELEGRAM_CHAT_SCOPE}}}"
 TELEGRAM_CHAT_BRAIN_SYNC="${PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC:-1}"
 TELEGRAM_CHAT_BRAIN_SYNC_MIN_AGE="${PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC_MIN_AGE_SECONDS:-900}"
 BRAIN_VAULT_PATH="${PERMANENCE_OPHTXN_BRAIN_PATH:-$BASE_DIR/memory/working/ophtxn_brain_vault.json}"
@@ -61,6 +64,19 @@ _file_mtime_epoch() {
     return 0
   fi
   return 1
+}
+
+_append_allowlist_args() {
+  local flag="$1"
+  local raw="$2"
+  local token=""
+  for token in $(printf '%s\n' "$raw" | tr ',' ' '); do
+    token="$(echo "$token" | xargs)"
+    if [[ -z "$token" ]]; then
+      continue
+    fi
+    ARGS+=("$flag" "$token")
+  done
 }
 
 echo "Telegram chat loop started (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee "$LOG_FILE"
@@ -106,6 +122,11 @@ if [[ "$TELEGRAM_CHAT_SKIP_MEDIA" == "1" ]]; then
 fi
 if [[ "$TELEGRAM_CHAT_ENABLE_COMMANDS" == "1" ]]; then
   ARGS+=("--enable-commands")
+  if [[ "$TELEGRAM_CHAT_REQUIRE_ALLOWLIST" == "1" ]]; then
+    ARGS+=("--require-command-allowlist")
+  fi
+  _append_allowlist_args "--command-allow-user-id" "$TELEGRAM_CHAT_ALLOW_USER_IDS"
+  _append_allowlist_args "--command-allow-chat-id" "$TELEGRAM_CHAT_ALLOW_CHAT_IDS"
 fi
 if [[ "$TELEGRAM_CHAT_AGENT" == "1" ]]; then
   ARGS+=("--chat-agent")
