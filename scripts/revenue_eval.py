@@ -46,6 +46,7 @@ def _default_playbook() -> dict[str, Any]:
     return {
         "offer_name": "Permanence OS Foundation Setup",
         "cta_keyword": "FOUNDATION",
+        "call_policy": "recommended",
     }
 
 
@@ -122,6 +123,15 @@ def _check_data_contracts() -> list[dict[str, Any]]:
             "required": True,
             "ok": isinstance(playbook, dict) and bool(str(playbook.get("offer_name") or "").strip()) and bool(str(playbook.get("cta_keyword") or "").strip()),
             "detail": f"offer={playbook.get('offer_name')} cta={playbook.get('cta_keyword')}",
+        }
+    )
+    call_policy = str(playbook.get("call_policy") or "recommended").strip().lower()
+    checks.append(
+        {
+            "name": "playbook_call_policy_valid",
+            "required": True,
+            "ok": call_policy in {"recommended", "required", "direct_pay"},
+            "detail": f"call_policy={call_policy or '(empty)'}",
         }
     )
     checks.append(

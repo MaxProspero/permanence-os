@@ -262,7 +262,12 @@ def _score_payloads(payloads: dict[str, dict[str, Any]]) -> dict[str, Any]:
         next_actions.append("Prioritize terminal queue burn-down this week.")
 
     launchd = (comms_status.get("launchd") or {}) if isinstance(comms_status.get("launchd"), dict) else {}
-    launchd_ok = bool(launchd.get("installed")) and str(launchd.get("state") or "").lower() == "running"
+    launchd_state = str(launchd.get("state") or "").strip().lower()
+    launchd_last_exit = launchd.get("last_exit_code")
+    launchd_ok = bool(launchd.get("installed")) and (
+        launchd_state in {"running", "xpcproxy"}
+        or launchd_last_exit in {None, 0}
+    )
     launchd_check = check(
         cond=launchd_ok,
         points=7,

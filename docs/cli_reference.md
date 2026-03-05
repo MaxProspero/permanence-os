@@ -107,6 +107,62 @@ Run read-only social/trend feed ranking for opportunity discovery.
 - `--force-policy` rewrites the discernment policy template file
 - No publish actions
 
+### `python cli.py platform-change-watch`
+Watch upstream platform/API drift and queue update tasks before integrations break.
+- Uses `memory/working/platform_change_watchlist.json`
+- Reads local email ingest from `memory/working/email/inbox.json` for provider notices
+- Scans code references to estimate impact scope per platform (X/Telegram/Discord/Gmail/model providers)
+- Queues high/critical items to `memory/working/platform_change_action_queue.jsonl`
+- Writes `outputs/platform_change_watch_latest.md`
+- Writes `memory/tool/platform_change_watch_*.json`
+- If a source has no parsable feed structure, it is flagged in the report warnings so you can swap in a better URL/RSS feed.
+- Optional flags:
+`--force-template`, `--watchlist-path`, `--email-path`, `--queue-path`, `--scan-root`, `--lookback-days`, `--min-score`, `--max-items`, `--no-queue`, `--strict`
+
+### `python cli.py low-cost-mode`
+Apply/status low-cost operation profile for budget control.
+- Status:
+`python cli.py low-cost-mode --action status`
+- Enable low-cost defaults (local-first provider + no-spend lock + revenue gate):
+`python cli.py low-cost-mode --action enable`
+- Disable low-cost mode:
+`python cli.py low-cost-mode --action disable`
+- Optional flags:
+`--monthly-budget`, `--milestone-usd`, `--chat-agent`
+- When enabled, sets `PERMANENCE_NO_SPEND_MODE=1` and blocks paid provider switching from Telegram provider controls.
+
+### `python cli.py no-spend-audit`
+Audit no-spend guardrails and recent model provider usage.
+- Standard run:
+`python cli.py no-spend-audit`
+- Strict run (non-zero exit on violations):
+`python cli.py no-spend-audit --strict`
+- Optional flags:
+`--env-path`, `--calls-log`, `--lookback-hours`, `--max-recent-calls`, `--strict`
+- Outputs:
+  - report markdown: `outputs/no_spend_audit_*.md`
+  - latest report: `outputs/no_spend_audit_latest.md`
+  - tool payload: `memory/tool/no_spend_audit_*.json`
+
+### `python cli.py money-first-gate`
+Gate feature work until first revenue milestone is reached.
+- Status:
+`python cli.py money-first-gate`
+- Strict gate (exit non-zero when gate is closed):
+`python cli.py money-first-gate --strict`
+- Optional flags:
+`--pipeline-path`, `--milestone-usd`, `--min-won-deals`
+- Uses `memory/working/sales_pipeline.json` won deals + values to decide unlock.
+
+### `python cli.py money-first-lane`
+Run revenue-first execution lane before feature-expansion loops.
+- Run:
+`python cli.py money-first-lane`
+- Strict mode:
+`python cli.py money-first-lane --strict`
+- Optional flags:
+`--timeout`, `--skip-init`
+
 ### `python cli.py x-account-watch`
 Manage read-only personal X account watch feeds used by `social-research-ingest`.
 - List watched handles:
@@ -180,6 +236,7 @@ Queue ranked opportunities into `memory/approvals.json` with `PENDING_HUMAN_REVI
 
 ### `python cli.py phase3-refresh`
 Run the full Phase 3 governed sequence:
+- Optional pre-gate: when `PERMANENCE_FEATURE_WORK_REQUIRE_REVENUE_MILESTONE=1`, this command first enforces `money-first-gate --strict`.
 - social research ingest
 - GitHub research ingest
 - GitHub trending ingest
@@ -193,6 +250,29 @@ Run the full Phase 3 governed sequence:
 - opportunity ranker
 - opportunity approval queue
 - second-brain report
+
+### `python cli.py approval-triage`
+Review/decide pending approvals from `memory/approvals.json` quickly (no execution side effects).
+- Status:
+`python cli.py approval-triage --action status`
+- List pending:
+`python cli.py approval-triage --action list --limit 20`
+- List top-priority pending:
+`python cli.py approval-triage --action top --limit 20`
+- Decide oldest pending in scope:
+`python cli.py approval-triage --action decide --decision approve --decided-by payton`
+- Decide specific id:
+`python cli.py approval-triage --action decide --decision reject --proposal-id APR-123 --decided-by payton --note "not enough evidence"`
+- Batch decide oldest pending:
+`python cli.py approval-triage --action decide-batch --decision approve --batch-size 5 --decided-by payton`
+- Safe batch decide (requires explicit source scope + risk ceilings):
+`python cli.py approval-triage --action decide-batch-safe --decision approve --source phase3_opportunity_queue --batch-size 3 --safe-max-priority low --safe-max-risk medium --decided-by payton`
+- Optional source filter:
+`--source chronicle_refinement_queue` (repeatable)
+- Optional safe filters:
+`--safe-max-priority`, `--safe-max-risk`
+- Writes `outputs/approval_triage_latest.md`
+- Writes `memory/tool/approval_triage_*.json`
 
 ### `python cli.py approval-execution-board`
 Build an actionable execution board from approved queue items.
@@ -211,6 +291,8 @@ Run the full communication sync loop (`scripts/run_comms_loop.sh`) end-to-end:
 - glasses exports autopilot ingest
 - research inbox process
 - status glance + integration readiness snapshots
+- optional platform change watch (set `PERMANENCE_COMMS_LOOP_PLATFORM_WATCH_ENABLED=1`)
+  and optional fail-on-critical mode `PERMANENCE_COMMS_LOOP_PLATFORM_WATCH_STRICT=1`
 - optional comms status snapshot with escalation/backlog thresholds
 - optional digest step (set `PERMANENCE_COMMS_LOOP_DIGEST_ENABLED=1`)
 - optional doctor step (set `PERMANENCE_COMMS_LOOP_DOCTOR_ENABLED=1`)
@@ -227,6 +309,7 @@ Run the full communication sync loop (`scripts/run_comms_loop.sh`) end-to-end:
 
 ### `python cli.py second-brain-loop`
 Run the full second-brain loop (`scripts/run_second_brain_loop.sh`) end-to-end:
+- Optional pre-gate: when `PERMANENCE_FEATURE_WORK_REQUIRE_REVENUE_MILESTONE=1`, this loop exits early unless `money-first-gate --strict` passes.
 - life brief
 - GitHub research ingest
 - GitHub trending ingest
@@ -338,13 +421,37 @@ Serve `site/foundation/index.html` locally.
 - `--no-open` disable auto-open browser
 - `--site-dir` override site root
 - Intake form posts to local Command Center API (`/api/revenue/intake`) when available, otherwise falls back to email.
+- Additional pages:
+  - `/official_app.html`
+  - `/press_kit.html`
 
 ### `python cli.py foundation-api`
 Run FOUNDATION API scaffold for auth + onboarding + memory.
 - `--host` bind host (default `127.0.0.1`)
 - `--port` bind port (default `8797`)
 - `--debug` enable Flask debug mode
-- Endpoints: `/health`, `/auth/session`, `/onboarding/start`, `/memory/schema`, `/memory/entry`
+- Endpoints:
+  - `/health`
+  - `/auth/session`
+  - `/onboarding/start`
+  - `/memory/schema`
+  - `/memory/entry` (GET/POST)
+  - `/app/ophtxn`
+  - `/app/official`
+  - `/app/studio`
+  - `/app/press`
+  - `/app/runtime.config.js`
+  - `/ops/summary`
+  - `/approvals/summary`
+  - `/approvals/pending`
+  - `/approvals/decision`
+  - `/guardrails/no-spend`
+- App routes:
+  - `http://127.0.0.1:8797/app/ophtxn`
+  - `http://127.0.0.1:8797/app/official`
+  - `http://127.0.0.1:8797/app/studio`
+  - `http://127.0.0.1:8797/app/press`
+  - `http://127.0.0.1:8797/app/runtime.config.js`
 
 ### `python cli.py command-center`
 Run live dashboard API + Command Center UI.
@@ -497,6 +604,19 @@ Capture links/text and process them into `sources.json` via URL fetch.
 - View queue status:
 `python cli.py research-inbox --action status`
 
+### `python cli.py idea-intake`
+Convert high-volume idea/link dumps into ranked idea candidates and optional approval-queue entries.
+- Check intake status:
+`python cli.py idea-intake --action status`
+- Intake one long message manually:
+`python cli.py idea-intake --action intake --text "Cloudflare MCP https://github.com/cloudflare/mcp and Symphony https://github.com/openai/symphony"`
+- Process new intake and rank:
+`python cli.py idea-intake --action process --max-items 30 --min-score 30`
+- Process and queue top ideas for manual approval:
+`python cli.py idea-intake --action process --queue-approvals --queue-limit 5 --queue-min-score 65`
+- Optional flags:
+`--intake-path`, `--state-path`, `--policy-path`, `--force-policy`, `--strict`
+
 ### `python cli.py glasses-bridge`
 Bridge smart-glasses events (Meta/VisionClaw/Nearby-Glasses exports) into local pipelines.
 - Ingest exported JSON:
@@ -522,7 +642,11 @@ Poll Telegram updates and convert them into glasses-bridge intake events.
 - Poll + force chat-agent replies for this run:
 `python cli.py telegram-control --action poll --chat-agent --max-chat-replies 3`
 - Example commands from Telegram chat:
-`/comms-mode`, `/comms-whoami`, `/memory-help`, `/memory`, `/remember <note>`, `/share <long note>`, `/terminal <task>`, `/terminal-list`, `/recall [query]`, `/profile`, `/profile-set <field> <value>`, `/profile-get`, `/profile-history [field]`, `/profile-conflicts`, `/personality [mode]`, `/personality-modes`, `/habit-add <name> | cue: ... | plan: ...`, `/habit-plan <name> | cue: ... | plan: ...`, `/habit-done <name>`, `/habit-nudge`, `/habit-list`, `/habit-drop <name>`, `/forget-last`, `/learn-status`, `/learn-run`, `/improve-status`, `/improve-pitch`, `/improve-list`, `/improve-approve [proposal-id] [decision-code]`, `/improve-reject [proposal-id] [decision-code]`, `/improve-defer [proposal-id] [decision-code]`, `/brain-status`, `/brain-sync`, `/brain-recall <query>`, `/x-watch <handle|url>`, `/x-unwatch <handle|url>`, `/x-watch-list`, `/comms-status`, `/comms-doctor`, `/comms-doctor-fix`, `/comms-digest`, `/comms-escalations`, `/comms-escalations-send`, `/comms-escalation-status`, `/comms-escalation-enable`, `/comms-escalation-disable`, `/comms-run`
+`/comms-mode`, `/comms-whoami`, `/memory-help`, `/memory`, `/remember <note>`, `/share <long note>`, `/terminal <task>`, `/terminal-list`, `/terminal-status`, `/terminal-complete <task-id|latest>`, `/recall [query]`, `/profile`, `/profile-set <field> <value>`, `/profile-get`, `/profile-history [field]`, `/profile-conflicts`, `/personality [mode]`, `/personality-modes`, `/habit-add <name> | cue: ... | plan: ...`, `/habit-plan <name> | cue: ... | plan: ...`, `/habit-done <name>`, `/habit-nudge`, `/habit-list`, `/habit-drop <name>`, `/forget-last`, `/learn-status`, `/learn-run`, `/improve-status`, `/improve-pitch`, `/improve-list`, `/improve-approve [proposal-id] [decision-code]`, `/improve-reject [proposal-id] [decision-code]`, `/improve-defer [proposal-id] [decision-code]`, `/brain-status`, `/brain-sync`, `/brain-recall <query>`, `/x-watch <handle|url>`, `/x-unwatch <handle|url>`, `/x-watch-list`, `/idea-status`, `/idea-intake <links/text>`, `/idea-run [max=<n>] [min-score=<n>] [queue=1]`, `/idea-queue [max=<n>] [min-score=<n>]`, `/platform-watch [strict] [no-queue]`, `/low-cost-status`, `/low-cost-enable [budget=<usd>] [milestone=<usd>] [chat-agent=1]`, `/low-cost-disable`, `/ops-status`, `/ops-morning`, `/ops-midday`, `/ops-evening`, `/ops-hygiene [target-pending]`, `/approvals-status [source=<source>]`, `/approvals-list [limit] [source=<source>]`, `/approve-next [proposal-id] [source=<source>] [optional note]`, `/reject-next [proposal-id] [source=<source>] [optional note]`, `/defer-next [proposal-id] [source=<source>] [optional note]`, `/approve-batch [count] [source=<source>] [optional note]`, `/reject-batch [count] [source=<source>] [optional note]`, `/defer-batch [count] [source=<source>] [optional note]`, `/chronicle-help`, `/chronicle-status [source=<source>]`, `/chronicle-run [strict] [no-canon] [queue=<n>] [exec=<n>]`, `/chronicle-list [limit]`, `/chronicle-approve [proposal-id] [optional note]`, `/chronicle-reject [proposal-id] [optional note]`, `/chronicle-defer [proposal-id] [optional note]`, `/chronicle-execution [limit] [no-canon]`, `/comms-status`, `/comms-doctor`, `/comms-doctor-fix`, `/comms-digest`, `/comms-escalations`, `/comms-escalations-send`, `/comms-escalation-status`, `/comms-escalation-enable`, `/comms-escalation-disable`, `/comms-run`
+- Launch shortcuts are available in Telegram too:
+`/launch-status [min-score=<n>] [strict]`, `/launch-plan`
+- Production deployment shortcuts are available in Telegram:
+`/prod-status [min-score=<n>] [strict]`, `/prod-preflight [strict]`, `/prod-estimate`, `/prod-plan`, `/prod-runtime`, `/prod-config domain=<domain> api-domain=<domain> [site-url=<url>] [api-base=<url>] [no-spend]`
 - Voice-note routing example (high-priority receptionist path):
 `python cli.py telegram-control --action poll --voice-priority high --voice-channel telegram-voice`
 - Voice-note queueing into transcription queue:
@@ -532,7 +656,7 @@ Poll Telegram updates and convert them into glasses-bridge intake events.
 - Command defaults can be set via env:
 `PERMANENCE_TELEGRAM_CONTROL_ENABLE_COMMANDS`, `PERMANENCE_TELEGRAM_CONTROL_COMMAND_PREFIX`, `PERMANENCE_TELEGRAM_CONTROL_COMMAND_TIMEOUT`, `PERMANENCE_TELEGRAM_CONTROL_MAX_COMMANDS`, `PERMANENCE_TELEGRAM_CONTROL_COMMAND_ACK`, `PERMANENCE_TELEGRAM_CONTROL_COMMAND_USER_IDS`, `PERMANENCE_TELEGRAM_CONTROL_COMMAND_CHAT_IDS`, `PERMANENCE_TELEGRAM_CONTROL_REQUIRE_COMMAND_ALLOWLIST`, `PERMANENCE_TELEGRAM_CHAT_ID`, `PERMANENCE_TELEGRAM_CHAT_IDS`, `PERMANENCE_TELEGRAM_CONTROL_TARGET_CHAT_IDS`
 - Telegram chat loop env (for `scripts/run_telegram_chat_loop.sh`):
-`PERMANENCE_TELEGRAM_CHAT_LOOP_CHAT_IDS`, `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC`, `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC_MIN_AGE_SECONDS`
+`PERMANENCE_TELEGRAM_CHAT_LOOP_CHAT_IDS`, `PERMANENCE_TELEGRAM_CHAT_LOOP_REQUIRE_COMMAND_ALLOWLIST`, `PERMANENCE_TELEGRAM_CHAT_LOOP_COMMAND_ALLOW_USER_IDS`, `PERMANENCE_TELEGRAM_CHAT_LOOP_COMMAND_ALLOW_CHAT_IDS`, `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC`, `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC_MIN_AGE_SECONDS`
 - Chat-agent defaults can be set via env:
 `PERMANENCE_TELEGRAM_CONTROL_CHAT_AGENT_ENABLED`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_TASK_TYPE`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_MAX_REPLIES`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_MAX_HISTORY`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_REPLY_MAX_CHARS`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_MEMORY_MAX_NOTES`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_AUTO_MEMORY`, `PERMANENCE_TELEGRAM_CONTROL_MEMORY_MAX_NOTES`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_PERSONALITY_DEFAULT`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_FALLBACK_ACK`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_HISTORY_PATH`, `PERMANENCE_TELEGRAM_CONTROL_MEMORY_PATH`, `PERMANENCE_TELEGRAM_CONTROL_INTAKE_PATH`, `PERMANENCE_TELEGRAM_CONTROL_TERMINAL_QUEUE_PATH`, `PERMANENCE_TERMINAL_TASK_QUEUE_PATH`, `PERMANENCE_TELEGRAM_CONTROL_REDACT_SENSITIVE`, `PERMANENCE_TELEGRAM_CONTROL_REDACT_PAYMENT_LINKS`, `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_MIRROR`, `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_TARGET`, `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_SERVICE`, `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_PREFIX`, `PERMANENCE_TELEGRAM_CONTROL_IMESSAGE_MAX_CHARS`, `PERMANENCE_TELEGRAM_CONTROL_CHAT_SYSTEM_PROMPT`
 
@@ -546,6 +670,84 @@ Run offline simulations for Ophtxn memory retrieval and habit logic.
   - report markdown: `outputs/ophtxn_simulation_*.md`
   - latest report: `outputs/ophtxn_simulation_latest.md`
   - includes memory retrieval, habit streak consistency, profile conflict logging, and habit nudge checks
+
+### `python cli.py ophtxn-daily-ops`
+Generate a no-spend daily operating brief with queue hygiene and artifact freshness checks.
+- Status snapshot:
+`python cli.py ophtxn-daily-ops --action status`
+- Morning priorities:
+`python cli.py ophtxn-daily-ops --action morning`
+- Midday correction pass:
+`python cli.py ophtxn-daily-ops --action midday`
+- Evening closeout:
+`python cli.py ophtxn-daily-ops --action evening`
+- Full-day cycle checkpoint:
+`python cli.py ophtxn-daily-ops --action cycle`
+- Queue hygiene (strict gate):
+`python cli.py ophtxn-daily-ops --action hygiene --target-pending 1 --strict`
+- Optional flags:
+`--queue-path`, `--approvals-path`, `--target-pending`, `--max-items`, `--freshness-minutes`, `--strict`, `--output`
+- Outputs:
+  - report markdown: `outputs/ophtxn_daily_ops_*.md`
+  - latest report: `outputs/ophtxn_daily_ops_latest.md`
+  - tool payload: `memory/tool/ophtxn_daily_ops_*.json`
+
+### `python cli.py ophtxn-ops-pack`
+Run a shortcut daily bundle:
+- `ophtxn-daily-ops --action cycle`
+- `no-spend-audit --strict`
+- `approval-triage --action top`
+- optional `approval-triage --action decide-batch-safe` (only when decision is specified)
+- Status/plan only:
+`python cli.py ophtxn-ops-pack --action status`
+- Run with safe batch decision:
+`python cli.py ophtxn-ops-pack --approval-source phase3_opportunity_queue --approval-decision defer --approval-batch-size 3 --safe-max-priority low --safe-max-risk medium`
+- Optional flags:
+`--strict`, `--timeout`, `--approval-source`, `--approval-limit`, `--approval-decision`, `--approval-batch-size`, `--safe-max-priority`, `--safe-max-risk`
+- Outputs:
+  - report markdown: `outputs/ophtxn_ops_pack_*.md`
+  - latest report: `outputs/ophtxn_ops_pack_latest.md`
+  - tool payload: `memory/tool/ophtxn_ops_pack_*.json`
+
+### `python cli.py ophtxn-launchpad`
+Generate official launch readiness score + launch plan from live project state.
+- Readiness status:
+`python cli.py ophtxn-launchpad --action status`
+- Strict launch gate:
+`python cli.py ophtxn-launchpad --action status --strict --min-score 80`
+- Launch plan view:
+`python cli.py ophtxn-launchpad --action plan`
+- Optional flags:
+`--strict`, `--min-score`, `--output`
+- Outputs:
+  - report markdown: `outputs/ophtxn_launchpad_*.md`
+  - latest report: `outputs/ophtxn_launchpad_latest.md`
+  - tool payload: `memory/tool/ophtxn_launchpad_*.json`
+
+### `python cli.py ophtxn-production`
+Run production deployment operations for domain + hosting + analytics + lead capture.
+- Initialize config template:
+`python cli.py ophtxn-production --action init`
+- Configure domains/runtime/budget in one command:
+`python cli.py ophtxn-production --action configure --domain ophtxn.<company-domain> --api-domain api.<company-domain> --site-url https://ophtxn.<company-domain> --api-base https://api.<company-domain> --no-spend`
+- Deploy preflight (toolchain + wrangler auth readiness):
+`python cli.py ophtxn-production --action preflight --check-wrangler`
+- Render runtime config used by static site:
+`python cli.py ophtxn-production --action render-runtime`
+- Readiness status (optional API/wrangler probes):
+`python cli.py ophtxn-production --action status --check-api --check-wrangler`
+- Cost estimate:
+`python cli.py ophtxn-production --action estimate`
+- Deploy command sequence:
+`python cli.py ophtxn-production --action deploy-plan`
+- Strict gate:
+`python cli.py ophtxn-production --action status --strict --min-score 80`
+- Optional flags:
+`--config`, `--force-template`, `--check-api`, `--check-wrangler`, `--strict`, `--min-score`, `--site-url`, `--api-base`, `--domain`, `--api-domain`, `--fallback-email`, `--monthly-hosting`, `--monthly-analytics`, `--monthly-lead-capture`, `--monthly-monitoring`, `--monthly-contingency`, `--annual-domain-cost`, `--no-spend`, `--output`
+- Outputs:
+  - report markdown: `outputs/ophtxn_production_ops_*.md`
+  - latest report: `outputs/ophtxn_production_ops_latest.md`
+  - tool payload: `memory/tool/ophtxn_production_ops_*.json`
 
 ### `python cli.py ophtxn-completion`
 Score progress to 100% from live telemetry and list blockers/actions.
@@ -757,6 +959,57 @@ Manage comms loop automation lifecycle from CLI:
 `python cli.py comms-automation --action escalation-disable`
 - escalation digest run now:
 `python cli.py comms-automation --action escalation-digest-now`
+
+### `python cli.py chronicle-refinement`
+Convert chronicle timeline signals into actionable backlog + canon refinement recommendations.
+- Uses latest chronicle report JSON by default (`outputs/chronicle/chronicle_report_*.json`)
+- Writes `outputs/chronicle_refinement_latest.md`
+- Writes `memory/tool/chronicle_refinement_*.json`
+- Syncs recommendations to `memory/working/chronicle_backlog_refinement.json` by default
+- Optional flags:
+`--report-json`, `--max-backlog-items`, `--max-canon-checks`, `--backlog-path`, `--output`, `--no-sync-backlog`, `--strict`
+
+### `python cli.py chronicle-approval-queue`
+Queue chronicle refinement recommendations into manual approvals (`PENDING_HUMAN_REVIEW`).
+- Uses latest `memory/tool/chronicle_refinement_*.json`
+- Writes `outputs/chronicle_approval_queue_latest.md`
+- Writes `memory/tool/chronicle_approval_queue_*.json`
+- Appends approval records into `memory/approvals.json` with source `chronicle_refinement_queue`
+- Optional flags:
+`--force-policy`, `--max-items`, `--no-canon-checks`
+
+### `python cli.py chronicle-execution-board`
+Build scoped execution tasks from approved chronicle approvals.
+- Reads `memory/approvals.json` and filters approved rows from source `chronicle_refinement_queue` by default
+- Writes `outputs/chronicle_execution_board_latest.md`
+- Writes `memory/tool/chronicle_execution_board_*.json`
+- Writes task board `memory/working/chronicle_execution_tasks.json`
+- Marks filtered approved items with `execution_status=QUEUED_FOR_EXECUTION` unless `--no-mark-queued`
+- Optional flags:
+`--limit`, `--source`, `--no-canon`, `--no-mark-queued`
+
+### `python cli.py chronicle-approve`
+Review and decide chronicle queue approvals from terminal (no manual JSON edits).
+- Actions: `status`, `list`, `decide`
+- Default scope filters to source `chronicle_refinement_queue`
+- Decision mode updates status to `APPROVED`, `REJECTED`, or `DEFERRED`
+- If `--proposal-id` is omitted in `decide` mode, command targets oldest pending item in scope
+- Writes `outputs/chronicle_approve_latest.md`
+- Writes `memory/tool/chronicle_approve_*.json`
+- Optional flags:
+`--approvals-path`, `--source`, `--limit`, `--decision`, `--proposal-id`, `--decided-by`, `--note`
+
+### `python cli.py chronicle-control`
+Chronicle control plane for one-command status/run flow.
+- `--action status` summarizes latest chronicle refinement/queue/execution artifacts + scoped approval counts
+- `--action run` orchestrates:
+  1. `chronicle-refinement`
+  2. `chronicle-approval-queue`
+  3. `chronicle-execution-board`
+- Writes `outputs/chronicle_control_latest.md`
+- Writes `memory/tool/chronicle_control_*.json`
+- Optional flags:
+`--strict`, `--timeout`, `--source-filter`, `--skip-refinement`, `--skip-queue`, `--skip-execution`, `--queue-max-items`, `--execution-limit`, `--no-canon`
 
 ## Maintenance Commands
 

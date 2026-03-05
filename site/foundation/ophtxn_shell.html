@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ophtxn App Shell</title>
+  <meta name="description" content="Live command shell for Ophtxn inside Permanence OS.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-0: #08121f;
+      --bg-1: #0f1f2e;
+      --bg-2: #14283a;
+      --line: rgba(173, 225, 255, 0.24);
+      --ink: #e8f3ff;
+      --muted: #98afc3;
+      --good: #54df9e;
+      --warn: #f7bf5e;
+      --bad: #ff7f7f;
+      --card: rgba(14, 31, 47, 0.82);
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.38);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Manrope", system-ui, sans-serif;
+      background:
+        radial-gradient(1100px 580px at -10% -20%, #153657 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% -10%, #294626 0%, transparent 56%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1) 58%, var(--bg-2));
+      line-height: 1.4;
+    }
+
+    .shell {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding: 30px 0 48px;
+    }
+
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(26px, 5vw, 44px);
+      letter-spacing: -0.02em;
+      line-height: 0.94;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .auth {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .auth input {
+      border: 1px solid rgba(173, 225, 255, 0.2);
+      background: rgba(8, 21, 31, 0.66);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      min-width: 0;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #51d8f9, #5de2a6);
+      color: #06212e;
+      border-color: transparent;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.24);
+      padding: 10px 12px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .k {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      font-family: "IBM Plex Mono", monospace;
+      margin-bottom: 6px;
+    }
+
+    .v {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    .links {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .links a {
+      color: #93f5d0;
+      text-decoration: none;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    @media (max-width: 980px) {
+      .auth { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .auth { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="top">
+      <div class="brand">
+        <h1>Ophtxn App Shell</h1>
+        <p>Live system signal panel for your personal agent runtime.</p>
+      </div>
+      <span class="chip">FOUNDATION API /app/ophtxn</span>
+    </section>
+
+    <section class="auth">
+      <input id="userId" placeholder="user_id (example: payton)" autocomplete="username">
+      <input id="name" placeholder="name (optional)">
+      <input id="passcode" type="password" placeholder="passcode (if configured)">
+      <button id="sessionBtn" class="btn primary" type="button">Start Session</button>
+      <button id="refreshBtn" class="btn" type="button">Refresh Ops Summary</button>
+      <button id="clearBtn" class="btn" type="button">Clear Session</button>
+      <button id="healthBtn" class="btn" type="button">Ping /health</button>
+      <span id="tokenState" class="chip">Session: none</span>
+    </section>
+
+    <section id="status" class="status">Ready. Start a session to load live ops metrics.</section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="k">Completion</div>
+        <div id="completion" class="v">--</div>
+        <div id="completionSub" class="sub">Awaiting data</div>
+      </article>
+      <article class="card">
+        <div class="k">Money Gate</div>
+        <div id="moneyGate" class="v">--</div>
+        <div id="moneySub" class="sub">Awaiting data</div>
+      </article>
+      <article class="card">
+        <div class="k">Comms Warnings</div>
+        <div id="commsWarnings" class="v">--</div>
+        <div id="commsSub" class="sub">Awaiting data</div>
+      </article>
+      <article class="card">
+        <div class="k">Pending Pitches</div>
+        <div id="pendingPitches" class="v">--</div>
+        <div id="pitchSub" class="sub">Awaiting data</div>
+      </article>
+      <article class="card">
+        <div class="k">Execution Tasks</div>
+        <div id="taskCount" class="v">--</div>
+        <div id="taskSub" class="sub">Awaiting data</div>
+      </article>
+      <article class="card">
+        <div class="k">Won Revenue</div>
+        <div id="wonRevenue" class="v">--</div>
+        <div id="revenueSub" class="sub">Awaiting data</div>
+      </article>
+    </section>
+
+    <section class="links">
+      <strong>Source Reports</strong>
+      <a id="srcCompletion" href="#" target="_blank" rel="noopener">completion report</a>
+      <a id="srcMoney" href="#" target="_blank" rel="noopener">money gate report</a>
+      <a id="srcComms" href="#" target="_blank" rel="noopener">comms status report</a>
+      <a id="srcImprove" href="#" target="_blank" rel="noopener">self improvement report</a>
+      <a id="srcApproval" href="#" target="_blank" rel="noopener">approval board report</a>
+    </section>
+  </main>
+
+  <script>
+    const KEY = "ophtxn_session_token";
+    const tokenState = document.getElementById("tokenState");
+    const statusEl = document.getElementById("status");
+
+    const state = {
+      token: localStorage.getItem(KEY) || "",
+    };
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function syncTokenState() {
+      tokenState.textContent = state.token ? "Session: active" : "Session: none";
+    }
+
+    function authHeaders() {
+      return state.token ? { "X-Session-Token": state.token } : {};
+    }
+
+    function metricClass(value, goodIf) {
+      if (typeof value === "number") {
+        if (goodIf === "low") return value <= 0 ? "good" : value <= 2 ? "warn" : "bad";
+        if (goodIf === "high") return value >= 95 ? "good" : value >= 75 ? "warn" : "bad";
+      }
+      if (typeof value === "boolean") {
+        return value ? "good" : "bad";
+      }
+      return "";
+    }
+
+    function bindSource(id, value) {
+      const el = document.getElementById(id);
+      const href = String(value || "").trim();
+      if (!href) {
+        el.textContent = id + ": unavailable";
+        el.removeAttribute("href");
+        return;
+      }
+      el.textContent = href;
+      el.href = href;
+    }
+
+    async function startSession() {
+      const userId = document.getElementById("userId").value.trim();
+      const name = document.getElementById("name").value.trim();
+      const passcode = document.getElementById("passcode").value.trim();
+      if (!userId) {
+        setStatus("Session failed: user_id is required.");
+        return;
+      }
+      const payload = { user_id: userId, name: name || userId };
+      if (passcode) payload.passcode = passcode;
+      try {
+        const resp = await fetch("/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) {
+          setStatus("Session failed: " + (data.error || "unknown error"));
+          return;
+        }
+        state.token = String(data.token || "");
+        localStorage.setItem(KEY, state.token);
+        syncTokenState();
+        setStatus("Session ready for " + userId + ". Token expires at " + data.expires_at);
+      } catch (err) {
+        setStatus("Session failed: " + err);
+      }
+    }
+
+    function clearSession() {
+      state.token = "";
+      localStorage.removeItem(KEY);
+      syncTokenState();
+      setStatus("Session cleared.");
+    }
+
+    async function pingHealth() {
+      try {
+        const resp = await fetch("/health");
+        const data = await resp.json();
+        setStatus("Health: " + JSON.stringify(data));
+      } catch (err) {
+        setStatus("Health check failed: " + err);
+      }
+    }
+
+    async function refreshSummary() {
+      if (!state.token) {
+        setStatus("No session token. Start a session first.");
+        return;
+      }
+      try {
+        const resp = await fetch("/ops/summary", { headers: authHeaders() });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) {
+          setStatus("Summary failed: " + (data.error || "unknown error"));
+          return;
+        }
+        const s = data.summary || {};
+        const completion = Number(s.completion_pct || 0);
+        const unlocked = Boolean(s.feature_work_unlocked);
+        const commsWarnings = Number(s.comms_warnings || 0);
+
+        const completionEl = document.getElementById("completion");
+        completionEl.textContent = completion + "%";
+        completionEl.className = "v " + metricClass(completion, "high");
+        document.getElementById("completionSub").textContent = "Blockers: " + Number(s.completion_blockers || 0);
+
+        const moneyEl = document.getElementById("moneyGate");
+        moneyEl.textContent = unlocked ? "OPEN" : "LOCKED";
+        moneyEl.className = "v " + metricClass(unlocked, "bool");
+        document.getElementById("moneySub").textContent = "Won deals: " + Number(s.won_deals || 0);
+
+        const commsEl = document.getElementById("commsWarnings");
+        commsEl.textContent = String(commsWarnings);
+        commsEl.className = "v " + metricClass(commsWarnings, "low");
+        document.getElementById("commsSub").textContent = "0 is healthy";
+
+        document.getElementById("pendingPitches").textContent = String(Number(s.self_improvement_pending || 0));
+        document.getElementById("pitchSub").textContent = "Self-improvement queue";
+
+        document.getElementById("taskCount").textContent = String(Number(s.approved_execution_tasks || 0));
+        document.getElementById("taskSub").textContent = "New queued: " + Number(s.newly_queued_tasks || 0);
+
+        document.getElementById("wonRevenue").textContent = "$" + Number(s.won_revenue_usd || 0).toFixed(0);
+        document.getElementById("revenueSub").textContent = "Money-first status";
+
+        const sources = data.sources || {};
+        bindSource("srcCompletion", sources.completion);
+        bindSource("srcMoney", sources.money_first_gate);
+        bindSource("srcComms", sources.comms_status);
+        bindSource("srcImprove", sources.self_improvement);
+        bindSource("srcApproval", sources.approval_execution_board);
+
+        setStatus("Summary refreshed at " + (data.generated_at || new Date().toISOString()));
+      } catch (err) {
+        setStatus("Summary failed: " + err);
+      }
+    }
+
+    document.getElementById("sessionBtn").addEventListener("click", startSession);
+    document.getElementById("refreshBtn").addEventListener("click", refreshSummary);
+    document.getElementById("clearBtn").addEventListener("click", clearSession);
+    document.getElementById("healthBtn").addEventListener("click", pingHealth);
+    syncTokenState();
+  </script>
+</body>
+</html>

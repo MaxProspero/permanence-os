@@ -214,6 +214,12 @@ python cli.py telegram-control --action poll --chat-agent --max-chat-replies 3
 python cli.py ophtxn-simulation --seed 11 --memory-trials 300 --habit-days 90
 python cli.py ophtxn-completion
 python cli.py ophtxn-completion --target 95 --strict
+python cli.py ophtxn-ops-pack --action status
+python cli.py ophtxn-ops-pack --strict --approval-source phase3_opportunity_queue --approval-decision defer --approval-batch-size 3 --safe-max-priority low --safe-max-risk medium
+python cli.py idea-intake --action status
+python cli.py idea-intake --action intake --text "Cloudflare MCP https://github.com/cloudflare/mcp and Symphony https://github.com/openai/symphony"
+python cli.py idea-intake --action process --max-items 30 --min-score 30
+python cli.py idea-intake --action process --queue-approvals --queue-limit 5 --queue-min-score 65
 bash automation/setup_completion_automation.sh /Users/paytonhicks/Code/permanence-os 21600
 bash automation/disable_completion_automation.sh /Users/paytonhicks/Code/permanence-os
 python cli.py telegram-control --action poll --voice-priority high --voice-channel telegram-voice
@@ -733,6 +739,14 @@ python cli.py social-summary
 
 ### CLI Reference
 See `docs/cli_reference.md` for a full command list.
+See `docs/ophtxn_operator_command_guide.md` for the Telegram command map + daily/weekly operating cadence.
+See `docs/ophtxn_official_launch_path_20260305.md` for the official product launch sequencing.
+See `docs/ophtxn_fastlane_execution_20260305.md` for the 72-hour acceleration plan (revenue + education product lane).
+See `docs/ophtxn_production_deployment_runbook_20260305.md` for production deployment + no-spend rollout sequence.
+Use `python cli.py ophtxn-launchpad --action status --strict --min-score 80` for launch-readiness scoring.
+Use `python cli.py ophtxn-production --action preflight --check-wrangler` for deploy-environment readiness.
+Use `python cli.py ophtxn-production --action status --check-api --check-wrangler` for production configuration readiness.
+See `docs/ophtxn_external_idea_backlog_20260305.md` for queued external ideas and integration review status.
 
 ### Roadmap
 Phase 2 build priorities are in `docs/roadmap_phase2.md`.
@@ -1023,12 +1037,16 @@ Telegram command control notes:
   - send `/comms-mode` to see agent-vs-terminal routing behavior
   - send `/memory-help` for persistent memory commands (`/remember`, `/share`, `/recall`, `/profile`, `/profile-history`, `/profile-conflicts`, `/forget-last`)
   - set profile and style with `/profile-set <field> <value>` and `/personality <mode>`
-  - queue terminal work items from Telegram with `/terminal <task>` and review with `/terminal-list`
+  - queue terminal work items from Telegram with `/terminal <task>`, review with `/terminal-list`, and manage completion with `/terminal-status` + `/terminal-complete <task-id|latest>`
   - track routines with `/habit-add ... | cue: ... | plan: ...`, `/habit-plan`, `/habit-done`, `/habit-nudge`, `/habit-list`
   - governed learning shortcuts: `/learn-status`, `/learn-run` (subject to command security scope)
   - improvement pitch shortcuts: `/improve-status`, `/improve-pitch`, `/improve-list`, `/improve-approve [proposal-id] [decision-code]`, `/improve-reject [proposal-id] [decision-code]`, `/improve-defer [proposal-id] [decision-code]`
   - brain shortcuts: `/brain-status`, `/brain-sync`, `/brain-recall <query>`
   - read-only X watch shortcuts: `/x-watch <handle|url>`, `/x-unwatch <handle|url>`, `/x-watch-list`
+  - budget profile shortcuts: `/low-cost-status`, `/low-cost-enable`, `/low-cost-disable`
+  - daily ops shortcuts: `/ops-status`, `/ops-morning`, `/ops-midday`, `/ops-evening`, `/ops-hygiene`
+  - approval triage shortcuts: `/approvals-status`, `/approvals-list`, `/approve-next`, `/reject-next`, `/defer-next`
+  - batch triage shortcuts: `/approve-batch`, `/reject-batch`, `/defer-batch`
   - loop brain-sync knobs: `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC=1|0`, `PERMANENCE_TELEGRAM_CHAT_LOOP_BRAIN_SYNC_MIN_AGE_SECONDS=900`
   - sensitive data guardrails: `PERMANENCE_TELEGRAM_CONTROL_REDACT_SENSITIVE=1`, `PERMANENCE_TELEGRAM_CONTROL_REDACT_PAYMENT_LINKS=1`
   - optional iMessage/SMS mirror for Telegram replies/acks:
@@ -1055,8 +1073,15 @@ Terminal task queue notes:
 - review queued Telegram terminal tasks: `python cli.py terminal-task-queue --action list`
 - add one manually: `python cli.py terminal-task-queue --action add --text "task text"`
 - complete one: `python cli.py terminal-task-queue --action complete --task-id TERM-XXXXXXXXXXXX`
+Approval triage notes:
+- review pending approvals quickly: `python cli.py approval-triage --action status`
+- approve/reject/defer oldest pending: `python cli.py approval-triage --action decide --decision approve|reject|defer --decided-by <name>`
+- review highest-priority pending first: `python cli.py approval-triage --action top --limit 20`
+- safe batch decisions (source-scoped + risk ceiling): `python cli.py approval-triage --action decide-batch-safe --decision approve --source phase3_opportunity_queue --batch-size 3 --safe-max-priority low --safe-max-risk medium --decided-by <name>`
 Cost and spend governance notes:
 - keep all paid upgrades manual: no autonomous paid plan upgrades or purchases
+- enable no-spend lock: `python cli.py low-cost-mode --action enable` (sets `PERMANENCE_NO_SPEND_MODE=1`)
+- audit no-spend guardrails anytime: `python cli.py no-spend-audit --strict`
 - external writes and money actions remain approval-gated (`PERMANENCE_AGENT_EXTERNAL_WRITE_ENABLE=0`)
 X personal account read-only notes:
 - add a watched account feed: `python cli.py x-account-watch --action add --handle @yourhandle`

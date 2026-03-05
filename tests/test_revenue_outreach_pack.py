@@ -67,6 +67,9 @@ def test_revenue_outreach_pack_writes_outputs():
                     "cta_keyword": "OPERATOR",
                     "cta_public": 'DM me "OPERATOR".',
                     "cta_direct": 'If this is a fit, DM "OPERATOR" and I will send intake + calendar link.',
+                    "call_policy": "recommended",
+                    "booking_link": "https://cal.example.com/operator",
+                    "payment_link": "https://pay.example.com/operator",
                     "pricing_tier": "Pilot",
                     "price_usd": 900,
                 }
@@ -113,6 +116,9 @@ def test_revenue_outreach_pack_writes_outputs():
         assert payload.get("playbook", {}).get("cta_keyword") == "OPERATOR"
         assert any(msg.get("channel") == "dm" for msg in payload["messages"])
         assert any(msg.get("channel") == "email" for msg in payload["messages"])
+        bodies = [str(msg.get("body") or "") for msg in payload["messages"]]
+        assert any("Optional fit call:" in body for body in bodies)
+        assert any("Ready-now checkout:" in body for body in bodies)
 
 
 if __name__ == "__main__":

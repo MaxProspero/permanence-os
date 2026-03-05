@@ -40,6 +40,9 @@ def test_revenue_playbook_init_set_show():
                     "cta_keyword": "OPERATOR",
                     "cta_public": 'DM me "OPERATOR".',
                     "cta_direct": 'DM "OPERATOR" and I will send intake + calendar link.',
+                    "call_policy": "recommended",
+                    "booking_link": "https://cal.example.com/operator",
+                    "payment_link": "https://pay.example.com/operator",
                     "pricing_tier": "Pilot",
                     "price_usd": 900,
                 },
@@ -49,6 +52,7 @@ def test_revenue_playbook_init_set_show():
             payload = json.loads(path.read_text(encoding="utf-8"))
             assert payload["offer_name"] == "Operator System Install"
             assert payload["cta_keyword"] == "OPERATOR"
+            assert payload["call_policy"] == "recommended"
             assert payload["price_usd"] == 900
 
             loaded = playbook_mod.load_playbook()
