@@ -139,6 +139,8 @@ def _model_provider() -> str:
         return "openai"
     if raw in {"xai", "grok"}:
         return "xai"
+    if raw in {"ollama", "local", "qwen"}:
+        return "ollama"
     return "anthropic"
 
 
@@ -149,7 +151,12 @@ def _checks() -> list[Check]:
     openai_required = model_provider == "openai"
     xai_required = model_provider == "xai"
     return [
-        Check("PERMANENCE_MODEL_PROVIDER", False, "text", "Primary model provider for routing (anthropic/openai/xai)."),
+        Check(
+            "PERMANENCE_MODEL_PROVIDER",
+            False,
+            "text",
+            "Primary model provider for routing (anthropic/openai/xai/ollama).",
+        ),
         Check(
             "ANTHROPIC_API_KEY",
             anthropic_required,
@@ -190,6 +197,12 @@ def _checks() -> list[Check]:
         ),
         Check("OPENAI_API_KEY", openai_required, "secret", "Required when PERMANENCE_MODEL_PROVIDER=openai."),
         Check("XAI_API_KEY", xai_required, "secret", "Required when PERMANENCE_MODEL_PROVIDER=xai."),
+        Check(
+            "PERMANENCE_OLLAMA_BASE_URL",
+            False,
+            "url",
+            "Optional Ollama endpoint (defaults to http://127.0.0.1:11434).",
+        ),
         Check("GH_TOKEN", False, "secret", "Optional for GitHub automation."),
         Check("ALPHA_VANTAGE_API_KEY", False, "secret", "Optional higher-coverage equities and FX intraday data."),
         Check("FINNHUB_API_KEY", False, "secret", "Optional equities/news/sentiment market data API."),

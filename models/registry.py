@@ -35,7 +35,7 @@ class ModelRegistry:
         "formatting": "haiku",
     }
 
-    SUPPORTED_PROVIDERS = ("anthropic", "openai", "xai")
+    SUPPORTED_PROVIDERS = ("anthropic", "openai", "xai", "ollama")
     PROVIDER_ALIASES = {
         "anthropic": "anthropic",
         "claude": "anthropic",
@@ -43,9 +43,12 @@ class ModelRegistry:
         "gpt": "openai",
         "xai": "xai",
         "grok": "xai",
+        "ollama": "ollama",
+        "local": "ollama",
+        "qwen": "ollama",
     }
     DEFAULT_PROVIDER = "anthropic"
-    DEFAULT_FALLBACKS = "anthropic,openai,xai"
+    DEFAULT_FALLBACKS = "anthropic,openai,xai,ollama"
 
     def __init__(self):
         self._adapters = {}
@@ -65,6 +68,8 @@ class ModelRegistry:
             return "xai"
         if token.startswith("gpt") or token.startswith("o1") or token.startswith("o3") or token.startswith("o4"):
             return "openai"
+        if token.startswith("qwen") or token.startswith("llama") or token.startswith("gemma") or "ollama" in token:
+            return "ollama"
         return ""
 
     def _provider_candidates(self, provider: str = "", model_name: str = "") -> list[str]:
@@ -102,6 +107,10 @@ class ModelRegistry:
             from models.xai import XAIModel
 
             return XAIModel
+        if normalized == "ollama":
+            from models.ollama import OllamaModel
+
+            return OllamaModel
         raise ValueError(f"Unsupported model provider: {provider}")
 
     @staticmethod

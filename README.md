@@ -448,15 +448,20 @@ python cli.py connector-keychain --target xai-api-key --status
 ```
 This keeps `OPENAI_API_KEY=`, `PERMANENCE_GITHUB_READ_TOKEN=`, `PERMANENCE_SOCIAL_READ_TOKEN=`, and `XAI_API_KEY=` blank in `.env` and loads them from Keychain at runtime.
 
-Model provider routing defaults to Anthropic, with optional OpenAI/xAI fallback:
+Model provider routing defaults to Anthropic, with optional local Ollama + OpenAI/xAI fallback:
 ```bash
 export PERMANENCE_MODEL_PROVIDER=anthropic
-export PERMANENCE_MODEL_PROVIDER_FALLBACKS=anthropic,openai,xai
-export PERMANENCE_MODEL_PROVIDER_CAPS_USD=anthropic=35,openai=10,xai=5
+export PERMANENCE_MODEL_PROVIDER_FALLBACKS=anthropic,ollama,openai,xai
+export PERMANENCE_MODEL_PROVIDER_CAPS_USD=anthropic=35,openai=10,xai=5,ollama=0
 # optional explicit tier overrides
 export PERMANENCE_MODEL_OPUS=claude-opus-4-6
 export PERMANENCE_MODEL_SONNET=claude-sonnet-4-6
 export PERMANENCE_MODEL_HAIKU=claude-haiku-4-5-20251001
+# optional local provider defaults (Ollama)
+export PERMANENCE_OLLAMA_BASE_URL=http://127.0.0.1:11434
+export PERMANENCE_OLLAMA_MODEL_OPUS=qwen3:8b
+export PERMANENCE_OLLAMA_MODEL_SONNET=qwen3:4b
+export PERMANENCE_OLLAMA_MODEL_HAIKU=qwen2.5:3b
 ```
 
 Secret leak guard (recommended before every push):

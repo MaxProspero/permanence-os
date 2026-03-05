@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-PROVIDERS = ("anthropic", "openai", "xai")
+PROVIDERS = ("anthropic", "openai", "xai", "ollama")
 
 TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review")
 TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation")
@@ -69,6 +69,22 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "formatting": "grok-2-mini",
         "default": "grok-3-mini",
     },
+    "ollama": {
+        "canon_interpretation": "qwen3:8b",
+        "strategy": "qwen3:8b",
+        "code_generation": "qwen3:8b",
+        "adversarial_review": "qwen3:8b",
+        "research_synthesis": "qwen3:4b",
+        "planning": "qwen3:4b",
+        "review": "qwen3:4b",
+        "execution": "qwen3:4b",
+        "conciliation": "qwen3:4b",
+        "classification": "qwen2.5:3b",
+        "summarization": "qwen2.5:3b",
+        "tagging": "qwen2.5:3b",
+        "formatting": "qwen2.5:3b",
+        "default": "qwen3:4b",
+    },
 }
 DEFAULT_MODEL_BY_TASK: Dict[str, str] = DEFAULT_MODEL_BY_TASK_BY_PROVIDER["anthropic"]
 
@@ -88,6 +104,9 @@ DEFAULT_MODEL_PRICING_PER_1M: Dict[str, Dict[str, float]] = {
     "grok-3-latest": {"input": 5.0, "output": 15.0},
     "grok-3-mini": {"input": 1.5, "output": 4.5},
     "grok-2-mini": {"input": 0.5, "output": 1.5},
+    "qwen3:8b": {"input": 0.0, "output": 0.0},
+    "qwen3:4b": {"input": 0.0, "output": 0.0},
+    "qwen2.5:3b": {"input": 0.0, "output": 0.0},
 }
 
 
@@ -119,6 +138,8 @@ def _provider_from_model(model_name: str) -> str:
         return "xai"
     if token.startswith("gpt") or token.startswith("o1") or token.startswith("o3") or token.startswith("o4"):
         return "openai"
+    if token.startswith("qwen") or token.startswith("llama") or token.startswith("gemma") or "ollama" in token:
+        return "ollama"
     return ""
 
 
@@ -171,10 +192,12 @@ class ModelRouter:
             return "openai"
         if token in {"xai", "grok"}:
             return "xai"
+        if token in {"ollama", "local", "qwen"}:
+            return "ollama"
         return "anthropic"
 
     def _provider_fallbacks(self) -> list[str]:
-        raw = str(os.getenv("PERMANENCE_MODEL_PROVIDER_FALLBACKS", "anthropic,openai,xai"))
+        raw = str(os.getenv("PERMANENCE_MODEL_PROVIDER_FALLBACKS", "anthropic,openai,xai,ollama"))
         ordered: list[str] = []
         primary = self._normalize_provider(self.provider)
         if primary in PROVIDERS:
@@ -611,6 +634,12 @@ class ModelRouter:
             return "opus"
         if "haiku" in lower:
             return "haiku"
+        if lower.startswith("qwen2.5:3b"):
+            return "haiku"
+        if lower.startswith("qwen3:8b"):
+            return "opus"
+        if lower.startswith("qwen3:4b") or lower.startswith("qwen2.5"):
+            return "sonnet"
         if "gpt-4o-mini" in lower or "gpt-5-nano" in lower or "grok-2-mini" in lower:
             return "haiku"
         if "gpt-4.1" in lower or "gpt-5" in lower or "grok-3-latest" in lower:
