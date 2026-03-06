@@ -7,24 +7,22 @@ This folder contains canonical operational and architecture references for Perma
 - [Architecture](architecture.md)
 - [CLI Reference](cli_reference.md)
 - [Operator Command Guide](ophtxn_operator_command_guide.md)
-- [Governance Operating Model](ophtxn_governance_operating_model.md)
+- [Agent Specs](agent_specs.md)
+- [Memory System](memory_system.md)
+- [Compression Framework](compression_framework.md)
 
 ## Operations and Execution
 
-- [Master Execution Board](ophtxn_master_execution_board_20260306.md)
-- [Execution Order](ophtxn_execution_order_20260306.md)
-- [Official Launch Path](ophtxn_official_launch_path_20260305.md)
 - [Production Deployment Runbook](ophtxn_production_deployment_runbook_20260305.md)
-- [Connectivity Matrix](ophtxn_connectivity_matrix.md)
-- [Access and VPN Policy](ophtxn_access_vpn_policy_20260306.md)
+- [Fastlane Execution Plan](ophtxn_fastlane_execution_20260305.md)
+- [Founder Directive](ophtxn_founder_directive_20260305.md)
+- [Promotion Rubric](promotion_rubric.md)
 
 ## Strategy and Research
 
-- [Ophtxn Claw Blueprint](ophtxn_claw_blueprint_20260306.md)
-- [Venture Radar](ophtxn_venture_radar_20260305.md)
-- [Link Review](ophtxn_link_review_20260306.md)
 - [Personal Agent Roadmap](ophtxn_personal_agent_roadmap.md)
 - [Research Method](ophtxn_research_method_20260304.md)
+- [External Idea Backlog](ophtxn_external_idea_backlog_20260305.md)
 
 ## Governance and Change Tracking
 

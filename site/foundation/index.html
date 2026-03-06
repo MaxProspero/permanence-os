@@ -385,6 +385,51 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .field-error {
+      display: block;
+      font-size: 12px;
+      color: var(--danger);
+      min-height: 16px;
+      margin-top: 4px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn.loading::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(3, 38, 31, 0.4);
+      border-top-color: #03261f;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .success-state {
+      text-align: center;
+      padding: 40px 20px;
+      display: none;
+    }
+
+    .success-state svg { color: var(--c1); }
+    .success-state h3 { font-size: 28px; margin: 16px 0 8px; }
+    .success-state p { color: var(--muted); }
+
+    #leadForm {
+      transition: opacity 0.4s, transform 0.4s;
+    }
+
     @media (max-width: 980px) {
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .grid { grid-template-columns: 1fr; }
@@ -500,9 +545,11 @@
         <div class="lead-grid">
           <label class="lead-field">Name
             <input id="leadName" name="name" autocomplete="name" required>
+            <span class="field-error" id="err-leadName"></span>
           </label>
           <label class="lead-field">Email
             <input id="leadEmail" name="email" type="email" autocomplete="email" required>
+            <span class="field-error" id="err-leadEmail"></span>
           </label>
           <label class="lead-field">Primary Workflow
             <input id="leadWorkflow" name="workflow" placeholder="e.g. founder ops, finance research, execution stack">
@@ -523,6 +570,14 @@
           <span class="lead-status" id="leadStatus">Lead capture ready.</span>
         </div>
       </form>
+      <div class="success-state" id="leadSuccess">
+        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.3" fill="none"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 12.5l3.5 3.5 6-7"/>
+        </svg>
+        <h3>You're in.</h3>
+        <p>We'll follow up shortly.</p>
+      </div>
     </section>
 
     <p class="footer">Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.</p>
@@ -599,18 +654,79 @@
       const form = byId("leadForm");
       if (!form) return;
 
+      // --- Per-field inline validation ---
+      const nameInput = byId("leadName");
+      const emailInput = byId("leadEmail");
+      const nameError = byId("err-leadName");
+      const emailError = byId("err-leadEmail");
+
+      function validateName() {
+        const val = String(nameInput.value || "").trim();
+        if (!val) {
+          nameError.textContent = "Name is required.";
+          return false;
+        }
+        nameError.textContent = "";
+        return true;
+      }
+
+      function validateEmail() {
+        const val = String(emailInput.value || "").trim();
+        if (!val || !val.includes("@")) {
+          emailError.textContent = "Valid email is required.";
+          return false;
+        }
+        emailError.textContent = "";
+        return true;
+      }
+
+      nameInput.addEventListener("blur", validateName);
+      nameInput.addEventListener("focus", function () { nameError.textContent = ""; });
+
+      emailInput.addEventListener("blur", validateEmail);
+      emailInput.addEventListener("focus", function () { emailError.textContent = ""; });
+
+      // --- Submit handler with loading state + success animation ---
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const name = String(byId("leadName")?.value || "").trim();
-        const email = String(byId("leadEmail")?.value || "").trim();
+
+        const nameValid = validateName();
+        const emailValid = validateEmail();
+        if (!nameValid || !emailValid) return;
+
+        const name = String(nameInput.value || "").trim();
+        const email = String(emailInput.value || "").trim();
         const workflow = String(byId("leadWorkflow")?.value || "").trim();
         const pkg = String(byId("leadPackage")?.value || "Core").trim() || "Core";
         const blocker = String(byId("leadBlocker")?.value || "").trim();
 
-        if (!name || !email || !email.includes("@")) {
-          if (statusEl) statusEl.textContent = "Name and valid email are required.";
-          return;
+        const submitBtn = form.querySelector("button[type=submit]");
+        const originalText = submitBtn ? submitBtn.textContent : "";
+
+        function setLoading(on) {
+          if (!submitBtn) return;
+          if (on) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Capturing...";
+            submitBtn.classList.add("loading");
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            submitBtn.classList.remove("loading");
+          }
         }
+
+        function showSuccess() {
+          form.style.opacity = "0";
+          form.style.transform = "translateY(-20px)";
+          setTimeout(function () {
+            form.style.display = "none";
+            const successEl = byId("leadSuccess");
+            if (successEl) successEl.style.display = "block";
+          }, 400);
+        }
+
+        setLoading(true);
 
         await track("intake_submit", { package: pkg });
         const intakeUrl = endpoint(leadCaptureEndpoint);
@@ -619,6 +735,7 @@
           const body = encodeURIComponent(
             "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker
           );
+          setLoading(false);
           location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
           await track("intake_fallback", { reason: "missing_endpoint", package: pkg });
           return;
@@ -643,14 +760,12 @@
           }
           const payload = await response.json();
           const leadId = payload && payload.lead_id ? String(payload.lead_id) : "";
-          if (statusEl) {
-            statusEl.textContent = leadId
-              ? "Captured. Lead ID: " + leadId
-              : "Captured. We will follow up shortly.";
-          }
+          setLoading(false);
           form.reset();
           await track("intake_captured", { lead_id: leadId, package: pkg });
+          showSuccess();
         } catch (_err) {
+          setLoading(false);
           const subject = encodeURIComponent("Ophtxn Early Access (fallback)");
           const body = encodeURIComponent(
             "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker

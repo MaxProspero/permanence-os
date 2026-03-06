@@ -7,7 +7,7 @@
   <meta name="description" content="Live command shell for Ophtxn inside Permanence OS.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-0: #08121f;
@@ -70,7 +70,7 @@
       border-radius: 999px;
       padding: 8px 12px;
       background: rgba(255, 255, 255, 0.04);
-      font-family: "IBM Plex Mono", monospace;
+      font-family: "JetBrains Mono", monospace;
       font-size: 12px;
       color: var(--muted);
     }
@@ -119,7 +119,7 @@
       border-radius: 12px;
       background: rgba(0, 0, 0, 0.24);
       padding: 10px 12px;
-      font-family: "IBM Plex Mono", monospace;
+      font-family: "JetBrains Mono", monospace;
       font-size: 12px;
       color: var(--muted);
       margin-bottom: 14px;
@@ -146,7 +146,7 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-size: 11px;
-      font-family: "IBM Plex Mono", monospace;
+      font-family: "JetBrains Mono", monospace;
       margin-bottom: 6px;
     }
 
@@ -178,10 +178,52 @@
     .links a {
       color: #93f5d0;
       text-decoration: none;
-      font-family: "IBM Plex Mono", monospace;
+      font-family: "JetBrains Mono", monospace;
       font-size: 13px;
       word-break: break-all;
     }
+
+    .conn-chip {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .conn-chip.live { color: var(--good); border-color: rgba(84,223,158,0.4); }
+    .conn-chip.err { color: var(--bad); border-color: rgba(255,127,127,0.4); }
+
+    .history {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.2);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .history-list {
+      max-height: 160px;
+      overflow-y: auto;
+      padding: 8px 12px;
+      display: grid;
+      gap: 4px;
+    }
+    .history-entry {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .history-entry .ts { color: var(--warn); margin-right: 8px; }
 
     @media (max-width: 980px) {
       .auth { grid-template-columns: 1fr 1fr; }
@@ -202,6 +244,7 @@
         <p>Live system signal panel for your personal agent runtime.</p>
       </div>
       <span class="chip">FOUNDATION API /app/ophtxn</span>
+      <span id="connIndicator" class="conn-chip">⬤ disconnected</span>
     </section>
 
     <section class="auth">
@@ -216,6 +259,14 @@
     </section>
 
     <section id="status" class="status">Ready. Start a session to load live ops metrics.</section>
+
+    <section class="history" id="historyPanel">
+      <div class="history-header">
+        <span>Session Log</span>
+        <button id="clearHistoryBtn" class="btn" type="button">Clear</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </section>
 
     <section class="grid">
       <article class="card">
@@ -264,17 +315,37 @@
     const KEY = "ophtxn_session_token";
     const tokenState = document.getElementById("tokenState");
     const statusEl = document.getElementById("status");
+    const connIndicator = document.getElementById("connIndicator");
+    const historyList = document.getElementById("historyList");
 
     const state = {
       token: localStorage.getItem(KEY) || "",
     };
 
+    function logHistory(message) {
+      const now = new Date();
+      const ts = now.toTimeString().slice(0, 8);
+      const entry = document.createElement("div");
+      entry.className = "history-entry";
+      entry.innerHTML = '<span class="ts">' + ts + '</span>' + message;
+      historyList.prepend(entry);
+    }
+
     function setStatus(text) {
       statusEl.textContent = text;
+      logHistory(text);
     }
 
     function syncTokenState() {
-      tokenState.textContent = state.token ? "Session: active" : "Session: none";
+      if (state.token) {
+        tokenState.textContent = "Session: active";
+        connIndicator.textContent = "⬤ live";
+        connIndicator.className = "conn-chip live";
+      } else {
+        tokenState.textContent = "Session: none";
+        connIndicator.textContent = "⬤ disconnected";
+        connIndicator.className = "conn-chip";
+      }
     }
 
     function authHeaders() {
@@ -319,6 +390,7 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(4000),
         });
         const data = await resp.json();
         if (!resp.ok || !data.ok) {
@@ -330,7 +402,11 @@
         syncTokenState();
         setStatus("Session ready for " + userId + ". Token expires at " + data.expires_at);
       } catch (err) {
-        setStatus("Session failed: " + err);
+        if (err.name === "AbortError") {
+          setStatus("Request timed out.");
+        } else {
+          setStatus("Session failed: " + err);
+        }
       }
     }
 
@@ -343,11 +419,21 @@
 
     async function pingHealth() {
       try {
-        const resp = await fetch("/health");
+        const resp = await fetch("/health", {
+          signal: AbortSignal.timeout(4000),
+        });
         const data = await resp.json();
+        connIndicator.textContent = "⬤ live";
+        connIndicator.className = "conn-chip live";
         setStatus("Health: " + JSON.stringify(data));
       } catch (err) {
-        setStatus("Health check failed: " + err);
+        connIndicator.textContent = "⬤ disconnected";
+        connIndicator.className = "conn-chip err";
+        if (err.name === "AbortError") {
+          setStatus("Request timed out.");
+        } else {
+          setStatus("Health check failed: " + err);
+        }
       }
     }
 
@@ -357,7 +443,10 @@
         return;
       }
       try {
-        const resp = await fetch("/ops/summary", { headers: authHeaders() });
+        const resp = await fetch("/ops/summary", {
+          headers: authHeaders(),
+          signal: AbortSignal.timeout(4000),
+        });
         const data = await resp.json();
         if (!resp.ok || !data.ok) {
           setStatus("Summary failed: " + (data.error || "unknown error"));
@@ -401,7 +490,11 @@
 
         setStatus("Summary refreshed at " + (data.generated_at || new Date().toISOString()));
       } catch (err) {
-        setStatus("Summary failed: " + err);
+        if (err.name === "AbortError") {
+          setStatus("Request timed out.");
+        } else {
+          setStatus("Summary failed: " + err);
+        }
       }
     }
 
@@ -409,6 +502,9 @@
     document.getElementById("refreshBtn").addEventListener("click", refreshSummary);
     document.getElementById("clearBtn").addEventListener("click", clearSession);
     document.getElementById("healthBtn").addEventListener("click", pingHealth);
+    document.getElementById("clearHistoryBtn").addEventListener("click", function() {
+      historyList.innerHTML = "";
+    });
     syncTokenState();
   </script>
 </body>

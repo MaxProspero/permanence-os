@@ -100,6 +100,36 @@ This keeps provider routing local-first and surfaces spend violations early.
 - `docs/`: architecture, operations, governance, and runbooks.
 - `tests/`: regression coverage for commands and workflows.
 
+## Architecture
+
+```
+                    ┌─────────────────────────────────────┐
+                    │         PERMANENCE OS / OPHTXN       │
+                    │           Control Plane              │
+                    └──────────────┬──────────────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              ▼                    ▼                    ▼
+    ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+    │  Command Center │  │ Foundation Site │  │  Ophtxn Shell   │
+    │  :8000 Flask    │  │  :8787 HTML     │  │  :8797 App      │
+    └────────┬────────┘  └────────┬────────┘  └────────┬────────┘
+             │                    │                    │
+             └────────────────────┼────────────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │      Horizon Agent         │
+                    │  + Context Loader          │
+                    │  + Task Runner             │
+                    │  + Integrations            │
+                    └─────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │      External Workers      │
+                    │  Telegram · OpenClaw · MCP │
+                    └───────────────────────────┘
+```
+
 ## Documentation
 
 Start here:
@@ -108,7 +138,6 @@ Start here:
 - [Architecture](docs/architecture.md)
 - [CLI Reference](docs/cli_reference.md)
 - [Operator Command Guide](docs/ophtxn_operator_command_guide.md)
-- [Governance Operating Model](docs/ophtxn_governance_operating_model.md)
 - [Journey Change Log](docs/ophtxn_journey_change_log.md)
 
 ## Security and Secrets

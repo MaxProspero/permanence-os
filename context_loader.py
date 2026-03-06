@@ -69,6 +69,24 @@ CHRONICLE_CONTEXT_TRIGGERS = [
 ]
 
 
+# ─── HELPERS ───────────────────────────────────────────────────────────────────
+
+def load_context(path: str) -> dict:
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+    except json.JSONDecodeError as e:
+        print(f"[context_loader] Warning: invalid JSON in {path}: {e}")
+        return {}
+
+
+def validate_context(ctx: dict, required_keys: list) -> tuple:
+    missing = [k for k in required_keys if k not in ctx]
+    return len(missing) == 0, missing
+
+
 # ─── LOADER ────────────────────────────────────────────────────────────────────
 
 class BrandContextLoader:
