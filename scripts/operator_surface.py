@@ -5,6 +5,7 @@ Run the visible operator surface in one command.
 Starts:
 - Dashboard API / Command Center
 - FOUNDATION landing page
+- FOUNDATION API (Ophtxn app shell)
 
 Optionally runs a money-loop refresh before boot.
 """
@@ -67,6 +68,17 @@ def _build_foundation_site_cmd(args: argparse.Namespace, python_bin: str) -> lis
     ]
 
 
+def _build_foundation_api_cmd(args: argparse.Namespace, python_bin: str) -> list[str]:
+    return [
+        python_bin,
+        str(BASE_DIR / "scripts" / "foundation_api.py"),
+        "--host",
+        args.host,
+        "--port",
+        str(args.foundation_api_port),
+    ]
+
+
 def _shutdown_processes(processes: list[tuple[str, subprocess.Popen]]) -> None:
     for _name, proc in processes:
         if proc.poll() is None:
@@ -88,6 +100,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--host", default="127.0.0.1", help="Bind host for both services")
     parser.add_argument("--dashboard-port", type=int, default=8000, help="Dashboard API port")
     parser.add_argument("--foundation-port", type=int, default=8787, help="FOUNDATION site port")
+    parser.add_argument("--foundation-api-port", type=int, default=8797, help="FOUNDATION API port")
+    parser.add_argument("--no-foundation-api", action="store_true", help="Skip FOUNDATION API process")
     parser.add_argument("--no-open", action="store_true", help="Do not auto-open browser tabs")
     parser.add_argument("--money-loop", action="store_true", help="Run one money-loop refresh before launch")
     parser.add_argument("--run-horizon", action="store_true", help="Run Horizon agent before dashboard boot")
@@ -106,11 +120,14 @@ def main(argv: Optional[list[str]] = None) -> int:
     money_loop_cmd = [python_bin, str(BASE_DIR / "cli.py"), "money-loop"]
     command_center_cmd = _build_command_center_cmd(args, python_bin)
     foundation_cmd = _build_foundation_site_cmd(args, python_bin)
+    foundation_api_cmd = _build_foundation_api_cmd(args, python_bin)
 
     if args.dry_run:
         print(f"[dry-run] money-loop: {' '.join(money_loop_cmd)}")
         print(f"[dry-run] command-center: {' '.join(command_center_cmd)}")
         print(f"[dry-run] foundation-site: {' '.join(foundation_cmd)}")
+        if not args.no_foundation_api:
+            print(f"[dry-run] foundation-api: {' '.join(foundation_api_cmd)}")
         return 0
 
     if args.money_loop:
@@ -122,8 +139,11 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     dashboard_url = f"http://{args.host}:{args.dashboard_port}"
     foundation_url = f"http://{args.host}:{args.foundation_port}/"
+    foundation_app_url = f"http://{args.host}:{args.foundation_api_port}/app/ophtxn"
     print(f"[operator-surface] Starting dashboard: {dashboard_url}")
     print(f"[operator-surface] Starting FOUNDATION site: {foundation_url}")
+    if not args.no_foundation_api:
+        print(f"[operator-surface] Starting FOUNDATION API: {foundation_app_url}")
 
     processes: list[tuple[str, subprocess.Popen]] = []
     env = os.environ.copy()
@@ -132,6 +152,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     processes.append(("command-center", dashboard_proc))
     foundation_proc = subprocess.Popen(foundation_cmd, cwd=str(BASE_DIR), env=env)
     processes.append(("foundation-site", foundation_proc))
+    if not args.no_foundation_api:
+        foundation_api_proc = subprocess.Popen(foundation_api_cmd, cwd=str(BASE_DIR), env=env)
+        processes.append(("foundation-api", foundation_api_proc))
 
     def _signal_handler(_sig: int, _frame: object) -> None:
         _shutdown_processes(processes)
@@ -141,7 +164,14 @@ def main(argv: Optional[list[str]] = None) -> int:
     signal.signal(signal.SIGTERM, _signal_handler)
 
     if not args.no_open:
-        thread = threading.Thread(target=_open_urls, args=([dashboard_url, foundation_url],), daemon=True)
+        urls = [dashboard_url, foundation_url]
+        if not args.no_foundation_api:
+            urls.append(foundation_app_url)
+        thread = threading.Thread(
+            target=_open_urls,
+            args=(urls,),
+            daemon=True,
+        )
         thread.start()
 
     try:
