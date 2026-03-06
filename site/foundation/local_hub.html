@@ -331,8 +331,59 @@
 
   /* ── RESPONSIVE ──────────────────────────────────────────── */
   @media (max-width: 900px) {
-    .services, .matrix-grid, .lanes-grid { grid-template-columns: 1fr; }
+    .services, .matrix-grid, .lanes-grid, .dev-grid { grid-template-columns: 1fr; }
   }
+
+  /* ── MODE TOGGLE ──────────────────────────────────────────── */
+  .pill.mode-active { border-color: var(--c-c); color: var(--c-c); }
+
+  /* Personal mode: hide dev-only blocks */
+  .dev-only { display: none; }
+  [data-mode="dev"] .dev-only { display: block; }
+
+  /* ── DEV PANEL ────────────────────────────────────────────── */
+  .dev-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 40px;
+  }
+
+  .dev-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 18px; overflow: hidden;
+  }
+
+  .dev-card-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+
+  .dev-raw {
+    font-family: var(--mono); font-size: 11px; color: var(--c-c);
+    white-space: pre-wrap; word-break: break-all;
+    max-height: 180px; overflow-y: auto; line-height: 1.6;
+  }
+
+  .dev-table {
+    width: 100%; border-collapse: collapse;
+    font-family: var(--mono); font-size: 12px;
+    margin-bottom: 40px;
+  }
+
+  .dev-table th {
+    text-align: left; padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted); font-weight: 400;
+    font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  }
+
+  .dev-table td {
+    padding: 9px 12px; border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .dev-table td:first-child { color: var(--c-a); }
+  .dev-table td:nth-child(2) { color: var(--c-d); }
+  .dev-table tr:hover td { background: var(--lift); }
 
   /* ── ENTRY ANIMATIONS ────────────────────────────────────── */
   @keyframes fadeUp {
@@ -364,6 +415,7 @@
       <a class="pill" href="./index.html">Site</a>
       <a class="pill" href="./official_app.html">App</a>
       <a class="pill" href="./ai_school.html">AI School</a>
+      <button class="pill" id="modeBtn" type="button">Dev Mode</button>
       <button class="pill" id="refreshBtn" type="button">↻ Refresh</button>
     </div>
   </nav>
@@ -415,6 +467,47 @@
       </div>
       <a class="svc-open" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
     </article>
+  </section>
+
+  <!-- DEV PANEL (hidden in personal mode) -->
+  <section class="dev-only" id="dev-panel">
+    <hr class="divider">
+    <div class="section-header">
+      <h2>Developer Panel</h2>
+      <p>Raw API responses · System info · Endpoint map</p>
+    </div>
+    <div class="dev-grid">
+      <div class="dev-card">
+        <p class="dev-card-label">Command Center :8000 — raw</p>
+        <pre class="dev-raw" id="raw-8000">—</pre>
+      </div>
+      <div class="dev-card">
+        <p class="dev-card-label">App Shell :8797 — raw</p>
+        <pre class="dev-raw" id="raw-8797">—</pre>
+      </div>
+      <div class="dev-card">
+        <p class="dev-card-label">Client Environment</p>
+        <pre class="dev-raw" id="raw-sys">—</pre>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>API Endpoints</h2>
+      <p>Known local endpoints and methods</p>
+    </div>
+    <table class="dev-table">
+      <thead>
+        <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>/api/status</td><td>GET</td><td>Health check — returns ok, ts, version</td></tr>
+        <tr><td>/api/approve</td><td>POST</td><td>Approval gate — requires action + payload</td></tr>
+        <tr><td>/api/queue</td><td>GET</td><td>Pending approval queue</td></tr>
+        <tr><td>/api/tasks</td><td>GET</td><td>Active task list</td></tr>
+        <tr><td>/api/logs</td><td>GET</td><td>Structured event log stream</td></tr>
+        <tr><td>/health</td><td>GET</td><td>App shell readiness (:8797)</td></tr>
+      </tbody>
+    </table>
   </section>
 
   <hr class="divider">
@@ -524,6 +617,56 @@
 </main>
 
 <script>
+// ── MODE TOGGLE ───────────────────────────────────────────────
+const MODE_KEY  = 'ophtxn_hub_mode_v1';
+const modeBtn   = document.getElementById('modeBtn');
+
+function applyMode(m) {
+  document.body.dataset.mode = m;
+  modeBtn.textContent = m === 'dev' ? '← Personal' : 'Dev Mode';
+  modeBtn.classList.toggle('mode-active', m === 'dev');
+  try { localStorage.setItem(MODE_KEY, m); } catch(_) {}
+  if (m === 'dev') populateDevPanel();
+}
+
+const savedMode = (() => { try { return localStorage.getItem(MODE_KEY); } catch(_) { return null; } })();
+applyMode(savedMode || 'personal');
+
+modeBtn.addEventListener('click', () => {
+  applyMode(document.body.dataset.mode === 'dev' ? 'personal' : 'dev');
+});
+
+async function populateDevPanel() {
+  const sysEl = document.getElementById('raw-sys');
+  if (sysEl) {
+    sysEl.textContent = JSON.stringify({
+      time:     new Date().toISOString(),
+      viewport: `${window.innerWidth}×${window.innerHeight}`,
+      theme:    document.body.dataset.theme,
+      mode:     document.body.dataset.mode,
+      build:    'ophtxn-local-hub',
+    }, null, 2);
+  }
+
+  const el8000 = document.getElementById('raw-8000');
+  if (el8000) {
+    try {
+      const res  = await fetch('http://127.0.0.1:8000/api/status', { signal: AbortSignal.timeout(3000) });
+      const data = await res.json();
+      el8000.textContent = JSON.stringify(data, null, 2);
+    } catch(e) { el8000.textContent = `Error: ${e.message}`; }
+  }
+
+  const el8797 = document.getElementById('raw-8797');
+  if (el8797) {
+    try {
+      const res  = await fetch('http://127.0.0.1:8797/health', { signal: AbortSignal.timeout(3000) });
+      const data = await res.json();
+      el8797.textContent = JSON.stringify(data, null, 2);
+    } catch(e) { el8797.textContent = `Error: ${e.message}`; }
+  }
+}
+
 // ── THEME ─────────────────────────────────────────────────────
 const THEME_KEY = "ophtxn_hub_theme_v2";
 const sel = document.getElementById("themeSelect");

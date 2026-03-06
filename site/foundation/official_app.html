@@ -500,6 +500,78 @@
       }
     }
 
+    /* ── Share Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(4, 8, 14, 0.82);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: #0d1520;
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      box-shadow: 0 32px 80px rgba(0,0,0,.6);
+      padding: 32px;
+      width: 100%; max-width: 560px;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform .28s var(--ease, cubic-bezier(.22,.68,0,1.2));
+    }
+    .modal-backdrop.open .modal-box { transform: translateY(0); }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px; font-weight: 700;
+      margin-bottom: 20px; color: var(--ink);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none;
+      color: var(--muted); font-size: 20px; cursor: pointer;
+      line-height: 1; padding: 4px 8px;
+      transition: color .2s;
+    }
+    .modal-close:hover { color: var(--ink); }
+
+    .modal-label {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+
+    .modal-json {
+      font-family: 'DM Mono', monospace; font-size: 11.5px;
+      background: rgba(0,0,0,.4);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; color: var(--c-teal);
+      max-height: 200px; overflow-y: auto;
+      white-space: pre-wrap; word-break: break-all;
+      line-height: 1.6; margin-bottom: 16px;
+    }
+
+    .modal-url-row {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+
+    .modal-url {
+      flex: 1;
+      background: rgba(0,0,0,.3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--muted);
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      padding: 9px 12px; outline: none;
+      overflow: hidden; white-space: nowrap;
+    }
+
+    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
     /* ── Mobile ── */
     @media (max-width: 768px) {
       .nav-inner {
@@ -670,7 +742,8 @@
         <div class="output-header">
           <div class="card-title">Command Output</div>
           <div class="output-actions">
-            <button class="btn btn-ghost btn-sm" id="copyToTelegramBtn">Copy to Telegram</button>
+            <button class="btn btn-ghost btn-sm" id="shareAgentBtn">Share Agent</button>
+          <button class="btn btn-ghost btn-sm" id="copyToTelegramBtn">Copy to Telegram</button>
             <button class="btn btn-violet btn-sm" id="copyOutputBtn">Copy to Clipboard</button>
           </div>
         </div>
@@ -702,6 +775,28 @@
 
   <!-- Toast notification -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Agent Share Modal -->
+  <div class="modal-backdrop" id="shareModal" role="dialog" aria-modal="true" aria-label="Share Agent">
+    <div class="modal-box">
+      <button class="modal-close" id="closeModalBtn" aria-label="Close">×</button>
+      <div class="modal-title">Share Agent Config</div>
+
+      <p class="modal-label">JSON payload</p>
+      <pre class="modal-json" id="shareJson"></pre>
+
+      <p class="modal-label">Shareable link</p>
+      <div class="modal-url-row">
+        <input class="modal-url" id="shareUrl" type="text" readonly>
+        <button class="btn btn-ghost btn-sm" id="copyUrlBtn">Copy Link</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-sm" id="copyJsonBtn">Copy JSON</button>
+        <button class="btn btn-ghost btn-sm" id="closeModalBtn2">Close</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     (function () {
@@ -881,6 +976,76 @@
         }
       }
 
+      // ── Agent sharing ──────────────────────────────────────────────────────
+      const shareModal   = document.getElementById('shareModal');
+      const shareJsonEl  = document.getElementById('shareJson');
+      const shareUrlEl   = document.getElementById('shareUrl');
+      const shareAgentBtn  = document.getElementById('shareAgentBtn');
+      const copyJsonBtn    = document.getElementById('copyJsonBtn');
+      const copyUrlBtn     = document.getElementById('copyUrlBtn');
+      const closeModalBtn  = document.getElementById('closeModalBtn');
+      const closeModalBtn2 = document.getElementById('closeModalBtn2');
+
+      function buildAgentConfig() {
+        return {
+          agent:    'ophtxn-operator',
+          version:  '1.0',
+          exported: new Date().toISOString(),
+          profile: {
+            name:     profileName.value.trim()     || null,
+            workflow: profileWorkflow.value.trim() || null,
+            model:    profileModel.value,
+            runtime:  profileRuntime.value,
+          },
+          command: commandTextarea.value.trim() || null,
+        };
+      }
+
+      function openShareModal() {
+        const config    = buildAgentConfig();
+        const json      = JSON.stringify(config, null, 2);
+        const encoded   = btoa(unescape(encodeURIComponent(json)));
+        const shareLink = location.origin + location.pathname + '#agent=' + encoded;
+
+        shareJsonEl.textContent = json;
+        shareUrlEl.value        = shareLink;
+        shareModal.classList.add('open');
+      }
+
+      function closeShareModal() {
+        shareModal.classList.remove('open');
+      }
+
+      // Auto-import from URL hash (#agent=BASE64)
+      function checkImportHash() {
+        const match = location.hash.match(/^#agent=(.+)$/);
+        if (!match) return;
+        try {
+          const json   = decodeURIComponent(escape(atob(match[1])));
+          const config = JSON.parse(json);
+          if (config.profile) {
+            if (config.profile.name)     profileName.value     = config.profile.name;
+            if (config.profile.workflow) profileWorkflow.value = config.profile.workflow;
+            if (config.profile.model)    profileModel.value    = config.profile.model;
+            if (config.profile.runtime)  profileRuntime.value  = config.profile.runtime;
+          }
+          if (config.command) commandTextarea.value = config.command;
+          showToast('Agent config imported from link.');
+          history.replaceState(null, '', location.pathname);
+        } catch (_) {
+          showToast('Could not parse agent link.');
+        }
+      }
+
+      shareAgentBtn.addEventListener('click',  openShareModal);
+      closeModalBtn.addEventListener('click',  closeShareModal);
+      closeModalBtn2.addEventListener('click', closeShareModal);
+      shareModal.addEventListener('click', e => { if (e.target === shareModal) closeShareModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShareModal(); });
+
+      copyJsonBtn.addEventListener('click', () => copyText(shareJsonEl.textContent, 'JSON copied!'));
+      copyUrlBtn.addEventListener('click',  () => copyText(shareUrlEl.value, 'Link copied!'));
+
       // ── Mark active nav link ────────────────────────────────────────────────
       function markActiveNav() {
         const current = location.pathname.split('/').pop();
@@ -902,6 +1067,7 @@
       loadProfile();
       initHighlight();
       markActiveNav();
+      checkImportHash();
 
     })();
   </script>

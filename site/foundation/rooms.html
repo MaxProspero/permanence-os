@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mansion — Ophtxn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ───────────────────────────────────────────────── */
+:root {
+  --wall:  #090603;
+  --panel: #110e09;
+  --trim:  #1c1811;
+  --ink:   #ede0c8;
+  --muted: #6a5a3a;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --mono:  'DM Mono', 'Courier New', monospace;
+  --ease:  cubic-bezier(.22,.68,0,1.2);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--wall); }
+body { color: var(--ink); font-family: var(--mono); }
+
+/* CRT scanline overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 200;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,.055) 2px, rgba(0,0,0,.055) 4px
+  );
+  pointer-events: none;
+}
+
+/* ── MANSION VIEWPORT CLIP ────────────────────────────────── */
+.mansion-wrap { position: fixed; inset: 0; overflow: hidden; }
+
+.mansion {
+  display: flex;
+  height: 100%;
+  transition: transform .65s var(--ease);
+  will-change: transform;
+}
+
+/* ── ROOM ─────────────────────────────────────────────────── */
+.room {
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100%;
+  display: grid;
+  grid-template-rows: 7px 1fr 7px;
+  position: relative;
+}
+
+/* Ambient glow per room */
+.room::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(
+    ellipse 65% 65% at 50% 50%,
+    rgba(var(--room-rgb), .045) 0%, transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* FLW prairie band (top + bottom) */
+.band {
+  z-index: 1;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(var(--room-rgb), .65) 0px,  rgba(var(--room-rgb), .65) 18px,
+    transparent 18px, transparent 26px,
+    rgba(var(--room-rgb), .65) 26px, rgba(var(--room-rgb), .65) 32px,
+    transparent 32px, transparent 48px
+  );
+}
+
+/* Room body: plaque | content | window */
+.room-body {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr 210px;
+}
+
+/* ── PLAQUE (left column) ─────────────────────────────────── */
+.plaque {
+  padding: 48px 28px 48px 42px;
+  border-right: 1px solid rgba(var(--room-rgb), .12);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  position: relative;
+}
+
+/* Glowing accent line right edge of plaque */
+.plaque::after {
+  content: '';
+  position: absolute; right: 0; top: 12%; bottom: 12%;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(var(--room-rgb), .85) 25%,
+    rgba(var(--room-rgb), .85) 75%,
+    transparent
+  );
+  box-shadow: 0 0 12px rgba(var(--room-rgb), .45);
+}
+
+.room-num  { font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: rgba(var(--room-rgb), .85); }
+.room-name { font-family: var(--serif); font-size: 50px; font-weight: 300; line-height: 1.05; color: var(--ink); }
+.room-sub  { font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: var(--muted); }
+
+.room-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; color: rgba(var(--room-rgb), .9);
+  border: 1px solid rgba(var(--room-rgb), .25);
+  padding: 3px 10px; width: fit-content;
+}
+
+.status-chip { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--muted); }
+.s-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+.s-dot.live { background: #00e5c4; box-shadow: 0 0 5px #00e5c4; animation: blink 2s infinite; }
+.s-dot.off  { background: #ff5c8a; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── CENTER (main content) ────────────────────────────────── */
+.center {
+  padding: 52px 48px;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 26px;
+}
+
+.room-desc {
+  font-family: var(--serif); font-style: italic;
+  font-size: 20px; line-height: 1.7;
+  color: rgba(237,224,200,.62); max-width: 440px;
+}
+
+.features { display: flex; flex-direction: column; gap: 9px; }
+
+.feature {
+  font-size: 11px; color: var(--muted);
+  display: flex; align-items: center; gap: 12px;
+}
+.feature::before {
+  content: ''; flex-shrink: 0;
+  width: 18px; height: 1px;
+  background: rgba(var(--room-rgb), .6);
+}
+
+/* Enter / Open button */
+.enter-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 24px;
+  border: 1px solid rgba(var(--room-rgb), .45);
+  color: rgba(var(--room-rgb), 1);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .18em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; background: transparent;
+  position: relative; overflow: hidden; width: fit-content;
+  transition: color .3s, box-shadow .3s;
+}
+.enter-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(var(--room-rgb), 1);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .32s cubic-bezier(.4,0,.2,1);
+}
+.enter-btn:hover { color: var(--wall); box-shadow: 0 0 22px rgba(var(--room-rgb), .3); }
+.enter-btn:hover::before { transform: scaleX(1); }
+.enter-btn span { position: relative; }
+.enter-btn .arr { transition: transform .3s; }
+.enter-btn:hover .arr { transform: translateX(5px); }
+
+/* ── WINDOW (right column) ────────────────────────────────── */
+.win-col {
+  border-left: 1px solid rgba(var(--room-rgb), .1);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.win-col::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(
+    ellipse 100% 80% at 50% 50%,
+    rgba(var(--room-rgb), .06), transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* FLW prairie window (stained glass effect) */
+.flw-win {
+  position: relative; z-index: 1;
+  width: 132px;
+  border: 2px solid rgba(var(--room-rgb), .38);
+  padding: 5px;
+  box-shadow: 0 0 28px rgba(var(--room-rgb), .08);
+}
+.flw-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+.pane {
+  height: 21px;
+  background: rgba(var(--room-rgb), .05);
+  border: 1px solid rgba(var(--room-rgb), .14);
+  transition: background .7s, box-shadow .7s;
+}
+.pane.on {
+  background: rgba(var(--room-rgb), .2);
+  box-shadow: inset 0 0 6px rgba(var(--room-rgb), .14);
+}
+
+/* ── ENTRY HALL — full center layout ─────────────────────── */
+#r0 .room-body { grid-template-columns: 1fr; }
+#r0 .center    { align-items: center; text-align: center; gap: 36px; }
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 90px; font-weight: 300;
+  line-height: 1; letter-spacing: -.03em; color: var(--ink);
+}
+.wordmark em { font-style: italic; color: rgba(var(--room-rgb), 1); }
+
+.tagline {
+  font-size: 11px; letter-spacing: .45em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* ── TERMINAL — matrix rain canvas ───────────────────────── */
+#r5 { position: relative; }
+#matrix-canvas {
+  position: absolute; inset: 0; z-index: 0;
+  opacity: .07; pointer-events: none;
+  width: 100%; height: 100%;
+}
+
+/* ── NAV BUTTONS ──────────────────────────────────────────── */
+.nav-btn {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 150;
+  width: 44px; height: 44px;
+  background: rgba(9,6,3,.72); backdrop-filter: blur(4px);
+  border: 1px solid rgba(237,224,200,.1);
+  color: var(--muted); font-family: var(--mono); font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: color .2s, border-color .2s;
+}
+.nav-btn:hover:not(:disabled) { color: var(--ink); border-color: rgba(237,224,200,.28); }
+.nav-btn:disabled { opacity: .18; cursor: default; }
+#nav-prev { left: 12px; }
+#nav-next { right: 12px; }
+
+/* ── DOTS ─────────────────────────────────────────────────── */
+.dots {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 9px; z-index: 150;
+}
+.dot {
+  width: 5px; height: 5px; /* square, FLW-style */
+  background: var(--muted); cursor: pointer;
+  transition: background .3s, transform .3s;
+}
+.dot.on { background: var(--ink); transform: scale(1.5); }
+
+/* ── COUNTER ──────────────────────────────────────────────── */
+.counter {
+  position: fixed; bottom: 19px; right: 28px;
+  font-size: 10px; letter-spacing: .22em; color: var(--muted); z-index: 150;
+}
+
+/* ── CORNER LINKS ─────────────────────────────────────────── */
+.home-link {
+  position: fixed; top: 20px; left: 28px;
+  font-size: 10px; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; z-index: 150;
+  transition: color .2s;
+}
+.home-link:hover { color: var(--ink); }
+
+.keys-hint {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 10px; color: var(--muted);
+  display: flex; gap: 5px; align-items: center; z-index: 150;
+}
+.k {
+  border: 1px solid rgba(237,224,200,.14);
+  padding: 2px 7px; font-size: 10px;
+  color: rgba(237,224,200,.28);
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">Ophtxn</a>
+<div class="keys-hint">
+  <span class="k">←</span>
+  <span class="k">→</span>
+  navigate
+</div>
+
+<div class="mansion-wrap">
+<div class="mansion" id="mansion">
+
+<!-- ── Room 0: Entry Hall ───────────────────────────────── -->
+<section class="room" id="r0" style="--room-color:#c8a96e;--room-rgb:200,169,110">
+  <div class="band"></div>
+  <div class="room-body">
+    <div class="center">
+      <div class="wordmark">The<br><em>Mansion</em></div>
+      <div class="tagline">Ophtxn · Operator System</div>
+      <button class="enter-btn" id="entry-enter">
+        <span>Enter</span><span class="arr">→</span>
+      </button>
+    </div>
+  </div>
+  <div class="band"></div>
+</section>
+
+<!-- ── Room 1: The Study — Command Center ───────────────── -->
+<section class="room" id="r1" style="--room-color:#ffb347;--room-rgb:255,179,71">
+  <div class="band"></div>
+  <div class="room-body">
+    <div class="plaque">
+      <span class="room-num">Room 01</span>
+      <h2 class="room-name">The<br>Study</h2>
+      <span class="room-sub">Command Center</span>
+      <span class="room-tag">⬤ :8000</span>
+      <div class="status-chip">
+        <span class="s-dot" id="cc-dot"></span>
+        <span id="cc-txt">checking…</span>
+      </div>
+    </div>
+    <div class="center">
+      <p class="room-desc">"Direct operator control. Live status, approval gates, and system health — all in one surface."</p>
+      <div class="features">
+        <div class="feature">Real-time API monitoring</div>
+        <div class="feature">Approval queue management</div>
+        <div class="feature">Structured event logs</div>
+      </div>
+      <a href="http://127.0.0.1:8000" target="_blank" class="enter-btn">
+        <span>Open Command Center</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="win-col"><div class="flw-win"><div class="flw-grid" id="g1"></div></div></div>
+  </div>
+  <div class="band"></div>
+</section>
+
+<!-- ── Room 2: The Library — AI School ──────────────────── -->
+<section class="room" id="r2" style="--room-color:#00e5c4;--room-rgb:0,229,196">
+  <div class="band"></div>
+  <div class="room-body">
+    <div class="plaque">
+      <span class="room-num">Room 02</span>
+      <h2 class="room-name">The<br>Library</h2>
+      <span class="room-sub">AI School</span>
+      <span class="room-tag">✦ Learning</span>
+    </div>
+    <div class="center">
+      <p class="room-desc">"Master prompt engineering, hook systems, and agent design. Build operators that think."</p>
+      <div class="features">
+        <div class="feature">Prompt engineering modules</div>
+        <div class="feature">Hook system design</div>
+        <div class="feature">Agent architecture patterns</div>
+      </div>
+      <a href="ai_school.html" class="enter-btn">
+        <span>Enter The Library</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="win-col"><div class="flw-win"><div class="flw-grid" id="g2"></div></div></div>
+  </div>
+  <div class="band"></div>
+</section>
+
+<!-- ── Room 3: The Office — App Studio ──────────────────── -->
+<section class="room" id="r3" style="--room-color:#7b6fff;--room-rgb:123,111,255">
+  <div class="band"></div>
+  <div class="room-body">
+    <div class="plaque">
+      <span class="room-num">Room 03</span>
+      <h2 class="room-name">The<br>Office</h2>
+      <span class="room-sub">App Studio</span>
+      <span class="room-tag">⌨ Build</span>
+    </div>
+    <div class="center">
+      <p class="room-desc">"Build, configure, and share agent commands. Your profile, your presets, your operator setup."</p>
+      <div class="features">
+        <div class="feature">Command builder with presets</div>
+        <div class="feature">Agent profile management</div>
+        <div class="feature">One-click agent sharing</div>
+      </div>
+      <a href="official_app.html" class="enter-btn">
+        <span>Enter The Office</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="win-col"><div class="flw-win"><div class="flw-grid" id="g3"></div></div></div>
+  </div>
+  <div class="band"></div>
+</section>
+
+<!-- ── Room 4: The Gallery — Press Kit ──────────────────── -->
+<section class="room" id="r4" style="--room-color:#f8c842;--room-rgb:248,200,66">
+  <div class="band"></div>
+  <div class="room-body">
+    <div class="plaque">
+      <span class="room-num">Room 04</span>
+      <h2 class="room-name">The<br>Gallery</h2>
+      <span class="room-sub">Brand & Press</span>
+      <span class="room-tag">◈ Identity</span>
+    </div>
+    <div class="center">
+      <p class="room-desc">"The face of Ophtxn. Brand colors, typography, voice standards, and downloadable assets."</p>
+      <div class="features">
+        <div class="feature">Click-to-copy color palette</div>
+        <div class="feature">SVG logo downloads</div>
+        <div class="feature">Brand voice do/don'ts</div>
+      </div>
+      <a href="press_kit.html" class="enter-btn">
+        <span>Enter The Gallery</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="win-col"><div class="flw-win"><div class="flw-grid" id="g4"></div></div></div>
+  </div>
+  <div class="band"></div>
+</section>
+
+<!-- ── Room 5: The Terminal — Ophtxn Shell ──────────────── -->
+<section class="room" id="r5" style="--room-color:#39ff14;--room-rgb:57,255,20">
+  <canvas id="matrix-canvas"></canvas>
+  <div class="band"></div>
+  <div class="room-body" style="position:relative;z-index:1">
+    <div class="plaque">
+      <span class="room-num">Room 05</span>
+      <h2 class="room-name">The<br>Terminal</h2>
+      <span class="room-sub">Ophtxn Shell</span>
+      <span class="room-tag">$ :8797</span>
+    </div>
+    <div class="center">
+      <p class="room-desc">"Direct interface to the operator. Low-latency, session-aware, no friction between you and the system."</p>
+      <div class="features">
+        <div class="feature">JetBrains Mono interface</div>
+        <div class="feature">Session history with timestamps</div>
+        <div class="feature">AbortSignal.timeout(4000) on all requests</div>
+      </div>
+      <a href="ophtxn_shell.html" class="enter-btn">
+        <span>Enter The Terminal</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="win-col"><div class="flw-win"><div class="flw-grid" id="g5"></div></div></div>
+  </div>
+  <div class="band"></div>
+</section>
+
+<!-- ── Room 6: The Control Room — Local Hub ─────────────── -->
+<section class="room" id="r6" style="--room-color:#ff5c8a;--room-rgb:255,92,138">
+  <div class="band"></div>
+  <div class="room-body">
+    <div class="plaque">
+      <span class="room-num">Room 06</span>
+      <h2 class="room-name">The<br>Control<br>Room</h2>
+      <span class="room-sub">Local Hub</span>
+      <span class="room-tag">⬡ Synthesis</span>
+    </div>
+    <div class="center">
+      <p class="room-desc">"Everything running, everything visible. Live status, integrations, themes, and real-time system health."</p>
+      <div class="features">
+        <div class="feature">Personal + Developer modes</div>
+        <div class="feature">30-second auto-refresh</div>
+        <div class="feature">Aurora · Copper · Void themes</div>
+      </div>
+      <a href="local_hub.html" class="enter-btn">
+        <span>Enter The Control Room</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="win-col"><div class="flw-win"><div class="flw-grid" id="g6"></div></div></div>
+  </div>
+  <div class="band"></div>
+</section>
+
+</div><!-- .mansion -->
+</div><!-- .mansion-wrap -->
+
+<button class="nav-btn" id="nav-prev" disabled>←</button>
+<button class="nav-btn" id="nav-next">→</button>
+<div class="dots" id="dots"></div>
+<div class="counter" id="counter">01 / 07</div>
+
+<script>
+const TOTAL = 7;
+let cur = 0;
+
+const mansion  = document.getElementById('mansion');
+const btnPrev  = document.getElementById('nav-prev');
+const btnNext  = document.getElementById('nav-next');
+const dotsEl   = document.getElementById('dots');
+const counterEl = document.getElementById('counter');
+
+/* ── Build navigation dots ─────────────────────────────── */
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' on' : '');
+  d.addEventListener('click', () => go(i));
+  dotsEl.appendChild(d);
+}
+
+/* ── Core navigation ───────────────────────────────────── */
+function go(n) {
+  n = Math.max(0, Math.min(TOTAL - 1, n));
+  cur = n;
+  mansion.style.transform = `translateX(${-n * window.innerWidth}px)`;
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === n));
+  counterEl.textContent = `${pad(n + 1)} / ${pad(TOTAL)}`;
+  btnPrev.disabled = n === 0;
+  btnNext.disabled = n === TOTAL - 1;
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+/* Keep position correct on resize */
+window.addEventListener('resize', () => {
+  mansion.style.transition = 'none';
+  mansion.style.transform = `translateX(${-cur * window.innerWidth}px)`;
+  requestAnimationFrame(() => { mansion.style.transition = ''; });
+});
+
+btnPrev.addEventListener('click', () => go(cur - 1));
+btnNext.addEventListener('click', () => go(cur + 1));
+document.getElementById('entry-enter').addEventListener('click', () => go(1));
+
+/* Keyboard */
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(cur + 1);
+  else if (e.key === 'ArrowLeft') go(cur - 1);
+  else if (e.key === 'Escape') go(0);
+});
+
+/* Touch swipe */
+let touchStart = null;
+document.addEventListener('touchstart', e => { touchStart = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (touchStart === null) return;
+  const dx = e.changedTouches[0].clientX - touchStart;
+  if (Math.abs(dx) > 55) go(dx < 0 ? cur + 1 : cur - 1);
+  touchStart = null;
+}, { passive: true });
+
+/* ── FLW window pane grids ─────────────────────────────── */
+function buildGrid(id) {
+  const g = document.getElementById(id);
+  if (!g) return;
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'pane' + (Math.random() > .58 ? ' on' : '');
+    g.appendChild(p);
+  }
+}
+['g1','g2','g3','g4','g5','g6'].forEach(buildGrid);
+
+/* Animate panes randomly (mimic stained-glass light shifting) */
+setInterval(() => {
+  document.querySelectorAll('.pane').forEach(p => {
+    if (Math.random() > .87) p.classList.toggle('on');
+  });
+}, 1900);
+
+/* ── Command Center live check ─────────────────────────── */
+(async () => {
+  const dot = document.getElementById('cc-dot');
+  const txt = document.getElementById('cc-txt');
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/status', {
+      signal: AbortSignal.timeout(3000)
+    });
+    if (res.ok) {
+      dot.className = 's-dot live';
+      txt.textContent = 'live';
+    } else {
+      dot.className = 's-dot off';
+      txt.textContent = `err ${res.status}`;
+    }
+  } catch {
+    dot.className = 's-dot off';
+    txt.textContent = 'offline';
+  }
+})();
+
+/* ── Matrix rain (Terminal room only) ──────────────────── */
+const canvas = document.getElementById('matrix-canvas');
+const ctx    = canvas.getContext('2d');
+
+function sizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+sizeCanvas();
+window.addEventListener('resize', sizeCanvas);
+
+const COL_W = 14;
+let drops = [];
+function resetDrops() {
+  const cols = Math.ceil(window.innerWidth / COL_W);
+  drops = Array.from({ length: cols }, () => Math.random() * -50);
+}
+resetDrops();
+window.addEventListener('resize', resetDrops);
+
+setInterval(() => {
+  ctx.fillStyle = 'rgba(9,6,3,.12)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#39ff14';
+  ctx.font = `12px 'DM Mono', monospace`;
+  drops.forEach((y, i) => {
+    const ch = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96));
+    ctx.fillText(ch, i * COL_W, y * COL_W);
+    if (y * COL_W > canvas.height && Math.random() > .975) drops[i] = 0;
+    drops[i] += .5;
+  });
+}, 55);
+</script>
+</body>
+</html>
