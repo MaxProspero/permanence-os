@@ -3373,6 +3373,8 @@ def main() -> int:
     surface_p.add_argument("--host", default="127.0.0.1", help="Bind host for both services")
     surface_p.add_argument("--dashboard-port", type=int, default=8000, help="Dashboard API port")
     surface_p.add_argument("--foundation-port", type=int, default=8787, help="FOUNDATION site port")
+    surface_p.add_argument("--foundation-api-port", type=int, default=8797, help="FOUNDATION API port")
+    surface_p.add_argument("--no-foundation-api", action="store_true", help="Skip FOUNDATION API process")
     surface_p.add_argument("--no-open", action="store_true", help="Do not auto-open browser tabs")
     surface_p.add_argument("--money-loop", action="store_true", help="Run one money-loop refresh before launch")
     surface_p.add_argument("--run-horizon", action="store_true", help="Run Horizon Agent before dashboard boot")
@@ -3393,6 +3395,9 @@ def main() -> int:
                 str(args.dashboard_port),
                 "--foundation-port",
                 str(args.foundation_port),
+                "--foundation-api-port",
+                str(args.foundation_api_port),
+                *(["--no-foundation-api"] if args.no_foundation_api else []),
                 *(["--no-open"] if args.no_open else []),
                 *(["--money-loop"] if args.money_loop else []),
                 *(["--run-horizon"] if args.run_horizon else []),

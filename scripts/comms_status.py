@@ -50,6 +50,7 @@ ESCALATIONS_PATH = Path(
 TRANSCRIPTION_QUEUE_PATH = Path(
     os.getenv("PERMANENCE_TELEGRAM_TRANSCRIPTION_QUEUE_PATH", str(WORKING_DIR / "transcription_queue.json"))
 )
+OPENCLAW_CLI = str(os.getenv("OPENCLAW_CLI", "openclaw")).strip() or "openclaw"
 
 
 def _now() -> datetime:
@@ -212,6 +213,91 @@ def _transcription_queue_stats(path: Path) -> dict[str, Any]:
     }
 
 
+def _openclaw_channels_probe(*, timeout_seconds: int = 15) -> dict[str, Any]:
+    base = {
+        "invoked": False,
+        "cli": OPENCLAW_CLI,
+        "exit_code": None,
+        "gateway_reachable": False,
+        "telegram": {
+            "found": False,
+            "enabled": False,
+            "configured": False,
+            "running": False,
+            "works": False,
+            "detail": "",
+        },
+        "discord": {
+            "found": False,
+            "enabled": False,
+            "configured": False,
+            "running": False,
+            "works": False,
+            "detail": "",
+        },
+        "imessage": {
+            "found": False,
+            "enabled": False,
+            "configured": False,
+            "running": False,
+            "works": False,
+            "detail": "",
+        },
+        "error": "",
+    }
+    try:
+        proc = subprocess.run(
+            [OPENCLAW_CLI, "channels", "status", "--probe"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=max(2, int(timeout_seconds)),
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        base["error"] = str(exc)
+        return base
+
+    combined = "\n".join([proc.stdout or "", proc.stderr or ""]).strip()
+    base["invoked"] = True
+    base["exit_code"] = proc.returncode
+    base["gateway_reachable"] = "gateway reachable" in combined.lower()
+
+    def _line_for(channel_label: str) -> str:
+        token = f"- {channel_label.lower()} "
+        for raw_line in combined.splitlines():
+            line = raw_line.strip()
+            if line.lower().startswith(token):
+                return line
+        return ""
+
+    def _parse_channel(label: str) -> dict[str, Any]:
+        line = _line_for(label)
+        if not line:
+            return {
+                "found": False,
+                "enabled": False,
+                "configured": False,
+                "running": False,
+                "works": False,
+                "detail": "",
+            }
+        detail = line.split(":", 1)[1].strip() if ":" in line else line
+        lower = detail.lower()
+        return {
+            "found": True,
+            "enabled": "enabled" in lower,
+            "configured": "configured" in lower,
+            "running": "running" in lower,
+            "works": "works" in lower,
+            "detail": detail,
+        }
+
+    base["telegram"] = _parse_channel("Telegram")
+    base["discord"] = _parse_channel("Discord")
+    base["imessage"] = _parse_channel("iMessage")
+    return base
+
+
 def _build_payload(
     *,
     comms_log_stale_minutes: int,
@@ -221,6 +307,8 @@ def _build_payload(
     escalation_warn_count: int,
     voice_queue_warn_count: int,
     require_escalation_digest: bool,
+    check_openclaw_channels: bool,
+    require_openclaw_imessage: bool = False,
 ) -> dict[str, Any]:
     relay = _component_status(
         "discord_telegram_relay",
@@ -242,6 +330,16 @@ def _build_payload(
         "comms_escalation_digest",
         keys=["summary", "telegram_sent", "discord_sent", "warnings"],
     )
+    openclaw_channels = _openclaw_channels_probe() if check_openclaw_channels else {
+        "invoked": False,
+        "cli": OPENCLAW_CLI,
+        "exit_code": None,
+        "gateway_reachable": False,
+        "telegram": {"found": False, "enabled": False, "configured": False, "running": False, "works": False, "detail": ""},
+        "discord": {"found": False, "enabled": False, "configured": False, "running": False, "works": False, "detail": ""},
+        "imessage": {"found": False, "enabled": False, "configured": False, "running": False, "works": False, "detail": ""},
+        "error": "probe skipped by config",
+    }
 
     comms_log = _latest_log("comms_loop")
     launchd = _launchd_state()
@@ -275,6 +373,35 @@ def _build_payload(
         "warnings"
     ):
         warnings.append("escalation digest reported warnings in latest run.")
+    if check_openclaw_channels:
+        if (not openclaw_channels.get("invoked")) or openclaw_channels.get("error"):
+            warnings.append(
+                f"openclaw channel probe unavailable ({openclaw_channels.get('error') or 'command failed'})."
+            )
+        else:
+            for name in ("telegram", "discord"):
+                row = openclaw_channels.get(name) if isinstance(openclaw_channels.get(name), dict) else {}
+                if not row.get("found"):
+                    warnings.append(f"openclaw {name} channel is not configured.")
+                    continue
+                if not row.get("works"):
+                    warnings.append(f"openclaw {name} channel not healthy: {row.get('detail') or 'unknown state'}.")
+            imessage_row = (
+                openclaw_channels.get("imessage") if isinstance(openclaw_channels.get("imessage"), dict) else {}
+            )
+            if bool(require_openclaw_imessage):
+                if not imessage_row.get("found"):
+                    warnings.append("openclaw imessage channel is not configured.")
+                elif not imessage_row.get("works"):
+                    warnings.append(
+                        f"openclaw imessage channel not healthy: {imessage_row.get('detail') or 'unknown state'}."
+                    )
+            else:
+                # Optional iMessage mode: only warn when iMessage is configured and unhealthy.
+                if bool(imessage_row.get("configured")) and (not bool(imessage_row.get("works"))):
+                    warnings.append(
+                        f"openclaw imessage channel not healthy: {imessage_row.get('detail') or 'unknown state'}."
+                    )
 
     if int(escalations.get("recent", 0)) >= max(1, int(escalation_warn_count)):
         warnings.append(
@@ -297,6 +424,8 @@ def _build_payload(
             "escalation_warn_count": max(1, int(escalation_warn_count)),
             "voice_queue_warn_count": max(1, int(voice_queue_warn_count)),
             "require_escalation_digest": bool(require_escalation_digest),
+            "check_openclaw_channels": bool(check_openclaw_channels),
+            "require_openclaw_imessage": bool(require_openclaw_imessage),
         },
         "launchd": launchd,
         "components": {
@@ -305,6 +434,7 @@ def _build_payload(
             "glasses_autopilot": glasses,
             "integration_readiness": readiness,
             "escalation_digest": escalation_digest,
+            "openclaw_channels": openclaw_channels,
         },
         "escalations": escalations,
         "transcription_queue": transcription_queue,
@@ -331,6 +461,16 @@ def _write_report(payload: dict[str, Any]) -> tuple[Path, Path]:
     telegram = components.get("telegram_control") if isinstance(components.get("telegram_control"), dict) else {}
     glasses = components.get("glasses_autopilot") if isinstance(components.get("glasses_autopilot"), dict) else {}
     escalation_digest = components.get("escalation_digest") if isinstance(components.get("escalation_digest"), dict) else {}
+    openclaw_channels = components.get("openclaw_channels") if isinstance(components.get("openclaw_channels"), dict) else {}
+    openclaw_telegram = (
+        openclaw_channels.get("telegram") if isinstance(openclaw_channels.get("telegram"), dict) else {}
+    )
+    openclaw_discord = (
+        openclaw_channels.get("discord") if isinstance(openclaw_channels.get("discord"), dict) else {}
+    )
+    openclaw_imessage = (
+        openclaw_channels.get("imessage") if isinstance(openclaw_channels.get("imessage"), dict) else {}
+    )
     escalations = payload.get("escalations") if isinstance(payload.get("escalations"), dict) else {}
     transcription_queue = payload.get("transcription_queue") if isinstance(payload.get("transcription_queue"), dict) else {}
 
@@ -351,6 +491,14 @@ def _write_report(payload: dict[str, Any]) -> tuple[Path, Path]:
         f"- Telegram control: present={bool(telegram.get('present'))}, stale_minutes={telegram.get('stale_minutes')}, updates={telegram.get('updates_count')}, ingested={telegram.get('ingested_count')}",
         f"- Glasses autopilot: present={bool(glasses.get('present'))}, stale_minutes={glasses.get('stale_minutes')}, imported={glasses.get('imported_count')}, scanned={glasses.get('candidate_count')}",
         f"- Escalation digest: present={bool(escalation_digest.get('present'))}, stale_minutes={escalation_digest.get('stale_minutes')}, telegram_sent={escalation_digest.get('telegram_sent')}, discord_sent={escalation_digest.get('discord_sent')}",
+        (
+            "- OpenClaw channels: "
+            f"probe_invoked={bool(openclaw_channels.get('invoked'))}, "
+            f"gateway_reachable={bool(openclaw_channels.get('gateway_reachable'))}, "
+            f"telegram_works={bool(openclaw_telegram.get('works'))}, "
+            f"discord_works={bool(openclaw_discord.get('works'))}, "
+            f"imessage_works={bool(openclaw_imessage.get('works'))}"
+        ),
         "",
         "## Escalations",
         f"- Path: {escalations.get('path', '-')}",
@@ -426,6 +574,18 @@ def main(argv: list[str] | None = None) -> int:
         default=_is_true(os.getenv("PERMANENCE_COMMS_STATUS_REQUIRE_ESCALATION_DIGEST", "0")),
         help="Warn when escalation digest payload is missing",
     )
+    parser.add_argument(
+        "--skip-openclaw-channels-check",
+        action="store_true",
+        default=not _is_true(os.getenv("PERMANENCE_COMMS_STATUS_CHECK_OPENCLAW_CHANNELS", "1")),
+        help="Skip probing OpenClaw Telegram/Discord channel health",
+    )
+    parser.add_argument(
+        "--require-openclaw-imessage",
+        action="store_true",
+        default=_is_true(os.getenv("PERMANENCE_COMMS_STATUS_REQUIRE_IMESSAGE", "0")),
+        help="Treat OpenClaw iMessage as required instead of optional.",
+    )
     args = parser.parse_args(argv)
 
     payload = _build_payload(
@@ -436,6 +596,8 @@ def main(argv: list[str] | None = None) -> int:
         escalation_warn_count=max(1, int(args.escalation_warn_count)),
         voice_queue_warn_count=max(1, int(args.voice_queue_warn_count)),
         require_escalation_digest=bool(args.require_escalation_digest),
+        check_openclaw_channels=not bool(args.skip_openclaw_channels_check),
+        require_openclaw_imessage=bool(args.require_openclaw_imessage),
     )
     md_path, json_path = _write_report(payload)
     print(f"Comms status written: {md_path}")

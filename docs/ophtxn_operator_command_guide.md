@@ -1,8 +1,66 @@
 # Ophtxn Operator Command Guide
 
-Last updated: 2026-03-05 (UTC)
+Last updated: 2026-03-06 (UTC)
 
 This is your practical command map for running Ophtxn day-to-day.
+
+Policy reference:
+- `docs/ophtxn_access_vpn_policy_20260306.md`
+- `docs/ophtxn_master_execution_board_20260306.md`
+
+## 0. Connectivity Quick Check (Run First)
+
+```bash
+python cli.py openclaw-status
+openclaw channels status --probe
+python cli.py telegram-control --action status
+python cli.py discord-feed-manager --action list
+python cli.py discord-telegram-relay --action status
+python cli.py comms-status
+python cli.py comms-doctor
+```
+
+If OpenClaw UI is connected but not responsive, verify OpenClaw-side session/channel setup separately. Telegram/Discord relays in this repository can still run normally.
+`comms-status` now includes an OpenClaw Telegram/Discord/iMessage probe summary line so channel drift is visible without opening OpenClaw directly.
+
+## 0.1 Interface Launch (One Command)
+
+```bash
+python cli.py operator-surface --no-open
+```
+
+Local URLs:
+- Dashboard API / command center: `http://127.0.0.1:8000`
+- Foundation site: `http://127.0.0.1:8787`
+- Ophtxn app shell: `http://127.0.0.1:8797/app/ophtxn`
+- OpenClaw dashboard: `openclaw dashboard`
+
+### Optional iMessage Channel (OpenClaw)
+
+If you want iMessage as an additional operator surface later:
+
+```bash
+# one-time macOS prerequisite (if brew install errors on CLT)
+softwareupdate --list
+# then install one of:
+# sudo softwareupdate -i "Command Line Tools for Xcode-16.4"
+# or run: xcode-select --install
+
+# install iMessage bridge CLI required by OpenClaw
+brew install steipete/tap/imsg
+imsg rpc --help
+
+openclaw plugins enable imessage
+openclaw channels add --channel imessage --name ophtxn-imessage
+openclaw config set channels.imessage.groupPolicy disabled
+openclaw channels status --probe
+openclaw channels logs --channel imessage
+```
+
+Notes:
+- If `channels status --probe` shows `imsg not found (imsg)`, `imsg` is not installed in PATH for the gateway user.
+- macOS privacy prompts may appear (Messages database and automation permissions depending on runtime mode).
+- Keep iMessage staged: install `imsg` -> enable channel -> probe -> test one controlled path.
 
 ## 1. Daily Command Flow (Recommended)
 
