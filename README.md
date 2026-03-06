@@ -112,6 +112,8 @@ Start here:
 - [Governance Operating Model](docs/ophtxn_governance_operating_model.md)
 - [Best Path (March 2026)](docs/ophtxn_best_path_20260306.md)
 - [Dashboard Stack Strategy](docs/ophtxn_dashboard_stack_strategy_20260306.md)
+- [Platform Intelligence](docs/ophtxn_platform_intelligence_20260306.md)
+- [Skill Stack](docs/ophtxn_skill_stack_20260306.md)
 - [Journey Change Log](docs/ophtxn_journey_change_log.md)
 
 ## Security and Secrets

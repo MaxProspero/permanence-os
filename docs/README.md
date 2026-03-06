@@ -12,6 +12,9 @@ This folder contains canonical operational and architecture references for Perma
 ## Operations and Execution
 
 - [Best Path (March 2026)](ophtxn_best_path_20260306.md)
+- [Platform Intelligence (March 2026)](ophtxn_platform_intelligence_20260306.md)
+- [Skill Stack (March 2026)](ophtxn_skill_stack_20260306.md)
+- [Model Policy and Guardrails](ophtxn_model_policy_guardrails_20260306.md)
 - [Dashboard Stack Strategy (March 2026)](ophtxn_dashboard_stack_strategy_20260306.md)
 - [Master Execution Board](ophtxn_master_execution_board_20260306.md)
 - [Execution Order](ophtxn_execution_order_20260306.md)
@@ -34,6 +37,7 @@ This folder contains canonical operational and architecture references for Perma
 
 - [Governance Operating Model](ophtxn_governance_operating_model.md)
 - [Access and VPN Policy](ophtxn_access_vpn_policy_20260306.md)
+- [Dashboard Stack Strategy](ophtxn_dashboard_stack_strategy_20260306.md)
 - [Journey Change Log](ophtxn_journey_change_log.md)
 - [Canon Change Template](canon_change_template.md)
 
