@@ -407,6 +407,8 @@
         <span>Ophtxn by Permanence OS</span>
       </a>
       <nav class="nav-links" aria-label="Main">
+        <a href="./local_hub.html">Local Hub</a>
+        <a href="http://127.0.0.1:8000">Command Center</a>
         <a href="./official_app.html">App Studio</a>
         <a href="./ai_school.html">AI School</a>
         <a href="./press_kit.html">Press Kit</a>
@@ -422,7 +424,9 @@
         You can think, decide, and ship faster while keeping spend and risk controlled.
       </p>
       <div class="hero-cta">
+        <a class="btn primary" href="./local_hub.html" data-cta="open_local_hub">Open Local Hub</a>
         <a class="btn primary" href="./official_app.html" data-cta="open_app_studio">Open App Studio</a>
+        <a class="btn" href="http://127.0.0.1:8000" data-cta="open_command_center">Open Command Center</a>
         <a class="btn" href="./ai_school.html" data-cta="open_ai_school">Open AI School</a>
         <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" data-cta="open_live_shell">Open Live Ops Shell</a>
         <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Get Brand Assets</a>
@@ -540,7 +544,7 @@
       const leadCaptureEnabled = runtime.leadCaptureEnabled !== false;
       const leadCaptureEndpoint = String(runtime.leadCaptureEndpoint || "/api/revenue/intake").trim() || "/api/revenue/intake";
       const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
-      const fallbackEmail = String(runtime.fallbackEmail || "").trim() || "paybhicks7@gmail.com";
+      const fallbackEmail = String(runtime.fallbackEmail || "").trim() || "hello@ophtxn.com";
       const sessionKey = "ophtxn_session_id";
       let sessionId = localStorage.getItem(sessionKey);
       if (!sessionId) {

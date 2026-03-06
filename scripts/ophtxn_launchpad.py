@@ -42,6 +42,7 @@ TOOL_DIR = Path(os.getenv("PERMANENCE_TOOL_DIR", str(BASE_DIR / "memory" / "tool
 
 SURFACE_FILES = [
     ("Official landing", BASE_DIR / "site" / "foundation" / "index.html"),
+    ("Local hub", BASE_DIR / "site" / "foundation" / "local_hub.html"),
     ("Official app studio", BASE_DIR / "site" / "foundation" / "official_app.html"),
     ("Press kit", BASE_DIR / "site" / "foundation" / "press_kit.html"),
     ("Logo mark", BASE_DIR / "site" / "foundation" / "assets" / "ophtxn_mark.svg"),
@@ -51,7 +52,7 @@ DOC_FILES = [
     ("Official launch path", BASE_DIR / "docs" / "ophtxn_official_launch_path_20260305.md"),
     ("Venture radar", BASE_DIR / "docs" / "ophtxn_venture_radar_20260305.md"),
 ]
-REQUIRED_ROUTE_TOKENS = ("/app/official", "/app/studio", "/app/press")
+REQUIRED_ROUTE_TOKENS = ("/app/official", "/app/studio", "/app/press", "/app/hub")
 
 
 def _now() -> datetime:

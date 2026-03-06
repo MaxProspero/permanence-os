@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ophtxn Press Kit</title>
+  <meta name="description" content="Ophtxn brand assets, messaging, and launch copy blocks.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a1118;
+      --card: rgba(13, 24, 35, 0.84);
+      --line: rgba(144, 184, 210, 0.24);
+      --ink: #eaf4ff;
+      --muted: #99afc1;
+      --c1: #53dfbf;
+      --c2: #f1bf67;
+      --radius: 16px;
+      --shadow: 0 20px 46px rgba(0, 0, 0, 0.36);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 540px at -10% -10%, #1c4464 0%, transparent 56%),
+        radial-gradient(820px 520px at 110% -10%, #453221 0%, transparent 58%),
+        var(--bg);
+    }
+
+    .layout {
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .top a {
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 52px);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .logo-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .logo-box {
+      border: 1px dashed rgba(144, 184, 210, 0.35);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      min-width: 220px;
+    }
+
+    .logo-box img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .logo-box a {
+      color: #8ad9ff;
+      text-decoration: none;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      display: grid;
+      gap: 7px;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: #bad0de;
+      border: 1px dashed rgba(144, 184, 210, 0.34);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.24);
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <header class="top">
+      <a href="./index.html" data-cta="press_back_main">Back to main site</a>
+      <a href="./official_app.html" data-cta="press_open_studio">Open App Studio</a>
+    </header>
+
+    <h1>Ophtxn Press Kit</h1>
+    <p class="subtitle">Use this to publish consistent branding, positioning, and launch copy for your first public rollout.</p>
+
+    <section class="card">
+      <h2>Logo assets</h2>
+      <div class="logo-row">
+        <article class="logo-box">
+          <img src="./assets/ophtxn_mark.svg" alt="Ophtxn mark">
+          <a href="./assets/ophtxn_mark.svg" download data-cta="press_download_logo">Download ophtxn_mark.svg</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Positioning copy</h2>
+      <ul class="list">
+        <li><strong>One-line:</strong> Ophtxn is a governed personal intelligence operating system for execution and memory.</li>
+        <li><strong>Short:</strong> Ophtxn combines assistant chat, decision workflows, and approval-safe automation in one runtime.</li>
+        <li><strong>Long:</strong> Ophtxn helps operators think, decide, and ship faster through a unified system that manages ideas, priorities, and actions with human-in-the-loop governance.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Launch post template</h2>
+      <pre>Introducing Ophtxn.
+
+A personal intelligence operating system built for real execution.
+
+What it does:
+- captures ideas and links into a ranked pipeline
+- keeps memory and profile context over time
+- routes actions through approvals and guardrails
+- runs daily ops loops across Telegram, Discord, and terminal
+
+This is the first public version.
+If you want early access, reply with "OPHTXN".</pre>
+    </section>
+  </main>
+  <script src="./runtime.config.js"></script>
+  <script>
+    (function () {
+      const runtime = window.__OPHTXN_RUNTIME || {};
+      const apiBaseRaw = String(runtime.apiBase || "").trim();
+      const apiBase = apiBaseRaw.replace(/\/$/, "");
+      const source = String(runtime.source || "foundation_site").trim() || "foundation_site";
+      const analyticsEnabled = runtime.analyticsEnabled !== false;
+      const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
+      const sessionKey = "ophtxn_session_id";
+      let sessionId = localStorage.getItem(sessionKey);
+      if (!sessionId) {
+        sessionId = "sess_" + Math.random().toString(36).slice(2, 11);
+        localStorage.setItem(sessionKey, sessionId);
+      }
+
+      function endpoint(path) {
+        if (!path) return "";
+        if (/^https?:\/\//i.test(path)) return path;
+        return apiBase ? apiBase + path : "";
+      }
+
+      async function track(eventType, meta) {
+        if (!analyticsEnabled) return;
+        const url = endpoint(siteEventEndpoint);
+        if (!url) return;
+        try {
+          await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              event_type: eventType,
+              source: source + ":press",
+              session_id: sessionId,
+              channel: "web",
+              meta: meta || {},
+            }),
+          });
+        } catch (_err) {
+          // telemetry is best-effort
+        }
+      }
+
+      track("page_view", { page: "press_kit", path: location.pathname });
+      document.querySelectorAll("[data-cta]").forEach((node) => {
+        node.addEventListener("click", () => {
+          track("cta_click", { cta: node.getAttribute("data-cta") || "unknown" });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

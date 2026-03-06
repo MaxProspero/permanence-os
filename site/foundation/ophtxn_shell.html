@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ophtxn App Shell</title>
+  <title>Ophtxn Operator Shell</title>
   <meta name="description" content="Live command shell for Ophtxn inside Permanence OS.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-0: #08121f;
@@ -29,7 +29,7 @@
     body {
       min-height: 100vh;
       color: var(--ink);
-      font-family: "Manrope", system-ui, sans-serif;
+      font-family: "Space Grotesk", system-ui, sans-serif;
       background:
         radial-gradient(1100px 580px at -10% -20%, #153657 0%, transparent 60%),
         radial-gradient(900px 500px at 110% -10%, #294626 0%, transparent 56%),
@@ -38,7 +38,7 @@
     }
 
     .shell {
-      width: min(1120px, 92vw);
+      width: min(1140px, 92vw);
       margin: 0 auto;
       padding: 30px 0 48px;
     }
@@ -49,13 +49,13 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
     }
 
     .brand h1 {
       margin: 0;
-      font-size: clamp(26px, 5vw, 44px);
-      letter-spacing: -0.02em;
+      font-size: clamp(28px, 5vw, 44px);
+      letter-spacing: -0.03em;
       line-height: 0.94;
     }
 
@@ -73,6 +73,45 @@
       font-family: "IBM Plex Mono", monospace;
       font-size: 12px;
       color: var(--muted);
+    }
+
+    .surface-nav {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .surface-nav strong {
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    .surface-nav a {
+      border: 1px solid rgba(173, 225, 255, 0.2);
+      background: rgba(8, 21, 31, 0.66);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 7px 11px;
+      text-decoration: none;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      transition: border-color 140ms ease, transform 140ms ease;
+    }
+
+    .surface-nav a:hover {
+      border-color: rgba(173, 225, 255, 0.58);
+      transform: translateY(-1px);
     }
 
     .auth {
@@ -128,7 +167,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-bottom: 14px;
     }
@@ -198,10 +237,21 @@
   <main class="shell">
     <section class="top">
       <div class="brand">
-        <h1>Ophtxn App Shell</h1>
-        <p>Live system signal panel for your personal agent runtime.</p>
+        <h1>Ophtxn Operator Shell</h1>
+        <p>Live system signal panel with governed controls, approvals, and cross-surface links.</p>
       </div>
       <span class="chip">FOUNDATION API /app/ophtxn</span>
+    </section>
+
+    <section class="surface-nav">
+      <strong>Local Surfaces</strong>
+      <a href="http://127.0.0.1:8787/local_hub.html" target="_blank" rel="noopener">Local Hub</a>
+      <a href="http://127.0.0.1:8000" target="_blank" rel="noopener">Command Center</a>
+      <a href="http://127.0.0.1:8787" target="_blank" rel="noopener">Foundation Site</a>
+      <a href="/app/official" target="_blank" rel="noopener">Official via API</a>
+      <a href="/app/studio" target="_blank" rel="noopener">Studio via API</a>
+      <a href="/app/press" target="_blank" rel="noopener">Press via API</a>
+      <a href="/app/hub" target="_blank" rel="noopener">Hub via API</a>
     </section>
 
     <section class="auth">
@@ -248,6 +298,16 @@
         <div id="wonRevenue" class="v">--</div>
         <div id="revenueSub" class="sub">Awaiting data</div>
       </article>
+      <article class="card">
+        <div class="k">Approvals Pending</div>
+        <div id="approvalsPending" class="v">--</div>
+        <div id="approvalsPendingSub" class="sub">Awaiting data</div>
+      </article>
+      <article class="card">
+        <div class="k">No-spend Violations</div>
+        <div id="noSpendViolations" class="v">--</div>
+        <div id="noSpendSub" class="sub">Awaiting data</div>
+      </article>
     </section>
 
     <section class="links">
@@ -257,6 +317,8 @@
       <a id="srcComms" href="#" target="_blank" rel="noopener">comms status report</a>
       <a id="srcImprove" href="#" target="_blank" rel="noopener">self improvement report</a>
       <a id="srcApproval" href="#" target="_blank" rel="noopener">approval board report</a>
+      <a id="srcApprovalTriage" href="#" target="_blank" rel="noopener">approval triage report</a>
+      <a id="srcNoSpendAudit" href="#" target="_blank" rel="noopener">no-spend audit report</a>
     </section>
   </main>
 
@@ -295,6 +357,7 @@
     function bindSource(id, value) {
       const el = document.getElementById(id);
       const href = String(value || "").trim();
+      if (!el) return;
       if (!href) {
         el.textContent = id + ": unavailable";
         el.removeAttribute("href");
@@ -392,12 +455,26 @@
         document.getElementById("wonRevenue").textContent = "$" + Number(s.won_revenue_usd || 0).toFixed(0);
         document.getElementById("revenueSub").textContent = "Money-first status";
 
+        const approvalsPending = Number(s.approvals_pending || 0);
+        const approvalsEl = document.getElementById("approvalsPending");
+        approvalsEl.textContent = String(approvalsPending);
+        approvalsEl.className = "v " + metricClass(approvalsPending, "low");
+        document.getElementById("approvalsPendingSub").textContent = "Pending approvals queue";
+
+        const noSpendViolations = Number(s.no_spend_violations || 0);
+        const noSpendEl = document.getElementById("noSpendViolations");
+        noSpendEl.textContent = String(noSpendViolations);
+        noSpendEl.className = "v " + metricClass(noSpendViolations, "low");
+        document.getElementById("noSpendSub").textContent = "Guardrail violations";
+
         const sources = data.sources || {};
         bindSource("srcCompletion", sources.completion);
         bindSource("srcMoney", sources.money_first_gate);
         bindSource("srcComms", sources.comms_status);
         bindSource("srcImprove", sources.self_improvement);
         bindSource("srcApproval", sources.approval_execution_board);
+        bindSource("srcApprovalTriage", sources.approval_triage);
+        bindSource("srcNoSpendAudit", sources.no_spend_audit);
 
         setStatus("Summary refreshed at " + (data.generated_at || new Date().toISOString()));
       } catch (err) {

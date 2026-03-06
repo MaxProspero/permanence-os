@@ -4,6 +4,7 @@ Purpose: preserve an auditable narrative of what was changed, why, and what it a
 
 Rule: append a new dated entry after each major implementation pass.
 
+
 ## 2026-03-06 (UTC) - Full Repo Cleanup and Archive Reorganization
 
 ### Goals

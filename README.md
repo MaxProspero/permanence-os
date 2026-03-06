@@ -15,6 +15,7 @@ It is built around one rule: automation can assist, but human authority is final
 
 When the operator stack is running, these endpoints are available:
 
+- Local hub: `http://127.0.0.1:8787/local_hub.html`
 - Command center API/UI: `http://127.0.0.1:8000`
 - Foundation site: `http://127.0.0.1:8787`
 - Ophtxn shell: `http://127.0.0.1:8797/app/ophtxn`
@@ -48,7 +49,7 @@ python cli.py comms-status
 4. Launch full local interface.
 
 ```bash
-python cli.py operator-surface --no-open
+python cli.py operator-surface --run-horizon
 ```
 
 ## Core Operator Commands
@@ -110,6 +111,7 @@ Start here:
 - [Operator Command Guide](docs/ophtxn_operator_command_guide.md)
 - [Governance Operating Model](docs/ophtxn_governance_operating_model.md)
 - [Best Path (March 2026)](docs/ophtxn_best_path_20260306.md)
+- [Dashboard Stack Strategy](docs/ophtxn_dashboard_stack_strategy_20260306.md)
 - [Journey Change Log](docs/ophtxn_journey_change_log.md)
 
 ## Security and Secrets

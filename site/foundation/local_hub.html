@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ophtxn Local Hub</title>
+  <meta name="description" content="Unified local host cockpit for Ophtxn and Permanence OS.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #08111d;
+      --ink: #eaf4ff;
+      --muted: #9bb4c8;
+      --line: rgba(140, 188, 222, 0.26);
+      --card: rgba(8, 22, 33, 0.82);
+      --mint: #53deb4;
+      --amber: #efc36b;
+      --sky: #7dbdff;
+      --rose: #ff8f90;
+      --radius: 18px;
+      --shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 540px at -8% -10%, rgba(40, 89, 135, 0.75), transparent 62%),
+        radial-gradient(820px 420px at 108% -8%, rgba(74, 61, 31, 0.72), transparent 58%),
+        radial-gradient(780px 380px at 50% 120%, rgba(28, 77, 64, 0.72), transparent 60%),
+        var(--bg);
+      line-height: 1.45;
+    }
+
+    .wrap {
+      width: min(1180px, 92vw);
+      margin: 0 auto;
+      padding: 30px 0 72px;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      animation: rise 420ms ease;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .brand img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .links {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .links a,
+    .btn {
+      text-decoration: none;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      background: rgba(255, 255, 255, 0.04);
+      transition: transform 140ms ease, border-color 140ms ease;
+    }
+
+    .links a:hover,
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(125, 189, 255, 0.64);
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: clamp(24px, 4vw, 42px);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      animation: rise 520ms ease;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 7vw, 66px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      max-width: 860px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 760px;
+      margin: 14px 0 0;
+      font-size: clamp(15px, 2vw, 18px);
+    }
+
+    .stack {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      animation: rise 640ms ease;
+    }
+
+    .card .k {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .card code {
+      display: inline-block;
+      margin-top: 6px;
+      color: var(--sky);
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      word-break: break-word;
+    }
+
+    .status {
+      margin-top: 10px;
+      border: 1px solid rgba(140, 188, 222, 0.24);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--muted);
+      min-height: 38px;
+      background: rgba(0, 0, 0, 0.2);
+      white-space: pre-wrap;
+    }
+
+    .ok { color: var(--mint); }
+    .warn { color: var(--amber); }
+    .bad { color: var(--rose); }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .decision article {
+      border: 1px solid rgba(140, 188, 222, 0.2);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(4, 12, 19, 0.48);
+    }
+
+    .decision h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .decision ul {
+      margin: 0;
+      padding-left: 16px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .hint {
+      margin-top: 10px;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+    }
+
+    .run {
+      display: block;
+      margin-top: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--sky);
+      background: rgba(4, 12, 19, 0.6);
+      border: 1px solid rgba(140, 188, 222, 0.2);
+      border-radius: 10px;
+      padding: 8px 10px;
+      overflow-x: auto;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .stack { grid-template-columns: 1fr; }
+      .decision { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="nav">
+      <a class="brand" href="./index.html">
+        <img src="./assets/ophtxn_mark.svg" alt="Ophtxn mark">
+        <span>Ophtxn Local Hub</span>
+      </a>
+      <nav class="links" aria-label="Navigation">
+        <a href="./index.html">Official Site</a>
+        <a href="./official_app.html">App Studio</a>
+        <a href="./ai_school.html">AI School</a>
+        <a href="./press_kit.html">Press Kit</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Localhost Control</p>
+      <h1>One launch surface for your full operator stack.</h1>
+      <p>
+        This hub keeps your local command center, foundation site, and app shell in one view.
+        Use this as your daily start page so the system feels like one product, not separate tools.
+      </p>
+      <div class="actions">
+        <a class="btn" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Open Command Center</a>
+        <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">Open App Shell</a>
+        <button class="btn" id="refreshBtn" type="button">Refresh Health</button>
+      </div>
+      <code class="run">python cli.py operator-surface --run-horizon</code>
+    </section>
+
+    <section class="stack">
+      <article class="card">
+        <p class="k">Runtime 1</p>
+        <h2>Command Center</h2>
+        <code>http://127.0.0.1:8000</code>
+        <div class="status" id="status8000">checking...</div>
+      </article>
+      <article class="card">
+        <p class="k">Runtime 2</p>
+        <h2>Foundation Site</h2>
+        <code>http://127.0.0.1:8787</code>
+        <div class="status" id="status8787">checking...</div>
+      </article>
+      <article class="card">
+        <p class="k">Runtime 3</p>
+        <h2>Ophtxn App Shell</h2>
+        <code>http://127.0.0.1:8797/app/ophtxn</code>
+        <div class="status" id="status8797">checking...</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h3>Dashboard Strategy (Recommended)</h3>
+      <p>
+        Use a hybrid stack: keep your own Ophtxn dashboard for actions, approvals, and memory; use external tools for narrow jobs where they are strongest.
+      </p>
+      <div class="decision">
+        <article>
+          <h4>Own in Ophtxn</h4>
+          <ul>
+            <li>Approvals, command routing, and personal memory.</li>
+            <li>Money gates, no-spend guardrails, and task execution logs.</li>
+            <li>Cross-channel state (Telegram + Discord + local runtime).</li>
+          </ul>
+        </article>
+        <article>
+          <h4>Use external tools</h4>
+          <ul>
+            <li>Google Workspace for Calendar/Gmail identity and collaboration.</li>
+            <li>Cloudflare for domain, edge hosting, and web analytics.</li>
+            <li>OpenClaw dashboard as a runtime console, not your source of truth.</li>
+          </ul>
+        </article>
+      </div>
+      <p class="hint">OpenClaw dashboard command: <code>openclaw dashboard</code></p>
+    </section>
+  </main>
+
+  <script>
+    const endpoints = {
+      status8000: { url: "http://127.0.0.1:8000/api/status", label: "8000" },
+      status8787: { url: "http://127.0.0.1:8787/", label: "8787" },
+      status8797: { url: "http://127.0.0.1:8797/health", label: "8797" },
+    };
+
+    function setStatus(id, text, level) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.classList.remove("ok", "warn", "bad");
+      if (level) el.classList.add(level);
+    }
+
+    async function ping(id, url, expectJson) {
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+          setStatus(id, "HTTP " + res.status + " at " + url, "warn");
+          return;
+        }
+        if (expectJson) {
+          const data = await res.json();
+          const ok = data && data.ok === true;
+          setStatus(id, ok ? "online | ok=true" : "online | response received", ok ? "ok" : "warn");
+          return;
+        }
+        setStatus(id, "online", "ok");
+      } catch (_err) {
+        try {
+          await fetch(url, { mode: "no-cors", cache: "no-store" });
+          setStatus(id, "reachable (opaque cross-origin response)", "warn");
+        } catch (err2) {
+          setStatus(id, "offline or blocked | " + String(err2), "bad");
+        }
+      }
+    }
+
+    async function refreshHealth() {
+      await Promise.all([
+        ping("status8000", endpoints.status8000.url, true),
+        ping("status8787", endpoints.status8787.url, false),
+        ping("status8797", endpoints.status8797.url, true),
+      ]);
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", refreshHealth);
+    refreshHealth();
+    setInterval(refreshHealth, 20000);
+  </script>
+</body>
+</html>

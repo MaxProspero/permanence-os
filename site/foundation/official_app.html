@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ophtxn App Studio</title>
+  <meta name="description" content="Onboard your personal Ophtxn profile and run guided commands.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a1018;
+      --card: rgba(16, 26, 37, 0.84);
+      --line: rgba(139, 178, 202, 0.26);
+      --ink: #ecf5ff;
+      --muted: #9cb3c6;
+      --c1: #52debf;
+      --c2: #72b8ff;
+      --c3: #f2bf62;
+      --radius: 16px;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Outfit", system-ui, sans-serif;
+      background:
+        radial-gradient(980px 540px at -10% -10%, #1f4368 0%, transparent 58%),
+        radial-gradient(900px 500px at 110% -10%, #3d2f1f 0%, transparent 58%),
+        var(--bg);
+      line-height: 1.4;
+    }
+
+    .layout {
+      width: min(1060px, 92vw);
+      margin: 0 auto;
+      padding: 26px 0 52px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .top a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 6vw, 56px);
+      letter-spacing: -0.03em;
+      line-height: 0.96;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 780px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, textarea {
+      border: 1px solid rgba(140, 185, 212, 0.24);
+      border-radius: 10px;
+      background: rgba(4, 12, 20, 0.62);
+      color: var(--ink);
+      font: inherit;
+      padding: 10px 11px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      border-color: transparent;
+      color: #03231d;
+      background: linear-gradient(135deg, var(--c1), #73e3cd);
+    }
+
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: #b6c9d7;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px dashed rgba(140, 185, 212, 0.3);
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .tips {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+
+    .pill {
+      display: inline-block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      color: #02231c;
+      background: linear-gradient(135deg, var(--c3), #ffd490);
+      border-radius: 999px;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <header class="top">
+      <a href="./index.html" data-cta="studio_back_main">Back to main site</a>
+      <a href="http://127.0.0.1:8797/app/ophtxn" data-cta="studio_open_live_shell">Open live shell</a>
+    </header>
+
+    <span class="pill">Ophtxn App Studio</span>
+    <h1>Shape your assistant profile and generate your first command run.</h1>
+    <p class="subtitle">This page helps you define what your assistant should optimize for, then gives a ready command plan you can run in terminal or via Telegram.</p>
+
+    <section class="panel">
+      <h2>1) Personal runtime profile</h2>
+      <div class="grid">
+        <label>Name
+          <input id="name" placeholder="Payton Hicks">
+        </label>
+        <label>Mission
+          <input id="mission" placeholder="Build Ophtxn into a legendary personal OS">
+        </label>
+        <label>Top goals (comma separated)
+          <input id="goals" placeholder="money-first execution, product launch, high leverage habits">
+        </label>
+        <label>Strengths (comma separated)
+          <input id="strengths" placeholder="builder, speed, taste">
+        </label>
+        <label>Growth edges (comma separated)
+          <input id="edges" placeholder="focus, consistency, prioritization">
+        </label>
+        <label>Personality mode
+          <input id="personality" placeholder="operator">
+        </label>
+      </div>
+      <div class="actions">
+        <button class="primary" id="generate" data-cta="studio_generate_pack">Generate Command Pack</button>
+        <button id="copy" data-cta="studio_copy_pack">Copy Output</button>
+      </div>
+      <pre id="output" class="mono">Fill profile fields and click "Generate Command Pack".</pre>
+    </section>
+
+    <section class="panel">
+      <h2>2) Official launch checklist</h2>
+      <ol class="tips">
+        <li>Run your generated profile commands first.</li>
+        <li>Start local services: `python cli.py foundation-site` and `python cli.py foundation-api`.</li>
+        <li>Open `http://127.0.0.1:8797/app/ophtxn` and verify session + ops summary.</li>
+        <li>Run daily cycle in Telegram with `/ops-pack strict` and idea flow with `/idea-run queue=1`.</li>
+        <li>Publish your first public writeup using the press kit from this site.</li>
+      </ol>
+    </section>
+  </main>
+
+  <script src="./runtime.config.js"></script>
+  <script>
+    (function () {
+      const runtime = window.__OPHTXN_RUNTIME || {};
+      const apiBaseRaw = String(runtime.apiBase || "").trim();
+      const apiBase = apiBaseRaw.replace(/\/$/, "");
+      const source = String(runtime.source || "foundation_site").trim() || "foundation_site";
+      const analyticsEnabled = runtime.analyticsEnabled !== false;
+      const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
+      const sessionKey = "ophtxn_session_id";
+      let sessionId = localStorage.getItem(sessionKey);
+      if (!sessionId) {
+        sessionId = "sess_" + Math.random().toString(36).slice(2, 11);
+        localStorage.setItem(sessionKey, sessionId);
+      }
+
+      function endpoint(path) {
+        if (!path) return "";
+        if (/^https?:\/\//i.test(path)) return path;
+        return apiBase ? apiBase + path : "";
+      }
+
+      async function track(eventType, meta) {
+        if (!analyticsEnabled) return;
+        const url = endpoint(siteEventEndpoint);
+        if (!url) return;
+        try {
+          await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              event_type: eventType,
+              source: source + ":studio",
+              session_id: sessionId,
+              channel: "web",
+              meta: meta || {},
+            }),
+          });
+        } catch (_err) {
+          // telemetry is best-effort
+        }
+      }
+
+      track("page_view", { page: "official_app", path: location.pathname });
+      document.querySelectorAll("[data-cta]").forEach((node) => {
+        node.addEventListener("click", () => {
+          track("cta_click", { cta: node.getAttribute("data-cta") || "unknown" });
+        });
+      });
+    })();
+
+    const byId = (id) => document.getElementById(id);
+    const output = byId("output");
+
+    function generatePack() {
+      const name = byId("name").value.trim();
+      const mission = byId("mission").value.trim();
+      const goals = byId("goals").value.trim();
+      const strengths = byId("strengths").value.trim();
+      const edges = byId("edges").value.trim();
+      const personality = byId("personality").value.trim() || "operator";
+      const lines = [
+        "# Profile setup",
+        `python cli.py foundation-api --host 127.0.0.1 --port 8797`,
+        "",
+        "# Telegram profile commands",
+        `/profile-set name ${name || "Your Name"}`,
+        `/profile-set mission ${mission || "Define mission"}`,
+        `/profile-set goals ${goals || "goal-1, goal-2"}`,
+        `/profile-set strengths ${strengths || "strength-1, strength-2"}`,
+        `/profile-set growth-edges ${edges || "edge-1, edge-2"}`,
+        `/personality ${personality}`,
+        "",
+        "# Operations launch",
+        `/ops-pack strict`,
+        `/idea-run max=30 min-score=30 queue=1`,
+        `/approvals-top 10 source=idea_intake_queue`,
+      ];
+      output.textContent = lines.join("\n");
+    }
+
+    byId("generate").addEventListener("click", generatePack);
+    byId("copy").addEventListener("click", async () => {
+      const text = output.textContent || "";
+      if (!text.trim()) return;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_err) {
+        // ignored
+      }
+    });
+  </script>
+</body>
+</html>
