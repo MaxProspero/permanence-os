@@ -19,6 +19,8 @@ pip install -r requirements.txt
 2) **Update tests** if behavior changes.
 3) **Update docs** if new commands or files are added.
 4) **Update CHANGELOG.md** for any user‑visible change.
+5) **Keep branch flow clean**: feature work in `codex/*`, merge to `main`, close reverse-direction PRs.
+6) **Archive outdated plans/docs** to `docs/archive/` instead of leaving stale duplicates in root paths.
 
 ## Canon Changes (Required Ceremony)
 Use `docs/canon_change_template.md` and include:

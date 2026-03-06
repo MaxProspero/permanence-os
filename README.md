@@ -109,6 +109,7 @@ Start here:
 - [CLI Reference](docs/cli_reference.md)
 - [Operator Command Guide](docs/ophtxn_operator_command_guide.md)
 - [Governance Operating Model](docs/ophtxn_governance_operating_model.md)
+- [Best Path (March 2026)](docs/ophtxn_best_path_20260306.md)
 - [Journey Change Log](docs/ophtxn_journey_change_log.md)
 
 ## Security and Secrets
@@ -123,14 +124,14 @@ python cli.py secret-scan --staged
 
 ## Branch and Merge Workflow
 
-Repository homepage shows `main`. New work often lands on a `codex/*` branch first.
+Repository homepage should show `main` as default. Feature work should use `codex/*` branches and merge back to `main`.
 
 To verify updates:
 
 ```bash
 git fetch origin --prune
 git log --oneline origin/main -n 5
-git log --oneline origin/codex/ophtxn-stability-20260305 -n 5
+git branch -r
 gh pr list --state open
 ```
 
