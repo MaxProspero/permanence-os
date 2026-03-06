@@ -4,6 +4,78 @@ Purpose: preserve an auditable narrative of what was changed, why, and what it a
 
 Rule: append a new dated entry after each major implementation pass.
 
+## 2026-03-06 (UTC) - Repository Revamp Pass (Docs + Hygiene)
+
+### Goals
+- Improve repository clarity for onboarding and day-to-day operation.
+- Replace outdated/fragmented docs with canonical references.
+- Add safer artifact cleanup and stronger local hygiene defaults.
+- Validate that revamp changes do not break core health checks.
+
+### Source Input Reviewed
+- PDF snapshot: `MaxProspero_permanence-os.pdf` (38 pages, GitHub state/export context).
+- Review outcome: repository needed structural clarity and canonical docs more than new feature code.
+
+### Changes Applied
+
+1. README full rewrite.
+- Updated:
+  - `README.md`
+- Added:
+  - clear system description and current focus
+  - local interface endpoints
+  - quick-start and operator commands
+  - no-spend guidance
+  - branch/PR visibility workflow
+  - direct links to canonical docs
+
+2. Documentation structure revamp.
+- Added:
+  - `docs/README.md` (docs index and categorization)
+- Rewritten:
+  - `docs/architecture.md` (authority model, runtime components, data/state, governance controls)
+  - `docs/cli_reference.md` (canonical quick-reference grouped by operational domain)
+
+3. Repository hygiene hardening.
+- Updated:
+  - `.gitignore`
+- Added ignore coverage for local-only artifacts:
+  - `.env.local`
+  - `memory/inbox/*`
+  - `.wrangler/`
+  - `backups/`
+  - extra automation temp/log patterns
+
+4. Artifact cleanup tooling revamp.
+- Rewritten:
+  - `scripts/clean_artifacts.py`
+- New behavior:
+  - grouped cleanup targets (`logs`, `episodic`, `tool`, `working`, `inbox`, `outputs`)
+  - conservative pattern matching
+  - `.gitkeep` preservation
+  - `--dry-run` support with explicit matched count
+
+5. Added cleanup test coverage.
+- Added:
+  - `tests/test_clean_artifacts.py`
+- Covers:
+  - dedupe + `.gitkeep` skip behavior
+  - dry-run safety
+  - actual delete behavior
+
+### Validation Performed
+
+- `pytest -q tests/test_clean_artifacts.py tests/test_operator_surface.py tests/test_app_foundation_server.py tests/test_comms_status.py` -> 18 passed
+- `python cli.py ophtxn-launchpad --action status --strict --min-score 80` -> overall 100
+- `python cli.py comms-status` -> warnings 0
+- `python scripts/clean_artifacts.py --all --dry-run` -> completed with expected artifact scan output
+
+### Outcome
+
+- Repository is significantly easier to understand and operate.
+- Canonical docs are now explicit and discoverable.
+- Local cleanup and ignore policy now match current runtime artifact volume.
+
 ## 2026-03-06 (UTC) - Comms Noise Reduction + Ops Pack Verification
 
 ### Goals

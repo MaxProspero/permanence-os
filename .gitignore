@@ -1,12 +1,15 @@
 .env
+.env.local
 __pycache__/
 *.pyc
 logs/*.log
 logs/*.json
 logs/*.jsonl
 logs/automation/*.log
+logs/automation/*.txt
 memory/working/*
 memory/tool/*
+memory/inbox/*
 memory/episodic/*.json
 memory/episodic/*.jsonl
 memory/approvals.json
@@ -21,4 +24,8 @@ outputs/horizon/*.json
 outputs/chronicle/*.md
 outputs/chronicle/*.json
 permanence_storage/
+.wrangler/
+backups/
+*.bak
+*.tmp
 .DS_Store
