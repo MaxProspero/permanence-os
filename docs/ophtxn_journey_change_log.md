@@ -4,6 +4,66 @@ Purpose: preserve an auditable narrative of what was changed, why, and what it a
 
 Rule: append a new dated entry after each major implementation pass.
 
+## 2026-03-06 (UTC) - Full Repo Cleanup and Archive Reorganization
+
+### Goals
+- Remove stale/duplicate repository artifacts.
+- Organize legacy plans into an explicit archive section.
+- Fix docs index consistency so all linked files exist on `main`.
+- Add a clear best-path and governance operating reference.
+
+### Changes Applied
+
+1. Removed deprecated snapshot package.
+- Deleted:
+  - `permanence_os_v0_3/` (legacy duplicate tree)
+  - `permanence_os_v0_3.zip`
+
+2. Archived legacy planning/brief docs.
+- Moved:
+  - `CODEX_BRIEFING_v0.3.0.md` -> `docs/archive/CODEX_BRIEFING_v0.3.0.md`
+  - `CODEX_BRIEF_v0_3_0.md` -> `docs/archive/CODEX_BRIEF_v0_3_0.md`
+  - `docs/EXECUTION_PLAN_v0.3.md` -> `docs/archive/EXECUTION_PLAN_v0.3.md`
+  - `docs/EXECUTION_PLAN_v0.4.md` -> `docs/archive/EXECUTION_PLAN_v0.4.md`
+  - `docs/release_notes_v0.2.1.md` -> `docs/archive/release_notes_v0.2.1.md`
+  - `docs/roadmap_phase2.md` -> `docs/archive/roadmap_phase2.md`
+
+3. Updated docs index and canonical references.
+- Updated:
+  - `docs/README.md`
+  - `README.md`
+- Result:
+  - broken links removed
+  - references now point to existing docs
+  - archive section explicitly mapped
+
+4. Added governance + execution path docs.
+- Added:
+  - `docs/ophtxn_governance_operating_model.md`
+  - `docs/ophtxn_best_path_20260306.md`
+
+5. Cleaned stale absolute local path references in archived plan.
+- Updated:
+  - `docs/archive/EXECUTION_PLAN_v0.4.md`
+
+6. Updated contribution workflow rules.
+- Updated:
+  - `CONTRIBUTING.md`
+- Added:
+  - branch hygiene + archive policy requirements
+
+### Validation Performed
+
+- reference audit for moved/deleted files across README/docs/changelog
+- post-cleanup docs index check (`docs/README.md` links match present files)
+- repository state check after deletion/move set
+
+### Outcome
+
+- Repository root is leaner and easier to navigate.
+- Legacy materials are preserved in archive without polluting active operator surfaces.
+- Governance and best-path docs now reflect current operating reality.
+
 ## 2026-03-06 (UTC) - Repository Revamp Pass (Docs + Hygiene)
 
 ### Goals

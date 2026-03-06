@@ -3,9 +3,9 @@
 Last updated: 2026-02-09
 
 ## Source Inputs Reviewed
-- `/Users/paytonhicks/Documents/Documents - Payton’s MacBook Air/UARK MSF/Quantum + Future + Study/Permanence Systems - files /Permanence_OS_v04_Codex_Instructions.docx`
-- `/Users/paytonhicks/Documents/Documents - Payton’s MacBook Air/UARK MSF/Quantum + Future + Study/Permanence Systems - files /Permanence_Systems_Executive_Overview_v4.docx`
-- `/Users/paytonhicks/Documents/Permanence OS/permanence-os/CODEX_BRIEFING_v0.3.0.md`
+- External v0.4 instruction documents (local machine paths at authoring time).
+- Legacy briefing reference now archived at:
+  - `docs/archive/CODEX_BRIEFING_v0.3.0.md`
 
 ## v0.4 Directive Coverage Status
 - `Sibling Dynamics refactor`: implemented and guarded by `tests/test_sibling_dynamics.py`.
