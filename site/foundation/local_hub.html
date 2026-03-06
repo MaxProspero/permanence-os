@@ -21,6 +21,42 @@
       --rose: #ff8f90;
       --radius: 18px;
       --shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
+      --accent-gradient: linear-gradient(95deg, #7dbdff 8%, #53deb4 42%, #efc36b 92%);
+      --bg-grad-1: rgba(40, 89, 135, 0.75);
+      --bg-grad-2: rgba(74, 61, 31, 0.72);
+      --bg-grad-3: rgba(28, 77, 64, 0.72);
+    }
+
+    body[data-theme="copper"] {
+      --bg: #120e0b;
+      --ink: #fff1e5;
+      --muted: #cfb6a3;
+      --line: rgba(209, 155, 118, 0.28);
+      --card: rgba(37, 22, 16, 0.8);
+      --mint: #f6b776;
+      --amber: #ffc58a;
+      --sky: #ffc58a;
+      --rose: #ff9f8c;
+      --accent-gradient: linear-gradient(95deg, #ffb57d 10%, #ffc58a 48%, #e89d74 90%);
+      --bg-grad-1: rgba(117, 64, 30, 0.68);
+      --bg-grad-2: rgba(71, 42, 24, 0.72);
+      --bg-grad-3: rgba(92, 54, 33, 0.58);
+    }
+
+    body[data-theme="mono"] {
+      --bg: #0d0e12;
+      --ink: #eff1f8;
+      --muted: #acb0bd;
+      --line: rgba(170, 180, 210, 0.24);
+      --card: rgba(21, 23, 31, 0.82);
+      --mint: #a5d8ff;
+      --amber: #d0d8ff;
+      --sky: #9ed0ff;
+      --rose: #f8a9b7;
+      --accent-gradient: linear-gradient(95deg, #a6b8ff 10%, #9ed0ff 50%, #d0d8ff 92%);
+      --bg-grad-1: rgba(71, 86, 126, 0.52);
+      --bg-grad-2: rgba(57, 62, 84, 0.62);
+      --bg-grad-3: rgba(37, 41, 55, 0.58);
     }
 
     * { box-sizing: border-box; }
@@ -29,15 +65,16 @@
       color: var(--ink);
       font-family: "Space Grotesk", system-ui, sans-serif;
       background:
-        radial-gradient(900px 540px at -8% -10%, rgba(40, 89, 135, 0.75), transparent 62%),
-        radial-gradient(820px 420px at 108% -8%, rgba(74, 61, 31, 0.72), transparent 58%),
-        radial-gradient(780px 380px at 50% 120%, rgba(28, 77, 64, 0.72), transparent 60%),
+        radial-gradient(980px 560px at -8% -12%, var(--bg-grad-1), transparent 62%),
+        radial-gradient(900px 460px at 108% -8%, var(--bg-grad-2), transparent 58%),
+        radial-gradient(820px 400px at 52% 120%, var(--bg-grad-3), transparent 60%),
         var(--bg);
       line-height: 1.45;
+      transition: background 260ms ease, color 260ms ease;
     }
 
     .wrap {
-      width: min(1180px, 92vw);
+      width: min(1220px, 92vw);
       margin: 0 auto;
       padding: 30px 0 72px;
     }
@@ -67,6 +104,13 @@
       height: 36px;
     }
 
+    .controls {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
     .links {
       display: inline-flex;
       flex-wrap: wrap;
@@ -84,6 +128,7 @@
       font-family: "IBM Plex Mono", monospace;
       background: rgba(255, 255, 255, 0.04);
       transition: transform 140ms ease, border-color 140ms ease;
+      cursor: pointer;
     }
 
     .links a:hover,
@@ -92,14 +137,37 @@
       border-color: rgba(125, 189, 255, 0.64);
     }
 
+    .theme {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.04);
+      font: 12px "IBM Plex Mono", monospace;
+    }
+
     .hero {
       border: 1px solid var(--line);
       border-radius: 24px;
       padding: clamp(24px, 4vw, 42px);
-      background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015));
       box-shadow: var(--shadow);
       margin-bottom: 16px;
       animation: rise 520ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      right: -90px;
+      bottom: -220px;
+      background: radial-gradient(circle at center, rgba(125, 189, 255, 0.22), transparent 68%);
+      pointer-events: none;
     }
 
     .eyebrow {
@@ -114,16 +182,44 @@
     h1 {
       margin: 0;
       font-size: clamp(34px, 7vw, 66px);
-      line-height: 0.95;
+      line-height: 0.93;
       letter-spacing: -0.03em;
-      max-width: 860px;
+      max-width: 900px;
+    }
+
+    .hero h1 span {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
     }
 
     .hero p {
       color: var(--muted);
-      max-width: 760px;
+      max-width: 780px;
       margin: 14px 0 0;
       font-size: clamp(15px, 2vw, 18px);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .run {
+      display: block;
+      margin-top: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--sky);
+      background: rgba(4, 12, 19, 0.6);
+      border: 1px solid rgba(140, 188, 222, 0.2);
+      border-radius: 10px;
+      padding: 8px 10px;
+      overflow-x: auto;
     }
 
     .stack {
@@ -203,38 +299,83 @@
       color: var(--muted);
     }
 
-    .decision {
+    .matrix {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 12px;
     }
 
-    .decision article {
+    .matrix article {
       border: 1px solid rgba(140, 188, 222, 0.2);
       border-radius: 12px;
       padding: 12px;
-      background: rgba(4, 12, 19, 0.48);
+      background: rgba(4, 12, 19, 0.52);
     }
 
-    .decision h4 {
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(140, 188, 222, 0.28);
+      border-radius: 999px;
+      padding: 3px 7px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    .badge.good {
+      border-color: rgba(83, 222, 180, 0.48);
+      color: var(--mint);
+    }
+
+    .badge.warn {
+      border-color: rgba(239, 195, 107, 0.48);
+      color: var(--amber);
+    }
+
+    .matrix h4 {
       margin: 0 0 6px;
-      font-size: 14px;
+      font-size: 15px;
     }
 
-    .decision ul {
+    .matrix ul {
       margin: 0;
       padding-left: 16px;
       color: var(--muted);
       display: grid;
       gap: 6px;
+      font-size: 14px;
     }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .lanes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
       margin-top: 12px;
+    }
+
+    .lane {
+      border: 1px solid rgba(140, 188, 222, 0.2);
+      border-radius: 12px;
+      background: rgba(4, 12, 19, 0.52);
+      padding: 12px;
+    }
+
+    .lane h4 {
+      margin: 0 0 6px;
+      font-size: 15px;
+    }
+
+    .lane ul {
+      margin: 0;
+      padding-left: 16px;
+      color: var(--muted);
+      display: grid;
+      gap: 5px;
+      font-size: 14px;
     }
 
     .hint {
@@ -244,17 +385,21 @@
       font-size: 12px;
     }
 
-    .run {
-      display: block;
-      margin-top: 8px;
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .footer-links a {
+      text-decoration: none;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 10px;
       font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      color: var(--sky);
-      background: rgba(4, 12, 19, 0.6);
-      border: 1px solid rgba(140, 188, 222, 0.2);
-      border-radius: 10px;
-      padding: 8px 10px;
-      overflow-x: auto;
+      font-size: 11px;
     }
 
     @keyframes rise {
@@ -264,31 +409,42 @@
 
     @media (max-width: 980px) {
       .stack { grid-template-columns: 1fr; }
-      .decision { grid-template-columns: 1fr; }
+      .matrix { grid-template-columns: 1fr; }
+      .lanes { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-<body>
+<body data-theme="aurora">
   <main class="wrap">
     <header class="nav">
       <a class="brand" href="./index.html">
         <img src="./assets/ophtxn_mark.svg" alt="Ophtxn mark">
         <span>Ophtxn Local Hub</span>
       </a>
-      <nav class="links" aria-label="Navigation">
-        <a href="./index.html">Official Site</a>
-        <a href="./official_app.html">App Studio</a>
-        <a href="./ai_school.html">AI School</a>
-        <a href="./press_kit.html">Press Kit</a>
-      </nav>
+      <div class="controls">
+        <label>
+          <span class="visually-hidden" style="position:absolute;left:-9999px;">Theme</span>
+          <select class="theme" id="themeSelect" aria-label="Theme select">
+            <option value="aurora">Aurora</option>
+            <option value="copper">Copper Night</option>
+            <option value="mono">Signal Mono</option>
+          </select>
+        </label>
+        <nav class="links" aria-label="Navigation">
+          <a href="./index.html">Official Site</a>
+          <a href="./official_app.html">App Studio</a>
+          <a href="./ai_school.html">AI School</a>
+          <a href="./press_kit.html">Press Kit</a>
+        </nav>
+      </div>
     </header>
 
     <section class="hero">
       <p class="eyebrow">Localhost Control</p>
-      <h1>One launch surface for your full operator stack.</h1>
+      <h1>One launch surface for your <span>next-level agent stack</span>.</h1>
       <p>
-        This hub keeps your local command center, foundation site, and app shell in one view.
-        Use this as your daily start page so the system feels like one product, not separate tools.
+        This is your command cockpit: health, design direction, stack decisions, and skill lanes in one place.
+        Keep Ophtxn as the source of truth and layer external tools intentionally.
       </p>
       <div class="actions">
         <a class="btn" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Open Command Center</a>
@@ -320,38 +476,88 @@
     </section>
 
     <section class="panel">
-      <h3>Dashboard Strategy (Recommended)</h3>
+      <h3>Stack Decision Matrix (Research-backed)</h3>
       <p>
-        Use a hybrid stack: keep your own Ophtxn dashboard for actions, approvals, and memory; use external tools for narrow jobs where they are strongest.
+        Recommended path: keep Ophtxn core control plane, then combine OpenClaw + remote worker layer, and use Perplexity Computer selectively for scoped research tasks.
       </p>
-      <div class="decision">
+      <div class="matrix">
         <article>
-          <h4>Own in Ophtxn</h4>
+          <span class="badge good">Recommended</span>
+          <h4>Ophtxn Core + OpenClaw + Orgo-style workers</h4>
           <ul>
-            <li>Approvals, command routing, and personal memory.</li>
-            <li>Money gates, no-spend guardrails, and task execution logs.</li>
-            <li>Cross-channel state (Telegram + Discord + local runtime).</li>
+            <li>Own UX, approvals, memory, and execution policy in Ophtxn.</li>
+            <li>Use OpenClaw for channel/runtime actions and plugin tools.</li>
+            <li>Run sub-agents on cheap remote machines when needed.</li>
           </ul>
         </article>
         <article>
-          <h4>Use external tools</h4>
+          <span class="badge warn">Selective</span>
+          <h4>Ophtxn + Perplexity Computer</h4>
           <ul>
-            <li>Google Workspace for Calendar/Gmail identity and collaboration.</li>
-            <li>Cloudflare for domain, edge hosting, and web analytics.</li>
-            <li>OpenClaw dashboard as a runtime console, not your source of truth.</li>
+            <li>Use Perplexity Computer for deep browsing or connector-heavy tasks.</li>
+            <li>Keep final decisions and workflows routed back into Ophtxn.</li>
+            <li>Avoid platform lock-in by preserving first-party runbooks.</li>
+          </ul>
+        </article>
+        <article>
+          <span class="badge">Not Ideal</span>
+          <h4>Perplexity-only Control Plane</h4>
+          <ul>
+            <li>Faster start, weaker ownership of memory and governance.</li>
+            <li>Less flexibility for custom agent orchestration.</li>
+            <li>Higher long-term dependency risk for your product vision.</li>
           </ul>
         </article>
       </div>
-      <p class="hint">OpenClaw dashboard command: <code>openclaw dashboard</code></p>
+      <p class="hint">Hard rule: we do not remove model safety rails via jailbreaks. Ophtxn governance is where policy and permissions are tuned.</p>
+    </section>
+
+    <section class="panel">
+      <h3>Skill Lanes</h3>
+      <p>Use these lanes to keep skills unlocked but controlled.</p>
+      <div class="lanes">
+        <article class="lane">
+          <h4>Codex Lane</h4>
+          <ul>
+            <li>`playwright` for browser automation tasks.</li>
+            <li>`cloudflare-deploy` for deploy and domain operations.</li>
+            <li>`openai-docs` and `security-*` skills for reliable implementation.</li>
+          </ul>
+        </article>
+        <article class="lane">
+          <h4>OpenClaw Lane</h4>
+          <ul>
+            <li>Use channel configs + group policies for controlled agent actions.</li>
+            <li>Use OpenClaw Skills for repeatable social/research workflows.</li>
+            <li>Keep OpenClaw runtime as worker layer, not canonical memory.</li>
+          </ul>
+        </article>
+        <article class="lane">
+          <h4>Chrome Lane</h4>
+          <ul>
+            <li>Keep a dedicated "agent ops" profile with minimal extensions.</li>
+            <li>Pin only your run surfaces: Local Hub, Command Center, App Shell.</li>
+            <li>Use Perplexity tab/workspace only for bounded research sessions.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/MaxProspero/permanence-os/blob/main/docs/ophtxn_dashboard_stack_strategy_20260306.md">Stack Strategy Doc</a>
+        <a href="https://github.com/MaxProspero/permanence-os/blob/main/docs/ophtxn_platform_intelligence_20260306.md">Platform Intelligence</a>
+        <a href="https://github.com/MaxProspero/permanence-os/blob/main/docs/ophtxn_skill_stack_20260306.md">Skill Stack</a>
+      </div>
     </section>
   </main>
 
   <script>
     const endpoints = {
-      status8000: { url: "http://127.0.0.1:8000/api/status", label: "8000" },
-      status8787: { url: "http://127.0.0.1:8787/", label: "8787" },
-      status8797: { url: "http://127.0.0.1:8797/health", label: "8797" },
+      status8000: { url: "http://127.0.0.1:8000/api/status", expectJson: true },
+      status8787: { url: "http://127.0.0.1:8787/", expectJson: false },
+      status8797: { url: "http://127.0.0.1:8797/health", expectJson: true },
     };
+
+    const themeKey = "ophtxn_local_hub_theme";
+    const themeSelect = document.getElementById("themeSelect");
 
     function setStatus(id, text, level) {
       const el = document.getElementById(id);
@@ -359,6 +565,11 @@
       el.textContent = text;
       el.classList.remove("ok", "warn", "bad");
       if (level) el.classList.add(level);
+    }
+
+    function applyTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+      localStorage.setItem(themeKey, theme);
     }
 
     async function ping(id, url, expectJson) {
@@ -387,11 +598,19 @@
 
     async function refreshHealth() {
       await Promise.all([
-        ping("status8000", endpoints.status8000.url, true),
-        ping("status8787", endpoints.status8787.url, false),
-        ping("status8797", endpoints.status8797.url, true),
+        ping("status8000", endpoints.status8000.url, endpoints.status8000.expectJson),
+        ping("status8787", endpoints.status8787.url, endpoints.status8787.expectJson),
+        ping("status8797", endpoints.status8797.url, endpoints.status8797.expectJson),
       ]);
     }
+
+    const initialTheme = localStorage.getItem(themeKey) || "aurora";
+    themeSelect.value = initialTheme;
+    applyTheme(initialTheme);
+
+    themeSelect.addEventListener("change", (event) => {
+      applyTheme(String(event.target.value || "aurora"));
+    });
 
     document.getElementById("refreshBtn").addEventListener("click", refreshHealth);
     refreshHealth();
