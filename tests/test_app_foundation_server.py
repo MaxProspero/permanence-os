@@ -120,7 +120,22 @@ def test_foundation_ophtxn_shell_and_ops_summary() -> None:
 
         shell = client.get("/app/ophtxn")
         assert shell.status_code == 200
-        assert "Ophtxn App Shell" in (shell.get_data(as_text=True) or "")
+        assert "Ophtxn Operator Shell" in (shell.get_data(as_text=True) or "")
+
+        official = client.get("/app/official")
+        assert official.status_code == 200
+
+        studio = client.get("/app/studio")
+        assert studio.status_code == 200
+
+        press = client.get("/app/press")
+        assert press.status_code == 200
+
+        hub = client.get("/app/hub")
+        assert hub.status_code == 200
+
+        runtime_js = client.get("/app/runtime.config.js")
+        assert runtime_js.status_code == 200
 
         unauthorized = client.get("/ops/summary")
         assert unauthorized.status_code == 401

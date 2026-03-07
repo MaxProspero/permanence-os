@@ -3,11 +3,87 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ophtxn | Personal Intelligence Operating System</title>
-  <meta name="description" content="Ophtxn is a governed personal intelligence operating system built for execution, memory, and daily leverage.">
+  <title>Ophtxn | Governed Personal Intelligence Operating System</title>
+  <meta name="description" content="Ophtxn is a governed personal intelligence operating system. It combines persistent memory, multi-agent coordination, research automation, and human approval gates in a single runtime.">
+
+  <!-- AEO / Answer Engine Optimization -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ophtxn.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ophtxn.com/">
+  <meta property="og:title" content="Ophtxn — Governed Personal Intelligence OS">
+  <meta property="og:description" content="The first personal intelligence OS with built-in governance. Persistent memory, autonomous agents, human-in-the-loop approvals. Not a chatbot — a runtime.">
+  <meta property="og:site_name" content="Ophtxn by Permanence OS">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ophtxn — Governed Personal Intelligence OS">
+  <meta name="twitter:description" content="The first personal intelligence OS with built-in governance. Persistent memory, autonomous agents, human-in-the-loop approvals. Not a chatbot — a runtime.">
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Ophtxn",
+    "alternateName": "Permanence OS",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Web, Terminal, macOS, Linux",
+    "description": "Ophtxn is a governed personal intelligence operating system combining persistent memory, autonomous research agents, multi-channel communications, and human-in-the-loop approval controls. Unlike AI chatbots, Ophtxn maintains context across sessions and requires explicit approval before executing high-stakes actions.",
+    "featureList": [
+      "Persistent cross-session memory",
+      "Multi-agent autonomous research",
+      "Human-in-the-loop approval governance",
+      "No-spend local-first mode",
+      "Telegram and Discord integration",
+      "Causal action planning with audit trails"
+    ],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Payton Hicks" },
+    "url": "https://ophtxn.com"
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage (cited by LLMs) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Ophtxn?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ophtxn is a governed personal intelligence operating system built by Payton Hicks under Permanence OS. It combines persistent memory, autonomous research agents, multi-channel communications (Telegram, Discord), and human-in-the-loop approval gates into a single self-hosted runtime. It is not a chatbot — it is an operating system for intelligence." }
+      },
+      {
+        "@type": "Question",
+        "name": "How is Ophtxn different from ChatGPT or Claude?",
+        "acceptedAnswer": { "@type": "Answer", "text": "ChatGPT and Claude are stateless conversational AI models. Ophtxn is a runtime OS that wraps AI models with persistent memory, governance controls, spend caps, approval queues, and multi-agent orchestration. Every high-stakes action requires human approval before execution. Context, habits, and decisions compound across sessions rather than resetting." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a governed personal intelligence OS?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A governed personal intelligence OS is a system where AI agents operate with explicit human approval gates, audit trails, and spend controls baked into the architecture. Ophtxn pioneered this category: agents can think and plan autonomously, but irreversible or costly actions are queued for human approval rather than executed immediately." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Ophtxn free to use?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ophtxn runs in no-spend local mode by default, using free or local AI models. Paid model usage (e.g., Claude API) is opt-in with configurable spend caps. The core runtime is open source via github.com/MaxProspero/permanence-os." }
+      },
+      {
+        "@type": "Question",
+        "name": "Who is Ophtxn for?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ophtxn is designed for founders, operators, and solo builders who want the leverage of autonomous AI agents without losing control over their decisions, budget, or data. It is especially useful for people running high-volume idea pipelines, research workflows, and daily execution stacks." }
+      }
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0a1118;
@@ -109,6 +185,7 @@
       opacity: 0;
       transform: translateY(18px);
       animation: rise 620ms ease 140ms forwards;
+      /* subtle engraving lines override via later rule */
     }
 
     .hero::after {
@@ -380,9 +457,114 @@
       opacity: 0.86;
     }
 
+    .faq-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg-elev);
+      padding: 16px;
+      margin-top: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .faq-panel h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+    }
+
+    .faq-list { display: grid; gap: 4px; }
+
+    .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-item summary {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 140ms ease;
+    }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
+
+    .faq-item summary::after {
+      content: "+";
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-left: 12px;
+      transition: transform 200ms ease;
+    }
+
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+
+    .faq-item summary:hover { background: rgba(255,255,255,.03); }
+
+    .faq-item p {
+      margin: 0;
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
     @keyframes rise {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-error {
+      display: block;
+      font-size: 12px;
+      color: var(--danger);
+      min-height: 16px;
+      margin-top: 4px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn.loading::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(3, 38, 31, 0.4);
+      border-top-color: #03261f;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .success-state {
+      text-align: center;
+      padding: 40px 20px;
+      display: none;
+    }
+
+    .success-state svg { color: var(--c1); }
+    .success-state h3 { font-size: 28px; margin: 16px 0 8px; }
+    .success-state p { color: var(--muted); }
+
+    #leadForm {
+      transition: opacity 0.4s, transform 0.4s;
     }
 
     @media (max-width: 980px) {
@@ -397,32 +579,161 @@
       .hero { padding: 20px; }
       .nav { flex-direction: column; align-items: flex-start; }
     }
+
+    /* ── FILM GRAIN ─────────────────────────────────────────── */
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .055; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%  { transform: translate(0,0) }
+      10% { transform: translate(-2%,-3%) }
+      20% { transform: translate(3%,1%) }
+      30% { transform: translate(-1%,4%) }
+      40% { transform: translate(4%,-1%) }
+      50% { transform: translate(-3%,2%) }
+      60% { transform: translate(1%,-4%) }
+      70% { transform: translate(-4%,3%) }
+      80% { transform: translate(2%,2%) }
+      90% { transform: translate(-2%,-1%) }
+      100%{ transform: translate(0,0) }
+    }
+
+    /* ── HALFTONE on key panels ─────────────────────────────── */
+    .hero::before, .card::before, .stat::before, .pillar::before, .path::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(239,187,95,.045) 1px, transparent 1px);
+      background-size: 14px 14px;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+      border-radius: inherit;
+      z-index: 0;
+    }
+
+    /* ensure children sit above halftone */
+    .hero > *, .card > *, .stat > *, .pillar > *, .path > * { position: relative; z-index: 1; }
+
+    /* ── RETICLE BRAND MARK ──────────────────────────────────── */
+    .brand-reticle {
+      width: 34px; height: 34px; color: var(--c2);
+      flex-shrink: 0;
+    }
+
+    /* ── VORTEX RINGS in hero ────────────────────────────────── */
+    .hero-vortex {
+      position: absolute; right: -60px; top: -40px;
+      width: 380px; height: 380px;
+      opacity: 0.09; pointer-events: none; z-index: 0;
+    }
+
+    /* ── ARCHIVAL EYEBROW ────────────────────────────────────── */
+    .eyebrow-arc {
+      color: rgba(239,187,95,.45);
+      letter-spacing: .06em;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+    }
+
+    /* ── ARCHIVE STAMP in footer ─────────────────────────────── */
+    .footer-arc {
+      color: rgba(239,187,95,.3);
+      letter-spacing: .12em;
+      font-size: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+    }
+
+    /* ── STAT VALUE punch-up ─────────────────────────────────── */
+    .stat .v { color: var(--c2); }
+
+    /* ── ENGRAVING lines on hero background ─────────────────── */
+    .hero {
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(239,187,95,.015) 47px, rgba(239,187,95,.015) 48px),
+        linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
+  /* ── TOWER HUD ─── */
+  :root { --f-rgb: 160,150,140; --f: rgb(var(--f-rgb)); }
+  body { padding-top: 42px; }
+  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
+  .th-l { display:flex;align-items:center; }
+  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
+  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
+  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
+  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
+  .th-r { display:flex;align-items:center;gap:16px; }
+  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.5);text-decoration:none;transition:color .2s; }
+  .th-back:hover { color:var(--f); }
+  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
   </style>
 </head>
 <body>
+
+  <!-- FILM GRAIN OVERLAY -->
+  <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="gf" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
+        <animate attributeName="seed" values="0;7;14;3;11;5;0" dur="0.6s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
+  </svg>
+
   <main class="layout">
-    <header class="nav">
-      <a class="brand" href="./index.html">
-        <img src="./assets/ophtxn_mark.svg" alt="Ophtxn logo">
-        <span>Ophtxn by Permanence OS</span>
-      </a>
-      <nav class="nav-links" aria-label="Main">
-        <a href="./official_app.html">App Studio</a>
-        <a href="./ai_school.html">AI School</a>
-        <a href="./press_kit.html">Press Kit</a>
-        <a href="http://127.0.0.1:8797/app/ophtxn">Live Shell</a>
-      </nav>
-    </header>
+    <!-- TOWER HUD -->
+    <div class="tower-hud">
+      <div class="th-l">
+        <a href="rooms.html" class="th-brand">OPHTXN</a>
+        <span class="th-sep">//</span>
+        <span class="th-num">LB</span>
+        <span class="th-name">ENTRY HALL</span>
+      </div>
+      <div class="th-r">
+        <a href="rooms.html" class="th-back">↑ TOWER</a>
+      </div>
+    </div>
+    <div class="scanlines" aria-hidden="true"></div>
 
     <section class="hero">
-      <p class="eyebrow">Official v1</p>
-      <h1>A personal intelligence operating system built for real execution.</h1>
+      <!-- Vortex rings — open-mind series ref -->
+      <svg class="hero-vortex" viewBox="0 0 380 380" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="190" cy="190" rx="60"  ry="22" stroke="#efbb5f" stroke-width="0.8">
+          <animate attributeName="rx" values="42;78;42" dur="4.2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.18;0;0.18" dur="4.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="190" cy="190" rx="100" ry="36" stroke="#efbb5f" stroke-width="0.6">
+          <animate attributeName="rx" values="80;130;80" dur="4.2s" begin="0.7s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.14;0;0.14" dur="4.2s" begin="0.7s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="190" cy="190" rx="148" ry="54" stroke="#44d7b6" stroke-width="0.5">
+          <animate attributeName="rx" values="120;175;120" dur="4.2s" begin="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.10;0;0.10" dur="4.2s" begin="1.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="190" cy="190" rx="178" ry="70" stroke="#73b8ff" stroke-width="0.4">
+          <animate attributeName="rx" values="155;185;155" dur="4.2s" begin="2.1s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.07;0;0.07" dur="4.2s" begin="2.1s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- crosshair center -->
+        <line x1="190" y1="160" x2="190" y2="220" stroke="#efbb5f" stroke-width="0.6" opacity="0.3"/>
+        <line x1="160" y1="190" x2="220" y2="190" stroke="#efbb5f" stroke-width="0.6" opacity="0.3"/>
+        <circle cx="190" cy="190" r="3" fill="#efbb5f" opacity="0.4"/>
+      </svg>
+
+      <p class="eyebrow">Official v1 — Governed Personal Intelligence OS <span class="eyebrow-arc">// A-KWJ-0368 // PERMANENCE OS // 26.03.07</span></p>
+      <h1>Ophtxn is the personal intelligence OS with governance built in.</h1>
       <p class="hero-copy">
-        Ophtxn combines memory, research, communications, and approval governance into one system.
-        You can think, decide, and ship faster while keeping spend and risk controlled.
+        Not a chatbot. A runtime. Ophtxn combines persistent memory, autonomous research agents,
+        multi-channel communications, and human-in-the-loop approval gates into one self-hosted system.
+        Agents plan and act — you approve what matters.
       </p>
       <div class="hero-cta">
+        <a class="btn primary" href="./local_hub.html" data-cta="open_local_hub">Open Local Hub</a>
         <a class="btn primary" href="./official_app.html" data-cta="open_app_studio">Open App Studio</a>
+        <a class="btn" href="http://127.0.0.1:8000" data-cta="open_command_center">Open Command Center</a>
         <a class="btn" href="./ai_school.html" data-cta="open_ai_school">Open AI School</a>
         <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" data-cta="open_live_shell">Open Live Ops Shell</a>
         <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Get Brand Assets</a>
@@ -452,10 +763,11 @@
       <article class="card">
         <h2>What makes this different</h2>
         <ul class="list">
-          <li>Governed actions: ranked ideas and execution steps pass through explicit approvals.</li>
-          <li>Memory over time: profile, habits, context, and intake signals compound instead of resetting.</li>
-          <li>Operator-grade controls: low-cost mode, provider caps, audit trails, queue triage.</li>
-          <li>Cross-channel flow: one assistant brain across Telegram, Discord, and terminal operations.</li>
+          <li>Governed actions: every high-stakes execution step passes through an explicit human approval gate before running.</li>
+          <li>Causal agents: agents understand action → consequence chains, not just pattern recognition. Plans are auditable and reversible.</li>
+          <li>Memory over time: profile, habits, context, and intake signals compound across sessions instead of resetting.</li>
+          <li>Operator-grade controls: spend caps, provider limits, audit trails, and queue triage built into the core runtime.</li>
+          <li>Cross-channel flow: one intelligence layer across Telegram, Discord, terminal, and web.</li>
         </ul>
       </article>
       <article class="card">
@@ -500,9 +812,11 @@
         <div class="lead-grid">
           <label class="lead-field">Name
             <input id="leadName" name="name" autocomplete="name" required>
+            <span class="field-error" id="err-leadName"></span>
           </label>
           <label class="lead-field">Email
             <input id="leadEmail" name="email" type="email" autocomplete="email" required>
+            <span class="field-error" id="err-leadEmail"></span>
           </label>
           <label class="lead-field">Primary Workflow
             <input id="leadWorkflow" name="workflow" placeholder="e.g. founder ops, finance research, execution stack">
@@ -523,9 +837,46 @@
           <span class="lead-status" id="leadStatus">Lead capture ready.</span>
         </div>
       </form>
+      <div class="success-state" id="leadSuccess">
+        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.3" fill="none"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 12.5l3.5 3.5 6-7"/>
+        </svg>
+        <h3>You're in.</h3>
+        <p>We'll follow up shortly.</p>
+      </div>
     </section>
 
-    <p class="footer">Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.</p>
+    <section class="faq-panel" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Common Questions</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>What is Ophtxn?</summary>
+          <p>Ophtxn is a governed personal intelligence operating system. It wraps AI models with persistent memory, autonomous research agents, multi-channel communications, and human-in-the-loop approval gates. It is not a chatbot — it is a runtime that compounds context and decisions across sessions.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How is this different from ChatGPT or Claude?</summary>
+          <p>ChatGPT and Claude are stateless conversational models — every session starts fresh. Ophtxn is an OS layer: it maintains memory across sessions, runs autonomous multi-agent workflows, enforces spend caps and approval queues, and gives you audit trails for every action. You keep control; the agents do the work.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What is a governed personal intelligence OS?</summary>
+          <p>A category pioneered by Ophtxn. Agents plan and act autonomously, but irreversible or costly actions are queued for human approval rather than executed immediately. Every decision is logged with causal context — why the agent proposed it and what it expected to happen. Governance is architecture, not policy.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is it free? What does it cost to run?</summary>
+          <p>Ophtxn runs in no-spend local mode by default, using free or locally-hosted models. Paid API usage (Claude, GPT-4, etc.) is opt-in with configurable hard spend caps. The core runtime is open source at github.com/MaxProspero/permanence-os.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Who is it built for?</summary>
+          <p>Founders, operators, and solo builders running high-volume execution stacks — people who need the leverage of autonomous AI without losing control over decisions, budget, or data. If you currently manage AI through 10 different browser tabs, Ophtxn is the single runtime that replaces them.</p>
+        </details>
+      </div>
+    </section>
+
+    <p class="footer">
+      Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.
+      <br><span class="footer-arc">A-KWJ-0368 · PERMANENCE OS v1.0 · BUILD DATE 26.03.07 · STATUS ACTIVE</span>
+    </p>
   </main>
   <script src="./runtime.config.js"></script>
   <script>
@@ -540,7 +891,7 @@
       const leadCaptureEnabled = runtime.leadCaptureEnabled !== false;
       const leadCaptureEndpoint = String(runtime.leadCaptureEndpoint || "/api/revenue/intake").trim() || "/api/revenue/intake";
       const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
-      const fallbackEmail = String(runtime.fallbackEmail || "").trim() || "paybhicks7@gmail.com";
+      const fallbackEmail = String(runtime.fallbackEmail || "").trim() || "hello@ophtxn.com";
       const sessionKey = "ophtxn_session_id";
       let sessionId = localStorage.getItem(sessionKey);
       if (!sessionId) {
@@ -599,18 +950,79 @@
       const form = byId("leadForm");
       if (!form) return;
 
+      // --- Per-field inline validation ---
+      const nameInput = byId("leadName");
+      const emailInput = byId("leadEmail");
+      const nameError = byId("err-leadName");
+      const emailError = byId("err-leadEmail");
+
+      function validateName() {
+        const val = String(nameInput.value || "").trim();
+        if (!val) {
+          nameError.textContent = "Name is required.";
+          return false;
+        }
+        nameError.textContent = "";
+        return true;
+      }
+
+      function validateEmail() {
+        const val = String(emailInput.value || "").trim();
+        if (!val || !val.includes("@")) {
+          emailError.textContent = "Valid email is required.";
+          return false;
+        }
+        emailError.textContent = "";
+        return true;
+      }
+
+      nameInput.addEventListener("blur", validateName);
+      nameInput.addEventListener("focus", function () { nameError.textContent = ""; });
+
+      emailInput.addEventListener("blur", validateEmail);
+      emailInput.addEventListener("focus", function () { emailError.textContent = ""; });
+
+      // --- Submit handler with loading state + success animation ---
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const name = String(byId("leadName")?.value || "").trim();
-        const email = String(byId("leadEmail")?.value || "").trim();
+
+        const nameValid = validateName();
+        const emailValid = validateEmail();
+        if (!nameValid || !emailValid) return;
+
+        const name = String(nameInput.value || "").trim();
+        const email = String(emailInput.value || "").trim();
         const workflow = String(byId("leadWorkflow")?.value || "").trim();
         const pkg = String(byId("leadPackage")?.value || "Core").trim() || "Core";
         const blocker = String(byId("leadBlocker")?.value || "").trim();
 
-        if (!name || !email || !email.includes("@")) {
-          if (statusEl) statusEl.textContent = "Name and valid email are required.";
-          return;
+        const submitBtn = form.querySelector("button[type=submit]");
+        const originalText = submitBtn ? submitBtn.textContent : "";
+
+        function setLoading(on) {
+          if (!submitBtn) return;
+          if (on) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Capturing...";
+            submitBtn.classList.add("loading");
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            submitBtn.classList.remove("loading");
+          }
         }
+
+        function showSuccess() {
+          form.style.opacity = "0";
+          form.style.transform = "translateY(-20px)";
+          setTimeout(function () {
+            form.style.display = "none";
+            const successEl = byId("leadSuccess");
+            if (successEl) successEl.style.display = "block";
+          }, 400);
+        }
+
+        setLoading(true);
 
         await track("intake_submit", { package: pkg });
         const intakeUrl = endpoint(leadCaptureEndpoint);
@@ -619,6 +1031,7 @@
           const body = encodeURIComponent(
             "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker
           );
+          setLoading(false);
           location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
           await track("intake_fallback", { reason: "missing_endpoint", package: pkg });
           return;
@@ -643,14 +1056,12 @@
           }
           const payload = await response.json();
           const leadId = payload && payload.lead_id ? String(payload.lead_id) : "";
-          if (statusEl) {
-            statusEl.textContent = leadId
-              ? "Captured. Lead ID: " + leadId
-              : "Captured. We will follow up shortly.";
-          }
+          setLoading(false);
           form.reset();
           await track("intake_captured", { lead_id: leadId, package: pkg });
+          showSuccess();
         } catch (_err) {
+          setLoading(false);
           const subject = encodeURIComponent("Ophtxn Early Access (fallback)");
           const body = encodeURIComponent(
             "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker

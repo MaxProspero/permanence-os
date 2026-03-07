@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, request, send_from_directory
 
 from app.foundation.storage import append_jsonl, ensure_root, load_json, read_jsonl, save_json
 
@@ -40,11 +40,29 @@ def _latest_tool_payload(tool_root: Path, prefix: str) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
 def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
     base_dir = Path(__file__).resolve().parents[2]
+    site_root = base_dir / "site" / "foundation"
+
     root = ensure_root(storage_root or _storage_root(base_dir))
     tool_dir = ensure_root(tool_root or (base_dir / "memory" / "tool"))
-    shell_html_path = Path(shell_path or (base_dir / "site" / "foundation" / "ophtxn_shell.html"))
+
+    shell_html_path = Path(shell_path or (site_root / "ophtxn_shell.html"))
+    official_html_path = site_root / "index.html"
+    studio_html_path = site_root / "official_app.html"
+    press_html_path = site_root / "press_kit.html"
+    hub_html_path = site_root / "local_hub.html"
+    ai_school_html_path = site_root / "ai_school.html"
+    runtime_config_path = site_root / "runtime.config.js"
+    assets_root = site_root / "assets"
+
     sessions_path = root / "sessions.json"
     profiles_path = root / "profiles.json"
     memory_path = root / "memory_entries.jsonl"
@@ -88,6 +106,13 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             return None, None
         return token, session
 
+    def _serve_html(path: Path, error_label: str) -> Any:
+        try:
+            html = path.read_text(encoding="utf-8")
+        except OSError:
+            return jsonify({"ok": False, "error": f"{error_label} not found"}), 404
+        return Response(html, mimetype="text/html; charset=utf-8")
+
     @app.get("/health")
     def health() -> Any:
         return jsonify(
@@ -101,11 +126,41 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
 
     @app.get("/app/ophtxn")
     def ophtxn_shell() -> Any:
+        return _serve_html(shell_html_path, "ophtxn shell")
+
+    @app.get("/app/official")
+    def official_site() -> Any:
+        return _serve_html(official_html_path, "official site")
+
+    @app.get("/app/studio")
+    def official_studio() -> Any:
+        return _serve_html(studio_html_path, "studio page")
+
+    @app.get("/app/press")
+    def official_press() -> Any:
+        return _serve_html(press_html_path, "press kit")
+
+    @app.get("/app/hub")
+    def local_hub() -> Any:
+        return _serve_html(hub_html_path, "local hub")
+
+    @app.get("/app/ai-school")
+    def ai_school() -> Any:
+        return _serve_html(ai_school_html_path, "ai school")
+
+    @app.get("/app/runtime.config.js")
+    def runtime_config() -> Any:
         try:
-            html = shell_html_path.read_text(encoding="utf-8")
+            content = runtime_config_path.read_text(encoding="utf-8")
         except OSError:
-            return jsonify({"ok": False, "error": "ophtxn shell not found"}), 404
-        return Response(html, mimetype="text/html; charset=utf-8")
+            return jsonify({"ok": False, "error": "runtime config not found"}), 404
+        return Response(content, mimetype="application/javascript; charset=utf-8")
+
+    @app.get("/app/assets/<path:filename>")
+    def app_assets(filename: str) -> Any:
+        if not assets_root.exists():
+            return jsonify({"ok": False, "error": "assets directory not found"}), 404
+        return send_from_directory(str(assets_root), filename)
 
     @app.post("/auth/session")
     def auth_session() -> Any:
@@ -179,22 +234,29 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         comms_status = _latest_tool_payload(tool_dir, "comms_status")
         self_improvement = _latest_tool_payload(tool_dir, "self_improvement")
         approvals = _latest_tool_payload(tool_dir, "approval_execution_board")
+        approval_triage = _latest_tool_payload(tool_dir, "approval_triage")
+        no_spend_audit = _latest_tool_payload(tool_dir, "no_spend_audit")
 
         money_status = money_gate.get("status") if isinstance(money_gate.get("status"), dict) else {}
+        approval_counts = approval_triage.get("counts") if isinstance(approval_triage.get("counts"), dict) else {}
+        audit_violations = no_spend_audit.get("violations") if isinstance(no_spend_audit.get("violations"), list) else []
+
         payload = {
             "ok": True,
             "user_id": user_id,
             "generated_at": _now_iso(),
             "summary": {
-                "completion_pct": int(float(completion.get("completion_pct") or 0)),
+                "completion_pct": _safe_int(completion.get("completion_pct"), 0),
                 "completion_blockers": len(completion.get("blockers") or []),
                 "feature_work_unlocked": bool(money_status.get("gate_pass")),
                 "won_revenue_usd": float(money_status.get("won_revenue_usd") or 0.0),
-                "won_deals": int(float(money_status.get("won_deals") or 0)),
+                "won_deals": _safe_int(money_status.get("won_deals"), 0),
                 "comms_warnings": len(comms_status.get("warnings") or []),
-                "self_improvement_pending": int(float(self_improvement.get("pending_count") or 0)),
-                "approved_execution_tasks": int(float(approvals.get("task_count") or 0)),
-                "newly_queued_tasks": int(float(approvals.get("marked_queued_count") or 0)),
+                "self_improvement_pending": _safe_int(self_improvement.get("pending_count"), 0),
+                "approved_execution_tasks": _safe_int(approvals.get("task_count"), 0),
+                "newly_queued_tasks": _safe_int(approvals.get("marked_queued_count"), 0),
+                "approvals_pending": _safe_int(approval_counts.get("PENDING_HUMAN_REVIEW"), 0),
+                "no_spend_violations": len(audit_violations),
             },
             "sources": {
                 "completion": str(completion.get("latest_markdown") or ""),
@@ -202,6 +264,8 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 "comms_status": str(comms_status.get("latest_markdown") or ""),
                 "self_improvement": str(self_improvement.get("latest_markdown") or ""),
                 "approval_execution_board": str(approvals.get("latest_markdown") or ""),
+                "approval_triage": str(approval_triage.get("latest_markdown") or ""),
+                "no_spend_audit": str(no_spend_audit.get("latest_markdown") or ""),
             },
         }
         return jsonify(payload)

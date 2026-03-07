@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPHTXN TOWER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #020406;
+  --bldg:  #05080e;
+  --panel: #040710;
+  --ink:   #8aaac8;
+  --dim:   #1e2e42;
+  --game:  'Orbitron', 'DM Mono', monospace;
+  --mono:  'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+
+body {
+  color: var(--ink);
+  font-family: var(--mono);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── SCANLINES ────────────────────────── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 500;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,.06) 2px, rgba(0,0,0,.06) 4px
+  );
+  pointer-events: none;
+}
+
+/* ── HUD TOP ──────────────────────────── */
+.hud-top {
+  height: 42px; flex-shrink: 0; z-index: 20; position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(0,229,196,.1);
+  background: rgba(2,4,6,.95);
+}
+
+.hud-brand {
+  font-family: var(--game); font-size: 11px; font-weight: 700;
+  letter-spacing: .28em; color: #00e5c4; text-decoration: none;
+}
+
+.hud-sep  { color: var(--dim); margin: 0 10px; }
+
+.hud-title {
+  font-family: var(--game); font-size: 8px;
+  letter-spacing: .3em; color: var(--dim);
+}
+
+.hud-left, .hud-right { display: flex; align-items: center; }
+
+.hud-stat {
+  font-family: var(--game); font-size: 7.5px;
+  letter-spacing: .2em; color: var(--dim); margin-left: 20px;
+}
+
+.stat-val       { color: var(--ink); margin-left: 5px; }
+.stat-val.live  { color: #00e5c4; animation: glow-blink 2s infinite; }
+.stat-val.warn  { color: #f8c842; }
+.stat-val.dead  { color: #ff5c8a; }
+
+@keyframes glow-blink {
+  0%,100% { opacity: 1; } 50% { opacity: .35; }
+}
+
+/* ── MAIN AREA ────────────────────────── */
+.main {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 28px; padding: 16px 24px;
+  position: relative; z-index: 5; overflow: hidden;
+}
+
+/* ── STARS ────────────────────────────── */
+.stars {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+
+/* ── CITY SKYLINE ─────────────────────── */
+.city {
+  position: fixed; bottom: 38px; left: 0; right: 0;
+  height: 110px; z-index: 1;
+  display: flex; align-items: flex-end;
+  pointer-events: none;
+}
+.cb { background: #04070d; border-top: 1px solid #0c1520; flex-shrink: 0; }
+
+/* ── BUILDING COLUMN ──────────────────── */
+.tower-col {
+  display: flex; flex-direction: column; align-items: center;
+  position: relative; z-index: 5;
+}
+
+/* Roof bar */
+.roof {
+  width: 660px; height: 28px;
+  background: #07101c;
+  border: 1px solid rgba(0,229,196,.18);
+  border-bottom: none;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+}
+
+.roof-label {
+  font-family: var(--game); font-size: 7.5px;
+  letter-spacing: .3em; color: rgba(0,229,196,.4);
+}
+
+.antenna {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.ant-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #ff5c8a; box-shadow: 0 0 8px #ff5c8a;
+  animation: glow-blink 1.1s infinite;
+}
+
+.ant-label {
+  font-family: var(--game); font-size: 7px;
+  letter-spacing: .2em; color: rgba(255,92,138,.5);
+}
+
+/* Building body */
+.building {
+  width: 660px;
+  border: 1px solid rgba(0,229,196,.1);
+  background: var(--bldg);
+  position: relative; overflow: hidden;
+}
+
+/* Vertical column lines (structural look) */
+.building::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 80px,
+    rgba(255,255,255,.012) 80px,
+    rgba(255,255,255,.012) 81px
+  );
+  pointer-events: none; z-index: 0;
+}
+
+/* Ground slab */
+.ground {
+  width: 680px; height: 8px;
+  background: linear-gradient(to bottom, rgba(0,229,196,.06), transparent);
+  border-left: 1px solid rgba(0,229,196,.06);
+  border-right: 1px solid rgba(0,229,196,.06);
+}
+
+/* ── FLOOR ROW ────────────────────────── */
+.floor {
+  position: relative; z-index: 1;
+  height: 70px;
+  display: grid;
+  grid-template-columns: 76px 1fr 84px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  cursor: pointer;
+  transition: background .15s;
+  --f-rgb: 255,255,255;
+}
+
+.floor:last-child { border-bottom: none; }
+
+.floor:hover, .floor.sel {
+  background: rgba(var(--f-rgb), .04);
+}
+
+/* Left glow stripe on selection */
+.floor::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background .2s, box-shadow .2s;
+}
+
+.floor.sel::before {
+  background: rgba(var(--f-rgb), 1);
+  box-shadow: 0 0 12px rgba(var(--f-rgb), .7);
+}
+
+/* Triangle cursor (right side) */
+.floor-cursor {
+  position: absolute; right: -9px; top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 9px solid rgba(var(--f-rgb), .9);
+  display: none;
+}
+.floor.sel .floor-cursor { display: block; }
+
+/* ── FLOOR LABEL (left col) ───────────── */
+.fl-label {
+  padding: 0 10px 0 14px;
+  height: 100%; display: flex; flex-direction: column;
+  justify-content: center; gap: 4px;
+  border-right: 1px solid rgba(255,255,255,.03);
+}
+
+.fl-num {
+  font-family: var(--game); font-size: 18px; font-weight: 900;
+  color: rgba(var(--f-rgb), .85); line-height: 1;
+  text-shadow: 0 0 10px rgba(var(--f-rgb), .4);
+}
+
+.fl-tag {
+  font-family: var(--game); font-size: 6.5px;
+  letter-spacing: .15em; color: rgba(var(--f-rgb), .4);
+  text-transform: uppercase; line-height: 1;
+}
+
+/* ── WINDOWS (center col) ─────────────── */
+.wins {
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  align-content: center;
+}
+
+.w {
+  height: 17px;
+  background: rgba(var(--f-rgb), .055);
+  border: 1px solid rgba(var(--f-rgb), .1);
+  transition: background .7s, box-shadow .7s;
+}
+
+.w.on {
+  background: rgba(var(--f-rgb), .52);
+  box-shadow: 0 0 5px rgba(var(--f-rgb), .3);
+}
+
+/* ── FLOOR PORT (right col) ───────────── */
+.fl-port {
+  padding: 0 10px;
+  height: 100%; display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-end; gap: 5px;
+  border-left: 1px solid rgba(255,255,255,.03);
+}
+
+.port-tag {
+  font-family: var(--game); font-size: 8px;
+  letter-spacing: .12em; color: rgba(var(--f-rgb), .55);
+}
+
+.port-status {
+  display: flex; align-items: center; gap: 4px;
+  font-family: var(--game); font-size: 6.5px;
+  color: rgba(255,255,255,.18);
+}
+
+.port-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(255,255,255,.18); flex-shrink: 0;
+}
+
+/* ── INFO PANEL ───────────────────────── */
+.info-panel {
+  width: 252px; flex-shrink: 0; position: relative; z-index: 5;
+  background: rgba(4,7,16,.88);
+  border: 1px solid rgba(0,229,196,.1);
+  padding: 18px; display: flex; flex-direction: column; gap: 14px;
+  min-height: 420px;
+}
+
+/* Corner brackets */
+.info-panel::before, .info-panel::after {
+  content: ''; position: absolute;
+  width: 12px; height: 12px;
+  border-color: rgba(0,229,196,.35); border-style: solid;
+}
+.info-panel::before { top: -1px;    left: -1px;  border-width: 2px 0 0 2px; }
+.info-panel::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+.panel-sys {
+  font-family: var(--game); font-size: 7.5px;
+  letter-spacing: .28em; color: rgba(0,229,196,.35);
+  text-transform: uppercase;
+}
+
+/* Idle state */
+.p-idle {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  opacity: .45;
+}
+
+.p-blink {
+  font-family: var(--game); font-size: 9px;
+  letter-spacing: .22em; color: var(--ink);
+  animation: glow-blink 1.6s infinite;
+}
+
+.p-ctrls { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+
+.p-ctrl {
+  font-family: var(--game); font-size: 7px;
+  letter-spacing: .15em; color: var(--dim);
+}
+
+.p-ctrl kbd {
+  font-family: var(--game); font-size: 6.5px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  padding: 1px 5px; margin-right: 3px;
+  color: rgba(255,255,255,.4);
+}
+
+/* Active state */
+.p-active {
+  display: none; flex-direction: column; gap: 12px; flex: 1;
+}
+
+.p-floor-num {
+  font-family: var(--game); font-size: 44px; font-weight: 900;
+  color: rgba(var(--a-rgb), .9); line-height: 1;
+  text-shadow: 0 0 24px rgba(var(--a-rgb), .4);
+}
+
+.p-name {
+  font-family: var(--game); font-size: 10.5px; font-weight: 700;
+  letter-spacing: .08em; color: #d8eaff; line-height: 1.3;
+}
+
+.p-sub {
+  font-family: var(--game); font-size: 7px;
+  letter-spacing: .25em; color: rgba(var(--a-rgb), .55);
+  text-transform: uppercase;
+}
+
+.p-hr { height: 1px; background: rgba(var(--a-rgb), .2); }
+
+.p-desc {
+  font-size: 11px; line-height: 1.65;
+  color: rgba(138,170,200,.55); font-style: italic;
+}
+
+.p-feats { display: flex; flex-direction: column; gap: 6px; }
+
+.p-feat {
+  font-family: var(--game); font-size: 7px;
+  letter-spacing: .1em; color: var(--dim);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.p-feat::before {
+  content: '▸';
+  color: rgba(var(--a-rgb), .65); flex-shrink: 0;
+}
+
+.p-enter {
+  display: block; text-align: center; padding: 11px;
+  border: 1px solid rgba(var(--a-rgb), .45);
+  color: rgba(var(--a-rgb), 1);
+  font-family: var(--game); font-size: 9px; letter-spacing: .2em;
+  text-decoration: none; text-transform: uppercase;
+  position: relative; overflow: hidden;
+  transition: background .25s, color .25s;
+  margin-top: auto;
+  animation: enter-pulse 2.2s infinite;
+}
+
+@keyframes enter-pulse {
+  0%,100% { box-shadow: 0 0 0px rgba(var(--a-rgb), 0); }
+  50%      { box-shadow: 0 0 14px rgba(var(--a-rgb), .35); }
+}
+
+.p-enter::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(var(--a-rgb), 1);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s ease;
+}
+
+.p-enter:hover { color: #020406; }
+.p-enter:hover::before { transform: scaleX(1); }
+.p-enter span { position: relative; }
+
+/* ── HUD BOTTOM ───────────────────────── */
+.hud-bottom {
+  height: 38px; flex-shrink: 0; z-index: 20; position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  border-top: 1px solid rgba(0,229,196,.07);
+  background: rgba(2,4,6,.95);
+}
+
+.hud-ctrl {
+  font-family: var(--game); font-size: 7px;
+  letter-spacing: .18em; color: var(--dim);
+}
+
+.hud-ctrl kbd {
+  font-family: var(--game); font-size: 7px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.09);
+  padding: 1px 5px; margin-right: 3px;
+  color: rgba(255,255,255,.35);
+}
+
+.hud-loc {
+  font-family: var(--game); font-size: 8px;
+  letter-spacing: .2em; color: rgba(0,229,196,.45);
+}
+</style>
+</head>
+<body>
+
+<!-- Stars (populated by JS) -->
+<div class="stars" id="stars"></div>
+
+<!-- City skyline (populated by JS) -->
+<div class="city" id="city"></div>
+
+<!-- HUD Top -->
+<div class="hud-top">
+  <div class="hud-left">
+    <a href="index.html" class="hud-brand">OPHTXN</a>
+    <span class="hud-sep">/</span>
+    <span class="hud-title">TOWER ACCESS SYSTEM</span>
+  </div>
+  <div class="hud-right">
+    <span class="hud-stat">FLOORS <span class="stat-val">07</span></span>
+    <span class="hud-stat">NET <span class="stat-val" id="netStat">SCANNING</span></span>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Tower -->
+  <div class="tower-col">
+    <div class="roof">
+      <span class="roof-label">▲ PENTHOUSE LEVEL</span>
+      <div class="antenna">
+        <div class="ant-dot"></div>
+        <span class="ant-label">SIGNAL</span>
+      </div>
+    </div>
+    <div class="building" id="building"></div>
+    <div class="ground"></div>
+  </div>
+
+  <!-- Info panel -->
+  <div class="info-panel" id="infoPanel">
+    <div class="panel-sys">FLOOR DIRECTORY</div>
+
+    <div class="p-idle" id="pIdle">
+      <div class="p-blink">SELECT FLOOR</div>
+      <div class="p-ctrls">
+        <div class="p-ctrl"><kbd>↑</kbd><kbd>↓</kbd> NAVIGATE</div>
+        <div class="p-ctrl"><kbd>⏎</kbd> ACCESS FLOOR</div>
+        <div class="p-ctrl"><kbd>ESC</kbd> LOBBY</div>
+      </div>
+    </div>
+
+    <div class="p-active" id="pActive">
+      <div class="p-floor-num" id="pNum">06</div>
+      <div class="p-name"    id="pName">THE CONTROL ROOM</div>
+      <div class="p-sub"     id="pSub">LOCAL HUB</div>
+      <div class="p-hr"></div>
+      <div class="p-desc"    id="pDesc"></div>
+      <div class="p-feats"   id="pFeats"></div>
+      <a class="p-enter" id="pEnter" href="#"><span>[ ACCESS FLOOR ]</span></a>
+    </div>
+  </div>
+
+</div>
+
+<!-- HUD Bottom -->
+<div class="hud-bottom">
+  <span class="hud-ctrl"><kbd>↑</kbd><kbd>↓</kbd> FLOOR SELECT</span>
+  <span class="hud-ctrl"><kbd>⏎</kbd> ACCESS</span>
+  <span class="hud-ctrl"><kbd>ESC</kbd> LOBBY</span>
+  <div class="hud-loc" id="hudLoc">—</div>
+</div>
+
+<script>
+'use strict';
+
+/* ── Floor data ─────────────────────────── */
+const FLOORS = [
+  {
+    num: '06', tag: 'CONTROL', name: 'THE CONTROL ROOM', sub: 'LOCAL HUB',
+    desc: 'Everything running, everything visible. Live status, integrations, and real-time system health.',
+    feats: ['Personal + Developer modes', '30-second auto-refresh', 'Aurora · Copper · Void themes'],
+    href: 'local_hub.html', rgb: '250,50,100', port: 'HUB',
+  },
+  {
+    num: '05', tag: 'SHELL', name: 'THE TERMINAL', sub: 'OPHTXN SHELL',
+    desc: 'Direct interface to the operator. Low-latency, session-aware, no friction.',
+    feats: ['JetBrains Mono interface', 'Session history + timestamps', 'AbortSignal.timeout(4000)'],
+    href: 'ophtxn_shell.html', rgb: '50,215,75', port: ':8797',
+  },
+  {
+    num: '04', tag: 'BRAND', name: 'THE GALLERY', sub: 'BRAND + PRESS',
+    desc: 'The face of Ophtxn. Colors, typography, voice standards, downloadable assets.',
+    feats: ['Click-to-copy palette', 'SVG logo downloads', 'Brand voice do/don\'ts'],
+    href: 'press_kit.html', rgb: '255,188,0', port: 'KIT',
+  },
+  {
+    num: '03', tag: 'BUILD', name: 'THE OFFICE', sub: 'APP STUDIO',
+    desc: 'Build, configure, and share agent commands. Your profile, your presets.',
+    feats: ['Command builder + presets', 'Agent profile management', 'One-click agent sharing'],
+    href: 'official_app.html', rgb: '191,90,242', port: 'APP',
+  },
+  {
+    num: '02', tag: 'LEARN', name: 'THE LIBRARY', sub: 'AI SCHOOL',
+    desc: 'Master prompt engineering, hook systems, and agent design. Build operators that think.',
+    feats: ['Prompt engineering modules', 'Hook system design', 'Agent architecture patterns'],
+    href: 'ai_school.html', rgb: '90,200,250', port: 'EDU',
+  },
+  {
+    num: '01', tag: 'CMD', name: 'THE STUDY', sub: 'COMMAND CENTER',
+    desc: 'Direct operator control. Live status, approval gates, and system health.',
+    feats: ['Real-time API monitoring', 'Approval queue management', 'Structured event logs'],
+    href: 'http://127.0.0.1:8000', rgb: '255,159,10', port: ':8000',
+  },
+  {
+    num: 'LB', tag: 'ENTRY', name: 'LOBBY', sub: 'ENTRY HALL',
+    desc: 'Main entrance to the Ophtxn operator system. Start here.',
+    feats: ['System overview', 'Quick navigation', 'Lead capture'],
+    href: 'index.html', rgb: '160,150,140', port: ':8787',
+  },
+];
+
+/* ── Stars ───────────────────────────────── */
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 90; i++) {
+  const s = document.createElement('div');
+  const px = Math.random() > .8 ? 2 : 1;
+  s.style.cssText = `position:absolute;width:${px}px;height:${px}px;
+    left:${Math.random()*100}%;top:${Math.random()*65}%;
+    border-radius:50%;
+    background:rgba(255,255,255,${.15+Math.random()*.5});`;
+  starsEl.appendChild(s);
+}
+
+/* ── City silhouette ─────────────────────── */
+const cityEl = document.getElementById('city');
+[
+  [38,52],[22,40],[60,88],[28,48],[18,36],[50,74],[34,56],[46,70],
+  [26,44],[42,65],[20,34],[52,80],[30,50],[56,84],[24,42],[44,68],
+  [32,54],[48,76],[36,58],[58,86],[16,30],[54,82],[40,62],[62,92],
+].forEach(([w,h]) => {
+  const b = document.createElement('div');
+  b.className = 'cb';
+  b.style.cssText = `width:${w}px;height:${h}px;`;
+  cityEl.appendChild(b);
+});
+
+/* ── Build floors ─────────────────────────── */
+const buildingEl = document.getElementById('building');
+const WIN_TOTAL = 40; // 20 cols × 2 rows
+
+FLOORS.forEach((fl, idx) => {
+  const el = document.createElement('div');
+  el.className = 'floor';
+  el.dataset.idx = idx;
+  el.style.setProperty('--f-rgb', fl.rgb);
+
+  const wins = Array.from({length: WIN_TOTAL}, (_, wi) =>
+    `<div class="w${Math.random() > .48 ? ' on' : ''}" data-w="${idx}-${wi}"></div>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="fl-label">
+      <span class="fl-num">${fl.num}</span>
+      <span class="fl-tag">${fl.tag}</span>
+    </div>
+    <div class="wins">${wins}</div>
+    <div class="fl-port">
+      <span class="port-tag">${fl.port}</span>
+      <div class="port-status">
+        <span class="port-dot" id="dot${idx}"></span>
+        <span id="txt${idx}">—</span>
+      </div>
+    </div>
+    <div class="floor-cursor"></div>
+  `;
+
+  el.addEventListener('mouseenter', () => pick(idx));
+  el.addEventListener('click', () => go(fl));
+  buildingEl.appendChild(el);
+});
+
+/* ── Selection ───────────────────────────── */
+let cur = null;
+const pIdle   = document.getElementById('pIdle');
+const pActive = document.getElementById('pActive');
+const panel   = document.getElementById('infoPanel');
+const pNum    = document.getElementById('pNum');
+const pName   = document.getElementById('pName');
+const pSub    = document.getElementById('pSub');
+const pDesc   = document.getElementById('pDesc');
+const pFeats  = document.getElementById('pFeats');
+const pEnter  = document.getElementById('pEnter');
+const hudLoc  = document.getElementById('hudLoc');
+
+function pick(idx) {
+  if (idx === cur) return;
+  cur = idx;
+  document.querySelectorAll('.floor').forEach((f, i) =>
+    f.classList.toggle('sel', i === idx)
+  );
+  const fl = FLOORS[idx];
+  panel.style.setProperty('--a-rgb', fl.rgb);
+  pIdle.style.display   = 'none';
+  pActive.style.display = 'flex';
+  pNum.textContent  = fl.num;
+  pName.textContent = fl.name;
+  pSub.textContent  = fl.sub;
+  pDesc.textContent = fl.desc;
+  pFeats.innerHTML  = fl.feats.map(f => `<div class="p-feat">${f}</div>`).join('');
+  pEnter.href       = fl.href;
+  pEnter.target     = fl.href.startsWith('http://') ? '_blank' : '';
+  hudLoc.textContent = `FLOOR ${fl.num}  //  ${fl.name}`;
+}
+
+function go(fl) {
+  if (fl.href.startsWith('http://')) window.open(fl.href, '_blank');
+  else window.location.href = fl.href;
+}
+
+/* ── Keyboard ─────────────────────────────── */
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    pick(cur === null ? 0 : Math.min(FLOORS.length - 1, cur + 1));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    pick(cur === null ? FLOORS.length - 1 : Math.max(0, cur - 1));
+  } else if (e.key === 'Enter' && cur !== null) {
+    go(FLOORS[cur]);
+  } else if (e.key === 'Escape') {
+    window.location.href = 'index.html';
+  }
+});
+
+/* ── Animate windows ─────────────────────── */
+setInterval(() => {
+  document.querySelectorAll('.w').forEach(w => {
+    if (Math.random() > .93) w.classList.toggle('on');
+  });
+}, 1100);
+
+/* ── Net / status check ───────────────────── */
+(async () => {
+  const netEl  = document.getElementById('netStat');
+  const dot5   = document.getElementById('dot5');  // The Study (index 5)
+  const txt5   = document.getElementById('txt5');
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/status', {
+      signal: AbortSignal.timeout(3000)
+    });
+    if (res.ok) {
+      netEl.textContent = 'ONLINE';
+      netEl.className   = 'stat-val live';
+      if (dot5) { dot5.style.background = '#00e5c4'; dot5.style.boxShadow = '0 0 5px #00e5c4'; }
+      if (txt5) txt5.textContent = 'LIVE';
+    } else {
+      netEl.textContent = 'PARTIAL';
+      netEl.className   = 'stat-val warn';
+    }
+  } catch {
+    netEl.textContent = 'OFFLINE';
+    netEl.className   = 'stat-val dead';
+    if (dot5) { dot5.style.background = '#ff5c8a'; }
+    if (txt5) txt5.textContent = 'OFFL';
+  }
+})();
+</script>
+</body>
+</html>

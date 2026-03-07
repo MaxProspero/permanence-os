@@ -20,9 +20,27 @@ import datetime
 import os
 import argparse
 import glob
+import time
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 from enum import Enum
+
+
+def with_backoff(fn, max_retries: int = 5, base_delay: float = 1.0):
+    """Exponential backoff retry wrapper."""
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(base_delay * (2 ** attempt))
+
+def log_event(event_type: str, data: dict):
+    """Structured JSON event logging."""
+    import json
+    from datetime import datetime
+    print(json.dumps({"ts": datetime.utcnow().isoformat(), "event": event_type, **data}))
 
 
 # ─────────────────────────────────────────────
@@ -427,6 +445,9 @@ class HorizonAgent:
         In production: LLM inference call goes here, governed by budget.
         In current state: rule-based pattern matching as scaffold.
         """
+        if os.getenv("PERMANENCE_NO_SPEND_MODE") == "1":
+            log_event("skipped_llm_call", {"reason": "no_spend_mode"})
+            return None
         content_lower = signal.raw_content.lower()
 
         # Classify finding type based on content keywords

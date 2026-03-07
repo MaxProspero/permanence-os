@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Studio — Ophtxn</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #080d13;
+      --surface: #0d1520;
+      --lift: #131e2d;
+      --border: rgba(255,255,255,0.07);
+      --border-hi: rgba(0,229,196,0.25);
+      --ink: #e8f0ff;
+      --muted: #6a7fa0;
+      --c-teal: #00e5c4;
+      --c-gold: #f8c842;
+      --c-violet: #7b6fff;
+      --c-rose: #ff5c8a;
+      --r: 16px;
+      --shadow: 0 20px 48px rgba(0,0,0,0.4);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,229,196,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,196,.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(600px 400px at 10% 15%, rgba(0,229,196,.08) 0%, transparent 70%),
+        radial-gradient(500px 350px at 90% 10%, rgba(123,111,255,.06) 0%, transparent 70%),
+        radial-gradient(700px 300px at 50% 100%, rgba(255,92,138,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Layout */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8, 13, 19, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      color: var(--c-teal);
+      text-decoration: none;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 5px 14px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-pill:hover,
+    .nav-pill.active {
+      color: var(--ink);
+      border-color: var(--border-hi);
+      background: rgba(0,229,196,0.06);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 88px 0 64px;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.1s;
+    }
+
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--c-teal);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--c-teal);
+      opacity: 0.6;
+    }
+
+    .hero-h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 20px;
+      max-width: 720px;
+    }
+
+    .hero-sub {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.65;
+    }
+
+    /* ── Glass card ── */
+    .glass-card {
+      background: rgba(13, 21, 32, 0.72);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+
+    .glass-card.teal-accent {
+      border-left: 3px solid var(--c-teal);
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--c-teal);
+      box-shadow: 0 0 8px var(--c-teal);
+    }
+
+    /* ── Main grid ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.25s;
+    }
+
+    /* ── Form elements ── */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group:last-of-type {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--border-hi);
+      background: rgba(0,229,196,0.04);
+      box-shadow: 0 0 0 3px rgba(0,229,196,0.08);
+    }
+
+    select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a7fa0' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    select option {
+      background: #0d1520;
+      color: var(--ink);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 96px;
+      line-height: 1.6;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 9px 20px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .btn:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .btn-primary {
+      background: var(--c-teal);
+      color: #080d13;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      color: var(--ink);
+      border-color: var(--border-hi);
+    }
+
+    .btn-violet {
+      background: var(--c-violet);
+      color: #fff;
+    }
+
+    .btn-sm {
+      font-size: 11px;
+      padding: 7px 14px;
+    }
+
+    /* ── Output card ── */
+    .output-section {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.4s;
+      margin-bottom: 24px;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .output-header .card-title {
+      margin-bottom: 0;
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #outputBlock {
+      font-family: 'DM Mono', monospace;
+      font-size: 12.5px;
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 3px solid var(--c-teal);
+      padding: 16px;
+      border-radius: 8px;
+      min-height: 120px;
+      overflow-x: auto;
+      color: var(--c-teal);
+      line-height: 1.7;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    /* Override hljs to keep our teal base color while still showing syntax */
+    #outputBlock.hljs {
+      background: rgba(0,0,0,0.35);
+      padding: 16px;
+      border-radius: 0;
+      color: var(--c-teal);
+    }
+
+    /* ── Quick links ── */
+    .quick-links-section {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.55s;
+      margin-bottom: 64px;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .quick-links-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: rgba(13,21,32,0.5);
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .quick-link:hover {
+      color: var(--c-teal);
+      border-color: var(--border-hi);
+      background: rgba(0,229,196,0.06);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 200;
+      background: var(--lift);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--c-teal);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 0 0 24px;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Share Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(4, 8, 14, 0.82);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: #0d1520;
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      box-shadow: 0 32px 80px rgba(0,0,0,.6);
+      padding: 32px;
+      width: 100%; max-width: 560px;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform .28s var(--ease, cubic-bezier(.22,.68,0,1.2));
+    }
+    .modal-backdrop.open .modal-box { transform: translateY(0); }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px; font-weight: 700;
+      margin-bottom: 20px; color: var(--ink);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none;
+      color: var(--muted); font-size: 20px; cursor: pointer;
+      line-height: 1; padding: 4px 8px;
+      transition: color .2s;
+    }
+    .modal-close:hover { color: var(--ink); }
+
+    .modal-label {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+
+    .modal-json {
+      font-family: 'DM Mono', monospace; font-size: 11.5px;
+      background: rgba(0,0,0,.4);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; color: var(--c-teal);
+      max-height: 200px; overflow-y: auto;
+      white-space: pre-wrap; word-break: break-all;
+      line-height: 1.6; margin-bottom: 16px;
+    }
+
+    .modal-url-row {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+
+    .modal-url {
+      flex: 1;
+      background: rgba(0,0,0,.3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--muted);
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      padding: 9px 12px; outline: none;
+      overflow: hidden; white-space: nowrap;
+    }
+
+    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .nav-inner {
+        gap: 12px;
+        height: auto;
+        padding: 12px 16px;
+        flex-wrap: wrap;
+      }
+
+      .nav-links {
+        gap: 6px;
+      }
+
+      .nav-pill {
+        font-size: 10.5px;
+        padding: 4px 10px;
+      }
+
+      .page-wrapper {
+        padding: 0 16px;
+      }
+
+      .hero {
+        padding: 56px 0 40px;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .glass-card {
+        padding: 20px;
+      }
+
+      .output-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btn-row {
+        flex-direction: column;
+      }
+
+      .btn {
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-brand {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+
+      .hero-h1 {
+        font-size: 28px;
+      }
+
+      .hero-sub {
+        font-size: 15px;
+      }
+    }
+
+    /* ── FILM GRAIN ──────────────────────────────── */
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .05; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%  { transform: translate(0,0) }    10% { transform: translate(-2%,-3%) }
+      20% { transform: translate(3%,1%) }  30% { transform: translate(-1%,4%) }
+      40% { transform: translate(4%,-1%) } 50% { transform: translate(-3%,2%) }
+      60% { transform: translate(1%,-4%) } 70% { transform: translate(-4%,3%) }
+      80% { transform: translate(2%,2%) }  90% { transform: translate(-2%,-1%) }
+      100%{ transform: translate(0,0) }
+    }
+    .nav-brand {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-reticle {
+      width: 26px; height: 26px; flex-shrink: 0;
+      color: var(--c-gold);
+    }
+    .arc-eyebrow {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-gold); opacity: .4;
+      margin-bottom: 10px;
+    }
+  /* ── TOWER HUD ─── */
+  :root { --f-rgb: 191,90,242; --f: rgb(var(--f-rgb)); }
+  body { padding-top: 42px; }
+  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
+  .th-l { display:flex;align-items:center; }
+  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
+  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
+  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
+  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
+  .th-r { display:flex;align-items:center;gap:16px; }
+  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.45);text-decoration:none;transition:color .2s; }
+  .th-back:hover { color:var(--f); }
+  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
+  </style>
+</head>
+<body>
+
+  <!-- FILM GRAIN -->
+  <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="gf" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
+        <animate attributeName="seed" values="0;6;14;9;3;12;0" dur="0.6s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
+  </svg>
+
+  <!-- TOWER HUD -->
+  <div class="tower-hud">
+    <div class="th-l">
+      <a href="rooms.html" class="th-brand">OPHTXN</a>
+      <span class="th-sep">//</span>
+      <span class="th-num">03</span>
+      <span class="th-name">APP STUDIO</span>
+    </div>
+    <div class="th-r">
+      <a href="rooms.html" class="th-back">↑ TOWER</a>
+    </div>
+  </div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <div class="page-wrapper">
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="arc-eyebrow">A-KWJ-0368 // APP STUDIO // 26.03.07</span>
+      <div class="eyebrow">APP STUDIO</div>
+      <h1 class="hero-h1">Build and run your operator commands.</h1>
+      <p class="hero-sub">Configure your profile, design command flows, and push to Telegram.</p>
+    </section>
+
+    <!-- Profile + Command Builder -->
+    <div class="main-grid">
+
+      <!-- Profile Card -->
+      <div class="glass-card">
+        <div class="card-title">Operator Profile</div>
+
+        <div class="form-group">
+          <label for="profileName">Name</label>
+          <input type="text" id="profileName" placeholder="Your name">
+        </div>
+
+        <div class="form-group">
+          <label for="profileEmail">Email</label>
+          <input type="email" id="profileEmail" placeholder="you@domain.com">
+        </div>
+
+        <div class="form-group">
+          <label for="profileWorkflow">Workflow Focus</label>
+          <input type="text" id="profileWorkflow" placeholder="e.g. autonomous ops, research">
+        </div>
+
+        <div class="form-group">
+          <label for="profileModel">Model Preference</label>
+          <select id="profileModel">
+            <option value="claude-opus-4-6">claude-opus-4-6</option>
+            <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
+            <option value="claude-haiku-4-5">claude-haiku-4-5</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="profileRuntime">Runtime Mode</label>
+          <select id="profileRuntime">
+            <option value="no-spend-local">No-spend local</option>
+            <option value="low-cost">Low-cost</option>
+            <option value="standard">Standard</option>
+          </select>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="saveProfileBtn">Save Profile</button>
+          <button class="btn btn-ghost" id="resetProfileBtn">Reset Profile</button>
+        </div>
+      </div>
+
+      <!-- Command Builder Card -->
+      <div class="glass-card">
+        <div class="card-title">Command Builder</div>
+
+        <div class="form-group">
+          <label for="commandPreset">Preset Commands</label>
+          <select id="commandPreset">
+            <option value="" disabled selected>Select a preset…</option>
+            <option value="operator-surface --run-horizon">operator-surface --run-horizon — Start all runtimes</option>
+            <option value="comms-status">comms-status — Check communications health</option>
+            <option value="no-spend-audit --strict">no-spend-audit --strict — Audit spend controls</option>
+            <option value="ophtxn-ops-pack --action run">ophtxn-ops-pack --action run — Run daily ops pack</option>
+            <option value="telegram-control --action poll --enable-commands">telegram-control --action poll --enable-commands — Poll Telegram</option>
+            <option value="approval-triage">approval-triage — Review pending approvals</option>
+            <option value="secret-scan --staged">secret-scan --staged — Scan for secrets</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="commandTextarea">Command</label>
+          <textarea id="commandTextarea" placeholder="python cli.py operator-surface --run-horizon"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="copyCommandBtn">Copy Command</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Output Card -->
+    <div class="output-section">
+      <div class="glass-card teal-accent">
+        <div class="output-header">
+          <div class="card-title">Command Output</div>
+          <div class="output-actions">
+            <button class="btn btn-ghost btn-sm" id="shareAgentBtn">Share Agent</button>
+          <button class="btn btn-ghost btn-sm" id="copyToTelegramBtn">Copy to Telegram</button>
+            <button class="btn btn-violet btn-sm" id="copyOutputBtn">Copy to Clipboard</button>
+          </div>
+        </div>
+
+        <pre id="outputBlock">$ python cli.py operator-surface --run-horizon
+[ops] Starting operator surface...
+[runtime] Command Center: http://127.0.0.1:8000 ✓
+[runtime] Foundation Site: http://127.0.0.1:8787 ✓
+[runtime] Ophtxn Shell: http://127.0.0.1:8797 ✓
+[horizon] Starting Horizon agent...
+[horizon] Observation cycle complete. 3 signals collected.
+[ops] All runtimes live. Governance active.</pre>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links-section">
+      <div class="section-divider"></div>
+      <p class="section-label">Quick links</p>
+      <div class="quick-links-row">
+        <a href="local_hub.html" class="quick-link">Local Hub</a>
+        <a href="#" class="quick-link">App Shell</a>
+        <a href="http://127.0.0.1:8000" class="quick-link" target="_blank" rel="noopener">Command Center</a>
+        <a href="ai_school.html" class="quick-link">AI School</a>
+      </div>
+    </div>
+
+  </div><!-- /page-wrapper -->
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Agent Share Modal -->
+  <div class="modal-backdrop" id="shareModal" role="dialog" aria-modal="true" aria-label="Share Agent">
+    <div class="modal-box">
+      <button class="modal-close" id="closeModalBtn" aria-label="Close">×</button>
+      <div class="modal-title">Share Agent Config</div>
+
+      <p class="modal-label">JSON payload</p>
+      <pre class="modal-json" id="shareJson"></pre>
+
+      <p class="modal-label">Shareable link</p>
+      <div class="modal-url-row">
+        <input class="modal-url" id="shareUrl" type="text" readonly>
+        <button class="btn btn-ghost btn-sm" id="copyUrlBtn">Copy Link</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-sm" id="copyJsonBtn">Copy JSON</button>
+        <button class="btn btn-ghost btn-sm" id="closeModalBtn2">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ── Constants ──────────────────────────────────────────────────────────
+      const STORAGE_KEY = 'ophtxn_profile';
+
+      const PRESET_COMMANDS = {
+        'operator-surface --run-horizon':
+          'operator-surface --run-horizon',
+        'comms-status':
+          'comms-status',
+        'no-spend-audit --strict':
+          'no-spend-audit --strict',
+        'ophtxn-ops-pack --action run':
+          'ophtxn-ops-pack --action run',
+        'telegram-control --action poll --enable-commands':
+          'telegram-control --action poll --enable-commands',
+        'approval-triage':
+          'approval-triage',
+        'secret-scan --staged':
+          'secret-scan --staged',
+      };
+
+      // ── Element references ─────────────────────────────────────────────────
+      const profileName     = document.getElementById('profileName');
+      const profileEmail    = document.getElementById('profileEmail');
+      const profileWorkflow = document.getElementById('profileWorkflow');
+      const profileModel    = document.getElementById('profileModel');
+      const profileRuntime  = document.getElementById('profileRuntime');
+      const saveProfileBtn  = document.getElementById('saveProfileBtn');
+      const resetProfileBtn = document.getElementById('resetProfileBtn');
+
+      const commandPreset   = document.getElementById('commandPreset');
+      const commandTextarea = document.getElementById('commandTextarea');
+      const copyCommandBtn  = document.getElementById('copyCommandBtn');
+
+      const copyToTelegramBtn = document.getElementById('copyToTelegramBtn');
+      const copyOutputBtn     = document.getElementById('copyOutputBtn');
+      const outputBlock       = document.getElementById('outputBlock');
+      const toast             = document.getElementById('toast');
+
+      // ── Toast ──────────────────────────────────────────────────────────────
+      let toastTimer = null;
+
+      function showToast(msg) {
+        clearTimeout(toastTimer);
+        toast.textContent = msg;
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2800);
+      }
+
+      // ── Clipboard helper ───────────────────────────────────────────────────
+      function copyText(text, successMsg) {
+        if (!navigator.clipboard) {
+          // Fallback for older browsers
+          try {
+            const el = document.createElement('textarea');
+            el.value = text;
+            el.style.position = 'fixed';
+            el.style.opacity = '0';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(successMsg || 'Copied!');
+          } catch (err) {
+            showToast('Copy failed — try again.');
+          }
+          return;
+        }
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg || 'Copied!');
+        }).catch(() => {
+          showToast('Copy failed — check browser permissions.');
+        });
+      }
+
+      // ── Profile: load ──────────────────────────────────────────────────────
+      function loadProfile() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          if (data.name !== undefined)     profileName.value     = data.name;
+          if (data.email !== undefined)    profileEmail.value    = data.email;
+          if (data.workflow !== undefined) profileWorkflow.value = data.workflow;
+          if (data.model !== undefined)    profileModel.value    = data.model;
+          if (data.runtime !== undefined)  profileRuntime.value  = data.runtime;
+        } catch (err) {
+          console.warn('[App Studio] Could not load profile:', err);
+        }
+      }
+
+      // ── Profile: save ──────────────────────────────────────────────────────
+      function saveProfile() {
+        const data = {
+          name:     profileName.value.trim(),
+          email:    profileEmail.value.trim(),
+          workflow: profileWorkflow.value.trim(),
+          model:    profileModel.value,
+          runtime:  profileRuntime.value,
+        };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          showToast('Profile saved.');
+        } catch (err) {
+          console.warn('[App Studio] Could not save profile:', err);
+          showToast('Save failed — storage may be full.');
+        }
+      }
+
+      // ── Profile: reset ─────────────────────────────────────────────────────
+      function resetProfile() {
+        const confirmed = window.confirm(
+          'Reset all profile fields? This cannot be undone.'
+        );
+        if (!confirmed) return;
+
+        profileName.value     = '';
+        profileEmail.value    = '';
+        profileWorkflow.value = '';
+        profileModel.value    = 'claude-opus-4-6';
+        profileRuntime.value  = 'no-spend-local';
+
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (err) {
+          console.warn('[App Studio] Could not remove profile key:', err);
+        }
+        showToast('Profile reset.');
+      }
+
+      // ── Command builder: preset select ────────────────────────────────────
+      function onPresetChange() {
+        const val = commandPreset.value;
+        if (val && PRESET_COMMANDS[val] !== undefined) {
+          commandTextarea.value = 'python cli.py ' + PRESET_COMMANDS[val];
+        }
+      }
+
+      // ── Copy command ───────────────────────────────────────────────────────
+      function copyCommand() {
+        const cmd = commandTextarea.value.trim();
+        if (!cmd) {
+          showToast('Nothing to copy — write a command first.');
+          return;
+        }
+        copyText(cmd, 'Command copied!');
+      }
+
+      // ── Copy to Telegram ───────────────────────────────────────────────────
+      function openTelegram() {
+        const cmd = commandTextarea.value.trim();
+        const payload = cmd || 'python cli.py';
+        const url = 'https://t.me/share/url?text=' + encodeURIComponent(payload);
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      // ── Copy output block ──────────────────────────────────────────────────
+      function copyOutput() {
+        const text = outputBlock.innerText || outputBlock.textContent;
+        copyText(text.trim(), 'Output copied!');
+      }
+
+      // ── Syntax highlight the output block ──────────────────────────────────
+      function initHighlight() {
+        if (typeof hljs !== 'undefined') {
+          try {
+            hljs.highlightElement(outputBlock);
+          } catch (err) {
+            console.warn('[App Studio] hljs error:', err);
+          }
+        }
+      }
+
+      // ── Agent sharing ──────────────────────────────────────────────────────
+      const shareModal   = document.getElementById('shareModal');
+      const shareJsonEl  = document.getElementById('shareJson');
+      const shareUrlEl   = document.getElementById('shareUrl');
+      const shareAgentBtn  = document.getElementById('shareAgentBtn');
+      const copyJsonBtn    = document.getElementById('copyJsonBtn');
+      const copyUrlBtn     = document.getElementById('copyUrlBtn');
+      const closeModalBtn  = document.getElementById('closeModalBtn');
+      const closeModalBtn2 = document.getElementById('closeModalBtn2');
+
+      function buildAgentConfig() {
+        return {
+          agent:    'ophtxn-operator',
+          version:  '1.0',
+          exported: new Date().toISOString(),
+          profile: {
+            name:     profileName.value.trim()     || null,
+            workflow: profileWorkflow.value.trim() || null,
+            model:    profileModel.value,
+            runtime:  profileRuntime.value,
+          },
+          command: commandTextarea.value.trim() || null,
+        };
+      }
+
+      function openShareModal() {
+        const config    = buildAgentConfig();
+        const json      = JSON.stringify(config, null, 2);
+        const encoded   = btoa(unescape(encodeURIComponent(json)));
+        const shareLink = location.origin + location.pathname + '#agent=' + encoded;
+
+        shareJsonEl.textContent = json;
+        shareUrlEl.value        = shareLink;
+        shareModal.classList.add('open');
+      }
+
+      function closeShareModal() {
+        shareModal.classList.remove('open');
+      }
+
+      // Auto-import from URL hash (#agent=BASE64)
+      function checkImportHash() {
+        const match = location.hash.match(/^#agent=(.+)$/);
+        if (!match) return;
+        try {
+          const json   = decodeURIComponent(escape(atob(match[1])));
+          const config = JSON.parse(json);
+          if (config.profile) {
+            if (config.profile.name)     profileName.value     = config.profile.name;
+            if (config.profile.workflow) profileWorkflow.value = config.profile.workflow;
+            if (config.profile.model)    profileModel.value    = config.profile.model;
+            if (config.profile.runtime)  profileRuntime.value  = config.profile.runtime;
+          }
+          if (config.command) commandTextarea.value = config.command;
+          showToast('Agent config imported from link.');
+          history.replaceState(null, '', location.pathname);
+        } catch (_) {
+          showToast('Could not parse agent link.');
+        }
+      }
+
+      shareAgentBtn.addEventListener('click',  openShareModal);
+      closeModalBtn.addEventListener('click',  closeShareModal);
+      closeModalBtn2.addEventListener('click', closeShareModal);
+      shareModal.addEventListener('click', e => { if (e.target === shareModal) closeShareModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShareModal(); });
+
+      copyJsonBtn.addEventListener('click', () => copyText(shareJsonEl.textContent, 'JSON copied!'));
+      copyUrlBtn.addEventListener('click',  () => copyText(shareUrlEl.value, 'Link copied!'));
+
+      // ── Mark active nav link ────────────────────────────────────────────────
+      function markActiveNav() {
+        const current = location.pathname.split('/').pop();
+        document.querySelectorAll('.nav-pill').forEach(link => {
+          const href = link.getAttribute('href').split('/').pop();
+          if (href === current) link.classList.add('active');
+        });
+      }
+
+      // ── Event listeners ────────────────────────────────────────────────────
+      saveProfileBtn.addEventListener('click', saveProfile);
+      resetProfileBtn.addEventListener('click', resetProfile);
+      commandPreset.addEventListener('change', onPresetChange);
+      copyCommandBtn.addEventListener('click', copyCommand);
+      copyToTelegramBtn.addEventListener('click', openTelegram);
+      copyOutputBtn.addEventListener('click', copyOutput);
+
+      // ── Init ───────────────────────────────────────────────────────────────
+      loadProfile();
+      initHighlight();
+      markActiveNav();
+      checkImportHash();
+
+    })();
+  </script>
+</body>
+</html>

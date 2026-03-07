@@ -30,6 +30,7 @@ python cli.py operator-surface --no-open
 ```
 
 Local URLs:
+- Local hub: `http://127.0.0.1:8787/local_hub.html`
 - Dashboard API / command center: `http://127.0.0.1:8000`
 - Foundation site: `http://127.0.0.1:8787`
 - Ophtxn app shell: `http://127.0.0.1:8797/app/ophtxn`

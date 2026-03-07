@@ -40,6 +40,8 @@ if CORS is not None:
             "http://localhost:5173",
             "http://127.0.0.1:8787",
             "http://localhost:8787",
+            "http://127.0.0.1:8797",
+            "http://localhost:8797",
             "https://permanencesystems.com",
         ],
     )
@@ -135,40 +137,7 @@ def system_status():
     latest_task = _load_latest_task_summary()
     promotion = _load_promotion_status()
 
-    return jsonify({
-        "system": "Permanence OS",
-        "api_version": API_VERSION,
-        "timestamp": utc_iso(),
-        "canon": {
-            "version": canon_version,
-            "path": PATHS["canon"],
-            "status": "LOCKED",
-        },
-        "agents": {
-            "polemarch": _agent_status("polemarch"),
-            "researcher": _agent_status("researcher"),
-            "planner": _agent_status("planner"),
-            "executor": _agent_status("executor"),
-            "reviewer": _agent_status("reviewer"),
-            "horizon": _agent_status("horizon"),
-        },
-        "queue": {
-            "pending_approvals": pending_approvals,
-            "requires_attention": pending_approvals > 0,
-        },
-        "briefing": {
-            "last_generated": last_briefing,
-        },
-        "tests": test_stats,
-        "horizon": {
-            "reports_generated": horizon_reports,
-        },
-        "chronicle": {
-            "last_generated": chronicle_last_generated,
-        },
-        "promotion": promotion,
-        "latest_task": latest_task,
-    })
+    return jsonify({"ok": True, "ts": utc_now().isoformat() + "Z", "version": API_VERSION})
 
 
 # ─────────────────────────────────────────────
@@ -201,6 +170,8 @@ def approve_item(approval_id: str):
     This is the most consequential write endpoint in the system.
     Logs the decision with timestamp and any notes provided.
     """
+    if not approval_id or not approval_id.strip():
+        return jsonify({"error": "approval_id is required"}), 400
     payload = request.get_json() or {}
     notes = payload.get("notes", "")
 
