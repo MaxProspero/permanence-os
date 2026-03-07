@@ -244,6 +244,41 @@
   }
   .svc-open:hover { color: var(--ink); }
 
+  /* ── APPROVAL QUEUE PANEL ───────────────────────────────── */
+  .aq-panel {
+    background: var(--surface);
+    border: 1px solid rgba(250,50,100,.18);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 28px 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    flex-wrap: wrap;
+  }
+  .aq-left { display: flex; align-items: center; gap: 16px; }
+  .aq-dot { width: 8px; height: 8px; border-radius: 50%; background: rgb(250,50,100); box-shadow: 0 0 8px rgba(250,50,100,.5); flex-shrink: 0; }
+  .aq-label { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: rgba(250,50,100,.7); text-transform: uppercase; }
+  .aq-count { font-family: var(--mono); font-size: 24px; font-weight: 700; color: rgb(250,50,100); letter-spacing: -.02em; }
+  .aq-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .aq-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .aq-btn-approve {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    padding: 8px 20px; border-radius: 6px; cursor: pointer; transition: all .2s;
+    background: rgba(250,50,100,.12); border: 1px solid rgba(250,50,100,.35);
+    color: rgb(250,50,100);
+  }
+  .aq-btn-approve:hover { background: rgba(250,50,100,.22); border-color: rgba(250,50,100,.6); }
+  .aq-btn-approve:disabled { opacity: .38; cursor: not-allowed; }
+  .aq-btn-view {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all .2s;
+    background: none; border: 1px solid var(--border-hi); color: var(--muted);
+    text-decoration: none; display: inline-block;
+  }
+  .aq-btn-view:hover { color: var(--ink); border-color: var(--border); }
+  .aq-msg { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; width: 100%; }
+  .aq-msg.ok { color: #30d158; }
+  .aq-msg.err { color: rgb(250,50,100); }
+
   /* ── SECTION HEADER ──────────────────────────────────────── */
   .section-header {
     display: flex; align-items: baseline; gap: 14px;
@@ -545,6 +580,23 @@
     </article>
   </section>
 
+  <!-- APPROVAL QUEUE -->
+  <div class="aq-panel" id="aq-panel">
+    <div class="aq-left">
+      <div class="aq-dot"></div>
+      <div>
+        <div class="aq-label">Approval Queue</div>
+        <div class="aq-count" id="aq-count">—</div>
+        <div class="aq-sub" id="aq-sub">fetching…</div>
+      </div>
+    </div>
+    <div class="aq-right">
+      <a class="aq-btn-view" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Review</a>
+      <button class="aq-btn-approve" id="aq-approve-btn" type="button">⚡ Approve All</button>
+    </div>
+    <div class="aq-msg" id="aq-msg"></div>
+  </div>
+
   <!-- DEV PANEL (hidden in personal mode) -->
   <section class="dev-only" id="dev-panel">
     <hr class="divider">
@@ -821,6 +873,57 @@ document.getElementById("refreshBtn").addEventListener("click", refreshAll);
 // Initial ping + smart interval (30s — longer than before, diff-gated so no flicker)
 refreshAll();
 setInterval(refreshAll, 30_000);
+
+// ── APPROVAL QUEUE ────────────────────────────────────────────
+const AQ_BASE = "http://127.0.0.1:8000";
+
+async function aqFetch() {
+  const el = document.getElementById("aq-count");
+  const sub = document.getElementById("aq-sub");
+  try {
+    const res = await fetch(`${AQ_BASE}/api/approvals`, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const n = data.total_pending ?? 0;
+    el.textContent = n;
+    sub.textContent = n === 0 ? "queue clear" : `${n} pending · LOW/MED auto-approvable`;
+    document.getElementById("aq-approve-btn").disabled = n === 0;
+  } catch (_) {
+    el.textContent = "—";
+    sub.textContent = "Command Center offline";
+    document.getElementById("aq-approve-btn").disabled = true;
+  }
+}
+
+document.getElementById("aq-approve-btn").addEventListener("click", async () => {
+  const btn = document.getElementById("aq-approve-btn");
+  const msg = document.getElementById("aq-msg");
+  btn.disabled = true;
+  btn.textContent = "approving…";
+  msg.textContent = "";
+  msg.className = "aq-msg";
+  try {
+    const res = await fetch(`${AQ_BASE}/api/approvals/approve-all`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notes: "bulk approve via Control Room" }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    msg.textContent = `✓ ${data.approved} approved · ${data.skipped_high_risk} HIGH held for review`;
+    msg.className = "aq-msg ok";
+    await aqFetch();
+  } catch (e) {
+    msg.textContent = `✗ ${e.message}`;
+    msg.className = "aq-msg err";
+    btn.disabled = false;
+  }
+  btn.textContent = "⚡ Approve All";
+});
+
+aqFetch();
+setInterval(aqFetch, 60_000);
 </script>
 </body>
 </html>
