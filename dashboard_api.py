@@ -250,6 +250,44 @@ def reject_item(approval_id: str):
     })
 
 
+@app.route("/api/approvals/approve-all", methods=["POST"])
+def approve_all():
+    """
+    Bulk-approve all PENDING_HUMAN_REVIEW items at LOW or MEDIUM priority.
+    HIGH priority items are intentionally skipped — those remain in queue
+    for individual human review per the non-negotiable governance model.
+    Returns the count and IDs of everything approved.
+    """
+    payload = request.get_json() or {}
+    notes = payload.get("notes", "bulk approve — human authority confirmed")
+
+    log_api_call("POST", "/api/approvals/approve-all", payload)
+
+    approvals = _load_approvals()
+    approved_ids = []
+    skipped_high = []
+
+    for item in approvals:
+        if item.get("status") != "PENDING_HUMAN_REVIEW":
+            continue
+        priority = str(item.get("priority", "")).upper()
+        if priority == "HIGH":
+            skipped_high.append(item.get("id") or item.get("approval_id", ""))
+            continue
+        approval_id = item.get("id") or item.get("approval_id", "")
+        _update_approval_status(approval_id, "APPROVED", notes)
+        approved_ids.append(approval_id)
+
+    return jsonify({
+        "approved": len(approved_ids),
+        "skipped_high_risk": len(skipped_high),
+        "approved_ids": approved_ids,
+        "skipped_ids": skipped_high,
+        "decided_at": utc_iso(),
+        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH-risk items kept for individual review.",
+    })
+
+
 # ─────────────────────────────────────────────
 # BRIEFINGS
 # ─────────────────────────────────────────────
