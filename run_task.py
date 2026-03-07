@@ -28,6 +28,16 @@ except Exception:  # pragma: no cover - optional dependency
     ModelRouter = None
 from scripts.openclaw_status import capture_openclaw_status
 
+KNOWN_TASK_TYPES = {"research", "draft", "analyze", "intake", "approve", "chronicle"}
+
+
+def log_event(event_type: str, data: dict):
+    """Structured JSON event logging."""
+    import json
+    from datetime import datetime
+    print(json.dumps({"ts": datetime.utcnow().isoformat(), "event": event_type, **data}))
+
+
 MEMORY_DIR = os.getenv("PERMANENCE_MEMORY_DIR", os.path.join(BASE_DIR, "memory"))
 WORKING_DIR = os.path.join(MEMORY_DIR, "working")
 SOURCES_PATH = os.getenv(
@@ -77,9 +87,16 @@ def run_task(
     sources_path: Optional[str] = None,
     draft_path: Optional[str] = None,
     allow_single_source: bool = False,
+    task_type: Optional[str] = None,
+    payload: Optional[Dict[str, Any]] = None,
 ) -> int:
     sources_path = sources_path or SOURCES_PATH
     draft_path = draft_path or DRAFT_PATH
+
+    if payload is not None:
+        task_type = payload.get("task_type") or task_type  # normalize
+    if task_type is not None and task_type not in KNOWN_TASK_TYPES:
+        raise ValueError(f"Unknown task type '{task_type}'. Known: {sorted(KNOWN_TASK_TYPES)}")
 
     if not goal:
         print("Error: task goal is empty")

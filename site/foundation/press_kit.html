@@ -1,235 +1,1030 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ophtxn Press Kit</title>
-  <meta name="description" content="Ophtxn brand assets, messaging, and launch copy blocks.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand + Press Kit — Ophtxn</title>
+  <meta name="description" content="Official brand assets, color system, typography, and press resources for Ophtxn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #0a1118;
-      --card: rgba(13, 24, 35, 0.84);
-      --line: rgba(144, 184, 210, 0.24);
-      --ink: #eaf4ff;
-      --muted: #99afc1;
-      --c1: #53dfbf;
-      --c2: #f1bf67;
-      --radius: 16px;
-      --shadow: 0 20px 46px rgba(0, 0, 0, 0.36);
+      --bg: #080d13;
+      --surface: #0d1520;
+      --lift: #131e2d;
+      --border: rgba(255,255,255,0.07);
+      --border-hi: rgba(255,255,255,0.15);
+      --ink: #e8f0ff;
+      --muted: #6a7fa0;
+      --c-teal: #00e5c4;
+      --c-gold: #f8c842;
+      --c-violet: #7b6fff;
+      --c-rose: #ff5c8a;
+      --r: 16px;
+      --shadow: 0 20px 48px rgba(0,0,0,0.4);
     }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
     body {
+      background: var(--bg);
       color: var(--ink);
-      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,229,196,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,196,.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* Background ambient glow */
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
       background:
-        radial-gradient(900px 540px at -10% -10%, #1c4464 0%, transparent 56%),
-        radial-gradient(820px 520px at 110% -10%, #453221 0%, transparent 58%),
-        var(--bg);
+        radial-gradient(600px 400px at 10% 15%, rgba(0,229,196,.08) 0%, transparent 70%),
+        radial-gradient(500px 350px at 90% 10%, rgba(123,111,255,.06) 0%, transparent 70%),
+        radial-gradient(700px 300px at 50% 100%, rgba(255,92,138,.05) 0%, transparent 70%);
+      pointer-events: none;
     }
 
-    .layout {
-      width: min(980px, 92vw);
+    /* Layout wrapper */
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 24px 0 40px;
+      padding: 0 24px 80px;
     }
 
-    .top {
+    /* ── NAV ─────────────────────────────────────────────────────────────── */
+    nav {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      gap: 12px;
+      padding: 20px 0 24px;
       flex-wrap: wrap;
-      gap: 10px;
     }
 
-    .top a {
-      color: var(--muted);
+    .nav-brand {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      color: var(--c-teal);
       text-decoration: none;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      background: rgba(255, 255, 255, 0.03);
+      margin-right: 8px;
     }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(28px, 6vw, 52px);
-      line-height: 0.98;
-      letter-spacing: -0.03em;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      margin: 8px 0 0;
-      max-width: 760px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      margin-top: 12px;
-    }
-
-    h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-    }
-
-    .logo-row {
+    .nav-links {
       display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: border-color 160ms, color 160ms, background 160ms;
+    }
+
+    .nav-pill:hover {
+      border-color: var(--border-hi);
+      color: var(--ink);
+      background: var(--lift);
+    }
+
+    .nav-pill.active {
+      border-color: var(--c-teal);
+      color: var(--c-teal);
+    }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────────────────── */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    section {
+      animation: rise 500ms both;
+    }
+
+    section:nth-child(1) { animation-delay: 0ms; }
+    section:nth-child(2) { animation-delay: 80ms; }
+    section:nth-child(3) { animation-delay: 160ms; }
+    section:nth-child(4) { animation-delay: 240ms; }
+    section:nth-child(5) { animation-delay: 320ms; }
+    section:nth-child(6) { animation-delay: 400ms; }
+
+    /* ── HERO ────────────────────────────────────────────────────────────── */
+    .hero {
+      padding: 72px 0 80px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      color: var(--c-gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding: 5px 14px;
+      border: 1px solid rgba(248,200,66,0.2);
+      border-radius: 999px;
+      background: rgba(248,200,66,0.06);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── SECTION SHARED ──────────────────────────────────────────────────── */
+    .section-block {
+      margin-bottom: 80px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 28px;
+      color: var(--ink);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-divider {
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--c-teal), var(--c-violet));
+      border-radius: 2px;
+      margin-bottom: 32px;
+    }
+
+    /* ── SECTION 1 — BRAND COLORS ────────────────────────────────────────── */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .swatch-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: border-color 160ms, transform 160ms;
+    }
+
+    .swatch-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+    }
+
+    .swatch-block {
+      min-height: 88px;
+      width: 100%;
+    }
+
+    .swatch-info {
+      padding: 14px 16px;
+    }
+
+    .swatch-name {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .swatch-hex {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--c-teal);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .swatch-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--lift);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 120ms, color 120ms, background 120ms;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--c-teal);
+      color: var(--c-teal);
+      background: rgba(0,229,196,0.06);
+    }
+
+    /* ── TOAST ───────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 9999;
+      background: var(--lift);
+      border: 1px solid var(--c-teal);
+      color: var(--c-teal);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 200ms, transform 200ms;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── SECTION 2 — LOGO DOWNLOADS ──────────────────────────────────────── */
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .logo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: border-color 160ms;
+    }
+
+    .logo-card:hover {
+      border-color: var(--border-hi);
+    }
+
+    .logo-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: var(--lift);
+      min-height: 160px;
+    }
+
+    .logo-meta {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
     }
 
-    .logo-box {
-      border: 1px dashed rgba(144, 184, 210, 0.35);
-      border-radius: 12px;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.2);
-      min-width: 220px;
+    .logo-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--ink);
     }
 
-    .logo-box img {
-      width: 140px;
-      height: 140px;
-      object-fit: contain;
-      display: block;
-      margin-bottom: 10px;
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--c-teal);
+      background: rgba(0,229,196,0.06);
+      color: var(--c-teal);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 160ms, border-color 160ms;
+      white-space: nowrap;
     }
 
-    .logo-box a {
-      color: #8ad9ff;
-      text-decoration: none;
-      font-family: "IBM Plex Mono", monospace;
+    .download-btn:hover {
+      background: rgba(0,229,196,0.12);
+    }
+
+    /* ── SECTION 3 — TYPOGRAPHY ──────────────────────────────────────────── */
+    .type-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .type-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      transition: border-color 160ms;
+    }
+
+    .type-card:hover {
+      border-color: var(--border-hi);
+    }
+
+    .type-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .type-name {
+      font-family: 'DM Sans', sans-serif;
       font-size: 12px;
-    }
-
-    .list {
-      margin: 0;
-      padding-left: 18px;
+      font-weight: 500;
       color: var(--muted);
-      display: grid;
-      gap: 7px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
-    pre {
-      margin: 0;
-      white-space: pre-wrap;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      color: #bad0de;
-      border: 1px dashed rgba(144, 184, 210, 0.34);
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.24);
-      padding: 10px;
+    .type-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(123,111,255,0.1);
+      border: 1px solid rgba(123,111,255,0.2);
+      color: var(--c-violet);
+    }
+
+    .type-sample-playfair {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 900;
+      font-size: clamp(24px, 4vw, 40px);
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .type-sample-dm {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: clamp(18px, 3vw, 28px);
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .type-sample-mono {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(13px, 2vw, 18px);
+      color: var(--c-teal);
+      line-height: 1.5;
+    }
+
+    /* ── SECTION 4 — BRAND VOICE ─────────────────────────────────────────── */
+    .voice-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .voice-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .voice-header {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .voice-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .voice-group.do-group {
+      border-top: 2px solid var(--c-teal);
+    }
+
+    .voice-group.dont-group {
+      border-top: 2px solid var(--c-rose);
+    }
+
+    .voice-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .voice-tag.do {
+      color: var(--c-teal);
+      background: rgba(0,229,196,0.08);
+      border: 1px solid rgba(0,229,196,0.15);
+    }
+
+    .voice-tag.dont {
+      color: var(--c-rose);
+      background: rgba(255,92,138,0.08);
+      border: 1px solid rgba(255,92,138,0.15);
+    }
+
+    .voice-topic {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--c-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .voice-quote {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    /* ── SECTION 5 — CONTACT ─────────────────────────────────────────────── */
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 40px 48px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .contact-text {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    .contact-text strong {
+      color: var(--ink);
+    }
+
+    .contact-link {
+      color: var(--c-teal);
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(0,229,196,0.3);
+      transition: border-color 160ms;
+    }
+
+    .contact-link:hover {
+      border-color: var(--c-teal);
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .page-wrap { padding: 0 16px 60px; }
+
+      nav { gap: 8px; }
+      .nav-links { gap: 6px; }
+      .nav-pill { font-size: 12px; padding: 5px 11px; }
+
+      .hero { padding: 48px 0 56px; }
+
+      .color-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .logo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .voice-row {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-card {
+        padding: 28px 24px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .type-card { padding: 22px 20px; }
+    }
+
+    @media (max-width: 480px) {
+      .color-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="layout">
-    <header class="top">
-      <a href="./index.html" data-cta="press_back_main">Back to main site</a>
-      <a href="./official_app.html" data-cta="press_open_studio">Open App Studio</a>
-    </header>
 
-    <h1>Ophtxn Press Kit</h1>
-    <p class="subtitle">Use this to publish consistent branding, positioning, and launch copy for your first public rollout.</p>
+  <!-- TOAST -->
+  <div id="toast" role="alert" aria-live="polite"></div>
 
-    <section class="card">
-      <h2>Logo assets</h2>
-      <div class="logo-row">
-        <article class="logo-box">
-          <img src="./assets/ophtxn_mark.svg" alt="Ophtxn mark">
-          <a href="./assets/ophtxn_mark.svg" download data-cta="press_download_logo">Download ophtxn_mark.svg</a>
-        </article>
+  <div class="page-wrap">
+
+    <!-- NAV -->
+    <nav aria-label="Site navigation">
+      <a href="../index.html" class="nav-brand">OPHTXN</a>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-pill">Home</a>
+        <a href="../ai_school.html" class="nav-pill">AI School</a>
+        <a href="../official_app.html" class="nav-pill">Official App</a>
+        <a href="../local_hub.html" class="nav-pill">Local Hub</a>
+        <a href="press_kit.html" class="nav-pill active">Press Kit</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Hero">
+      <span class="eyebrow">Brand + Press Kit</span>
+      <h1>Brand assets for Ophtxn.</h1>
+      <p>Everything you need to represent Ophtxn accurately — colors, logos, typography, and voice guidelines for press, partners, and collaborators.</p>
+    </section>
+
+    <!-- SECTION 1 — BRAND COLORS -->
+    <section class="section-block" aria-labelledby="colors-title">
+      <h2 class="section-title" id="colors-title">Brand Colors</h2>
+      <div class="section-divider"></div>
+
+      <div class="color-grid">
+
+        <!-- Teal -->
+        <div class="swatch-card">
+          <div class="swatch-block" style="background: #00e5c4;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Primary / Teal</div>
+            <code class="swatch-hex">#00e5c4</code>
+            <p class="swatch-desc">Actions, links, live indicators</p>
+            <button class="copy-btn" onclick="copyHex('#00e5c4', this)" aria-label="Copy hex value #00e5c4">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Gold -->
+        <div class="swatch-card">
+          <div class="swatch-block" style="background: #f8c842;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Accent / Gold</div>
+            <code class="swatch-hex">#f8c842</code>
+            <p class="swatch-desc">Highlights, eyebrows, badges</p>
+            <button class="copy-btn" onclick="copyHex('#f8c842', this)" aria-label="Copy hex value #f8c842">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Violet -->
+        <div class="swatch-card">
+          <div class="swatch-block" style="background: #7b6fff;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Accent / Violet</div>
+            <code class="swatch-hex">#7b6fff</code>
+            <p class="swatch-desc">Secondary accents</p>
+            <button class="copy-btn" onclick="copyHex('#7b6fff', this)" aria-label="Copy hex value #7b6fff">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Rose -->
+        <div class="swatch-card">
+          <div class="swatch-block" style="background: #ff5c8a;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Alert / Rose</div>
+            <code class="swatch-hex">#ff5c8a</code>
+            <p class="swatch-desc">Errors, warnings, urgency</p>
+            <button class="copy-btn" onclick="copyHex('#ff5c8a', this)" aria-label="Copy hex value #ff5c8a">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Background -->
+        <div class="swatch-card">
+          <div class="swatch-block" style="background: #080d13; border-bottom: 1px solid rgba(255,255,255,0.07);"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Background</div>
+            <code class="swatch-hex">#080d13</code>
+            <p class="swatch-desc">Base dark</p>
+            <button class="copy-btn" onclick="copyHex('#080d13', this)" aria-label="Copy hex value #080d13">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Ink -->
+        <div class="swatch-card">
+          <div class="swatch-block" style="background: #e8f0ff;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Ink</div>
+            <code class="swatch-hex">#e8f0ff</code>
+            <p class="swatch-desc">Primary text</p>
+            <button class="copy-btn" onclick="copyHex('#e8f0ff', this)" aria-label="Copy hex value #e8f0ff">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <section class="card">
-      <h2>Positioning copy</h2>
-      <ul class="list">
-        <li><strong>One-line:</strong> Ophtxn is a governed personal intelligence operating system for execution and memory.</li>
-        <li><strong>Short:</strong> Ophtxn combines assistant chat, decision workflows, and approval-safe automation in one runtime.</li>
-        <li><strong>Long:</strong> Ophtxn helps operators think, decide, and ship faster through a unified system that manages ideas, priorities, and actions with human-in-the-loop governance.</li>
-      </ul>
+    <!-- SECTION 2 — LOGO DOWNLOADS -->
+    <section class="section-block" aria-labelledby="logo-title">
+      <h2 class="section-title" id="logo-title">Logo + Mark</h2>
+      <div class="section-divider"></div>
+
+      <div class="logo-grid">
+
+        <!-- Mark -->
+        <div class="logo-card">
+          <div class="logo-preview" aria-label="Ophtxn Mark preview">
+            <svg id="mark-svg" width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ophtxn square mark">
+              <defs>
+                <linearGradient id="mark-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#00e5c4"/>
+                  <stop offset="100%" stop-color="#7b6fff"/>
+                </linearGradient>
+              </defs>
+              <rect width="80" height="80" rx="16" fill="url(#mark-grad)"/>
+              <text x="40" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="900" fill="white">O</text>
+            </svg>
+          </div>
+          <div class="logo-meta">
+            <span class="logo-label">Ophtxn Mark (SVG)</span>
+            <button class="download-btn" onclick="downloadMark()" aria-label="Download Ophtxn mark SVG">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1 10.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              Download SVG
+            </button>
+          </div>
+        </div>
+
+        <!-- Wordmark -->
+        <div class="logo-card">
+          <div class="logo-preview" aria-label="Ophtxn Wordmark preview">
+            <svg id="wordmark-svg" width="200" height="56" viewBox="0 0 200 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ophtxn wordmark">
+              <defs>
+                <linearGradient id="word-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#00e5c4"/>
+                  <stop offset="100%" stop-color="#7b6fff"/>
+                </linearGradient>
+              </defs>
+              <rect width="200" height="56" rx="12" fill="url(#word-grad)"/>
+              <text x="100" y="37" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="900" letter-spacing="4" fill="white">OPHTXN</text>
+            </svg>
+          </div>
+          <div class="logo-meta">
+            <span class="logo-label">Ophtxn Wordmark (SVG)</span>
+            <button class="download-btn" onclick="downloadWordmark()" aria-label="Download Ophtxn wordmark SVG">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1 10.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              Download SVG
+            </button>
+          </div>
+        </div>
+
+      </div>
     </section>
 
-    <section class="card">
-      <h2>Launch post template</h2>
-      <pre>Introducing Ophtxn.
+    <!-- SECTION 3 — TYPOGRAPHY -->
+    <section class="section-block" aria-labelledby="type-title">
+      <h2 class="section-title" id="type-title">Typography</h2>
+      <div class="section-divider"></div>
 
-A personal intelligence operating system built for real execution.
+      <div class="type-grid">
 
-What it does:
-- captures ideas and links into a ranked pipeline
-- keeps memory and profile context over time
-- routes actions through approvals and guardrails
-- runs daily ops loops across Telegram, Discord, and terminal
+        <!-- Playfair Display -->
+        <div class="type-card">
+          <div class="type-meta">
+            <span class="type-name">Playfair Display</span>
+            <span class="type-badge">Weight 900 Italic</span>
+            <span class="type-badge" style="background:rgba(248,200,66,0.1);border-color:rgba(248,200,66,0.2);color:var(--c-gold);">Display Headings</span>
+          </div>
+          <div class="type-sample-playfair">A personal intelligence OS</div>
+        </div>
 
-This is the first public version.
-If you want early access, reply with "OPHTXN".</pre>
+        <!-- DM Sans -->
+        <div class="type-card">
+          <div class="type-meta">
+            <span class="type-name">DM Sans</span>
+            <span class="type-badge">Weight 500</span>
+            <span class="type-badge" style="background:rgba(248,200,66,0.1);border-color:rgba(248,200,66,0.2);color:var(--c-gold);">Body Text</span>
+          </div>
+          <div class="type-sample-dm">Build intentionally. Move fast. Keep control.</div>
+        </div>
+
+        <!-- DM Mono -->
+        <div class="type-card">
+          <div class="type-meta">
+            <span class="type-name">DM Mono</span>
+            <span class="type-badge">Weight 400</span>
+            <span class="type-badge" style="background:rgba(248,200,66,0.1);border-color:rgba(248,200,66,0.2);color:var(--c-gold);">Code / Terminal</span>
+          </div>
+          <div class="type-sample-mono">python cli.py operator-surface --run-horizon</div>
+        </div>
+
+      </div>
     </section>
-  </main>
-  <script src="./runtime.config.js"></script>
+
+    <!-- SECTION 4 — BRAND VOICE -->
+    <section class="section-block" aria-labelledby="voice-title">
+      <h2 class="section-title" id="voice-title">Brand Voice</h2>
+      <div class="section-divider"></div>
+
+      <div class="voice-grid">
+
+        <!-- Row 1: Clarity over hype -->
+        <div>
+          <p class="voice-header">1 — Clarity over hype</p>
+          <div class="voice-row">
+            <div class="voice-group do-group">
+              <span class="voice-tag do">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Do
+              </span>
+              <p class="voice-quote">"Governed actions pass through explicit approvals."</p>
+            </div>
+            <div class="voice-group dont-group">
+              <span class="voice-tag dont">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Don't
+              </span>
+              <p class="voice-quote">"Revolutionary AI changes everything!"</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Operator tone -->
+        <div>
+          <p class="voice-header">2 — Operator tone</p>
+          <div class="voice-row">
+            <div class="voice-group do-group">
+              <span class="voice-tag do">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Do
+              </span>
+              <p class="voice-quote">"Run the check. Review the output. Ship it."</p>
+            </div>
+            <div class="voice-group dont-group">
+              <span class="voice-tag dont">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Don't
+              </span>
+              <p class="voice-quote">"Our platform empowers synergistic AI workflows."</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Honest scope -->
+        <div>
+          <p class="voice-header">3 — Honest scope</p>
+          <div class="voice-row">
+            <div class="voice-group do-group">
+              <span class="voice-tag do">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Do
+              </span>
+              <p class="voice-quote">"This is a personal tool built for one serious operator."</p>
+            </div>
+            <div class="voice-group dont-group">
+              <span class="voice-tag dont">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Don't
+              </span>
+              <p class="voice-quote">"The all-in-one AI solution for every team."</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5 — CONTACT -->
+    <section class="section-block" aria-labelledby="contact-title">
+      <h2 class="section-title" id="contact-title">Press + Partnerships</h2>
+      <div class="section-divider"></div>
+
+      <div class="contact-card">
+        <p class="contact-text">
+          For press or partnership inquiries, reach out directly at<br />
+          <strong><a href="mailto:pbhicksfinn@gmail.com" class="contact-link">pbhicksfinn@gmail.com</a></strong>
+        </p>
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <rect width="48" height="48" rx="12" fill="rgba(0,229,196,0.07)" stroke="rgba(0,229,196,0.15)" stroke-width="1"/>
+          <path d="M12 16h24v16a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V16Z" stroke="#00e5c4" stroke-width="1.5" fill="none"/>
+          <path d="M12 16l12 10 12-10" stroke="#00e5c4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </section>
+
+  </div><!-- /page-wrap -->
+
   <script>
-    (function () {
-      const runtime = window.__OPHTXN_RUNTIME || {};
-      const apiBaseRaw = String(runtime.apiBase || "").trim();
-      const apiBase = apiBaseRaw.replace(/\/$/, "");
-      const source = String(runtime.source || "foundation_site").trim() || "foundation_site";
-      const analyticsEnabled = runtime.analyticsEnabled !== false;
-      const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
-      const sessionKey = "ophtxn_session_id";
-      let sessionId = localStorage.getItem(sessionKey);
-      if (!sessionId) {
-        sessionId = "sess_" + Math.random().toString(36).slice(2, 11);
-        localStorage.setItem(sessionKey, sessionId);
-      }
+    // ── TOAST ──────────────────────────────────────────────────────────────
+    let toastTimer = null;
 
-      function endpoint(path) {
-        if (!path) return "";
-        if (/^https?:\/\//i.test(path)) return path;
-        return apiBase ? apiBase + path : "";
-      }
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2000);
+    }
 
-      async function track(eventType, meta) {
-        if (!analyticsEnabled) return;
-        const url = endpoint(siteEventEndpoint);
-        if (!url) return;
-        try {
-          await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              event_type: eventType,
-              source: source + ":press",
-              session_id: sessionId,
-              channel: "web",
-              meta: meta || {},
-            }),
-          });
-        } catch (_err) {
-          // telemetry is best-effort
-        }
-      }
-
-      track("page_view", { page: "press_kit", path: location.pathname });
-      document.querySelectorAll("[data-cta]").forEach((node) => {
-        node.addEventListener("click", () => {
-          track("cta_click", { cta: node.getAttribute("data-cta") || "unknown" });
-        });
+    // ── COPY HEX ───────────────────────────────────────────────────────────
+    function copyHex(hex, btn) {
+      navigator.clipboard.writeText(hex).then(() => {
+        showToast('Copied ' + hex);
+        const original = btn.innerHTML;
+        btn.textContent = 'Copied!';
+        btn.style.color = 'var(--c-teal)';
+        btn.style.borderColor = 'var(--c-teal)';
+        setTimeout(() => {
+          btn.innerHTML = original;
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 1400);
+      }).catch(() => {
+        // Fallback for older browsers
+        const el = document.createElement('textarea');
+        el.value = hex;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast('Copied ' + hex);
       });
-    })();
+    }
+
+    // ── DOWNLOAD MARK ──────────────────────────────────────────────────────
+    function downloadMark() {
+      const svgContent = `<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00e5c4"/>
+      <stop offset="100%" stop-color="#7b6fff"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" rx="16" fill="url(#grad)"/>
+  <text x="40" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="900" fill="white">O</text>
+</svg>`;
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ophtxn_mark.svg';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Downloading ophtxn_mark.svg');
+    }
+
+    // ── DOWNLOAD WORDMARK ──────────────────────────────────────────────────
+    function downloadWordmark() {
+      const svgContent = `<svg width="200" height="56" viewBox="0 0 200 56" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00e5c4"/>
+      <stop offset="100%" stop-color="#7b6fff"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="56" rx="12" fill="url(#grad)"/>
+  <text x="100" y="37" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="900" letter-spacing="4" fill="white">OPHTXN</text>
+</svg>`;
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ophtxn_wordmark.svg';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Downloading ophtxn_wordmark.svg');
+    }
   </script>
+
 </body>
 </html>

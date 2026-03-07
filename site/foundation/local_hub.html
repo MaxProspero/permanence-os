@@ -1,620 +1,750 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ophtxn Local Hub</title>
-  <meta name="description" content="Unified local host cockpit for Ophtxn and Permanence OS.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #08111d;
-      --ink: #eaf4ff;
-      --muted: #9bb4c8;
-      --line: rgba(140, 188, 222, 0.26);
-      --card: rgba(8, 22, 33, 0.82);
-      --mint: #53deb4;
-      --amber: #efc36b;
-      --sky: #7dbdff;
-      --rose: #ff8f90;
-      --radius: 18px;
-      --shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
-      --accent-gradient: linear-gradient(95deg, #7dbdff 8%, #53deb4 42%, #efc36b 92%);
-      --bg-grad-1: rgba(40, 89, 135, 0.75);
-      --bg-grad-2: rgba(74, 61, 31, 0.72);
-      --bg-grad-3: rgba(28, 77, 64, 0.72);
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ophtxn · Local Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #050811;
+    --surface:   #090e1a;
+    --lift:      #0d1526;
+    --border:    rgba(255,255,255,0.07);
+    --border-hi: rgba(255,255,255,0.14);
+    --ink:       #e8eeff;
+    --muted:     #5a6a8a;
+    --dim:       #2e3d5c;
 
-    body[data-theme="copper"] {
-      --bg: #120e0b;
-      --ink: #fff1e5;
-      --muted: #cfb6a3;
-      --line: rgba(209, 155, 118, 0.28);
-      --card: rgba(37, 22, 16, 0.8);
-      --mint: #f6b776;
-      --amber: #ffc58a;
-      --sky: #ffc58a;
-      --rose: #ff9f8c;
-      --accent-gradient: linear-gradient(95deg, #ffb57d 10%, #ffc58a 48%, #e89d74 90%);
-      --bg-grad-1: rgba(117, 64, 30, 0.68);
-      --bg-grad-2: rgba(71, 42, 24, 0.72);
-      --bg-grad-3: rgba(92, 54, 33, 0.58);
-    }
+    --c-a: #00e5c4;   /* teal   */
+    --c-b: #ff5c8a;   /* rose   */
+    --c-c: #7b6fff;   /* violet */
+    --c-d: #f8c842;   /* gold   */
 
-    body[data-theme="mono"] {
-      --bg: #0d0e12;
-      --ink: #eff1f8;
-      --muted: #acb0bd;
-      --line: rgba(170, 180, 210, 0.24);
-      --card: rgba(21, 23, 31, 0.82);
-      --mint: #a5d8ff;
-      --amber: #d0d8ff;
-      --sky: #9ed0ff;
-      --rose: #f8a9b7;
-      --accent-gradient: linear-gradient(95deg, #a6b8ff 10%, #9ed0ff 50%, #d0d8ff 92%);
-      --bg-grad-1: rgba(71, 86, 126, 0.52);
-      --bg-grad-2: rgba(57, 62, 84, 0.62);
-      --bg-grad-3: rgba(37, 41, 55, 0.58);
-    }
+    --r: 14px;
+    --mono: "DM Mono", monospace;
+    --sans: "Syne", system-ui, sans-serif;
+    --ease: cubic-bezier(.22,.68,0,1.2);
+  }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; min-height: 100%; }
-    body {
-      color: var(--ink);
-      font-family: "Space Grotesk", system-ui, sans-serif;
-      background:
-        radial-gradient(980px 560px at -8% -12%, var(--bg-grad-1), transparent 62%),
-        radial-gradient(900px 460px at 108% -8%, var(--bg-grad-2), transparent 58%),
-        radial-gradient(820px 400px at 52% 120%, var(--bg-grad-3), transparent 60%),
-        var(--bg);
-      line-height: 1.45;
-      transition: background 260ms ease, color 260ms ease;
-    }
+  /* copper theme */
+  [data-theme="copper"] {
+    --bg: #0c0906; --surface: #130e09; --lift: #1c1510;
+    --border: rgba(255,200,120,0.08); --border-hi: rgba(255,200,120,0.18);
+    --ink: #fff0d8; --muted: #7a5f40; --dim: #3a2810;
+    --c-a: #ffb347; --c-b: #ff6b6b; --c-c: #e8a87c; --c-d: #ffd700;
+  }
 
-    .wrap {
-      width: min(1220px, 92vw);
-      margin: 0 auto;
-      padding: 30px 0 72px;
-    }
+  /* void theme */
+  [data-theme="void"] {
+    --bg: #000000; --surface: #080808; --lift: #101010;
+    --border: rgba(255,255,255,0.05); --border-hi: rgba(255,255,255,0.10);
+    --ink: #cccccc; --muted: #444; --dim: #1a1a1a;
+    --c-a: #e0e0e0; --c-b: #888; --c-c: #bbb; --c-d: #fff;
+  }
 
-    .nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      animation: rise 420ms ease;
-    }
+  /* ── RESET ───────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
 
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--ink);
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background .3s, color .3s;
+  }
 
-    .brand img {
-      width: 36px;
-      height: 36px;
-    }
+  /* ── GRID NOISE BACKGROUND ───────────────────────────────── */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,229,196,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,196,.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    pointer-events: none;
+  }
 
-    .controls {
-      display: inline-flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+  /* glow orbs */
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(600px 400px at 15% 20%, rgba(0,229,196,.09) 0%, transparent 70%),
+      radial-gradient(500px 350px at 85% 10%, rgba(123,111,255,.07) 0%, transparent 70%),
+      radial-gradient(700px 300px at 50% 100%, rgba(255,92,138,.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
 
-    .links {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+  /* ── LAYOUT ──────────────────────────────────────────────── */
+  .page { position: relative; z-index: 1; width: min(1280px, 94vw); margin: 0 auto; padding: 28px 0 96px; }
 
-    .links a,
-    .btn {
-      text-decoration: none;
-      border: 1px solid var(--line);
-      color: var(--ink);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-family: "IBM Plex Mono", monospace;
-      background: rgba(255, 255, 255, 0.04);
-      transition: transform 140ms ease, border-color 140ms ease;
-      cursor: pointer;
-    }
+  /* ── NAV ─────────────────────────────────────────────────── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 52px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
 
-    .links a:hover,
-    .btn:hover {
-      transform: translateY(-1px);
-      border-color: rgba(125, 189, 255, 0.64);
-    }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink);
+    font-weight: 800; font-size: 15px; letter-spacing: -.01em;
+  }
 
-    .theme {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 12px;
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.04);
-      font: 12px "IBM Plex Mono", monospace;
-    }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--c-a), var(--c-c));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: #000; flex-shrink: 0;
+  }
 
-    .hero {
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: clamp(24px, 4vw, 42px);
-      background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015));
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
-      animation: rise 520ms ease;
-      position: relative;
-      overflow: hidden;
-    }
+  .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 420px;
-      height: 420px;
-      border-radius: 50%;
-      right: -90px;
-      bottom: -220px;
-      background: radial-gradient(circle at center, rgba(125, 189, 255, 0.22), transparent 68%);
-      pointer-events: none;
-    }
+  .pill {
+    font-family: var(--mono); font-size: 11px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted);
+    background: var(--surface); text-decoration: none;
+    transition: border-color .2s, color .2s;
+    cursor: pointer; appearance: none;
+  }
+  .pill:hover, .pill:focus { border-color: var(--border-hi); color: var(--ink); outline: none; }
+  .pill.active { border-color: var(--c-a); color: var(--c-a); }
 
-    .eyebrow {
-      margin: 0 0 8px;
-      color: var(--amber);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-    }
+  select.pill { padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6a8a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    background-size: 8px; -webkit-appearance: none; }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(34px, 7vw, 66px);
-      line-height: 0.93;
-      letter-spacing: -0.03em;
-      max-width: 900px;
-    }
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero { margin-bottom: 48px; }
 
-    .hero h1 span {
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-    }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--c-a);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+  }
+  .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--c-a); display: block; }
 
-    .hero p {
-      color: var(--muted);
-      max-width: 780px;
-      margin: 14px 0 0;
-      font-size: clamp(15px, 2vw, 18px);
-    }
+  h1 {
+    font-size: clamp(42px, 6.5vw, 88px);
+    font-weight: 800; letter-spacing: -.04em;
+    line-height: .92; max-width: 900px;
+    margin-bottom: 22px;
+  }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--c-a) 0%, var(--c-c) 50%, var(--c-b) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-    .run {
-      display: block;
-      margin-top: 8px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      color: var(--sky);
-      background: rgba(4, 12, 19, 0.6);
-      border: 1px solid rgba(140, 188, 222, 0.2);
-      border-radius: 10px;
-      padding: 8px 10px;
-      overflow-x: auto;
-    }
+  .hero-sub {
+    font-family: var(--mono); font-size: 13px; color: var(--muted);
+    max-width: 600px; line-height: 1.7; margin-bottom: 28px;
+  }
 
-    .stack {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      animation: rise 640ms ease;
-    }
+  .btn-primary {
+    padding: 11px 22px; border-radius: 999px;
+    background: var(--c-a); color: #000;
+    font-family: var(--sans); font-weight: 700; font-size: 13px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: transform .2s var(--ease), box-shadow .2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,196,.3); }
 
-    .card .k {
-      margin: 0 0 8px;
-      color: var(--muted);
-      font-size: 11px;
-      font-family: "IBM Plex Mono", monospace;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-    }
+  .cmd-bar {
+    margin-top: 20px; padding: 12px 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); font-family: var(--mono); font-size: 12px;
+    color: var(--c-a); overflow-x: auto; white-space: nowrap;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .cmd-bar::before { content: "❯"; color: var(--muted); flex-shrink: 0; }
 
-    .card h2 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: -0.03em;
-    }
+  /* ── SERVICE CARDS ───────────────────────────────────────── */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 48px;
+  }
 
-    .card code {
-      display: inline-block;
-      margin-top: 6px;
-      color: var(--sky);
-      font-size: 12px;
-      font-family: "IBM Plex Mono", monospace;
-      word-break: break-word;
-    }
+  .svc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    position: relative; overflow: hidden;
+    transition: border-color .25s, transform .25s var(--ease);
+    cursor: default;
+  }
+  .svc:hover { border-color: var(--border-hi); transform: translateY(-2px); }
 
-    .status {
-      margin-top: 10px;
-      border: 1px solid rgba(140, 188, 222, 0.24);
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 12px;
-      font-family: "IBM Plex Mono", monospace;
-      color: var(--muted);
-      min-height: 38px;
-      background: rgba(0, 0, 0, 0.2);
-      white-space: pre-wrap;
-    }
+  /* accent bar on left */
+  .svc::before {
+    content: ""; position: absolute; left: 0; top: 16px; bottom: 16px;
+    width: 2px; border-radius: 2px;
+    background: var(--accent, var(--c-a));
+  }
 
-    .ok { color: var(--mint); }
-    .warn { color: var(--amber); }
-    .bad { color: var(--rose); }
+  .svc-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+  }
 
-    .panel {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-top: 12px;
-    }
+  .svc-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 
-    .panel h3 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      letter-spacing: -0.01em;
-    }
+  .svc-url {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    margin-bottom: 14px; word-break: break-all;
+  }
 
-    .panel p {
-      margin: 0;
-      color: var(--muted);
-    }
+  /* status indicator */
+  .svc-status {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: 11px;
+    padding: 5px 10px; border-radius: 999px;
+    background: var(--lift); border: 1px solid var(--border);
+    transition: background .3s, border-color .3s, color .3s;
+  }
+  .svc-status .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); transition: background .3s;
+    flex-shrink: 0;
+  }
 
-    .matrix {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
+  .svc-status[data-s="ok"] { border-color: rgba(0,229,196,.3); color: var(--c-a); }
+  .svc-status[data-s="ok"] .dot { background: var(--c-a); box-shadow: 0 0 6px var(--c-a); animation: pulse 2s infinite; }
 
-    .matrix article {
-      border: 1px solid rgba(140, 188, 222, 0.2);
-      border-radius: 12px;
-      padding: 12px;
-      background: rgba(4, 12, 19, 0.52);
-    }
+  .svc-status[data-s="warn"] { border-color: rgba(248,200,66,.3); color: var(--c-d); }
+  .svc-status[data-s="warn"] .dot { background: var(--c-d); }
 
-    .badge {
-      display: inline-block;
-      font-size: 10px;
-      font-family: "IBM Plex Mono", monospace;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border: 1px solid rgba(140, 188, 222, 0.28);
-      border-radius: 999px;
-      padding: 3px 7px;
-      margin-bottom: 6px;
-      color: var(--muted);
-    }
+  .svc-status[data-s="err"] { border-color: rgba(255,92,138,.3); color: var(--c-b); }
+  .svc-status[data-s="err"] .dot { background: var(--c-b); }
 
-    .badge.good {
-      border-color: rgba(83, 222, 180, 0.48);
-      color: var(--mint);
-    }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: .4; }
+  }
 
-    .badge.warn {
-      border-color: rgba(239, 195, 107, 0.48);
-      color: var(--amber);
-    }
+  /* open link */
+  .svc-open {
+    display: block; margin-top: 12px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    text-decoration: none; transition: color .2s;
+  }
+  .svc-open:hover { color: var(--ink); }
 
-    .matrix h4 {
-      margin: 0 0 6px;
-      font-size: 15px;
-    }
+  /* ── SECTION HEADER ──────────────────────────────────────── */
+  .section-header {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 16px;
+  }
+  .section-header h2 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .section-header p { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 
-    .matrix ul {
-      margin: 0;
-      padding-left: 16px;
-      color: var(--muted);
-      display: grid;
-      gap: 6px;
-      font-size: 14px;
-    }
+  /* ── MATRIX ──────────────────────────────────────────────── */
+  .matrix-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 48px;
+  }
 
-    .lanes {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
+  .mx {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: border-color .2s;
+  }
+  .mx:hover { border-color: var(--border-hi); }
 
-    .lane {
-      border: 1px solid rgba(140, 188, 222, 0.2);
-      border-radius: 12px;
-      background: rgba(4, 12, 19, 0.52);
-      padding: 12px;
-    }
+  .mx-badge {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted);
+    align-self: flex-start;
+  }
+  .mx-badge.rec { border-color: rgba(0,229,196,.4); color: var(--c-a); }
+  .mx-badge.sel { border-color: rgba(248,200,66,.4); color: var(--c-d); }
+  .mx-badge.no  { border-color: rgba(255,92,138,.3); color: var(--c-b); }
 
-    .lane h4 {
-      margin: 0 0 6px;
-      font-size: 15px;
-    }
+  .mx h3 { font-size: 15px; font-weight: 700; }
 
-    .lane ul {
-      margin: 0;
-      padding-left: 16px;
-      color: var(--muted);
-      display: grid;
-      gap: 5px;
-      font-size: 14px;
-    }
+  .mx ul { padding-left: 14px; color: var(--muted); display: grid; gap: 6px; font-size: 13px; font-family: var(--mono); line-height: 1.5; }
 
-    .hint {
-      margin-top: 10px;
-      color: var(--muted);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-    }
+  .mx-rule {
+    margin-top: 2px; padding: 8px 12px;
+    background: var(--lift); border-left: 2px solid var(--c-b);
+    border-radius: 0 8px 8px 0;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
 
-    .footer-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
+  /* ── LANES ───────────────────────────────────────────────── */
+  .lanes-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 48px;
+  }
 
-    .footer-links a {
-      text-decoration: none;
-      border: 1px solid var(--line);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
-    }
+  .lane {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px;
+    position: relative; overflow: hidden;
+  }
 
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+  .lane::after {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(200px 200px at 100% 0%, var(--lane-glow, rgba(0,229,196,.04)), transparent);
+    pointer-events: none;
+  }
 
-    @media (max-width: 980px) {
-      .stack { grid-template-columns: 1fr; }
-      .matrix { grid-template-columns: 1fr; }
-      .lanes { grid-template-columns: 1fr; }
-    }
-  </style>
+  .lane-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--lift); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; margin-bottom: 12px;
+  }
+
+  .lane h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+
+  .lane ul { padding-left: 14px; color: var(--muted); display: grid; gap: 7px; font-size: 12px; font-family: var(--mono); line-height: 1.5; }
+
+  /* ── FOOTER LINKS ────────────────────────────────────────── */
+  .doc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .doc-links a {
+    font-family: var(--mono); font-size: 11px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted);
+    text-decoration: none; transition: border-color .2s, color .2s;
+  }
+  .doc-links a:hover { border-color: var(--border-hi); color: var(--ink); }
+
+  /* ── DIVIDER ─────────────────────────────────────────────── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 40px; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .services, .matrix-grid, .lanes-grid, .dev-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── MODE TOGGLE ──────────────────────────────────────────── */
+  .pill.mode-active { border-color: var(--c-c); color: var(--c-c); }
+
+  /* Personal mode: hide dev-only blocks */
+  .dev-only { display: none; }
+  [data-mode="dev"] .dev-only { display: block; }
+
+  /* ── DEV PANEL ────────────────────────────────────────────── */
+  .dev-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 40px;
+  }
+
+  .dev-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 18px; overflow: hidden;
+  }
+
+  .dev-card-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+
+  .dev-raw {
+    font-family: var(--mono); font-size: 11px; color: var(--c-c);
+    white-space: pre-wrap; word-break: break-all;
+    max-height: 180px; overflow-y: auto; line-height: 1.6;
+  }
+
+  .dev-table {
+    width: 100%; border-collapse: collapse;
+    font-family: var(--mono); font-size: 12px;
+    margin-bottom: 40px;
+  }
+
+  .dev-table th {
+    text-align: left; padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted); font-weight: 400;
+    font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  }
+
+  .dev-table td {
+    padding: 9px 12px; border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .dev-table td:first-child { color: var(--c-a); }
+  .dev-table td:nth-child(2) { color: var(--c-d); }
+  .dev-table tr:hover td { background: var(--lift); }
+
+  /* ── ENTRY ANIMATIONS ────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero         { animation: fadeUp .5s both; }
+  .services     { animation: fadeUp .55s .08s both; }
+  .matrix-grid  { animation: fadeUp .55s .14s both; }
+  .lanes-grid   { animation: fadeUp .55s .2s both; }
+</style>
 </head>
 <body data-theme="aurora">
-  <main class="wrap">
-    <header class="nav">
-      <a class="brand" href="./index.html">
-        <img src="./assets/ophtxn_mark.svg" alt="Ophtxn mark">
-        <span>Ophtxn Local Hub</span>
-      </a>
-      <div class="controls">
-        <label>
-          <span class="visually-hidden" style="position:absolute;left:-9999px;">Theme</span>
-          <select class="theme" id="themeSelect" aria-label="Theme select">
-            <option value="aurora">Aurora</option>
-            <option value="copper">Copper Night</option>
-            <option value="mono">Signal Mono</option>
-          </select>
-        </label>
-        <nav class="links" aria-label="Navigation">
-          <a href="./index.html">Official Site</a>
-          <a href="./official_app.html">App Studio</a>
-          <a href="./ai_school.html">AI School</a>
-          <a href="./press_kit.html">Press Kit</a>
-        </nav>
+<main class="page">
+
+  <!-- NAV -->
+  <nav>
+    <a class="brand" href="./index.html">
+      <div class="brand-mark">O</div>
+      <span>Ophtxn Local Hub</span>
+    </a>
+    <div class="nav-right">
+      <select class="pill" id="themeSelect" aria-label="Theme">
+        <option value="aurora">Aurora</option>
+        <option value="copper">Copper</option>
+        <option value="void">Void</option>
+      </select>
+      <a class="pill" href="./index.html">Site</a>
+      <a class="pill" href="./official_app.html">App</a>
+      <a class="pill" href="./ai_school.html">AI School</a>
+      <button class="pill" id="modeBtn" type="button">Dev Mode</button>
+      <button class="pill" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="eyebrow">Localhost Command Surface</p>
+    <h1>Your agent stack,<br><em>governed and live.</em></h1>
+    <p class="hero-sub">
+      Ophtxn stays your source of truth — memory, approvals, and governance
+      all live here. External tools plug in as workers, not controllers.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Command Center</a>
+      <a class="pill" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">App Shell</a>
+      <a class="pill" href="http://127.0.0.1:8787" target="_blank" rel="noopener">Foundation</a>
+    </div>
+    <div class="cmd-bar">python cli.py operator-surface --run-horizon</div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services">
+    <article class="svc" style="--accent: var(--c-a)">
+      <p class="svc-label">Runtime · Core</p>
+      <p class="svc-name">Command Center</p>
+      <p class="svc-url">127.0.0.1:8000</p>
+      <div class="svc-status" id="st-8000" data-s="checking">
+        <span class="dot"></span><span class="label">checking…</span>
       </div>
-    </header>
+      <a class="svc-open" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Open</a>
+    </article>
 
-    <section class="hero">
-      <p class="eyebrow">Localhost Control</p>
-      <h1>One launch surface for your <span>next-level agent stack</span>.</h1>
-      <p>
-        This is your command cockpit: health, design direction, stack decisions, and skill lanes in one place.
-        Keep Ophtxn as the source of truth and layer external tools intentionally.
-      </p>
-      <div class="actions">
-        <a class="btn" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Open Command Center</a>
-        <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">Open App Shell</a>
-        <button class="btn" id="refreshBtn" type="button">Refresh Health</button>
+    <article class="svc" style="--accent: var(--c-c)">
+      <p class="svc-label">Runtime · Foundation</p>
+      <p class="svc-name">Foundation Site</p>
+      <p class="svc-url">127.0.0.1:8787</p>
+      <div class="svc-status" id="st-8787" data-s="checking">
+        <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <code class="run">python cli.py operator-surface --run-horizon</code>
-    </section>
+      <a class="svc-open" href="http://127.0.0.1:8787" target="_blank" rel="noopener">→ Open</a>
+    </article>
 
-    <section class="stack">
-      <article class="card">
-        <p class="k">Runtime 1</p>
-        <h2>Command Center</h2>
-        <code>http://127.0.0.1:8000</code>
-        <div class="status" id="status8000">checking...</div>
-      </article>
-      <article class="card">
-        <p class="k">Runtime 2</p>
-        <h2>Foundation Site</h2>
-        <code>http://127.0.0.1:8787</code>
-        <div class="status" id="status8787">checking...</div>
-      </article>
-      <article class="card">
-        <p class="k">Runtime 3</p>
-        <h2>Ophtxn App Shell</h2>
-        <code>http://127.0.0.1:8797/app/ophtxn</code>
-        <div class="status" id="status8797">checking...</div>
-      </article>
-    </section>
-
-    <section class="panel">
-      <h3>Stack Decision Matrix (Research-backed)</h3>
-      <p>
-        Recommended path: keep Ophtxn core control plane, then combine OpenClaw + remote worker layer, and use Perplexity Computer selectively for scoped research tasks.
-      </p>
-      <div class="matrix">
-        <article>
-          <span class="badge good">Recommended</span>
-          <h4>Ophtxn Core + OpenClaw + Orgo-style workers</h4>
-          <ul>
-            <li>Own UX, approvals, memory, and execution policy in Ophtxn.</li>
-            <li>Use OpenClaw for channel/runtime actions and plugin tools.</li>
-            <li>Run sub-agents on cheap remote machines when needed.</li>
-          </ul>
-        </article>
-        <article>
-          <span class="badge warn">Selective</span>
-          <h4>Ophtxn + Perplexity Computer</h4>
-          <ul>
-            <li>Use Perplexity Computer for deep browsing or connector-heavy tasks.</li>
-            <li>Keep final decisions and workflows routed back into Ophtxn.</li>
-            <li>Avoid platform lock-in by preserving first-party runbooks.</li>
-          </ul>
-        </article>
-        <article>
-          <span class="badge">Not Ideal</span>
-          <h4>Perplexity-only Control Plane</h4>
-          <ul>
-            <li>Faster start, weaker ownership of memory and governance.</li>
-            <li>Less flexibility for custom agent orchestration.</li>
-            <li>Higher long-term dependency risk for your product vision.</li>
-          </ul>
-        </article>
+    <article class="svc" style="--accent: var(--c-b)">
+      <p class="svc-label">Runtime · App Shell</p>
+      <p class="svc-name">Ophtxn App</p>
+      <p class="svc-url">127.0.0.1:8797/app/ophtxn</p>
+      <div class="svc-status" id="st-8797" data-s="checking">
+        <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <p class="hint">Hard rule: we do not remove model safety rails via jailbreaks. Ophtxn governance is where policy and permissions are tuned.</p>
-    </section>
+      <a class="svc-open" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
+    </article>
+  </section>
 
-    <section class="panel">
-      <h3>Skill Lanes</h3>
-      <p>Use these lanes to keep skills unlocked but controlled.</p>
-      <div class="lanes">
-        <article class="lane">
-          <h4>Codex Lane</h4>
-          <ul>
-            <li>`playwright` for browser automation tasks.</li>
-            <li>`cloudflare-deploy` for deploy and domain operations.</li>
-            <li>`openai-docs` and `security-*` skills for reliable implementation.</li>
-          </ul>
-        </article>
-        <article class="lane">
-          <h4>OpenClaw Lane</h4>
-          <ul>
-            <li>Use channel configs + group policies for controlled agent actions.</li>
-            <li>Use OpenClaw Skills for repeatable social/research workflows.</li>
-            <li>Keep OpenClaw runtime as worker layer, not canonical memory.</li>
-          </ul>
-        </article>
-        <article class="lane">
-          <h4>Chrome Lane</h4>
-          <ul>
-            <li>Keep a dedicated "agent ops" profile with minimal extensions.</li>
-            <li>Pin only your run surfaces: Local Hub, Command Center, App Shell.</li>
-            <li>Use Perplexity tab/workspace only for bounded research sessions.</li>
-          </ul>
-        </article>
+  <!-- DEV PANEL (hidden in personal mode) -->
+  <section class="dev-only" id="dev-panel">
+    <hr class="divider">
+    <div class="section-header">
+      <h2>Developer Panel</h2>
+      <p>Raw API responses · System info · Endpoint map</p>
+    </div>
+    <div class="dev-grid">
+      <div class="dev-card">
+        <p class="dev-card-label">Command Center :8000 — raw</p>
+        <pre class="dev-raw" id="raw-8000">—</pre>
       </div>
-      <div class="footer-links">
-        <a href="https://github.com/MaxProspero/permanence-os/blob/main/docs/ophtxn_dashboard_stack_strategy_20260306.md">Stack Strategy Doc</a>
-        <a href="https://github.com/MaxProspero/permanence-os/blob/main/docs/ophtxn_platform_intelligence_20260306.md">Platform Intelligence</a>
-        <a href="https://github.com/MaxProspero/permanence-os/blob/main/docs/ophtxn_skill_stack_20260306.md">Skill Stack</a>
+      <div class="dev-card">
+        <p class="dev-card-label">App Shell :8797 — raw</p>
+        <pre class="dev-raw" id="raw-8797">—</pre>
       </div>
-    </section>
-  </main>
+      <div class="dev-card">
+        <p class="dev-card-label">Client Environment</p>
+        <pre class="dev-raw" id="raw-sys">—</pre>
+      </div>
+    </div>
 
-  <script>
-    const endpoints = {
-      status8000: { url: "http://127.0.0.1:8000/api/status", expectJson: true },
-      status8787: { url: "http://127.0.0.1:8787/", expectJson: false },
-      status8797: { url: "http://127.0.0.1:8797/health", expectJson: true },
-    };
+    <div class="section-header">
+      <h2>API Endpoints</h2>
+      <p>Known local endpoints and methods</p>
+    </div>
+    <table class="dev-table">
+      <thead>
+        <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>/api/status</td><td>GET</td><td>Health check — returns ok, ts, version</td></tr>
+        <tr><td>/api/approve</td><td>POST</td><td>Approval gate — requires action + payload</td></tr>
+        <tr><td>/api/queue</td><td>GET</td><td>Pending approval queue</td></tr>
+        <tr><td>/api/tasks</td><td>GET</td><td>Active task list</td></tr>
+        <tr><td>/api/logs</td><td>GET</td><td>Structured event log stream</td></tr>
+        <tr><td>/health</td><td>GET</td><td>App shell readiness (:8797)</td></tr>
+      </tbody>
+    </table>
+  </section>
 
-    const themeKey = "ophtxn_local_hub_theme";
-    const themeSelect = document.getElementById("themeSelect");
+  <hr class="divider">
 
-    function setStatus(id, text, level) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.textContent = text;
-      el.classList.remove("ok", "warn", "bad");
-      if (level) el.classList.add(level);
+  <!-- MATRIX -->
+  <div class="section-header">
+    <h2>Stack Decision Matrix</h2>
+    <p>Research-backed · March 2026</p>
+  </div>
+
+  <div class="matrix-grid">
+    <article class="mx">
+      <span class="mx-badge rec">✓ Recommended</span>
+      <h3>Ophtxn Core + OpenClaw + Orgo Workers</h3>
+      <ul>
+        <li>Own memory, approvals, UX in Ophtxn.</li>
+        <li>OpenClaw handles channel/runtime execution.</li>
+        <li>Sub-agents run on cheap remote machines.</li>
+        <li>Full governance without vendor lock-in.</li>
+      </ul>
+    </article>
+
+    <article class="mx">
+      <span class="mx-badge sel">◎ Selective</span>
+      <h3>Ophtxn + Perplexity Computer</h3>
+      <ul>
+        <li>Use for deep browsing + connector tasks.</li>
+        <li>Route results back into Ophtxn memory.</li>
+        <li>Keep runbooks in first-party docs.</li>
+        <li>Watch tiered limits — not unlimited.</li>
+      </ul>
+    </article>
+
+    <article class="mx">
+      <span class="mx-badge no">✗ Not Ideal</span>
+      <h3>Perplexity-only Control Plane</h3>
+      <ul>
+        <li>No ownership of memory or governance.</li>
+        <li>Less flexible for custom orchestration.</li>
+        <li>High platform dependency risk.</li>
+        <li>Conflicts with Ophtxn product identity.</li>
+      </ul>
+      <p class="mx-rule">Governance and policy routing replace jailbreak approaches — always.</p>
+    </article>
+  </div>
+
+  <hr class="divider">
+
+  <!-- LANES -->
+  <div class="section-header">
+    <h2>Skill Lanes</h2>
+    <p>Unlocked and controlled</p>
+  </div>
+
+  <div class="lanes-grid">
+    <article class="lane" style="--lane-glow: rgba(0,229,196,.06)">
+      <div class="lane-icon">⌨</div>
+      <h3>Codex Lane</h3>
+      <ul>
+        <li>playwright — browser automation + UI validation</li>
+        <li>cloudflare-deploy — domain + hosting ops</li>
+        <li>openai-docs — API verification (official source)</li>
+        <li>security-best-practices + security-threat-model</li>
+        <li>gh-fix-ci, gh-address-comments — keep PRs fast</li>
+      </ul>
+    </article>
+
+    <article class="lane" style="--lane-glow: rgba(123,111,255,.06)">
+      <div class="lane-icon">🦅</div>
+      <h3>OpenClaw Lane</h3>
+      <ul>
+        <li>Channel configs + group policies for gated actions</li>
+        <li>Skills for repeatable social/research workflows</li>
+        <li>Runtime = worker layer, not canonical memory</li>
+        <li>Channels guide → docs.openclaw.ai/guides/channels</li>
+        <li>Skills guide → docs.openclaw.ai/guides/skills</li>
+      </ul>
+    </article>
+
+    <article class="lane" style="--lane-glow: rgba(255,92,138,.05)">
+      <div class="lane-icon">🌐</div>
+      <h3>Chrome Lane</h3>
+      <ul>
+        <li>Dedicated "agent ops" profile — minimal extensions</li>
+        <li>Pin: Local Hub, Command Center, App Shell only</li>
+        <li>Perplexity = bounded research tab, not home base</li>
+        <li>Keep finance/admin in a separate Chrome profile</li>
+      </ul>
+    </article>
+  </div>
+
+  <hr class="divider">
+
+  <!-- DOCS -->
+  <div class="section-header">
+    <h2>Docs</h2>
+    <p>Strategy, intelligence, governance</p>
+  </div>
+  <div class="doc-links">
+    <a href="../docs/ophtxn_platform_intelligence_20260306.md">Platform Intelligence</a>
+    <a href="../docs/ophtxn_skill_stack_20260306.md">Skill Stack</a>
+    <a href="../docs/ophtxn_model_policy_guardrails_20260306.md">Model Policy</a>
+    <a href="../docs/ophtxn_journey_change_log.md">Change Log</a>
+    <a href="../docs/README.md">Docs Index</a>
+  </div>
+
+</main>
+
+<script>
+// ── MODE TOGGLE ───────────────────────────────────────────────
+const MODE_KEY  = 'ophtxn_hub_mode_v1';
+const modeBtn   = document.getElementById('modeBtn');
+
+function applyMode(m) {
+  document.body.dataset.mode = m;
+  modeBtn.textContent = m === 'dev' ? '← Personal' : 'Dev Mode';
+  modeBtn.classList.toggle('mode-active', m === 'dev');
+  try { localStorage.setItem(MODE_KEY, m); } catch(_) {}
+  if (m === 'dev') populateDevPanel();
+}
+
+const savedMode = (() => { try { return localStorage.getItem(MODE_KEY); } catch(_) { return null; } })();
+applyMode(savedMode || 'personal');
+
+modeBtn.addEventListener('click', () => {
+  applyMode(document.body.dataset.mode === 'dev' ? 'personal' : 'dev');
+});
+
+async function populateDevPanel() {
+  const sysEl = document.getElementById('raw-sys');
+  if (sysEl) {
+    sysEl.textContent = JSON.stringify({
+      time:     new Date().toISOString(),
+      viewport: `${window.innerWidth}×${window.innerHeight}`,
+      theme:    document.body.dataset.theme,
+      mode:     document.body.dataset.mode,
+      build:    'ophtxn-local-hub',
+    }, null, 2);
+  }
+
+  const el8000 = document.getElementById('raw-8000');
+  if (el8000) {
+    try {
+      const res  = await fetch('http://127.0.0.1:8000/api/status', { signal: AbortSignal.timeout(3000) });
+      const data = await res.json();
+      el8000.textContent = JSON.stringify(data, null, 2);
+    } catch(e) { el8000.textContent = `Error: ${e.message}`; }
+  }
+
+  const el8797 = document.getElementById('raw-8797');
+  if (el8797) {
+    try {
+      const res  = await fetch('http://127.0.0.1:8797/health', { signal: AbortSignal.timeout(3000) });
+      const data = await res.json();
+      el8797.textContent = JSON.stringify(data, null, 2);
+    } catch(e) { el8797.textContent = `Error: ${e.message}`; }
+  }
+}
+
+// ── THEME ─────────────────────────────────────────────────────
+const THEME_KEY = "ophtxn_hub_theme_v2";
+const sel = document.getElementById("themeSelect");
+
+function applyTheme(t) {
+  document.body.dataset.theme = t;
+  try { localStorage.setItem(THEME_KEY, t); } catch(_) {}
+}
+
+const saved = (() => { try { return localStorage.getItem(THEME_KEY); } catch(_) { return null; } })();
+const initial = saved || "aurora";
+sel.value = initial;
+applyTheme(initial);
+sel.addEventListener("change", e => applyTheme(e.target.value));
+
+// ── SMART HEALTH POLLING ──────────────────────────────────────
+// Only updates the DOM when the state actually changes.
+// No blind re-writes every tick.
+
+const SERVICES = [
+  { id: "st-8000", url: "http://127.0.0.1:8000/api/status", expectJson: true  },
+  { id: "st-8787", url: "http://127.0.0.1:8787/",            expectJson: false },
+  { id: "st-8797", url: "http://127.0.0.1:8797/health",      expectJson: true  },
+];
+
+// Track last known state so we skip DOM writes when nothing changed
+const lastState = {};
+
+function setState(id, status, text) {
+  // DIFF CHECK — bail if nothing changed
+  const prev = lastState[id];
+  if (prev && prev.status === status && prev.text === text) return;
+  lastState[id] = { status, text };
+
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.dataset.s = status;
+  el.querySelector(".label").textContent = text;
+}
+
+async function pingService({ id, url, expectJson }) {
+  try {
+    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) });
+    if (!res.ok) {
+      setState(id, "warn", `HTTP ${res.status}`);
+      return;
     }
-
-    function applyTheme(theme) {
-      document.body.setAttribute("data-theme", theme);
-      localStorage.setItem(themeKey, theme);
-    }
-
-    async function ping(id, url, expectJson) {
+    if (expectJson) {
       try {
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) {
-          setStatus(id, "HTTP " + res.status + " at " + url, "warn");
-          return;
-        }
-        if (expectJson) {
-          const data = await res.json();
-          const ok = data && data.ok === true;
-          setStatus(id, ok ? "online | ok=true" : "online | response received", ok ? "ok" : "warn");
-          return;
-        }
-        setStatus(id, "online", "ok");
-      } catch (_err) {
-        try {
-          await fetch(url, { mode: "no-cors", cache: "no-store" });
-          setStatus(id, "reachable (opaque cross-origin response)", "warn");
-        } catch (err2) {
-          setStatus(id, "offline or blocked | " + String(err2), "bad");
-        }
+        const data = await res.json();
+        const good = data && data.ok === true;
+        setState(id, good ? "ok" : "warn", good ? "online · ok" : "online · check payload");
+      } catch (_) {
+        setState(id, "warn", "online · bad json");
       }
+      return;
     }
-
-    async function refreshHealth() {
-      await Promise.all([
-        ping("status8000", endpoints.status8000.url, endpoints.status8000.expectJson),
-        ping("status8787", endpoints.status8787.url, endpoints.status8787.expectJson),
-        ping("status8797", endpoints.status8797.url, endpoints.status8797.expectJson),
-      ]);
+    setState(id, "ok", "online");
+  } catch (err) {
+    // Try opaque no-cors probe as fallback
+    try {
+      await fetch(url, { mode: "no-cors", cache: "no-store", signal: AbortSignal.timeout(3000) });
+      setState(id, "warn", "reachable · opaque");
+    } catch (_) {
+      setState(id, "err", "offline");
     }
+  }
+}
 
-    const initialTheme = localStorage.getItem(themeKey) || "aurora";
-    themeSelect.value = initialTheme;
-    applyTheme(initialTheme);
+async function refreshAll() {
+  await Promise.all(SERVICES.map(pingService));
+}
 
-    themeSelect.addEventListener("change", (event) => {
-      applyTheme(String(event.target.value || "aurora"));
-    });
+document.getElementById("refreshBtn").addEventListener("click", refreshAll);
 
-    document.getElementById("refreshBtn").addEventListener("click", refreshHealth);
-    refreshHealth();
-    setInterval(refreshHealth, 20000);
-  </script>
+// Initial ping + smart interval (30s — longer than before, diff-gated so no flicker)
+refreshAll();
+setInterval(refreshAll, 30_000);
+</script>
 </body>
 </html>

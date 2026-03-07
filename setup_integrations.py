@@ -67,6 +67,30 @@ INTEGRATION_MAP = {
 }
 
 
+REQUIRED_INTEGRATIONS = {
+    "telegram": ["PERMANENCE_TELEGRAM_BOT_TOKEN", "PERMANENCE_TELEGRAM_CHAT_ID"],
+    "anthropic": ["ANTHROPIC_API_KEY"],
+}
+OPTIONAL_INTEGRATIONS = {
+    "openai": ["OPENAI_API_KEY"],
+    "openclaw": ["OPENCLAW_API_KEY"],
+}
+
+def print_integration_status():
+    """Print current integration configuration status."""
+    print("\n=== Integration Status ===")
+    for name, vars_ in REQUIRED_INTEGRATIONS.items():
+        configured = all(os.getenv(v) for v in vars_)
+        status = "✓" if configured else "✗ MISSING"
+        print(f"  {name}: {status}")
+    print("\n=== Optional Integrations ===")
+    for name, vars_ in OPTIONAL_INTEGRATIONS.items():
+        configured = all(os.getenv(v) for v in vars_)
+        status = "✓" if configured else "○ not configured"
+        print(f"  {name}: {status}")
+    print()
+
+
 # ============================================================
 # LOGGING (APPEND-ONLY — CANON INVARIANT)
 # ============================================================
