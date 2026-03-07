@@ -139,9 +139,11 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     dashboard_url = f"http://{args.host}:{args.dashboard_port}"
     foundation_url = f"http://{args.host}:{args.foundation_port}/"
+    foundation_hub_url = f"http://{args.host}:{args.foundation_port}/local_hub.html"
     foundation_app_url = f"http://{args.host}:{args.foundation_api_port}/app/ophtxn"
     print(f"[operator-surface] Starting dashboard: {dashboard_url}")
     print(f"[operator-surface] Starting FOUNDATION site: {foundation_url}")
+    print(f"[operator-surface] Local hub: {foundation_hub_url}")
     if not args.no_foundation_api:
         print(f"[operator-surface] Starting FOUNDATION API: {foundation_app_url}")
 
@@ -164,7 +166,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     signal.signal(signal.SIGTERM, _signal_handler)
 
     if not args.no_open:
-        urls = [dashboard_url, foundation_url]
+        urls = [foundation_hub_url, dashboard_url, foundation_url]
         if not args.no_foundation_api:
             urls.append(foundation_app_url)
         thread = threading.Thread(
