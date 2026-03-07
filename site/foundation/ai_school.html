@@ -604,14 +604,70 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
+
+    /* ── FILM GRAIN ──────────────────────────────── */
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .05; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%  { transform: translate(0,0) }    10% { transform: translate(-2%,-3%) }
+      20% { transform: translate(3%,1%) }  30% { transform: translate(-1%,4%) }
+      40% { transform: translate(4%,-1%) } 50% { transform: translate(-3%,2%) }
+      60% { transform: translate(1%,-4%) } 70% { transform: translate(-4%,3%) }
+      80% { transform: translate(2%,2%) }  90% { transform: translate(-2%,-1%) }
+      100%{ transform: translate(0,0) }
+    }
+    .nav-brand {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-reticle {
+      width: 26px; height: 26px; flex-shrink: 0;
+      color: var(--c-gold);
+    }
+    .arc-eyebrow {
+      display: block;
+      font-family: monospace;
+      font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-gold); opacity: .4;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- FILM GRAIN -->
+  <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="gf" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
+        <animate attributeName="seed" values="0;4;11;7;15;2;0" dur="0.6s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
+  </svg>
+
   <main class="page">
 
     <!-- NAV -->
     <header class="nav">
-      <a class="nav-brand" href="./index.html">OPHTXN AI SCHOOL</a>
+      <a class="nav-brand" href="./index.html">
+        <svg class="brand-reticle" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+          <circle cx="13" cy="13" r="11" stroke="currentColor" stroke-width="0.9" opacity="0.45"/>
+          <circle cx="13" cy="13" r="7"  stroke="currentColor" stroke-width="0.9" opacity="0.65"/>
+          <circle cx="13" cy="13" r="2"  fill="currentColor" opacity="0.9"/>
+          <line x1="13" y1="0.5" x2="13" y2="5"   stroke="currentColor" stroke-width="1.2"/>
+          <line x1="13" y1="21"  x2="13" y2="25.5" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="0.5" y1="13" x2="5"  y2="13"   stroke="currentColor" stroke-width="1.2"/>
+          <line x1="21" y1="13"  x2="25.5" y2="13" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        OPHTXN AI SCHOOL
+      </a>
       <nav class="nav-links" aria-label="Site navigation">
         <a href="./index.html">Home</a>
         <a href="./official_app.html">App Studio</a>
@@ -622,6 +678,7 @@
 
     <!-- HERO -->
     <section class="hero">
+      <span class="arc-eyebrow">A-KWJ-0368 // AI SCHOOL // 26.03.07</span>
       <p class="eyebrow">AI Skills Library</p>
       <h1>Learn AI like a craftsman.</h1>
       <p class="hero-sub">Practical skills for builders, operators, and founders who ship with AI.</p>
