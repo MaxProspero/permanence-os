@@ -395,15 +395,87 @@
   .services     { animation: fadeUp .55s .08s both; }
   .matrix-grid  { animation: fadeUp .55s .14s both; }
   .lanes-grid   { animation: fadeUp .55s .2s both; }
+
+  /* ── FILM GRAIN ─────────────────────────────────────────── */
+  #grain {
+    position: fixed; inset: -50%; width: 200%; height: 200%;
+    opacity: .05; mix-blend-mode: overlay;
+    animation: grainshift .5s steps(1) infinite;
+    pointer-events: none; z-index: 9999;
+  }
+  @keyframes grainshift {
+    0%  { transform: translate(0,0) }
+    10% { transform: translate(-2%,-3%) }
+    20% { transform: translate(3%,1%) }
+    30% { transform: translate(-1%,4%) }
+    40% { transform: translate(4%,-1%) }
+    50% { transform: translate(-3%,2%) }
+    60% { transform: translate(1%,-4%) }
+    70% { transform: translate(-4%,3%) }
+    80% { transform: translate(2%,2%) }
+    90% { transform: translate(-2%,-1%) }
+    100%{ transform: translate(0,0) }
+  }
+
+  /* ── RETICLE BRAND MARK ──────────────────────────────────── */
+  .brand-reticle {
+    width: 32px; height: 32px; flex-shrink: 0;
+    color: var(--c-a);
+  }
+
+  /* ── ARCHIVAL EYEBROW ────────────────────────────────────── */
+  .arc-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--c-d); opacity: .55;
+    margin-bottom: 8px;
+  }
+
+  /* ── HALFTONE on service cards ───────────────────────────── */
+  .svc::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,200,120,.04) 1px, transparent 1px);
+    background-size: 14px 14px;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    border-radius: inherit;
+    z-index: 0;
+  }
+  .svc > * { position: relative; z-index: 1; }
 </style>
 </head>
-<body data-theme="aurora">
+<body data-theme="copper">
+
+<!-- FILM GRAIN OVERLAY -->
+<svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <filter id="gf" x="0%" y="0%" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
+      <animate attributeName="seed" values="0;9;3;15;6;12;0" dur="0.6s" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
+</svg>
+
 <main class="page">
 
   <!-- NAV -->
   <nav>
     <a class="brand" href="./index.html">
-      <div class="brand-mark">O</div>
+      <!-- OPHTXN Reticle -->
+      <svg class="brand-reticle" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="16" cy="16" r="13.5" stroke="currentColor" stroke-width="1" opacity="0.45"/>
+        <circle cx="16" cy="16" r="8.5"  stroke="currentColor" stroke-width="1" opacity="0.65"/>
+        <circle cx="16" cy="16" r="2.5"  fill="currentColor" opacity="0.9"/>
+        <line x1="16" y1="0.5" x2="16" y2="6"    stroke="currentColor" stroke-width="1.4"/>
+        <line x1="16" y1="26"  x2="16" y2="31.5"  stroke="currentColor" stroke-width="1.4"/>
+        <line x1="0.5" y1="16" x2="6"  y2="16"    stroke="currentColor" stroke-width="1.4"/>
+        <line x1="26" y1="16"  x2="31.5" y2="16"  stroke="currentColor" stroke-width="1.4"/>
+        <line x1="3.5" y1="3.5"   x2="6.5" y2="6.5"   stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
+        <line x1="25.5" y1="25.5" x2="28.5" y2="28.5" stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
+        <line x1="25.5" y1="6.5"  x2="28.5" y2="3.5"  stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
+        <line x1="3.5"  y1="28.5" x2="6.5"  y2="25.5" stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
+      </svg>
       <span>Ophtxn Local Hub</span>
     </a>
     <div class="nav-right">
@@ -422,6 +494,7 @@
 
   <!-- HERO -->
   <section class="hero">
+    <p class="arc-label">A-KWJ-0368 // NETWORK SURFACE ACTIVE // 26.03.07</p>
     <p class="eyebrow">Localhost Command Surface</p>
     <h1>Your agent stack,<br><em>governed and live.</em></h1>
     <p class="hero-sub">
@@ -677,7 +750,7 @@ function applyTheme(t) {
 }
 
 const saved = (() => { try { return localStorage.getItem(THEME_KEY); } catch(_) { return null; } })();
-const initial = saved || "aurora";
+const initial = saved || "copper";
 sel.value = initial;
 applyTheme(initial);
 sel.addEventListener("change", e => applyTheme(e.target.value));

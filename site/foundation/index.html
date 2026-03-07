@@ -185,6 +185,7 @@
       opacity: 0;
       transform: translateY(18px);
       animation: rise 620ms ease 140ms forwards;
+      /* subtle engraving lines override via later rule */
     }
 
     .hero::after {
@@ -578,13 +579,116 @@
       .hero { padding: 20px; }
       .nav { flex-direction: column; align-items: flex-start; }
     }
+
+    /* ── FILM GRAIN ─────────────────────────────────────────── */
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .055; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%  { transform: translate(0,0) }
+      10% { transform: translate(-2%,-3%) }
+      20% { transform: translate(3%,1%) }
+      30% { transform: translate(-1%,4%) }
+      40% { transform: translate(4%,-1%) }
+      50% { transform: translate(-3%,2%) }
+      60% { transform: translate(1%,-4%) }
+      70% { transform: translate(-4%,3%) }
+      80% { transform: translate(2%,2%) }
+      90% { transform: translate(-2%,-1%) }
+      100%{ transform: translate(0,0) }
+    }
+
+    /* ── HALFTONE on key panels ─────────────────────────────── */
+    .hero::before, .card::before, .stat::before, .pillar::before, .path::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(239,187,95,.045) 1px, transparent 1px);
+      background-size: 14px 14px;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+      border-radius: inherit;
+      z-index: 0;
+    }
+
+    /* ensure children sit above halftone */
+    .hero > *, .card > *, .stat > *, .pillar > *, .path > * { position: relative; z-index: 1; }
+
+    /* ── RETICLE BRAND MARK ──────────────────────────────────── */
+    .brand-reticle {
+      width: 34px; height: 34px; color: var(--c2);
+      flex-shrink: 0;
+    }
+
+    /* ── VORTEX RINGS in hero ────────────────────────────────── */
+    .hero-vortex {
+      position: absolute; right: -60px; top: -40px;
+      width: 380px; height: 380px;
+      opacity: 0.09; pointer-events: none; z-index: 0;
+    }
+
+    /* ── ARCHIVAL EYEBROW ────────────────────────────────────── */
+    .eyebrow-arc {
+      color: rgba(239,187,95,.45);
+      letter-spacing: .06em;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+    }
+
+    /* ── ARCHIVE STAMP in footer ─────────────────────────────── */
+    .footer-arc {
+      color: rgba(239,187,95,.3);
+      letter-spacing: .12em;
+      font-size: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+    }
+
+    /* ── STAT VALUE punch-up ─────────────────────────────────── */
+    .stat .v { color: var(--c2); }
+
+    /* ── ENGRAVING lines on hero background ─────────────────── */
+    .hero {
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(239,187,95,.015) 47px, rgba(239,187,95,.015) 48px),
+        linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
   </style>
 </head>
 <body>
+
+  <!-- FILM GRAIN OVERLAY -->
+  <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="gf" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
+        <animate attributeName="seed" values="0;7;14;3;11;5;0" dur="0.6s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
+  </svg>
+
   <main class="layout">
     <header class="nav">
       <a class="brand" href="./index.html">
-        <img src="./assets/ophtxn_mark.svg" alt="Ophtxn logo">
+        <!-- OPHTXN Reticle Brand Mark -->
+        <svg class="brand-reticle" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="17" cy="17" r="14.5" stroke="currentColor" stroke-width="1" opacity="0.45"/>
+          <circle cx="17" cy="17" r="9"   stroke="currentColor" stroke-width="1" opacity="0.65"/>
+          <circle cx="17" cy="17" r="2.5" fill="currentColor" opacity="0.9"/>
+          <!-- cardinal crosshairs -->
+          <line x1="17" y1="0.5" x2="17" y2="6.5"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="17" y1="27.5" x2="17" y2="33.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="0.5" y1="17" x2="6.5" y2="17"  stroke="currentColor" stroke-width="1.5"/>
+          <line x1="27.5" y1="17" x2="33.5" y2="17" stroke="currentColor" stroke-width="1.5"/>
+          <!-- diagonal ticks -->
+          <line x1="4" y1="4"   x2="7" y2="7"   stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+          <line x1="27" y1="27" x2="30" y2="30" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+          <line x1="27" y1="7"  x2="30" y2="4"  stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+          <line x1="4"  y1="30" x2="7" y2="27"  stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+        </svg>
         <span>Ophtxn by Permanence OS</span>
       </a>
       <nav class="nav-links" aria-label="Main">
@@ -598,7 +702,31 @@
     </header>
 
     <section class="hero">
-      <p class="eyebrow">Official v1 — Governed Personal Intelligence OS</p>
+      <!-- Vortex rings — open-mind series ref -->
+      <svg class="hero-vortex" viewBox="0 0 380 380" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="190" cy="190" rx="60"  ry="22" stroke="#efbb5f" stroke-width="0.8">
+          <animate attributeName="rx" values="42;78;42" dur="4.2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.18;0;0.18" dur="4.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="190" cy="190" rx="100" ry="36" stroke="#efbb5f" stroke-width="0.6">
+          <animate attributeName="rx" values="80;130;80" dur="4.2s" begin="0.7s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.14;0;0.14" dur="4.2s" begin="0.7s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="190" cy="190" rx="148" ry="54" stroke="#44d7b6" stroke-width="0.5">
+          <animate attributeName="rx" values="120;175;120" dur="4.2s" begin="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.10;0;0.10" dur="4.2s" begin="1.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="190" cy="190" rx="178" ry="70" stroke="#73b8ff" stroke-width="0.4">
+          <animate attributeName="rx" values="155;185;155" dur="4.2s" begin="2.1s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.07;0;0.07" dur="4.2s" begin="2.1s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- crosshair center -->
+        <line x1="190" y1="160" x2="190" y2="220" stroke="#efbb5f" stroke-width="0.6" opacity="0.3"/>
+        <line x1="160" y1="190" x2="220" y2="190" stroke="#efbb5f" stroke-width="0.6" opacity="0.3"/>
+        <circle cx="190" cy="190" r="3" fill="#efbb5f" opacity="0.4"/>
+      </svg>
+
+      <p class="eyebrow">Official v1 — Governed Personal Intelligence OS <span class="eyebrow-arc">// A-KWJ-0368 // PERMANENCE OS // 26.03.07</span></p>
       <h1>Ophtxn is the personal intelligence OS with governance built in.</h1>
       <p class="hero-copy">
         Not a chatbot. A runtime. Ophtxn combines persistent memory, autonomous research agents,
@@ -748,7 +876,10 @@
       </div>
     </section>
 
-    <p class="footer">Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.</p>
+    <p class="footer">
+      Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.
+      <br><span class="footer-arc">A-KWJ-0368 · PERMANENCE OS v1.0 · BUILD DATE 26.03.07 · STATUS ACTIVE</span>
+    </p>
   </main>
   <script src="./runtime.config.js"></script>
   <script>
