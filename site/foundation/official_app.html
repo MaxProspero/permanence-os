@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -667,6 +667,19 @@
       color: var(--c-gold); opacity: .4;
       margin-bottom: 10px;
     }
+  /* ── TOWER HUD ─── */
+  :root { --f-rgb: 191,90,242; --f: rgb(var(--f-rgb)); }
+  body { padding-top: 42px; }
+  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
+  .th-l { display:flex;align-items:center; }
+  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
+  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
+  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
+  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
+  .th-r { display:flex;align-items:center;gap:16px; }
+  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.45);text-decoration:none;transition:color .2s; }
+  .th-back:hover { color:var(--f); }
+  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
   </style>
 </head>
 <body>
@@ -682,29 +695,19 @@
     <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
   </svg>
 
-  <!-- Nav -->
-  <nav>
-    <div class="nav-inner">
-      <a href="index.html" class="nav-brand">
-        <svg class="brand-reticle" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-          <circle cx="13" cy="13" r="11" stroke="currentColor" stroke-width="0.9" opacity="0.45"/>
-          <circle cx="13" cy="13" r="7"  stroke="currentColor" stroke-width="0.9" opacity="0.65"/>
-          <circle cx="13" cy="13" r="2"  fill="currentColor" opacity="0.9"/>
-          <line x1="13" y1="0.5" x2="13" y2="5"   stroke="currentColor" stroke-width="1.2"/>
-          <line x1="13" y1="21"  x2="13" y2="25.5" stroke="currentColor" stroke-width="1.2"/>
-          <line x1="0.5" y1="13" x2="5"  y2="13"   stroke="currentColor" stroke-width="1.2"/>
-          <line x1="21" y1="13"  x2="25.5" y2="13" stroke="currentColor" stroke-width="1.2"/>
-        </svg>
-        OPHTXN APP STUDIO
-      </a>
-      <div class="nav-links">
-        <a href="index.html" class="nav-pill">Home</a>
-        <a href="ai_school.html" class="nav-pill">AI School</a>
-        <a href="press_kit.html" class="nav-pill">Press Kit</a>
-        <a href="local_hub.html" class="nav-pill">Local Hub</a>
-      </div>
+  <!-- TOWER HUD -->
+  <div class="tower-hud">
+    <div class="th-l">
+      <a href="rooms.html" class="th-brand">OPHTXN</a>
+      <span class="th-sep">//</span>
+      <span class="th-num">03</span>
+      <span class="th-name">APP STUDIO</span>
     </div>
-  </nav>
+    <div class="th-r">
+      <a href="rooms.html" class="th-back">↑ TOWER</a>
+    </div>
+  </div>
+  <div class="scanlines" aria-hidden="true"></div>
 
   <div class="page-wrapper">
 

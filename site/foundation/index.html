@@ -83,7 +83,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0a1118;
@@ -655,6 +655,19 @@
         repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(239,187,95,.015) 47px, rgba(239,187,95,.015) 48px),
         linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
     }
+  /* ── TOWER HUD ─── */
+  :root { --f-rgb: 160,150,140; --f: rgb(var(--f-rgb)); }
+  body { padding-top: 42px; }
+  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
+  .th-l { display:flex;align-items:center; }
+  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
+  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
+  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
+  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
+  .th-r { display:flex;align-items:center;gap:16px; }
+  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.5);text-decoration:none;transition:color .2s; }
+  .th-back:hover { color:var(--f); }
+  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
   </style>
 </head>
 <body>
@@ -671,35 +684,19 @@
   </svg>
 
   <main class="layout">
-    <header class="nav">
-      <a class="brand" href="./index.html">
-        <!-- OPHTXN Reticle Brand Mark -->
-        <svg class="brand-reticle" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="17" cy="17" r="14.5" stroke="currentColor" stroke-width="1" opacity="0.45"/>
-          <circle cx="17" cy="17" r="9"   stroke="currentColor" stroke-width="1" opacity="0.65"/>
-          <circle cx="17" cy="17" r="2.5" fill="currentColor" opacity="0.9"/>
-          <!-- cardinal crosshairs -->
-          <line x1="17" y1="0.5" x2="17" y2="6.5"  stroke="currentColor" stroke-width="1.5"/>
-          <line x1="17" y1="27.5" x2="17" y2="33.5" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="0.5" y1="17" x2="6.5" y2="17"  stroke="currentColor" stroke-width="1.5"/>
-          <line x1="27.5" y1="17" x2="33.5" y2="17" stroke="currentColor" stroke-width="1.5"/>
-          <!-- diagonal ticks -->
-          <line x1="4" y1="4"   x2="7" y2="7"   stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
-          <line x1="27" y1="27" x2="30" y2="30" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
-          <line x1="27" y1="7"  x2="30" y2="4"  stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
-          <line x1="4"  y1="30" x2="7" y2="27"  stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
-        </svg>
-        <span>Ophtxn by Permanence OS</span>
-      </a>
-      <nav class="nav-links" aria-label="Main">
-        <a href="./local_hub.html">Local Hub</a>
-        <a href="http://127.0.0.1:8000">Command Center</a>
-        <a href="./official_app.html">App Studio</a>
-        <a href="./ai_school.html">AI School</a>
-        <a href="./press_kit.html">Press Kit</a>
-        <a href="http://127.0.0.1:8797/app/ophtxn">Live Shell</a>
-      </nav>
-    </header>
+    <!-- TOWER HUD -->
+    <div class="tower-hud">
+      <div class="th-l">
+        <a href="rooms.html" class="th-brand">OPHTXN</a>
+        <span class="th-sep">//</span>
+        <span class="th-num">LB</span>
+        <span class="th-name">ENTRY HALL</span>
+      </div>
+      <div class="th-r">
+        <a href="rooms.html" class="th-back">↑ TOWER</a>
+      </div>
+    </div>
+    <div class="scanlines" aria-hidden="true"></div>
 
     <section class="hero">
       <!-- Vortex rings — open-mind series ref -->
