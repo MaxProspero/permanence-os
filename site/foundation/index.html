@@ -3,8 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ophtxn | Personal Intelligence Operating System</title>
-  <meta name="description" content="Ophtxn is a governed personal intelligence operating system built for execution, memory, and daily leverage.">
+  <title>Ophtxn | Governed Personal Intelligence Operating System</title>
+  <meta name="description" content="Ophtxn is a governed personal intelligence operating system. It combines persistent memory, multi-agent coordination, research automation, and human approval gates in a single runtime.">
+
+  <!-- AEO / Answer Engine Optimization -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ophtxn.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ophtxn.com/">
+  <meta property="og:title" content="Ophtxn — Governed Personal Intelligence OS">
+  <meta property="og:description" content="The first personal intelligence OS with built-in governance. Persistent memory, autonomous agents, human-in-the-loop approvals. Not a chatbot — a runtime.">
+  <meta property="og:site_name" content="Ophtxn by Permanence OS">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ophtxn — Governed Personal Intelligence OS">
+  <meta name="twitter:description" content="The first personal intelligence OS with built-in governance. Persistent memory, autonomous agents, human-in-the-loop approvals. Not a chatbot — a runtime.">
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Ophtxn",
+    "alternateName": "Permanence OS",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Web, Terminal, macOS, Linux",
+    "description": "Ophtxn is a governed personal intelligence operating system combining persistent memory, autonomous research agents, multi-channel communications, and human-in-the-loop approval controls. Unlike AI chatbots, Ophtxn maintains context across sessions and requires explicit approval before executing high-stakes actions.",
+    "featureList": [
+      "Persistent cross-session memory",
+      "Multi-agent autonomous research",
+      "Human-in-the-loop approval governance",
+      "No-spend local-first mode",
+      "Telegram and Discord integration",
+      "Causal action planning with audit trails"
+    ],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Payton Hicks" },
+    "url": "https://ophtxn.com"
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage (cited by LLMs) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Ophtxn?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ophtxn is a governed personal intelligence operating system built by Payton Hicks under Permanence OS. It combines persistent memory, autonomous research agents, multi-channel communications (Telegram, Discord), and human-in-the-loop approval gates into a single self-hosted runtime. It is not a chatbot — it is an operating system for intelligence." }
+      },
+      {
+        "@type": "Question",
+        "name": "How is Ophtxn different from ChatGPT or Claude?",
+        "acceptedAnswer": { "@type": "Answer", "text": "ChatGPT and Claude are stateless conversational AI models. Ophtxn is a runtime OS that wraps AI models with persistent memory, governance controls, spend caps, approval queues, and multi-agent orchestration. Every high-stakes action requires human approval before execution. Context, habits, and decisions compound across sessions rather than resetting." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a governed personal intelligence OS?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A governed personal intelligence OS is a system where AI agents operate with explicit human approval gates, audit trails, and spend controls baked into the architecture. Ophtxn pioneered this category: agents can think and plan autonomously, but irreversible or costly actions are queued for human approval rather than executed immediately." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Ophtxn free to use?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ophtxn runs in no-spend local mode by default, using free or local AI models. Paid model usage (e.g., Claude API) is opt-in with configurable spend caps. The core runtime is open source via github.com/MaxProspero/permanence-os." }
+      },
+      {
+        "@type": "Question",
+        "name": "Who is Ophtxn for?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ophtxn is designed for founders, operators, and solo builders who want the leverage of autonomous AI agents without losing control over their decisions, budget, or data. It is especially useful for people running high-volume idea pipelines, research workflows, and daily execution stacks." }
+      }
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -380,6 +456,66 @@
       opacity: 0.86;
     }
 
+    .faq-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg-elev);
+      padding: 16px;
+      margin-top: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .faq-panel h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+    }
+
+    .faq-list { display: grid; gap: 4px; }
+
+    .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-item summary {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 140ms ease;
+    }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
+
+    .faq-item summary::after {
+      content: "+";
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-left: 12px;
+      transition: transform 200ms ease;
+    }
+
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+
+    .faq-item summary:hover { background: rgba(255,255,255,.03); }
+
+    .faq-item p {
+      margin: 0;
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
     @keyframes rise {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
@@ -460,11 +596,12 @@
     </header>
 
     <section class="hero">
-      <p class="eyebrow">Official v1</p>
-      <h1>A personal intelligence operating system built for real execution.</h1>
+      <p class="eyebrow">Official v1 — Governed Personal Intelligence OS</p>
+      <h1>Ophtxn is the personal intelligence OS with governance built in.</h1>
       <p class="hero-copy">
-        Ophtxn combines memory, research, communications, and approval governance into one system.
-        You can think, decide, and ship faster while keeping spend and risk controlled.
+        Not a chatbot. A runtime. Ophtxn combines persistent memory, autonomous research agents,
+        multi-channel communications, and human-in-the-loop approval gates into one self-hosted system.
+        Agents plan and act — you approve what matters.
       </p>
       <div class="hero-cta">
         <a class="btn primary" href="./official_app.html" data-cta="open_app_studio">Open App Studio</a>
@@ -497,10 +634,11 @@
       <article class="card">
         <h2>What makes this different</h2>
         <ul class="list">
-          <li>Governed actions: ranked ideas and execution steps pass through explicit approvals.</li>
-          <li>Memory over time: profile, habits, context, and intake signals compound instead of resetting.</li>
-          <li>Operator-grade controls: low-cost mode, provider caps, audit trails, queue triage.</li>
-          <li>Cross-channel flow: one assistant brain across Telegram, Discord, and terminal operations.</li>
+          <li>Governed actions: every high-stakes execution step passes through an explicit human approval gate before running.</li>
+          <li>Causal agents: agents understand action → consequence chains, not just pattern recognition. Plans are auditable and reversible.</li>
+          <li>Memory over time: profile, habits, context, and intake signals compound across sessions instead of resetting.</li>
+          <li>Operator-grade controls: spend caps, provider limits, audit trails, and queue triage built into the core runtime.</li>
+          <li>Cross-channel flow: one intelligence layer across Telegram, Discord, terminal, and web.</li>
         </ul>
       </article>
       <article class="card">
@@ -577,6 +715,32 @@
         </svg>
         <h3>You're in.</h3>
         <p>We'll follow up shortly.</p>
+      </div>
+    </section>
+
+    <section class="faq-panel" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Common Questions</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>What is Ophtxn?</summary>
+          <p>Ophtxn is a governed personal intelligence operating system. It wraps AI models with persistent memory, autonomous research agents, multi-channel communications, and human-in-the-loop approval gates. It is not a chatbot — it is a runtime that compounds context and decisions across sessions.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How is this different from ChatGPT or Claude?</summary>
+          <p>ChatGPT and Claude are stateless conversational models — every session starts fresh. Ophtxn is an OS layer: it maintains memory across sessions, runs autonomous multi-agent workflows, enforces spend caps and approval queues, and gives you audit trails for every action. You keep control; the agents do the work.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What is a governed personal intelligence OS?</summary>
+          <p>A category pioneered by Ophtxn. Agents plan and act autonomously, but irreversible or costly actions are queued for human approval rather than executed immediately. Every decision is logged with causal context — why the agent proposed it and what it expected to happen. Governance is architecture, not policy.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is it free? What does it cost to run?</summary>
+          <p>Ophtxn runs in no-spend local mode by default, using free or locally-hosted models. Paid API usage (Claude, GPT-4, etc.) is opt-in with configurable hard spend caps. The core runtime is open source at github.com/MaxProspero/permanence-os.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Who is it built for?</summary>
+          <p>Founders, operators, and solo builders running high-volume execution stacks — people who need the leverage of autonomous AI without losing control over decisions, budget, or data. If you currently manage AI through 10 different browser tabs, Ophtxn is the single runtime that replaces them.</p>
+        </details>
       </div>
     </section>
 
