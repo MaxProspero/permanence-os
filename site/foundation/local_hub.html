@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ophtxn · Local Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   /* ── TOKENS ─────────────────────────────────────────────── */
   :root {
@@ -442,6 +442,21 @@
     z-index: 0;
   }
   .svc > * { position: relative; z-index: 1; }
+  /* ── TOWER HUD ─── */
+  :root { --f-rgb: 250,50,100; --f: rgb(var(--f-rgb)); }
+  body { padding-top: 42px; }
+  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
+  .th-l { display:flex;align-items:center; }
+  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
+  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
+  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
+  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
+  .th-r { display:flex;align-items:center;gap:12px; }
+  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.45);text-decoration:none;transition:color .2s; }
+  .th-back:hover { color:var(--f); }
+  .th-ctrl { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.4);background:none;border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:3px 8px;cursor:pointer;transition:all .2s; }
+  .th-ctrl:hover,.th-ctrl:focus { color:var(--f);border-color:rgba(var(--f-rgb),.4);outline:none; }
+  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
 </style>
 </head>
 <body data-theme="copper">
@@ -459,38 +474,26 @@
 
 <main class="page">
 
-  <!-- NAV -->
-  <nav>
-    <a class="brand" href="./index.html">
-      <!-- OPHTXN Reticle -->
-      <svg class="brand-reticle" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="16" cy="16" r="13.5" stroke="currentColor" stroke-width="1" opacity="0.45"/>
-        <circle cx="16" cy="16" r="8.5"  stroke="currentColor" stroke-width="1" opacity="0.65"/>
-        <circle cx="16" cy="16" r="2.5"  fill="currentColor" opacity="0.9"/>
-        <line x1="16" y1="0.5" x2="16" y2="6"    stroke="currentColor" stroke-width="1.4"/>
-        <line x1="16" y1="26"  x2="16" y2="31.5"  stroke="currentColor" stroke-width="1.4"/>
-        <line x1="0.5" y1="16" x2="6"  y2="16"    stroke="currentColor" stroke-width="1.4"/>
-        <line x1="26" y1="16"  x2="31.5" y2="16"  stroke="currentColor" stroke-width="1.4"/>
-        <line x1="3.5" y1="3.5"   x2="6.5" y2="6.5"   stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
-        <line x1="25.5" y1="25.5" x2="28.5" y2="28.5" stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
-        <line x1="25.5" y1="6.5"  x2="28.5" y2="3.5"  stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
-        <line x1="3.5"  y1="28.5" x2="6.5"  y2="25.5" stroke="currentColor" stroke-width="0.7" opacity="0.4"/>
-      </svg>
-      <span>Ophtxn Local Hub</span>
-    </a>
-    <div class="nav-right">
-      <select class="pill" id="themeSelect" aria-label="Theme">
+  <!-- TOWER HUD -->
+  <div class="tower-hud">
+    <div class="th-l">
+      <a href="rooms.html" class="th-brand">OPHTXN</a>
+      <span class="th-sep">//</span>
+      <span class="th-num">06</span>
+      <span class="th-name">CONTROL ROOM</span>
+    </div>
+    <div class="th-r">
+      <select class="th-ctrl" id="themeSelect" aria-label="Theme">
         <option value="aurora">Aurora</option>
         <option value="copper">Copper</option>
         <option value="void">Void</option>
       </select>
-      <a class="pill" href="./index.html">Site</a>
-      <a class="pill" href="./official_app.html">App</a>
-      <a class="pill" href="./ai_school.html">AI School</a>
-      <button class="pill" id="modeBtn" type="button">Dev Mode</button>
-      <button class="pill" id="refreshBtn" type="button">↻ Refresh</button>
+      <button class="th-ctrl" id="modeBtn" type="button">Dev</button>
+      <button class="th-ctrl" id="refreshBtn" type="button">↻</button>
+      <a href="rooms.html" class="th-back">↑ TOWER</a>
     </div>
-  </nav>
+  </div>
+  <div class="scanlines" aria-hidden="true"></div>
 
   <!-- HERO -->
   <section class="hero">
