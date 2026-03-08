@@ -43,6 +43,12 @@ if CORS is not None:
             "http://127.0.0.1:8797",
             "http://localhost:8797",
             "https://permanencesystems.com",
+            "https://www.permanencesystems.com",
+            "https://ophtxn.com",
+            "https://www.ophtxn.com",
+            "https://api.permanencesystems.com",
+            "https://app.permanencesystems.com",
+            "https://ophtxn-official.pages.dev",
         ],
     )
 

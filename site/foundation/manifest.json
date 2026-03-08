@@ -1,0 +1,18 @@
+{
+  "name": "Ophtxn — Governed Personal Intelligence",
+  "short_name": "Ophtxn",
+  "description": "The personal intelligence OS with governance built in.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1118",
+  "theme_color": "#0a1118",
+  "orientation": "any",
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}

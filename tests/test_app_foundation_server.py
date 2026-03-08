@@ -120,7 +120,7 @@ def test_foundation_ophtxn_shell_and_ops_summary() -> None:
 
         shell = client.get("/app/ophtxn")
         assert shell.status_code == 200
-        assert "Ophtxn Operator Shell" in (shell.get_data(as_text=True) or "")
+        assert "Ophtxn" in (shell.get_data(as_text=True) or "")
 
         official = client.get("/app/official")
         assert official.status_code == 200

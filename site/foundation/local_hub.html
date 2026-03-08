@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a1118">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <title>Ophtxn · Local Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -540,9 +545,9 @@
       all live here. External tools plug in as workers, not controllers.
     </p>
     <div class="hero-actions">
-      <a class="btn-primary" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Command Center</a>
-      <a class="pill" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">App Shell</a>
-      <a class="pill" href="http://127.0.0.1:8787" target="_blank" rel="noopener">Foundation</a>
+      <a class="btn-primary" id="hero-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Command Center</a>
+      <a class="pill" id="hero-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">App Shell</a>
+      <a class="pill" id="hero-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">Foundation</a>
     </div>
     <div class="cmd-bar">python cli.py operator-surface --run-horizon</div>
   </section>
@@ -556,7 +561,7 @@
       <div class="svc-status" id="st-8000" data-s="checking">
         <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <a class="svc-open" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Open</a>
+      <a class="svc-open" id="svc-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Open</a>
     </article>
 
     <article class="svc" style="--accent: var(--c-c)">
@@ -566,7 +571,7 @@
       <div class="svc-status" id="st-8787" data-s="checking">
         <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <a class="svc-open" href="http://127.0.0.1:8787" target="_blank" rel="noopener">→ Open</a>
+      <a class="svc-open" id="svc-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">→ Open</a>
     </article>
 
     <article class="svc" style="--accent: var(--c-b)">
@@ -576,7 +581,7 @@
       <div class="svc-status" id="st-8797" data-s="checking">
         <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <a class="svc-open" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
+      <a class="svc-open" id="svc-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
     </article>
   </section>
 
@@ -591,7 +596,7 @@
       </div>
     </div>
     <div class="aq-right">
-      <a class="aq-btn-view" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Review</a>
+      <a class="aq-btn-view" id="aq-link-review" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Review</a>
       <button class="aq-btn-approve" id="aq-approve-btn" type="button">⚡ Approve All</button>
     </div>
     <div class="aq-msg" id="aq-msg"></div>
@@ -744,7 +749,31 @@
 
 </main>
 
+<script src="runtime.config.js"></script>
 <script>
+// ── RUNTIME CONFIG ────────────────────────────────────────────
+var __RT = window.__OPHTXN_RUNTIME || {};
+var API_BASE = __RT.apiBase || "http://127.0.0.1:8000";
+var APP_BASE = __RT.appBase || "http://127.0.0.1:8797";
+var SITE_BASE = __RT.siteUrl || "http://127.0.0.1:8787";
+
+// Resolve HTML href attributes from runtime config
+(function(){
+  var map = {
+    "hero-link-cc":    __RT.commandCenterUrl || API_BASE,
+    "hero-link-shell": __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
+    "hero-link-site":  SITE_BASE,
+    "svc-link-cc":     __RT.commandCenterUrl || API_BASE,
+    "svc-link-site":   SITE_BASE,
+    "svc-link-shell":  __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
+    "aq-link-review":  __RT.commandCenterUrl || API_BASE
+  };
+  for (var id in map) {
+    var el = document.getElementById(id);
+    if (el && map[id]) el.href = map[id];
+  }
+})();
+
 // ── MODE TOGGLE ───────────────────────────────────────────────
 const MODE_KEY  = 'ophtxn_hub_mode_v1';
 const modeBtn   = document.getElementById('modeBtn');
@@ -779,7 +808,7 @@ async function populateDevPanel() {
   const el8000 = document.getElementById('raw-8000');
   if (el8000) {
     try {
-      const res  = await fetch('http://127.0.0.1:8000/api/status', { signal: AbortSignal.timeout(3000) });
+      const res  = await fetch(API_BASE + '/api/status', { signal: AbortSignal.timeout(3000) });
       const data = await res.json();
       el8000.textContent = JSON.stringify(data, null, 2);
     } catch(e) { el8000.textContent = `Error: ${e.message}`; }
@@ -788,7 +817,7 @@ async function populateDevPanel() {
   const el8797 = document.getElementById('raw-8797');
   if (el8797) {
     try {
-      const res  = await fetch('http://127.0.0.1:8797/health', { signal: AbortSignal.timeout(3000) });
+      const res  = await fetch(APP_BASE + '/health', { signal: AbortSignal.timeout(3000) });
       const data = await res.json();
       el8797.textContent = JSON.stringify(data, null, 2);
     } catch(e) { el8797.textContent = `Error: ${e.message}`; }
@@ -815,9 +844,9 @@ sel.addEventListener("change", e => applyTheme(e.target.value));
 // No blind re-writes every tick.
 
 const SERVICES = [
-  { id: "st-8000", url: "http://127.0.0.1:8000/api/status", expectJson: true  },
-  { id: "st-8787", url: "http://127.0.0.1:8787/",            expectJson: false },
-  { id: "st-8797", url: "http://127.0.0.1:8797/health",      expectJson: true  },
+  { id: "st-8000", url: API_BASE + "/api/status", expectJson: true  },
+  { id: "st-8787", url: SITE_BASE + "/",          expectJson: false },
+  { id: "st-8797", url: APP_BASE + "/health",     expectJson: true  },
 ];
 
 // Track last known state so we skip DOM writes when nothing changed
@@ -875,7 +904,7 @@ refreshAll();
 setInterval(refreshAll, 30_000);
 
 // ── APPROVAL QUEUE ────────────────────────────────────────────
-const AQ_BASE = "http://127.0.0.1:8000";
+const AQ_BASE = API_BASE;
 
 async function aqFetch() {
   const el = document.getElementById("aq-count");
@@ -925,5 +954,6 @@ document.getElementById("aq-approve-btn").addEventListener("click", async () => 
 aqFetch();
 setInterval(aqFetch, 60_000);
 </script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>
