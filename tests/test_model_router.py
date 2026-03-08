@@ -21,6 +21,11 @@ MODEL_ENV_KEYS = [
     "PERMANENCE_MODEL_SONNET",
     "PERMANENCE_MODEL_HAIKU",
     "PERMANENCE_DEFAULT_MODEL",
+    "PERMANENCE_MODEL_BUDGET_WARNING_RATIO",
+    "PERMANENCE_MODEL_BUDGET_CRITICAL_RATIO",
+    "PERMANENCE_NO_SPEND_MODE",
+    "PERMANENCE_LOW_COST_MODE",
+    "PERMANENCE_LLM_MONTHLY_BUDGET_USD",
 ]
 
 
@@ -36,10 +41,8 @@ def test_route_defaults_to_sonnet_for_unknown_task():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = os.path.join(tmp, "routing.jsonl")
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
@@ -47,6 +50,7 @@ def test_route_defaults_to_sonnet_for_unknown_task():
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             model = router.route("unknown-task")
             assert "sonnet" in model
@@ -58,10 +62,8 @@ def test_route_uses_haiku_for_classification():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = os.path.join(tmp, "routing.jsonl")
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
@@ -69,6 +71,7 @@ def test_route_uses_haiku_for_classification():
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             model = router.route("classification")
             assert "haiku" in model
@@ -80,10 +83,9 @@ def test_env_override_for_opus_model():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = os.path.join(tmp, "routing.jsonl")
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_OPUS"] = "claude-opus-custom"
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
@@ -91,6 +93,7 @@ def test_env_override_for_opus_model():
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             model = router.route("strategy")
             assert model == "claude-opus-custom"
@@ -102,10 +105,8 @@ def test_routing_log_is_append_only():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = os.path.join(tmp, "routing.jsonl")
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=log_path)
@@ -113,6 +114,7 @@ def test_routing_log_is_append_only():
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             router.route("planning")
             router.route("execution")
