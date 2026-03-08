@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Permanence OS — Cloudflare Tunnel
+  Routes api.permanencesystems.com + app.permanencesystems.com to local servers
+  Installed by: scripts/mac_mini_setup.sh
+  Logs: /tmp/permanence-cloudflare-tunnel.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.permanence.cloudflare-tunnel</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/cloudflared</string>
+    <string>tunnel</string>
+    <string>run</string>
+    <string>permanence-os</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__HOME__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__HOME__</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/permanence-cloudflare-tunnel.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/permanence-cloudflare-tunnel.log</string>
+
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+</dict>
+</plist>
