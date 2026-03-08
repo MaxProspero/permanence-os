@@ -28,6 +28,11 @@ class MemoryType(Enum):
     INTAKE = "INTAKE"             # External intake via interface agent
     TRAINING = "TRAINING"         # Practice squad training insights
     FORECAST = "FORECAST"         # Arcana heuristic forecasts
+    # Synthesis Ledger types (v0.4)
+    DECISION = "DECISION"         # Chosen direction with evidence
+    CONTRADICTION = "CONTRADICTION"  # Unresolved conflict between entries
+    POLICY = "POLICY"             # Governance-linked constraint
+    TASK = "TASK"                 # Action commitment with owner/deadline
 
 
 class ConfidenceLevel(Enum):
