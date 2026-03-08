@@ -16,6 +16,41 @@ from typing import Any, Dict, Optional
 
 PROVIDERS = ("anthropic", "openai", "xai", "ollama")
 
+BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
+    "free": {
+        "description": "Local models only — zero cost",
+        "provider": "ollama",
+        "fallbacks": "ollama",
+        "budget_usd": 0.0,
+        "provider_caps": "anthropic=0,openai=0,xai=0,ollama=0",
+        "no_spend": True,
+    },
+    "light": {
+        "description": "Haiku + local — minimal cost",
+        "provider": "anthropic",
+        "fallbacks": "anthropic,ollama",
+        "budget_usd": 5.0,
+        "provider_caps": "anthropic=5,openai=0,xai=0,ollama=0",
+        "no_spend": False,
+    },
+    "standard": {
+        "description": "Sonnet + Haiku + local — balanced",
+        "provider": "anthropic",
+        "fallbacks": "anthropic,openai,ollama",
+        "budget_usd": 25.0,
+        "provider_caps": "anthropic=15,openai=8,xai=2,ollama=0",
+        "no_spend": False,
+    },
+    "full": {
+        "description": "Opus + Sonnet + Haiku + local — full power",
+        "provider": "anthropic",
+        "fallbacks": "anthropic,openai,xai,ollama",
+        "budget_usd": 50.0,
+        "provider_caps": "anthropic=30,openai=15,xai=5,ollama=0",
+        "no_spend": False,
+    },
+}
+
 TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review")
 TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation")
 TASKS_HAIKU = ("classification", "summarization", "tagging", "formatting")
@@ -128,6 +163,11 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return int(default)
 
 
+def _bool_flag(name: str) -> bool:
+    value = str(os.getenv(name, "")).strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
 def _provider_from_model(model_name: str) -> str:
     token = str(model_name or "").strip().lower()
     if not token:
@@ -182,6 +222,9 @@ class ModelRouter:
                 ),
             ),
         )
+        self.no_spend_mode = _bool_flag("PERMANENCE_NO_SPEND_MODE")
+        self.low_cost_mode = _bool_flag("PERMANENCE_LOW_COST_MODE")
+        self.budget_tier = str(os.getenv("PERMANENCE_BUDGET_TIER", "")).strip().lower() or ""
 
     @staticmethod
     def _normalize_provider(value: str) -> str:
@@ -561,6 +604,25 @@ class ModelRouter:
         return model, "budget_ok"
 
     def route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        # Hard guardrail: no-spend mode forces all routing to local ollama.
+        if self.no_spend_mode:
+            ollama_map = self._build_model_map_for_provider("ollama")
+            model = ollama_map.get(task_type, ollama_map.get("default", "qwen3:4b"))
+            self.selected_provider = "ollama"
+            self._log_decision(
+                task_type=task_type,
+                model=model,
+                context={**(context or {}), "policy": "no_spend_mode"},
+                budget_policy="no_spend_mode",
+                raw_model=model,
+                provider="ollama",
+            )
+            return model
+
+        # Low-cost mode: skip opus tier, cap at sonnet.
+        if self.low_cost_mode:
+            return self._route_low_cost(task_type=task_type, context=context)
+
         budget_snapshot = self._monthly_budget_snapshot()
         selected_provider, provider_policy = self._provider_for_task(
             task_type=task_type,
@@ -590,6 +652,115 @@ class ModelRouter:
             raw_model=raw_model,
         )
         return adjusted_model
+
+    def _route_low_cost(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Route in low-cost mode: skip opus, prefer haiku, fall back to ollama."""
+        budget_snapshot = self._monthly_budget_snapshot()
+        selected_provider, provider_policy = self._provider_for_task(
+            task_type=task_type,
+            budget_snapshot=budget_snapshot,
+        )
+        selected_map = (
+            self.model_by_task
+            if selected_provider == self.provider
+            else self._build_model_map_for_provider(selected_provider)
+        )
+        raw_model = selected_map.get(task_type, selected_map.get("default", self.model_by_task["default"]))
+        tier = self._tier_for_model(model_name=raw_model, task_type=task_type)
+
+        # In low-cost mode, downgrade opus → sonnet, and prefer haiku for medium tasks.
+        if tier == "opus":
+            raw_model = self._model_for_tier("sonnet", model_map=selected_map)
+            tier = "sonnet"
+
+        # Apply normal budget adjustments on top of the low-cost cap.
+        adjusted_model, budget_policy = self._budget_adjusted_model(
+            task_type=task_type,
+            model=raw_model,
+            snapshot=budget_snapshot,
+            model_map=selected_map,
+        )
+        self.selected_provider = selected_provider
+        self._log_decision(
+            task_type=task_type,
+            model=adjusted_model,
+            context={
+                **(context or {}),
+                "provider_policy": provider_policy,
+                "provider_selected": selected_provider,
+                "low_cost_mode": True,
+            },
+            budget_snapshot=budget_snapshot,
+            budget_policy=f"low_cost|{provider_policy}|{budget_policy}",
+            raw_model=raw_model,
+        )
+        return adjusted_model
+
+    def get_budget_dashboard(self) -> Dict[str, Any]:
+        """Return comprehensive budget state for UI dashboard consumption."""
+        budget_snapshot = self._monthly_budget_snapshot()
+        provider_budget = self._provider_budget_snapshot(budget_snapshot)
+        spend_by_provider = self._estimate_monthly_spend_by_provider_usd()
+        total_spend = sum(spend_by_provider.values())
+
+        # Determine effective tier
+        tier = self.budget_tier
+        if not tier:
+            if self.no_spend_mode:
+                tier = "free"
+            elif self.low_cost_mode:
+                tier = "light"
+            elif float(budget_snapshot.get("budget_usd", 50.0)) >= 40.0:
+                tier = "full"
+            elif float(budget_snapshot.get("budget_usd", 50.0)) >= 15.0:
+                tier = "standard"
+            else:
+                tier = "light"
+
+        preset = BUDGET_TIER_PRESETS.get(tier, {})
+
+        # Build warnings
+        warnings: list[str] = []
+        ratio = float(budget_snapshot.get("ratio", 0.0))
+        if ratio >= self.budget_critical_ratio:
+            warnings.append(f"Budget critical: {ratio:.0%} of monthly limit used")
+        elif ratio >= self.budget_warning_ratio:
+            warnings.append(f"Budget warning: {ratio:.0%} of monthly limit used")
+
+        for p_name, p_data in provider_budget.items():
+            p_ratio = float(p_data.get("ratio", 0.0))
+            if p_data.get("capped") and p_ratio >= 1.0:
+                warnings.append(f"Provider {p_name} cap exhausted ({p_ratio:.0%})")
+
+        return {
+            "budget_usd": float(budget_snapshot.get("budget_usd", 0.0)),
+            "spend_usd": round(total_spend, 4),
+            "ratio": round(ratio, 4),
+            "remaining_usd": round(max(0.0, float(budget_snapshot.get("budget_usd", 0.0)) - total_spend), 4),
+            "tier": tier,
+            "tier_description": str(preset.get("description", "")),
+            "provider": self.provider,
+            "selected_provider": getattr(self, "selected_provider", self.provider),
+            "no_spend_mode": self.no_spend_mode,
+            "low_cost_mode": self.low_cost_mode,
+            "warning_ratio": self.budget_warning_ratio,
+            "critical_ratio": self.budget_critical_ratio,
+            "spend_by_provider": spend_by_provider,
+            "provider_budget": {
+                name: {
+                    "cap_usd": float(data.get("cap_usd", 0.0)),
+                    "spend_usd": float(data.get("spend_usd", 0.0)),
+                    "ratio": float(data.get("ratio", 0.0)),
+                }
+                for name, data in provider_budget.items()
+            },
+            "warnings": warnings,
+        }
+
+    @staticmethod
+    def get_tier_presets() -> Dict[str, Dict[str, Any]]:
+        """Return available budget tier presets for configuration UI."""
+        return dict(BUDGET_TIER_PRESETS)
 
     def route_for_stage(self, stage: str, context: Optional[Dict[str, Any]] = None) -> str:
         stage_key = (stage or "").strip().lower()
