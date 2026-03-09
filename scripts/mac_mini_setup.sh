@@ -206,6 +206,7 @@ PLIST_NAMES=(
   "com.permanence.command-center"
   "com.permanence.foundation-site"
   "com.permanence.foundation-api"
+  "com.permanence.git-sync"
 )
 PLIST_DIR="$REPO_DIR/launchd"
 
