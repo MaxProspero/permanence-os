@@ -4075,6 +4075,107 @@ def api_social_stats():
 
 
 # ─────────────────────────────────────────────
+# SPENDING GATE ENDPOINTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/spending/status", methods=["GET"])
+def api_spending_status():
+    """Get spending gate status — credits, mode, pending approvals."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    return jsonify(gate.status())
+
+
+@app.route("/api/spending/approve", methods=["POST"])
+def api_spending_approve():
+    """Approve additional spending for a provider. Human action."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    if not provider or amount <= 0:
+        return jsonify({"error": "provider and amount (>0) required"}), 400
+    gate = SpendingGate()
+    result = gate.approve_spending(provider=provider, amount_usd=amount, approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/mode", methods=["POST"])
+def api_spending_mode():
+    """Change spending gate mode: gate/auto/block."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    mode = data.get("mode", "")
+    if not mode:
+        return jsonify({"error": "mode required (gate/auto/block)"}), 400
+    gate = SpendingGate()
+    return jsonify(gate.set_mode(mode))
+
+
+@app.route("/api/spending/requests", methods=["GET"])
+def api_spending_requests():
+    """Get pending approval requests."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    return jsonify(gate.get_approval_requests())
+
+
+# ─────────────────────────────────────────────
+# MODEL JUDGE ENDPOINTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/judge/report", methods=["GET"])
+def api_judge_report():
+    """Get model performance report."""
+    try:
+        from core.model_judge import ModelJudge
+    except ImportError:
+        return jsonify({"error": "model_judge not available"}), 500
+    days = int(request.args.get("days", 30))
+    judge = ModelJudge()
+    return jsonify(judge.get_performance_report(days=days))
+
+
+@app.route("/api/judge/ranking", methods=["GET"])
+def api_judge_ranking():
+    """Get model rankings by quality-per-dollar."""
+    try:
+        from core.model_judge import ModelJudge
+    except ImportError:
+        return jsonify({"error": "model_judge not available"}), 500
+    days = int(request.args.get("days", 30))
+    judge = ModelJudge()
+    return jsonify(judge.get_model_ranking(days=days))
+
+
+@app.route("/api/judge/recommend", methods=["GET"])
+def api_judge_recommend():
+    """Get model recommendation for a task type."""
+    try:
+        from core.model_judge import ModelJudge
+    except ImportError:
+        return jsonify({"error": "model_judge not available"}), 500
+    task_type = request.args.get("task_type", "")
+    if not task_type:
+        return jsonify({"error": "task_type parameter required"}), 400
+    days = int(request.args.get("days", 30))
+    judge = ModelJudge()
+    return jsonify(judge.recommend_model(task_type=task_type, days=days))
+
+
+# ─────────────────────────────────────────────
 # RUN
 # ─────────────────────────────────────────────
 

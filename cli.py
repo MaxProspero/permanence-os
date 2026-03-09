@@ -1077,6 +1077,81 @@ def main() -> int:
         )
     )
 
+    # ── Spending Gate ─────────────────────────────────────────────────────
+    spending_p = sub.add_parser(
+        "spending",
+        help="Spending gate: approve/block/status for paid API calls",
+    )
+    spending_p.add_argument(
+        "--action",
+        choices=["status", "approve", "block", "auto", "gate", "reset", "requests"],
+        required=True,
+        help="Action to perform",
+    )
+    spending_p.add_argument("--provider", help="Provider (anthropic/openai/xai)")
+    spending_p.add_argument("--amount", type=float, help="Amount in USD to approve")
+    def _spending_cmd(args):
+        from core.spending_gate import SpendingGate
+        gate = SpendingGate()
+        if args.action == "status":
+            print(json.dumps(gate.status(), indent=2))
+        elif args.action == "approve":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for approve")
+                return
+            result = gate.approve_spending(args.provider, args.amount)
+            print(json.dumps(result, indent=2))
+        elif args.action in ("block", "auto", "gate"):
+            result = gate.set_mode(args.action)
+            print(json.dumps(result, indent=2))
+        elif args.action == "reset":
+            result = gate.reset_credits()
+            print(json.dumps(result, indent=2))
+        elif args.action == "requests":
+            requests = gate.get_approval_requests()
+            if not requests:
+                print("No pending approval requests.")
+            else:
+                for r in requests:
+                    print(f"  {r.get('timestamp', '?')} | {r.get('provider', '?')} | ${r.get('estimated_cost', 0):.4f} | {r.get('message', '')}")
+    spending_p.set_defaults(func=_spending_cmd)
+
+    # ── Model Judge ──────────────────────────────────────────────────────
+    judge_p = sub.add_parser(
+        "judge",
+        help="Model judge: performance reports and model rankings",
+    )
+    judge_p.add_argument(
+        "--action",
+        choices=["report", "ranking", "recommend"],
+        required=True,
+    )
+    judge_p.add_argument("--task-type", help="Task type for recommendations")
+    judge_p.add_argument("--days", type=int, default=30, help="Lookback period in days")
+    def _judge_cmd(args):
+        from core.model_judge import ModelJudge
+        judge = ModelJudge()
+        if args.action == "report":
+            report = judge.get_performance_report(days=args.days)
+            print(json.dumps(report, indent=2))
+        elif args.action == "ranking":
+            rankings = judge.get_model_ranking(days=args.days)
+            if not rankings:
+                print("No evaluation data yet.")
+            else:
+                print("Model Rankings (quality per dollar):")
+                for i, r in enumerate(rankings, 1):
+                    qpd = r["quality_per_dollar"]
+                    qpd_str = "FREE" if qpd >= 999999 else f"{qpd:.0f}"
+                    print(f"  {i}. {r['model']} — score: {r['avg_score']:.1f}, QPD: {qpd_str}, evals: {r['evaluations']}")
+        elif args.action == "recommend":
+            if not args.task_type:
+                print("--task-type required for recommend")
+                return
+            rec = judge.recommend_model(task_type=args.task_type, days=args.days)
+            print(json.dumps(rec, indent=2))
+    judge_p.set_defaults(func=_judge_cmd)
+
     remote_ready_p = sub.add_parser(
         "remote-ready",
         help="Check away-mode readiness (Tailscale, SSH, awake, automation)",
