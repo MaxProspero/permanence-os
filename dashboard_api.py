@@ -4132,6 +4132,114 @@ def api_spending_requests():
     return jsonify(gate.get_approval_requests())
 
 
+@app.route("/api/spending/approve-timed", methods=["POST"])
+def api_spending_approve_timed():
+    """Approve spending for a time window (30 min, 1 hr, eod, custom)."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    duration = data.get("duration", "60")  # minutes, or "eod"
+    if not provider or amount <= 0:
+        return jsonify({"error": "provider and amount (>0) required"}), 400
+    gate = SpendingGate()
+    if str(duration).lower() == "eod":
+        result = gate.approve_timed_eod(provider=provider, amount_usd=amount, approved_by="dashboard")
+    else:
+        result = gate.approve_timed(provider=provider, amount_usd=amount, duration_minutes=int(duration), approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/approve-steps", methods=["POST"])
+def api_spending_approve_steps():
+    """Approve spending for next N steps."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    max_steps = int(data.get("steps", 10))
+    if not provider or amount <= 0:
+        return jsonify({"error": "provider and amount (>0) required"}), 400
+    gate = SpendingGate()
+    result = gate.approve_steps(provider=provider, amount_usd=amount, max_steps=max_steps, approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/approve-task", methods=["POST"])
+def api_spending_approve_task():
+    """Approve spending until a task/goal completes."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    task_id = data.get("task_id", "")
+    if not provider or amount <= 0 or not task_id:
+        return jsonify({"error": "provider, amount (>0), and task_id required"}), 400
+    gate = SpendingGate()
+    result = gate.approve_task(provider=provider, amount_usd=amount, task_id=task_id, approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/complete-task", methods=["POST"])
+def api_spending_complete_task():
+    """Mark a task as complete — revokes task-scoped approvals."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    task_id = data.get("task_id", "")
+    if not task_id:
+        return jsonify({"error": "task_id required"}), 400
+    gate = SpendingGate()
+    return jsonify(gate.complete_task(task_id))
+
+
+@app.route("/api/spending/daily-cap", methods=["POST"])
+def api_spending_daily_cap():
+    """Set daily spend cap."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    cap = float(data.get("cap", 0))
+    gate = SpendingGate()
+    return jsonify(gate.set_daily_cap(cap))
+
+
+@app.route("/api/spending/budget-plan", methods=["GET"])
+def api_spending_budget_plan():
+    """Get budget allocation plan across priorities."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    task_types = request.args.getlist("task_type") or None
+    return jsonify(gate.get_budget_plan(task_types=task_types))
+
+
+@app.route("/api/spending/revoke-all", methods=["POST"])
+def api_spending_revoke_all():
+    """Emergency: revoke all active timed/step/task approvals."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    return jsonify(gate.revoke_all_approvals())
+
+
 # ─────────────────────────────────────────────
 # MODEL JUDGE ENDPOINTS
 # ─────────────────────────────────────────────
@@ -4173,6 +4281,129 @@ def api_judge_recommend():
     days = int(request.args.get("days", 30))
     judge = ModelJudge()
     return jsonify(judge.recommend_model(task_type=task_type, days=days))
+
+
+# ─────────────────────────────────────────────
+# TASK PLANNER ENDPOINTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/planner/agenda", methods=["GET"])
+def api_planner_agenda():
+    """Get task agenda with optional filters."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    tasks = planner.get_agenda(
+        date=request.args.get("date"),
+        status=request.args.get("status"),
+        priority=request.args.get("priority"),
+        agent_id=request.args.get("agent_id"),
+    )
+    return jsonify(tasks)
+
+
+@app.route("/api/planner/tasks", methods=["POST"])
+def api_planner_create_task():
+    """Create a new planned task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    title = data.get("title", "")
+    if not title:
+        return jsonify({"error": "title required"}), 400
+    planner = TaskPlanner()
+    task = planner.create_task(
+        title=title,
+        task_type=data.get("task_type", "general"),
+        agent_id=data.get("agent_id", ""),
+        priority=data.get("priority", "normal"),
+        budget_usd=float(data.get("budget_usd", 0)),
+        provider=data.get("provider", "anthropic"),
+        scheduled_for=data.get("scheduled_for"),
+        description=data.get("description", ""),
+        depends_on=data.get("depends_on"),
+        parameters=data.get("parameters"),
+    )
+    return jsonify(task)
+
+
+@app.route("/api/planner/tasks/<task_id>", methods=["GET"])
+def api_planner_get_task(task_id):
+    """Get a single task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    task = planner.get_task(task_id)
+    if not task:
+        return jsonify({"error": f"Task not found: {task_id}"}), 404
+    return jsonify(task)
+
+
+@app.route("/api/planner/tasks/<task_id>/start", methods=["POST"])
+def api_planner_start_task(task_id):
+    """Start a planned task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    return jsonify(planner.start_task(task_id))
+
+
+@app.route("/api/planner/tasks/<task_id>/complete", methods=["POST"])
+def api_planner_complete_task(task_id):
+    """Complete a task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    planner = TaskPlanner()
+    return jsonify(planner.complete_task(
+        task_id,
+        result=data.get("result"),
+        spent_usd=float(data.get("spent_usd", 0)),
+    ))
+
+
+@app.route("/api/planner/tasks/<task_id>/cancel", methods=["POST"])
+def api_planner_cancel_task(task_id):
+    """Cancel a task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    return jsonify(planner.cancel_task(task_id))
+
+
+@app.route("/api/planner/plan", methods=["GET"])
+def api_planner_execution_plan():
+    """Get the optimal execution plan for pending tasks."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    daily_budget = float(request.args.get("daily_budget", 0))
+    planner = TaskPlanner()
+    return jsonify(planner.get_execution_plan(daily_budget_usd=daily_budget))
+
+
+@app.route("/api/planner/stats", methods=["GET"])
+def api_planner_stats():
+    """Get task statistics."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    return jsonify(planner.get_stats())
 
 
 # ─────────────────────────────────────────────

@@ -1080,16 +1080,26 @@ def main() -> int:
     # ── Spending Gate ─────────────────────────────────────────────────────
     spending_p = sub.add_parser(
         "spending",
-        help="Spending gate: approve/block/status for paid API calls",
+        help="Spending gate: approve/block/status/timed/steps/task/cap for paid API calls",
     )
     spending_p.add_argument(
         "--action",
-        choices=["status", "approve", "block", "auto", "gate", "reset", "requests"],
+        choices=[
+            "status", "approve", "block", "auto", "gate", "reset", "requests",
+            "timed", "eod", "steps", "task", "complete-task",
+            "set-cap", "plan", "set-priority", "revoke-all",
+        ],
         required=True,
         help="Action to perform",
     )
     spending_p.add_argument("--provider", help="Provider (anthropic/openai/xai)")
     spending_p.add_argument("--amount", type=float, help="Amount in USD to approve")
+    spending_p.add_argument("--duration", type=int, help="Duration in minutes (for timed approval)")
+    spending_p.add_argument("--steps", type=int, help="Number of steps (for step approval)")
+    spending_p.add_argument("--task-id", help="Task ID (for task approval)")
+    spending_p.add_argument("--task-type", dest="spending_task_type", help="Task type (for priority)")
+    spending_p.add_argument("--priority", help="Priority: critical/high/normal/low")
+    spending_p.add_argument("--cap", type=float, help="Daily cap in USD")
     def _spending_cmd(args):
         from core.spending_gate import SpendingGate
         gate = SpendingGate()
@@ -1100,6 +1110,55 @@ def main() -> int:
                 print("--provider and --amount required for approve")
                 return
             result = gate.approve_spending(args.provider, args.amount)
+            print(json.dumps(result, indent=2))
+        elif args.action == "timed":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for timed approval")
+                return
+            duration = args.duration or 60
+            result = gate.approve_timed(args.provider, args.amount, duration_minutes=duration)
+            print(json.dumps(result, indent=2))
+        elif args.action == "eod":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for eod approval")
+                return
+            result = gate.approve_timed_eod(args.provider, args.amount)
+            print(json.dumps(result, indent=2))
+        elif args.action == "steps":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for step approval")
+                return
+            max_steps = args.steps or 10
+            result = gate.approve_steps(args.provider, args.amount, max_steps=max_steps)
+            print(json.dumps(result, indent=2))
+        elif args.action == "task":
+            if not args.provider or not args.amount or not args.task_id:
+                print("--provider, --amount, and --task-id required for task approval")
+                return
+            result = gate.approve_task(args.provider, args.amount, task_id=args.task_id)
+            print(json.dumps(result, indent=2))
+        elif args.action == "complete-task":
+            if not args.task_id:
+                print("--task-id required for complete-task")
+                return
+            result = gate.complete_task(args.task_id)
+            print(json.dumps(result, indent=2))
+        elif args.action == "set-cap":
+            cap = args.cap if args.cap is not None else (args.amount or 0.0)
+            result = gate.set_daily_cap(cap)
+            print(json.dumps(result, indent=2))
+        elif args.action == "plan":
+            task_types = [args.spending_task_type] if args.spending_task_type else None
+            result = gate.get_budget_plan(task_types=task_types)
+            print(json.dumps(result, indent=2))
+        elif args.action == "set-priority":
+            if not args.spending_task_type or not args.priority:
+                print("--task-type and --priority required for set-priority")
+                return
+            result = gate.set_task_priority(args.spending_task_type, args.priority)
+            print(json.dumps(result, indent=2))
+        elif args.action == "revoke-all":
+            result = gate.revoke_all_approvals()
             print(json.dumps(result, indent=2))
         elif args.action in ("block", "auto", "gate"):
             result = gate.set_mode(args.action)
@@ -1151,6 +1210,100 @@ def main() -> int:
             rec = judge.recommend_model(task_type=args.task_type, days=args.days)
             print(json.dumps(rec, indent=2))
     judge_p.set_defaults(func=_judge_cmd)
+
+    # ── Task Planner ────────────────────────────────────────────────────
+    planner_p = sub.add_parser(
+        "planner",
+        help="Task planner: schedule agent work with budgets and priorities",
+    )
+    planner_p.add_argument(
+        "--action",
+        choices=[
+            "agenda", "create", "start", "complete", "cancel", "fail",
+            "plan", "stats", "cleanup", "show",
+        ],
+        required=True,
+        help="Action to perform",
+    )
+    planner_p.add_argument("--title", help="Task title (for create)")
+    planner_p.add_argument("--task-type", dest="planner_task_type", help="Task type")
+    planner_p.add_argument("--agent-id", help="Agent to assign")
+    planner_p.add_argument("--priority", dest="planner_priority", help="Priority: critical/high/normal/low")
+    planner_p.add_argument("--budget", type=float, help="Budget in USD")
+    planner_p.add_argument("--provider", dest="planner_provider", help="LLM provider")
+    planner_p.add_argument("--scheduled-for", help="ISO datetime for scheduling")
+    planner_p.add_argument("--task-id", dest="planner_task_id", help="Task ID")
+    planner_p.add_argument("--date", help="Date filter (YYYY-MM-DD)")
+    planner_p.add_argument("--status", dest="planner_status", help="Status filter")
+    planner_p.add_argument("--daily-budget", type=float, default=0, help="Daily budget for plan")
+    def _planner_cmd(args):
+        from core.task_planner import TaskPlanner
+        planner = TaskPlanner()
+        if args.action == "agenda":
+            tasks = planner.get_agenda(
+                date=args.date,
+                status=args.planner_status,
+                priority=args.planner_priority,
+                agent_id=args.agent_id,
+            )
+            if not tasks:
+                print("No tasks in agenda.")
+            else:
+                for t in tasks:
+                    sched = t.get("scheduled_for", "")
+                    date_str = sched[:10] if sched else "unscheduled"
+                    print(f"  [{t['priority'][:4].upper()}] {t['title']} | {t['status']} | {date_str} | ${t['budget_usd']:.2f} | {t['agent_id'] or 'unassigned'}")
+        elif args.action == "create":
+            if not args.title:
+                print("--title required for create")
+                return
+            task = planner.create_task(
+                title=args.title,
+                task_type=args.planner_task_type or "general",
+                agent_id=args.agent_id or "",
+                priority=args.planner_priority or "normal",
+                budget_usd=args.budget or 0.0,
+                provider=args.planner_provider or "anthropic",
+                scheduled_for=args.scheduled_for,
+            )
+            print(json.dumps(task, indent=2))
+        elif args.action == "start":
+            if not args.planner_task_id:
+                print("--task-id required for start")
+                return
+            print(json.dumps(planner.start_task(args.planner_task_id), indent=2))
+        elif args.action == "complete":
+            if not args.planner_task_id:
+                print("--task-id required for complete")
+                return
+            print(json.dumps(planner.complete_task(args.planner_task_id), indent=2))
+        elif args.action == "cancel":
+            if not args.planner_task_id:
+                print("--task-id required for cancel")
+                return
+            print(json.dumps(planner.cancel_task(args.planner_task_id), indent=2))
+        elif args.action == "fail":
+            if not args.planner_task_id:
+                print("--task-id required for fail")
+                return
+            print(json.dumps(planner.fail_task(args.planner_task_id), indent=2))
+        elif args.action == "plan":
+            plan = planner.get_execution_plan(daily_budget_usd=args.daily_budget)
+            print(json.dumps(plan, indent=2))
+        elif args.action == "stats":
+            print(json.dumps(planner.get_stats(), indent=2))
+        elif args.action == "cleanup":
+            print(json.dumps(planner.cleanup_old_tasks(), indent=2))
+        elif args.action == "show":
+            if not args.planner_task_id:
+                print("--task-id required for show")
+                return
+            task = planner.get_task(args.planner_task_id)
+            if task:
+                print(json.dumps(task, indent=2))
+            else:
+                print(f"Task not found: {args.planner_task_id}")
+    planner_p.set_defaults(func=_planner_cmd)
 
     remote_ready_p = sub.add_parser(
         "remote-ready",
