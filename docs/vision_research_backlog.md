@@ -359,4 +359,112 @@ System pulls from the best available model for each task — free local models f
 
 ---
 
+## 18. New GitHub Repos & Tools to Study (March 9)
+
+### Design & Prototyping
+- **Penpot** — https://github.com/penpot/penpot
+  - Open-source design & prototyping platform (Figma alternative)
+  - Could integrate for UI/UX design workflows
+  - Self-hostable on Mac Mini
+
+### Education & Knowledge
+- **CS Video Courses** — https://github.com/Developer-Y/cs-video-courses
+  - Comprehensive list of CS video courses
+  - Agent can curate relevant courses for skill development
+  - Training data source for knowledge expansion
+
+### Social Media CLI
+- **Twitter CLI** — https://github.com/jackwener/twitter-cli/
+  - Command-line Twitter/X interface
+  - Could adapt for automated X posting (with human approval gate)
+  - Research integration with Permanence OS X account
+
+### Blockchain / Web3
+- **Arbitrum Developers** — Research Arbitrum L2 ecosystem
+  - Smart contract deployment, DeFi integrations
+  - Revenue generation possibilities
+- **Midnight Network** — https://midnight.network
+  - Privacy-focused blockchain platform
+  - Research privacy-preserving computation capabilities
+
+### AI / Agent Frameworks
+- **BagsWorld** — https://github.com/AIEngineerX/BagsWorld
+  - AI agent framework to study
+  - Compare architecture patterns with Permanence OS agents
+
+### X / Social References
+- https://x.com/jnsilva_/status/2030690888473518556 — Review for design/development insights
+
+---
+
+## 19. Ask AI / Agent Pop-Up Interface
+
+### Core Concept
+- Universal "Ask Ophtxn" pop-up accessible from any screen
+- Starts as compact floating button → expands to mini chat/terminal
+- Available system-wide across all Permanence OS surfaces
+
+### Modes (switchable)
+1. **Terminal Only** — raw command line, shell access
+2. **Chat Only** — conversational AI interface
+3. **Search Only** — quick search across system, web, knowledge base
+4. **Combined** — all three merged into one unified interface
+5. **Voice** — speak to Ophtxn, get voice responses
+
+### Behavior
+- Always available via keyboard shortcut or floating icon
+- Can be pinned, minimized, or expanded to full screen
+- Context-aware — knows what screen/app you're currently in
+- Questions can be asked via voice, text, or gesture
+- Remembers conversation history across sessions
+
+---
+
+## 20. Agent World / Immersive Visualization
+
+### GTA-Style Agent Map
+- Interactive 3D/2D map showing agent activity
+- Different zones represent different environments:
+  - **New York City** → Main operations, business district (Tron-style neon)
+  - **Desert/Vegas** → High-risk operations, trading, speculation
+  - **Beach/Miami** → Social media, content creation, relaxation mode
+  - **Tropical/Bora Bora** → Vacation mode, low-priority background tasks
+  - **Resort** — Fun, creative brainstorming zone
+  - **National Forest/Arkansas** — Deep research, hiking through data, exploration
+
+### Agent Lounge
+- 3D office/lounge room where agents hang out
+- See agents working in real time (making coffee, typing, racing)
+- Each agent has visual representation and personality
+- Racing metaphor: agents compete on track showing task progress
+  - First place, last place, out of race, not competing, etc.
+
+### UX Philosophy
+- "Great user experience while doing amazing and breathtaking things"
+- Every interaction should feel premium and intentional
+- Smooth animations, satisfying feedback, beautiful design
+
+---
+
+## 21. Social Media & Brand Accounts
+
+### X (Twitter)
+- **Permanence OS** account — primary brand account
+  - Will be used for posting (with approval gates)
+  - Research and engagement
+  - Vibe and content strategy TBD
+- Email: hello@permanencesystems.com
+
+### TikTok
+- Account: **paytonhicks41**
+- Email: hello@permanencesystems.com
+- Short-form video content about the system/journey
+
+### API Keys & Connections
+- Multiple API keys and connection configs added to Downloads
+- Some accounts have multiple X connections
+- Need to review and securely store all credentials
+
+---
+
 *This document is a living backlog. Items move to implementation plans when prioritized.*
