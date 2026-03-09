@@ -1007,6 +1007,44 @@ def main() -> int:
         )
     )
 
+    # ── Device Control ─────────────────────────────────────────────────────
+    device_p = sub.add_parser(
+        "device",
+        help="Device control: permissions, system info, app management, grants",
+    )
+    device_p.add_argument(
+        "--action",
+        choices=["status", "services", "install", "grant", "revoke", "revoke-all", "notify"],
+        default="status",
+        help="Device control action",
+    )
+    device_p.add_argument("--device", default="mac_mini", help="Device ID (mac_mini, macbook, dell)")
+    device_p.add_argument("--app", help="App name for install action")
+    device_p.add_argument("--formula", action="store_true", help="Install as formula (not cask)")
+    device_p.add_argument("--scope", help="Comma-separated action categories for grant")
+    device_p.add_argument("--duration", type=int, default=60, help="Grant duration in minutes")
+    device_p.add_argument("--max-actions", type=int, help="Max actions for grant")
+    device_p.add_argument("--grant-id", help="Grant ID for revoke action")
+    device_p.add_argument("--title", help="Notification title")
+    device_p.add_argument("--message", help="Notification message")
+    device_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "mac_control.py"),
+                args.action,
+                *(["--device", args.device] if args.device else []),
+                *([args.app] if args.app and args.action == "install" else []),
+                *(["--formula"] if args.formula else []),
+                *(["--scope", args.scope] if args.scope else []),
+                *(["--duration", str(args.duration)] if args.duration != 60 else []),
+                *(["--max-actions", str(args.max_actions)] if args.max_actions else []),
+                *([args.grant_id] if args.grant_id and args.action == "revoke" else []),
+                *([args.title, args.message] if args.title and args.action == "notify" else []),
+            ]
+        )
+    )
+
     # ── Agent GitHub Operations ───────────────────────────────────────────
     github_ops_p = sub.add_parser(
         "github-ops",

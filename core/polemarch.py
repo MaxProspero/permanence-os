@@ -78,6 +78,22 @@ AGENT_REGISTRY = {
         "allowed_tools": ["remote_run", "service_status", "service_restart", "code_sync"],
         "forbidden_actions": ["shutdown_server", "modify_ssh", "delete_data"],
     },
+    # Device control agent (NEW v0.5)
+    "device_control": {
+        "department": "INFRASTRUCTURE",
+        "risk_default": RiskTier.MEDIUM,
+        "allowed_tools": [
+            "check_permission", "grant_permission", "revoke_grant",
+            "install_app", "restart_service", "run_applescript",
+            "get_system_info", "get_service_status", "send_notification",
+            "list_directory", "read_file",
+        ],
+        "forbidden_actions": [
+            "network_config", "ssh_config", "disk_format",
+            "firmware_update", "credential_access",
+            "modify_macbook", "force_grant_macbook",
+        ],
+    },
 }
 
 
