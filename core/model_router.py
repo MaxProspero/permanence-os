@@ -121,20 +121,23 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "default": "grok-3-mini",
     },
     "ollama": {
-        "canon_interpretation": "qwen3:8b",
-        "strategy": "qwen3:8b",
-        "code_generation": "qwen3:8b",
-        "adversarial_review": "qwen3:8b",
-        "research_synthesis": "qwen3:4b",
-        "planning": "qwen3:4b",
-        "review": "qwen3:4b",
-        "execution": "qwen3:4b",
-        "conciliation": "qwen3:4b",
+        "canon_interpretation": "qwen2.5:7b",
+        "strategy": "qwen2.5:7b",
+        "code_generation": "qwen2.5:7b",
+        "adversarial_review": "qwen2.5:7b",
+        "research_synthesis": "qwen2.5:7b",
+        "planning": "qwen2.5:7b",
+        "review": "qwen2.5:7b",
+        "execution": "qwen2.5:7b",
+        "conciliation": "qwen2.5:7b",
+        "social_drafting": "qwen2.5:7b",
+        "deep_reflection": "qwen2.5:7b",
         "classification": "qwen2.5:3b",
         "summarization": "qwen2.5:3b",
         "tagging": "qwen2.5:3b",
         "formatting": "qwen2.5:3b",
-        "default": "qwen3:4b",
+        "routine": "qwen2.5:3b",
+        "default": "qwen2.5:7b",
     },
 }
 DEFAULT_MODEL_BY_TASK: Dict[str, str] = DEFAULT_MODEL_BY_TASK_BY_PROVIDER["anthropic"]
@@ -157,6 +160,7 @@ DEFAULT_MODEL_PRICING_PER_1M: Dict[str, Dict[str, float]] = {
     "grok-2-mini": {"input": 0.5, "output": 1.5},
     "qwen3:8b": {"input": 0.0, "output": 0.0},
     "qwen3:4b": {"input": 0.0, "output": 0.0},
+    "qwen2.5:7b": {"input": 0.0, "output": 0.0},
     "qwen2.5:3b": {"input": 0.0, "output": 0.0},
 }
 
@@ -240,6 +244,7 @@ class ModelRouter:
         )
         self.no_spend_mode = _bool_flag("PERMANENCE_NO_SPEND_MODE")
         self.low_cost_mode = _bool_flag("PERMANENCE_LOW_COST_MODE")
+        self.hybrid_mode = _bool_flag("PERMANENCE_HYBRID_MODE")
         self.budget_tier = str(os.getenv("PERMANENCE_BUDGET_TIER", "")).strip().lower() or ""
 
     @staticmethod
@@ -619,11 +624,14 @@ class ModelRouter:
 
         return model, "budget_ok"
 
+    # Tasks that REQUIRE paid models for quality — everything else goes to Ollama
+    HYBRID_PAID_TASKS = frozenset(TASKS_OPUS) | {"research_synthesis", "conciliation", "social_drafting"}
+
     def route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
         # Hard guardrail: no-spend mode forces all routing to local ollama.
         if self.no_spend_mode:
             ollama_map = self._build_model_map_for_provider("ollama")
-            model = ollama_map.get(task_type, ollama_map.get("default", "qwen3:4b"))
+            model = ollama_map.get(task_type, ollama_map.get("default", "qwen2.5:7b"))
             self.selected_provider = "ollama"
             self._log_decision(
                 task_type=task_type,
@@ -638,6 +646,12 @@ class ModelRouter:
         # Low-cost mode: skip opus tier, cap at sonnet.
         if self.low_cost_mode:
             return self._route_low_cost(task_type=task_type, context=context)
+
+        # Hybrid mode: Ollama for routine/low tasks, paid for critical/high.
+        # Like Perplexity — free local model handles most work, escalates to
+        # paid API only when quality demands it.
+        if self.hybrid_mode:
+            return self._route_hybrid(task_type=task_type, context=context)
 
         budget_snapshot = self._monthly_budget_snapshot()
         selected_provider, provider_policy = self._provider_for_task(
@@ -665,6 +679,89 @@ class ModelRouter:
             },
             budget_snapshot=budget_snapshot,
             budget_policy=f"{provider_policy}|{budget_policy}",
+            raw_model=raw_model,
+        )
+        return adjusted_model
+
+    def _route_hybrid(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """
+        Hybrid routing: local Ollama by default, paid APIs for quality-critical tasks.
+
+        Strategy:
+        1. Routine/low-priority tasks → Ollama (free)
+        2. Critical/high-quality tasks → paid provider (if budget allows)
+        3. If paid provider budget exhausted → Ollama fallback
+
+        This is the "Perplexity approach" — free for most things, premium when needed.
+        """
+        ollama_map = self._build_model_map_for_provider("ollama")
+        key = str(task_type or "").strip().lower()
+
+        # Task requires paid model quality?
+        needs_paid = key in self.HYBRID_PAID_TASKS
+
+        if not needs_paid:
+            # Route to Ollama — free
+            model = ollama_map.get(key, ollama_map.get("default", "qwen2.5:7b"))
+            self.selected_provider = "ollama"
+            self._log_decision(
+                task_type=task_type,
+                model=model,
+                context={**(context or {}), "policy": "hybrid_local"},
+                budget_policy="hybrid_local_free",
+                raw_model=model,
+                provider="ollama",
+            )
+            return model
+
+        # Task needs paid quality — check budget and route accordingly
+        budget_snapshot = self._monthly_budget_snapshot()
+        selected_provider, provider_policy = self._provider_for_task(
+            task_type=task_type,
+            budget_snapshot=budget_snapshot,
+        )
+
+        # If selected provider is exhausted/capped, fall back to Ollama
+        provider_budget = self._provider_budget_snapshot(budget_snapshot)
+        provider_row = provider_budget.get(selected_provider, {"ratio": 0.0, "capped": False})
+        if bool(provider_row.get("capped")) and float(provider_row.get("ratio", 0.0)) >= 1.0:
+            model = ollama_map.get(key, ollama_map.get("default", "qwen2.5:7b"))
+            self.selected_provider = "ollama"
+            self._log_decision(
+                task_type=task_type,
+                model=model,
+                context={**(context or {}), "policy": "hybrid_paid_exhausted_fallback"},
+                budget_policy="hybrid_paid_exhausted_to_ollama",
+                raw_model=model,
+                provider="ollama",
+            )
+            return model
+
+        # Route to paid provider
+        selected_map = (
+            self.model_by_task
+            if selected_provider == self.provider
+            else self._build_model_map_for_provider(selected_provider)
+        )
+        raw_model = selected_map.get(task_type, selected_map.get("default", self.model_by_task["default"]))
+        adjusted_model, budget_policy = self._budget_adjusted_model(
+            task_type=task_type,
+            model=raw_model,
+            snapshot=budget_snapshot,
+            model_map=selected_map,
+        )
+        self.selected_provider = selected_provider
+        self._log_decision(
+            task_type=task_type,
+            model=adjusted_model,
+            context={
+                **(context or {}),
+                "provider_policy": provider_policy,
+                "provider_selected": selected_provider,
+                "policy": "hybrid_paid",
+            },
+            budget_snapshot=budget_snapshot,
+            budget_policy=f"hybrid_paid|{provider_policy}|{budget_policy}",
             raw_model=raw_model,
         )
         return adjusted_model

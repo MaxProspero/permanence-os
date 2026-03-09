@@ -182,7 +182,7 @@ def test_model_router_uses_ollama_default_map():
                 "ollama": 0.0,
             }
             assert router.provider == "ollama"
-            assert router.model_by_task.get("planning") == "qwen3:4b"
+            assert router.model_by_task.get("planning") == "qwen2.5:7b"
             assert router.model_by_task.get("summarization") == "qwen2.5:3b"
     finally:
         _restore_env(snapshot)
