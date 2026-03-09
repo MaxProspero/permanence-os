@@ -1115,6 +1115,32 @@ def main() -> int:
         )
     )
 
+    # ── Ghost-OS Bridge ──────────────────────────────────────────────────
+    ghost_p = sub.add_parser(
+        "ghost",
+        help="Ghost-OS MCP bridge: list tools, check permissions, execute, status",
+    )
+    ghost_p.add_argument(
+        "--action",
+        choices=["list-tools", "check", "execute", "status"],
+        required=True,
+    )
+    ghost_p.add_argument("--tool", help="Ghost-OS tool name")
+    ghost_p.add_argument("--params", default="{}", help="Tool params as JSON")
+    ghost_p.add_argument("--agent", default="cli", help="Agent ID")
+    ghost_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ghost_os_bridge.py"),
+                "--action", args.action,
+                *(["--tool", args.tool] if args.tool else []),
+                *(["--params", args.params] if args.params != "{}" else []),
+                *(["--agent", args.agent] if args.agent != "cli" else []),
+            ]
+        )
+    )
+
     # ── Spending Gate ─────────────────────────────────────────────────────
     spending_p = sub.add_parser(
         "spending",

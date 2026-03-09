@@ -94,6 +94,22 @@ AGENT_REGISTRY = {
             "modify_macbook", "force_grant_macbook",
         ],
     },
+    # Ghost-OS bridge agent (NEW v0.5)
+    "ghost_bridge": {
+        "department": "INFRASTRUCTURE",
+        "risk_default": RiskTier.MEDIUM,
+        "allowed_tools": [
+            "ax_tree", "screenshot", "find_element", "get_element_text",
+            "ghost_ground", "click", "type_text", "key_press", "scroll",
+            "drag", "list_windows", "focus_app", "resize_window",
+            "move_window", "open_file", "open_url", "get_clipboard",
+            "set_clipboard", "run_recipe",
+        ],
+        "forbidden_actions": [
+            "network_config", "ssh_config", "credential_access",
+            "quit_apps", "empty_trash", "force_quit", "logout",
+        ],
+    },
 }
 
 
