@@ -345,9 +345,17 @@ class SpendingGate:
         self._step_approvals: List[StepApproval] = []
         self._task_approvals: List[TaskApproval] = []
 
-        # Daily budget
-        daily_cap = _safe_float(os.getenv("PERMANENCE_DAILY_SPEND_CAP_USD", "0"))
+        # Daily budget — prefer saved state, fall back to env var
+        saved_db = getattr(self, "_saved_daily_budget", {})
+        saved_cap = _safe_float(str(saved_db.get("cap_usd", 0)))
+        env_cap = _safe_float(os.getenv("PERMANENCE_DAILY_SPEND_CAP_USD", "0"))
+        daily_cap = saved_cap if saved_cap > 0 else env_cap
         self._daily_budget = DailyBudget(cap_usd=daily_cap)
+
+        # Restore priorities from saved state
+        if saved_db.get("priorities"):
+            for task_type, priority in saved_db["priorities"].items():
+                self._daily_budget.set_priority(task_type, priority)
 
     def _default_credits(self) -> Dict[str, float]:
         """Load credit balances from env vars."""
@@ -364,14 +372,25 @@ class SpendingGate:
         return credits
 
     def _load_state(self) -> Dict[str, float]:
-        """Load persisted credit state, or initialize from env vars."""
+        """Load persisted credit state, or initialize from env vars.
+
+        Also restores mode and daily_budget from state file if present.
+        """
         if self.state_path.exists():
             try:
                 data = json.loads(self.state_path.read_text(encoding="utf-8"))
                 if isinstance(data, dict) and "credits" in data:
+                    # Restore mode from state if not overridden by env
+                    if "mode" in data and not os.getenv("PERMANENCE_SPENDING_APPROVAL_MODE"):
+                        saved_mode = data["mode"].lower().strip()
+                        if saved_mode in ("gate", "auto", "block"):
+                            self.mode = saved_mode
+                    # Store daily_budget data for post-init restoration
+                    self._saved_daily_budget = data.get("daily_budget", {})
                     return {k: float(v) for k, v in data["credits"].items()}
             except (json.JSONDecodeError, OSError, TypeError, ValueError):
                 pass
+        self._saved_daily_budget = {}
         return self._default_credits()
 
     def _save_state(self) -> None:
@@ -912,6 +931,7 @@ class SpendingGate:
         if priority not in PRIORITY_WEIGHTS:
             return {"ok": False, "error": f"Invalid priority: {priority}. Use: critical, high, normal, low"}
         self._daily_budget.set_priority(task_type, priority)
+        self._save_state()
         return {"ok": True, "task_type": task_type, "priority": priority}
 
     def get_budget_plan(self, task_types: Optional[List[str]] = None) -> Dict[str, Any]:
