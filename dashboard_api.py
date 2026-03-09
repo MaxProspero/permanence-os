@@ -3961,6 +3961,120 @@ def _load_log_entries(agent: Optional[str], limit: int) -> list:
 
 
 # ─────────────────────────────────────────────
+# SOCIAL DRAFT QUEUE API
+# ─────────────────────────────────────────────
+
+
+@app.route("/api/social/drafts", methods=["GET"])
+def api_social_drafts_list():
+    """List social media drafts with optional filters."""
+    try:
+        from scripts.social_draft_queue import list_drafts
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    platform = request.args.get("platform")
+    status = request.args.get("status")
+    limit = int(request.args.get("limit", 50))
+    drafts = list_drafts(platform=platform, status=status, limit=limit)
+    return jsonify({"drafts": drafts, "count": len(drafts)})
+
+
+@app.route("/api/social/drafts/<int:draft_id>", methods=["GET"])
+def api_social_draft_get(draft_id):
+    """Get a single draft by ID."""
+    try:
+        from scripts.social_draft_queue import get_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    draft = get_draft(draft_id)
+    if not draft:
+        abort(404, description=f"Draft {draft_id} not found")
+    return jsonify(draft)
+
+
+@app.route("/api/social/drafts", methods=["POST"])
+def api_social_draft_submit():
+    """Agent submits a new social media draft."""
+    try:
+        from scripts.social_draft_queue import submit_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/social/drafts", payload)
+    result = submit_draft(
+        platform=payload.get("platform", ""),
+        content=payload.get("content", ""),
+        content_type=payload.get("content_type", "post"),
+        media_notes=payload.get("media_notes", ""),
+        hashtags=payload.get("hashtags", ""),
+        suggested_time=payload.get("suggested_time", ""),
+        agent_id=payload.get("agent_id", ""),
+        metadata=payload.get("metadata"),
+    )
+    status_code = 201 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/drafts/<int:draft_id>/approve", methods=["PATCH", "POST"])
+def api_social_draft_approve(draft_id):
+    """Human approves a draft for publishing."""
+    try:
+        from scripts.social_draft_queue import approve_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("PATCH", f"/api/social/drafts/{draft_id}/approve", payload)
+    result = approve_draft(draft_id, reviewer_notes=payload.get("notes", ""))
+    status_code = 200 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/drafts/<int:draft_id>/reject", methods=["PATCH", "POST"])
+def api_social_draft_reject(draft_id):
+    """Human rejects a draft with feedback."""
+    try:
+        from scripts.social_draft_queue import reject_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("PATCH", f"/api/social/drafts/{draft_id}/reject", payload)
+    result = reject_draft(draft_id, reviewer_notes=payload.get("notes", ""))
+    status_code = 200 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/drafts/<int:draft_id>/published", methods=["PATCH", "POST"])
+def api_social_draft_published(draft_id):
+    """Mark an approved draft as published."""
+    try:
+        from scripts.social_draft_queue import mark_published
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("PATCH", f"/api/social/drafts/{draft_id}/published", payload)
+    result = mark_published(draft_id)
+    status_code = 200 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/stats", methods=["GET"])
+def api_social_stats():
+    """Get social draft queue statistics."""
+    try:
+        from scripts.social_draft_queue import get_stats
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    return jsonify(get_stats())
+
+
+# ─────────────────────────────────────────────
 # RUN
 # ─────────────────────────────────────────────
 

@@ -65,6 +65,19 @@ AGENT_REGISTRY = {
     "digital_twin": {"department": "SPECIAL", "risk_default": RiskTier.LOW},
     "chimera_builder": {"department": "SPECIAL", "risk_default": RiskTier.MEDIUM},
     "arch_evolution": {"department": "SPECIAL", "risk_default": RiskTier.LOW},
+    # Infrastructure agents (NEW v0.4)
+    "github_ops": {
+        "department": "INFRASTRUCTURE",
+        "risk_default": RiskTier.MEDIUM,
+        "allowed_tools": ["git_push", "git_branch", "github_pr", "github_branch_cleanup"],
+        "forbidden_actions": ["force_push_main", "delete_protected_branch", "modify_deploy_keys"],
+    },
+    "mac_mini_agent": {
+        "department": "INFRASTRUCTURE",
+        "risk_default": RiskTier.LOW,
+        "allowed_tools": ["remote_run", "service_status", "service_restart", "code_sync"],
+        "forbidden_actions": ["shutdown_server", "modify_ssh", "delete_data"],
+    },
 }
 
 

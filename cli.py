@@ -976,6 +976,107 @@ def main() -> int:
         )
     )
 
+    # ── Mac Mini Remote Bridge ──────────────────────────────────────────────
+    mini_remote_p = sub.add_parser(
+        "mini",
+        help="MacBook→Mac Mini bridge for SSH command execution, sync, and service management",
+    )
+    mini_remote_p.add_argument(
+        "--action",
+        choices=["configure", "show", "test", "run", "sync-code", "status", "logs", "restart"],
+        default="status",
+        help="Bridge action",
+    )
+    mini_remote_p.add_argument("--cmd", help="Remote command for run action")
+    mini_remote_p.add_argument("--service", help="Service name for logs/restart")
+    mini_remote_p.add_argument("--lines", type=int, default=30, help="Log lines to show")
+    mini_remote_p.add_argument("--dry-run", action="store_true", help="Dry run for sync-code")
+    mini_remote_p.add_argument("--print-cmd", action="store_true", help="Print SSH command")
+    mini_remote_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "mac_mini_remote.py"),
+                "--action", args.action,
+                *(["--cmd", args.cmd] if args.cmd else []),
+                *(["--service", args.service] if args.service else []),
+                *(["--lines", str(args.lines)] if args.lines != 30 else []),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--print-cmd"] if args.print_cmd else []),
+            ]
+        )
+    )
+
+    # ── Agent GitHub Operations ───────────────────────────────────────────
+    github_ops_p = sub.add_parser(
+        "github-ops",
+        help="Governed GitHub operations for agents (push, PR, cleanup)",
+    )
+    github_ops_p.add_argument(
+        "--action",
+        choices=["list-branches", "push", "create-pr", "cleanup", "write-count"],
+        required=True,
+    )
+    github_ops_p.add_argument("--agent", help="Agent ID")
+    github_ops_p.add_argument("--branch", help="Branch name")
+    github_ops_p.add_argument("--message", help="Commit message")
+    github_ops_p.add_argument("--title", help="PR title")
+    github_ops_p.add_argument("--body", default="", help="PR body")
+    github_ops_p.add_argument("--base", default="main", help="Base branch for PR")
+    github_ops_p.add_argument("--days", type=int, default=30, help="Days threshold for cleanup")
+    github_ops_p.add_argument("--execute", action="store_true", help="Actually delete stale branches")
+    github_ops_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "agent_github_ops.py"),
+                "--action", args.action,
+                *(["--agent", args.agent] if args.agent else []),
+                *(["--branch", args.branch] if args.branch else []),
+                *(["--message", args.message] if args.message else []),
+                *(["--title", args.title] if args.title else []),
+                *(["--body", args.body] if args.body else []),
+                *(["--base", args.base] if args.base != "main" else []),
+                *(["--days", str(args.days)] if args.days != 30 else []),
+                *(["--execute"] if args.execute else []),
+            ]
+        )
+    )
+
+    # ── Social Draft Queue ────────────────────────────────────────────────
+    social_q_p = sub.add_parser(
+        "social-queue",
+        help="Social media draft queue management",
+    )
+    social_q_p.add_argument(
+        "--action",
+        choices=["list", "submit", "approve", "reject", "publish", "stats", "get"],
+        required=True,
+    )
+    social_q_p.add_argument("--platform", help="Platform filter")
+    social_q_p.add_argument("--content", help="Draft content")
+    social_q_p.add_argument("--content-type", default="post", help="Content type")
+    social_q_p.add_argument("--status", help="Status filter")
+    social_q_p.add_argument("--id", type=int, help="Draft ID")
+    social_q_p.add_argument("--notes", default="", help="Reviewer notes")
+    social_q_p.add_argument("--agent-id", default="", help="Agent ID")
+    social_q_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "social_draft_queue.py"),
+                "--action", args.action,
+                *(["--platform", args.platform] if args.platform else []),
+                *(["--content", args.content] if args.content else []),
+                *(["--content-type", args.content_type] if args.content_type != "post" else []),
+                *(["--status", args.status] if args.status else []),
+                *(["--id", str(args.id)] if args.id else []),
+                *(["--notes", args.notes] if args.notes else []),
+                *(["--agent-id", args.agent_id] if args.agent_id else []),
+            ]
+        )
+    )
+
     remote_ready_p = sub.add_parser(
         "remote-ready",
         help="Check away-mode readiness (Tailscale, SSH, awake, automation)",

@@ -51,9 +51,25 @@ BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
     },
 }
 
-TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review")
-TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation")
+TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review", "deep_reflection")
+TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation", "social_drafting")
 TASKS_HAIKU = ("classification", "summarization", "tagging", "formatting")
+
+# ── AI Paper Insights (v0.4) ────────────────────────────────────────────
+# ParamMem: Temperature-controlled reflection for agent self-improvement.
+# Higher temperature for brainstorming/reflection tasks, lower for execution.
+DEFAULT_REFLECTION_TEMPERATURE = float(os.getenv("PERMANENCE_REFLECTION_TEMP", "0.7"))
+DEFAULT_EXECUTION_TEMPERATURE = float(os.getenv("PERMANENCE_EXECUTION_TEMP", "0.3"))
+
+# Theory of Mind: ToM reasoning only for strong models.
+# Weak/local models hallucinate social reasoning — strip ToM prompts automatically.
+TOM_CAPABLE_MODELS = {
+    "claude-opus-4-6", "claude-sonnet-4-6",
+    "gpt-4.1", "gpt-4o",
+    "grok-3-latest",
+}
+# Tasks that benefit from Theory of Mind reasoning
+TOM_TASKS = ("conciliation", "social_drafting", "strategy")
 
 DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
     "anthropic": {
@@ -652,6 +668,27 @@ class ModelRouter:
             raw_model=raw_model,
         )
         return adjusted_model
+
+    def get_temperature(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> float:
+        """Return appropriate temperature based on task type.
+
+        ParamMem insight: Use higher temperature for reflection/brainstorming
+        tasks to increase diversity of self-improvement ideas, lower for execution.
+        """
+        reflection_tasks = {"deep_reflection", "strategy", "canon_interpretation", "adversarial_review"}
+        if task_type in reflection_tasks:
+            return DEFAULT_REFLECTION_TEMPERATURE
+        return DEFAULT_EXECUTION_TEMPERATURE
+
+    def requires_tom(self, task_type: str, model: str) -> bool:
+        """Check if Theory of Mind reasoning should be applied.
+
+        Theory of Mind insight: ToM reasoning only for strong models.
+        Weak/local models hallucinate social reasoning — strip ToM from task context.
+        """
+        if task_type not in TOM_TASKS:
+            return False
+        return model in TOM_CAPABLE_MODELS
 
     def _route_low_cost(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
         """Route in low-cost mode: skip opus, prefer haiku, fall back to ollama."""
