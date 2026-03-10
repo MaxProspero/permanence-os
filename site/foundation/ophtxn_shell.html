@@ -485,14 +485,14 @@ body{
 }
 
 /* -- FAB BOT -- */
-.fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,196,0.2),rgba(0,229,196,0.08));border:1px solid rgba(0,229,196,0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(0,229,196,0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
-.fab-bot:hover{box-shadow:0 0 36px rgba(0,229,196,0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
-.fab-bot svg{color:#00e5c4;pointer-events:none}
-.fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid rgba(0,229,196,0.25);border-radius:14px;padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(0,229,196,0.08)}
+.fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
+.fab-bot:hover{box-shadow:0 0 36px rgba(var(--f-rgb),0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
+.fab-bot svg{color:var(--accent);pointer-events:none}
+.fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid rgba(var(--f-rgb),0.25);border-radius:14px;padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(var(--f-rgb),0.08)}
 .fab-popup.open{display:block;animation:fabIn 200ms both}
 @keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(146,188,214,0.14);border-radius:8px;color:#e7f4ff;font-family:"DM Mono",monospace;font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
-.fab-popup input:focus{border-color:#00e5c4}
+.fab-popup input:focus{border-color:var(--accent)}
 .fab-popup input::placeholder{color:#7b96af}
 .fab-popup-label{font-size:11px;color:#7b96af;margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
   </style>
@@ -636,19 +636,19 @@ var scrollFab = $("scrollFab");
    THEME SYSTEM
    ═══════════════════════════════════════════════════════ */
 function applyTheme() {
-  var c = localStorage.getItem("ophtxn_shell_color") || "aurora";
-  var b = localStorage.getItem("ophtxn_shell_bright") || "dark";
+  var c = localStorage.getItem("ophtxn_site_theme") || "aurora";
+  var b = localStorage.getItem("ophtxn_site_brightness") || "dark";
   document.body.dataset.theme = c;
   document.body.dataset.brightness = b;
   $("colorSelect").value = c;
   $("brightSelect").value = b;
 }
 $("colorSelect").addEventListener("change", function() {
-  localStorage.setItem("ophtxn_shell_color", this.value);
+  localStorage.setItem("ophtxn_site_theme", this.value);
   applyTheme();
 });
 $("brightSelect").addEventListener("change", function() {
-  localStorage.setItem("ophtxn_shell_bright", this.value);
+  localStorage.setItem("ophtxn_site_brightness", this.value);
   applyTheme();
 });
 applyTheme();
