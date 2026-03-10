@@ -375,11 +375,73 @@
   }
 
   /* ── MODE TOGGLE ──────────────────────────────────────────── */
-  .pill.mode-active { border-color: var(--c-c); color: var(--c-c); }
+  .pill.mode-active, .th-ctrl.mode-active {
+    border-color: var(--c-c); color: var(--c-c);
+    background: rgba(123,111,255,.08);
+  }
 
-  /* Personal mode: hide dev-only blocks */
+  /* Personal mode: hide dev-only blocks, show personal-only */
   .dev-only { display: none; }
+  .personal-only { display: block; }
   [data-mode="dev"] .dev-only { display: block; }
+  [data-mode="dev"] .personal-only { display: none; }
+
+  /* ── PERSONAL DASHBOARD ────────────────────────────────────── */
+  .personal-dash {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 32px;
+  }
+  .pd-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px; position: relative;
+    overflow: hidden; transition: border-color .2s, box-shadow .2s;
+  }
+  .pd-card:hover {
+    border-color: var(--border-hi);
+    box-shadow: 0 0 20px rgba(0,229,196,.04);
+  }
+  .pd-card::before {
+    content: ''; position: absolute; top: -1px; left: -1px;
+    width: 8px; height: 8px;
+    border-top: 1px solid rgba(0,229,196,.3);
+    border-left: 1px solid rgba(0,229,196,.3);
+  }
+  .pd-num {
+    font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900;
+    line-height: 1; margin-bottom: 6px; letter-spacing: -.02em;
+  }
+  .pd-num.teal { color: var(--c-a); text-shadow: 0 0 14px rgba(0,229,196,.3); }
+  .pd-num.gold { color: var(--c-d); text-shadow: 0 0 14px rgba(248,200,66,.3); }
+  .pd-num.rose { color: var(--c-b); text-shadow: 0 0 14px rgba(255,92,138,.3); }
+  .pd-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .pd-sub {
+    font-family: var(--mono); font-size: 11px; color: var(--dim);
+    margin-top: 8px; line-height: 1.5;
+  }
+
+  .quick-actions {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px;
+  }
+  .qa-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 16px; color: var(--ink);
+    font-family: var(--mono); font-size: 12px;
+    text-decoration: none; cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+  }
+  .qa-btn:hover {
+    border-color: var(--c-a); background: rgba(0,229,196,.04);
+    transform: translateY(-1px);
+  }
+  .qa-icon { font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .personal-dash { grid-template-columns: 1fr; }
+  }
 
   /* ── DEV PANEL ────────────────────────────────────────────── */
   .dev-grid {
@@ -601,6 +663,51 @@
     </div>
     <div class="aq-msg" id="aq-msg"></div>
   </div>
+
+  <!-- PERSONAL DASHBOARD (hidden in dev mode) -->
+  <section class="personal-only" id="personal-dash-section">
+    <hr class="divider">
+    <div class="section-header">
+      <h2>Dashboard</h2>
+      <p>Quick status · actions · system health</p>
+    </div>
+
+    <div class="personal-dash">
+      <div class="pd-card">
+        <div class="pd-num teal" id="pd-services">—</div>
+        <div class="pd-label">Services Online</div>
+        <div class="pd-sub" id="pd-services-sub">checking status...</div>
+      </div>
+      <div class="pd-card">
+        <div class="pd-num gold" id="pd-queue">—</div>
+        <div class="pd-label">Pending Approvals</div>
+        <div class="pd-sub" id="pd-queue-sub">fetching queue...</div>
+      </div>
+      <div class="pd-card">
+        <div class="pd-num rose" id="pd-uptime">—</div>
+        <div class="pd-label">Session Uptime</div>
+        <div class="pd-sub" id="pd-uptime-sub">since page load</div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <a class="qa-btn" id="qa-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">
+        <span class="qa-icon">⚡</span> Open Command Center
+      </a>
+      <a class="qa-btn" id="qa-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">
+        <span class="qa-icon">⌨</span> Open App Shell
+      </a>
+      <a class="qa-btn" href="rooms.html">
+        <span class="qa-icon">🏛</span> Tower Navigation
+      </a>
+      <a class="qa-btn" href="ai_school.html">
+        <span class="qa-icon">📚</span> AI School
+      </a>
+      <a class="qa-btn" href="press_kit.html">
+        <span class="qa-icon">🎨</span> Brand Assets
+      </a>
+    </div>
+  </section>
 
   <!-- DEV PANEL (hidden in personal mode) -->
   <section class="dev-only" id="dev-panel">
@@ -953,6 +1060,57 @@ document.getElementById("aq-approve-btn").addEventListener("click", async () => 
 
 aqFetch();
 setInterval(aqFetch, 60_000);
+
+// ── PERSONAL DASHBOARD ──────────────────────────────────────
+const pdStartTime = Date.now();
+
+function updatePersonalDash() {
+  // Services count
+  const pdSvc = document.getElementById('pd-services');
+  const pdSvcSub = document.getElementById('pd-services-sub');
+  if (pdSvc) {
+    let online = 0; let total = SERVICES.length;
+    for (const svc of SERVICES) {
+      const st = lastState[svc.id];
+      if (st && st.status === 'ok') online++;
+    }
+    pdSvc.textContent = `${online}/${total}`;
+    pdSvcSub.textContent = online === total ? 'all systems nominal' :
+      online === 0 ? 'all services offline' : `${total - online} service(s) down`;
+  }
+
+  // Queue count (reuse from aq)
+  const pdQ = document.getElementById('pd-queue');
+  const pdQSub = document.getElementById('pd-queue-sub');
+  if (pdQ) {
+    const aqEl = document.getElementById('aq-count');
+    const count = aqEl ? aqEl.textContent : '—';
+    pdQ.textContent = count;
+    pdQSub.textContent = count === '0' ? 'queue clear — nothing pending' :
+      count === '—' ? 'unable to reach queue' : `${count} action(s) awaiting review`;
+  }
+
+  // Uptime
+  const pdUp = document.getElementById('pd-uptime');
+  const pdUpSub = document.getElementById('pd-uptime-sub');
+  if (pdUp) {
+    const elapsed = Math.floor((Date.now() - pdStartTime) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    pdUp.textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    pdUpSub.textContent = 'since page load';
+  }
+
+  // Update quick action links from runtime config
+  const qaCC = document.getElementById('qa-cc');
+  const qaShell = document.getElementById('qa-shell');
+  if (qaCC) qaCC.href = __RT.commandCenterUrl || API_BASE;
+  if (qaShell) qaShell.href = __RT.shellUrl || (APP_BASE + '/app/ophtxn');
+}
+
+// Update personal dash every 2s
+updatePersonalDash();
+setInterval(updatePersonalDash, 2000);
 </script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>

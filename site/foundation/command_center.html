@@ -303,14 +303,33 @@ body::after{
 /* system meters at bottom of left panel */
 .meters{padding:10px 12px;border-top:1px solid var(--glass-border);flex-shrink:0}
 .meters-label{font-size:8px;color:var(--muted);letter-spacing:2px;font-family:var(--mono);margin-bottom:8px}
-.mrow{margin-bottom:8px}
-.mrow-head{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px;font-family:var(--mono)}
+.mrow{margin-bottom:6px}
+.mrow-head{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--muted);margin-bottom:3px;font-family:var(--mono)}
+.mrow-val{font-variant-numeric:tabular-nums;transition:color .4s}
+.mrow-val.high{color:var(--bad)}
+.mrow-val.mid{color:var(--warn)}
+.mrow-val.low{color:var(--good)}
 .mtrack{height:3px;background:var(--border);border-radius:999px;overflow:hidden}
 .mfill{height:100%;border-radius:999px;transition:width 1.4s cubic-bezier(.25,.46,.45,.94)}
 .mfill-g{background:linear-gradient(90deg,rgba(84,223,158,.6),var(--good))}
 .mfill-a{background:linear-gradient(90deg,rgba(0,229,196,.5),var(--accent))}
 .mfill-w{background:linear-gradient(90deg,rgba(247,191,94,.5),var(--warn))}
 .mfill-b{background:linear-gradient(90deg,rgba(200,168,78,.4),var(--brass))}
+
+/* sparkline SVG */
+.spark-wrap{position:relative;height:22px;margin-top:2px;border-radius:4px;overflow:hidden}
+.spark-bg{position:absolute;inset:0;opacity:.04;border-radius:4px}
+.spark-svg{display:block;width:100%;height:22px}
+.spark-line{fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 2px currentColor)}
+.spark-area{opacity:.08}
+.spark-dot{transition:r .2s,opacity .2s}
+.spark-tooltip{
+  position:absolute;top:-20px;
+  background:var(--bg-0);border:1px solid var(--border-hi);border-radius:4px;
+  padding:2px 6px;font:500 9px/1.2 var(--mono);color:var(--ink);
+  pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;
+  transform:translateX(-50%);z-index:2;
+}
 
 /* ═══════════════════════════════════════════════════════
    CENTER — TABS: COMMAND / CONSTRUCT / NETWORK
@@ -1676,28 +1695,94 @@ function startClock() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   SYSTEM METERS (cosmetic, animated)
+   SYSTEM METERS — SVG Sparklines
    ═══════════════════════════════════════════════════════ */
+var SPARK_POINTS = 24; // history depth
 var meterData = [
-  {lbl:"CPU", cls:"mfill-g", v:34},
-  {lbl:"MEM", cls:"mfill-a", v:61},
-  {lbl:"NET", cls:"mfill-w", v:18},
-  {lbl:"DSK", cls:"mfill-b", v:47},
+  {lbl:"CPU", cls:"mfill-g", color:"#54df9e", v:34, history:[]},
+  {lbl:"MEM", cls:"mfill-a", color:"#00e5c4", v:61, history:[]},
+  {lbl:"NET", cls:"mfill-w", color:"#f7bf5e", v:18, history:[]},
+  {lbl:"DSK", cls:"mfill-b", color:"#c8a84e", v:47, history:[]},
 ];
+
+// Seed history with gentle random walk
+meterData.forEach(function(m) {
+  var v = m.v;
+  for (var i = 0; i < SPARK_POINTS; i++) {
+    v = Math.max(4, Math.min(96, v + (Math.random() - .5) * 8));
+    m.history.push(Math.round(v));
+  }
+  m.v = m.history[m.history.length - 1];
+});
+
+function sparkPath(history, w, h, pad) {
+  var n = history.length;
+  if (n < 2) return {line:"", area:""};
+  var stepX = (w - pad * 2) / (n - 1);
+  var points = history.map(function(v, i) {
+    return { x: pad + i * stepX, y: h - pad - (v / 100) * (h - pad * 2) };
+  });
+  // Smooth catmull-rom → cubic bezier
+  var line = "M" + points[0].x.toFixed(1) + "," + points[0].y.toFixed(1);
+  for (var i = 0; i < points.length - 1; i++) {
+    var p0 = points[Math.max(i - 1, 0)];
+    var p1 = points[i];
+    var p2 = points[Math.min(i + 1, points.length - 1)];
+    var p3 = points[Math.min(i + 2, points.length - 1)];
+    var cp1x = p1.x + (p2.x - p0.x) / 6;
+    var cp1y = p1.y + (p2.y - p0.y) / 6;
+    var cp2x = p2.x - (p3.x - p1.x) / 6;
+    var cp2y = p2.y - (p3.y - p1.y) / 6;
+    line += " C" + cp1x.toFixed(1) + "," + cp1y.toFixed(1) + " " + cp2x.toFixed(1) + "," + cp2y.toFixed(1) + " " + p2.x.toFixed(1) + "," + p2.y.toFixed(1);
+  }
+  // Area fill (close path to bottom)
+  var area = line + " L" + points[points.length-1].x.toFixed(1) + "," + (h - pad) + " L" + points[0].x.toFixed(1) + "," + (h - pad) + " Z";
+  return {line:line, area:area, lastX:points[points.length-1].x, lastY:points[points.length-1].y};
+}
+
+function renderSparkline(m) {
+  var el = $("spark-" + m.lbl);
+  if (!el) return;
+  var w = el.offsetWidth || 190;
+  var h = 22;
+  var pad = 2;
+  var p = sparkPath(m.history, w, h, pad);
+  el.innerHTML =
+    '<svg class="spark-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+      '<path class="spark-area" d="' + p.area + '" fill="' + m.color + '"/>' +
+      '<path class="spark-line" d="' + p.line + '" stroke="' + m.color + '"/>' +
+      '<circle class="spark-dot" cx="' + (p.lastX||0).toFixed(1) + '" cy="' + (p.lastY||0).toFixed(1) + '" r="2" fill="' + m.color + '" opacity=".9"/>' +
+    '</svg>';
+}
 
 function startMeters() {
   $("meterList").innerHTML = meterData.map(function(m) {
-    return '<div class="mrow"><div class="mrow-head"><span>' + m.lbl + '</span><span id="mv-' + m.lbl + '">' + m.v + '%</span></div><div class="mtrack"><div class="mfill ' + m.cls + '" id="mf-' + m.lbl + '" style="width:' + m.v + '%"></div></div></div>';
+    var v = Math.round(m.v);
+    var tier = v > 80 ? "high" : v > 55 ? "mid" : "low";
+    return '<div class="mrow">' +
+      '<div class="mrow-head"><span>' + m.lbl + '</span><span class="mrow-val ' + tier + '" id="mv-' + m.lbl + '">' + v + '%</span></div>' +
+      '<div class="mtrack"><div class="mfill ' + m.cls + '" id="mf-' + m.lbl + '" style="width:' + v + '%"></div></div>' +
+      '<div class="spark-wrap" id="spark-' + m.lbl + '"></div>' +
+    '</div>';
   }).join("");
+
+  // Initial render
+  meterData.forEach(function(m) { renderSparkline(m); });
 
   setInterval(function() {
     meterData.forEach(function(m) {
       m.v = Math.max(4, Math.min(96, m.v + (Math.random() - .5) * 9));
       var v = Math.round(m.v);
+      m.history.push(v);
+      if (m.history.length > SPARK_POINTS) m.history.shift();
       var fill = $("mf-" + m.lbl);
       var val = $("mv-" + m.lbl);
       if (fill) fill.style.width = v + "%";
-      if (val && val.textContent !== v + "%") val.textContent = v + "%";
+      if (val) {
+        val.textContent = v + "%";
+        val.className = "mrow-val " + (v > 80 ? "high" : v > 55 ? "mid" : "low");
+      }
+      renderSparkline(m);
     });
   }, 2200);
 }

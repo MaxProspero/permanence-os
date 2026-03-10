@@ -649,8 +649,26 @@ function pick(idx) {
 }
 
 function go(fl) {
-  if (fl.href.startsWith('http://')) window.open(fl.href, '_blank');
-  else window.location.href = fl.href;
+  if (fl.href.startsWith('http://') || fl.href.startsWith('https://')) {
+    /* Check reachability before opening external services */
+    var indicator = document.createElement('div');
+    indicator.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(4,7,16,.95);border:1px solid rgba(0,229,196,.3);border-radius:8px;padding:8px 18px;font-family:var(--game);font-size:9px;letter-spacing:.15em;color:var(--ink);z-index:10000;backdrop-filter:blur(12px);';
+    indicator.textContent = 'CONNECTING...';
+    document.body.appendChild(indicator);
+    fetch(fl.href.replace(/\/$/, '') + '/api/status', { signal: AbortSignal.timeout(2500) })
+      .then(function () {
+        indicator.remove();
+        window.open(fl.href, '_blank');
+      })
+      .catch(function () {
+        indicator.style.borderColor = '#ff5c8a';
+        indicator.style.color = '#ff5c8a';
+        indicator.textContent = 'SERVICE OFFLINE — START SERVER FIRST';
+        setTimeout(function () { indicator.remove(); }, 3000);
+      });
+  } else {
+    window.location.href = fl.href;
+  }
 }
 
 /* ── Keyboard ─────────────────────────────── */
