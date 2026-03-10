@@ -4407,6 +4407,143 @@ def api_planner_stats():
 
 
 # ─────────────────────────────────────────────
+# ARENA STATE (Agent Grid visualization)
+# ─────────────────────────────────────────────
+
+# Department color map — matches command_center.html arena
+ARENA_DEPT_COLORS = {
+    "CORE": "#00e5c4",
+    "DEPARTMENT": "#ff5c8a",
+    "SPECIAL": "#7b6fff",
+    "INFRASTRUCTURE": "#c8a84e",
+}
+
+ARENA_DEPT_LABELS = {
+    "CORE": "OPERATIONS",
+    "DEPARTMENT": "COMMS",
+    "SPECIAL": "SPECIAL",
+    "INFRASTRUCTURE": "INFRASTRUCTURE",
+}
+
+
+def _build_arena_agents() -> list:
+    """Build arena agent list from Polemarch registry."""
+    agents = []
+    try:
+        from core.polemarch import AGENT_REGISTRY, RiskTier
+    except ImportError:
+        return agents
+
+    for agent_id, info in AGENT_REGISTRY.items():
+        dept = info.get("department", "CORE")
+        risk = info.get("risk_default")
+        risk_str = risk.value if hasattr(risk, "value") else str(risk) if risk else "low"
+        agents.append({
+            "id": agent_id,
+            "name": agent_id.replace("_", " ").title(),
+            "department": dept,
+            "department_label": ARENA_DEPT_LABELS.get(dept, dept),
+            "color": ARENA_DEPT_COLORS.get(dept, "#c8a84e"),
+            "risk": risk_str,
+            "status": "idle",
+            "allowed_tools": info.get("allowed_tools", []),
+            "forbidden_actions": info.get("forbidden_actions", []),
+        })
+    return agents
+
+
+def _get_arena_hub() -> dict:
+    """Build hub health summary."""
+    hub = {"status": "online", "uptime_s": 0, "services": {}}
+    # Check spending gate
+    try:
+        from core.spending_gate import SpendingGate
+        gate = SpendingGate()
+        status = gate.status()
+        hub["spending"] = {
+            "mode": status.get("mode", "unknown"),
+            "spent_today": status.get("spent_today_usd", 0),
+            "budget_limit": status.get("daily_cap_usd", 0),
+        }
+    except (ImportError, Exception):
+        hub["spending"] = {"mode": "unknown", "spent_today": 0, "budget_limit": 0}
+    return hub
+
+
+def _get_arena_connections(agents: list) -> list:
+    """Build connection lines between related agents."""
+    connections = []
+    # Core agents form a pipeline
+    core_ids = [a["id"] for a in agents if a["department"] == "CORE"]
+    for i in range(len(core_ids) - 1):
+        connections.append({"from": core_ids[i], "to": core_ids[i + 1], "type": "pipeline"})
+    # Infrastructure agents connect to hub
+    infra_ids = [a["id"] for a in agents if a["department"] == "INFRASTRUCTURE"]
+    if core_ids and infra_ids:
+        for iid in infra_ids:
+            connections.append({"from": "hub", "to": iid, "type": "control"})
+    # Department agents connect to executor
+    dept_ids = [a["id"] for a in agents if a["department"] == "DEPARTMENT"]
+    if "executor" in core_ids:
+        for did in dept_ids:
+            connections.append({"from": "executor", "to": did, "type": "dispatch"})
+    return connections
+
+
+def _get_arena_events() -> list:
+    """Get recent log events for the thought stream."""
+    events = []
+    try:
+        log_path = PATHS.get("api_log", "")
+        if log_path and os.path.exists(log_path):
+            with open(log_path) as f:
+                lines = f.readlines()
+            for line in lines[-15:]:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    events.append({
+                        "timestamp": entry.get("timestamp", ""),
+                        "event": entry.get("endpoint", entry.get("action", "")),
+                        "result": entry.get("result", "OK"),
+                        "agent": entry.get("agent_id", "system"),
+                    })
+                except json.JSONDecodeError:
+                    continue
+    except OSError:
+        pass
+    return events[-10:]
+
+
+@app.route("/api/arena/state", methods=["GET"])
+def api_arena_state():
+    """
+    Aggregated arena state for the GRID visualization.
+    Returns agents, hub health, connections, and recent events.
+    """
+    log_api_call("GET", "/api/arena/state")
+    agents = _build_arena_agents()
+    hub = _get_arena_hub()
+    connections = _get_arena_connections(agents)
+    events = _get_arena_events()
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_iso(),
+        "agents": agents,
+        "hub": hub,
+        "connections": connections,
+        "events": events,
+        "departments": {
+            k: {"label": ARENA_DEPT_LABELS[k], "color": v}
+            for k, v in ARENA_DEPT_COLORS.items()
+        },
+    })
+
+
+# ─────────────────────────────────────────────
 # RUN
 # ─────────────────────────────────────────────
 

@@ -496,6 +496,163 @@ body::after{
 }
 
 /* ═══════════════════════════════════════════════════════
+   GRID (Agent Arena)
+   ═══════════════════════════════════════════════════════ */
+#tp-grid{position:relative;overflow:hidden}
+
+/* dot-grid canvas */
+.arena-canvas{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--f-rgb),.03) 0%, transparent 70%),
+    var(--bg-0);
+}
+.arena-dots{
+  position:absolute;inset:0;
+  background-image:radial-gradient(rgba(var(--f-rgb),.12) 1px, transparent 1px);
+  background-size:24px 24px;
+  opacity:.5;
+}
+
+/* svg layer */
+.arena-svg{position:absolute;inset:0;pointer-events:none;z-index:1}
+
+/* hub */
+.arena-hub{
+  position:absolute;z-index:3;
+  width:56px;height:56px;border-radius:50%;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-0);
+  border:2px solid var(--accent);
+  box-shadow:0 0 24px rgba(0,229,196,.2), inset 0 0 12px rgba(0,229,196,.08);
+  cursor:pointer;transition:box-shadow .3s;
+}
+.arena-hub:hover{box-shadow:0 0 36px rgba(0,229,196,.35), inset 0 0 16px rgba(0,229,196,.12)}
+.arena-hub-ring{
+  position:absolute;inset:-6px;border-radius:50%;
+  border:1px solid rgba(0,229,196,.15);
+  animation:arena-hub-spin 20s linear infinite;
+}
+.arena-hub-ring::after{
+  content:'';position:absolute;width:4px;height:4px;border-radius:50%;
+  background:var(--accent);top:-2px;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 6px var(--accent);
+}
+@keyframes arena-hub-spin{to{transform:rotate(360deg)}}
+.arena-hub-label{
+  font-family:var(--mono);font-size:7px;letter-spacing:1.5px;color:var(--accent);
+  font-weight:600;
+}
+
+/* agent nodes */
+.arena-node{
+  position:absolute;z-index:4;width:42px;height:42px;
+  transform:translate(-50%,-50%);cursor:pointer;
+  transition:transform .6s cubic-bezier(.25,.46,.45,.94);
+}
+.arena-node-orb{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-0);border:1.5px solid;
+  transition:box-shadow .3s, border-color .3s;
+}
+.arena-node:hover .arena-node-orb{
+  box-shadow:0 0 20px currentColor;
+}
+.arena-node-icon{
+  font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.5px;
+  text-transform:uppercase;
+}
+.arena-node-name{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  white-space:nowrap;padding-top:4px;
+  font-family:var(--mono);font-size:7px;letter-spacing:.8px;color:var(--muted);
+  text-align:center;opacity:.7;transition:opacity .2s;
+}
+.arena-node:hover .arena-node-name{opacity:1;color:var(--ink)}
+
+/* node states */
+.arena-node.active .arena-node-orb{
+  box-shadow:0 0 14px currentColor;
+  animation:arena-pulse 2.5s ease-in-out infinite;
+}
+@keyframes arena-pulse{0%,100%{box-shadow:0 0 14px currentColor}50%{box-shadow:0 0 22px currentColor}}
+.arena-node.idle .arena-node-orb{opacity:.55}
+.arena-node.idle{animation:arena-float 6s ease-in-out infinite}
+@keyframes arena-float{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 3px))}}
+.arena-node.pending .arena-node-orb{border-color:var(--warn) !important;color:var(--warn) !important}
+.arena-node.error .arena-node-orb{border-color:var(--bad) !important;color:var(--bad) !important;animation:none}
+
+/* orbital ring for active nodes */
+.arena-node-orbit{
+  position:absolute;inset:-5px;border-radius:50%;
+  border:1px solid;opacity:.2;
+  animation:arena-hub-spin 8s linear infinite;
+  display:none;
+}
+.arena-node.active .arena-node-orbit{display:block}
+.arena-node-orbit::after{
+  content:'';position:absolute;width:3px;height:3px;border-radius:50%;
+  background:currentColor;top:-1.5px;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 4px currentColor;
+}
+
+/* detail card (click-to-inspect) */
+.arena-detail{
+  position:absolute;z-index:10;
+  width:220px;padding:14px;
+  background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);border-radius:var(--r);
+  display:none;pointer-events:auto;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+.arena-detail.show{display:block}
+.arena-detail-hdr{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.arena-detail-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.arena-detail-name{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.3px;flex:1}
+.arena-detail-close{
+  width:18px;height:18px;border-radius:4px;border:1px solid var(--border);
+  background:none;color:var(--muted);font-size:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.arena-detail-close:hover{color:var(--ink);border-color:var(--border-hi)}
+.arena-detail-row{
+  display:flex;justify-content:space-between;padding:3px 0;
+  font-size:10px;font-family:var(--mono);
+}
+.arena-detail-lbl{color:var(--muted);letter-spacing:.5px}
+.arena-detail-val{color:var(--ink)}
+
+/* thought stream */
+.arena-stream{
+  position:absolute;bottom:0;left:0;right:0;z-index:5;
+  max-height:80px;overflow-y:auto;padding:6px 12px;
+  background:linear-gradient(transparent, rgba(6,11,20,.85) 30%);
+  pointer-events:auto;
+}
+.arena-stream::-webkit-scrollbar{width:2px}
+.arena-stream::-webkit-scrollbar-thumb{background:rgba(var(--f-rgb),.15)}
+.arena-event{
+  font-family:var(--mono);font-size:9px;line-height:1.7;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.arena-event-ts{color:var(--dim);margin-right:6px}
+.arena-event-ok{color:var(--good)}
+.arena-event-err{color:var(--bad)}
+
+/* department legend */
+.arena-legend{
+  position:absolute;top:8px;right:12px;z-index:5;
+  display:flex;gap:10px;
+}
+.arena-legend-item{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:7px;letter-spacing:1px;color:var(--muted)}
+.arena-legend-dot{width:6px;height:6px;border-radius:50%}
+
+/* ═══════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════ */
 @media(max-width:900px){
@@ -572,6 +729,7 @@ body::after{
       <div class="tab on" data-t="cmd">COMMAND</div>
       <div class="tab" data-t="construct">CONSTRUCT</div>
       <div class="tab" data-t="net">NETWORK</div>
+      <div class="tab" data-t="grid">GRID</div>
     </div>
     <div class="tpane on" id="tp-cmd">
       <div class="cmd-out" id="cmdOut"></div>
@@ -582,6 +740,7 @@ body::after{
     </div>
     <div class="tpane" id="tp-construct"></div>
     <div class="tpane" id="tp-net"></div>
+    <div class="tpane" id="tp-grid"></div>
   </div>
 
   <!-- RIGHT: THE LEDGER -->
@@ -875,6 +1034,7 @@ async function handleCommand(text) {
     addCmdLine("result", "", "  approvals      Pending approvals");
     addCmdLine("result", "", "  logs           Recent activity");
     addCmdLine("result", "", "  briefing       Latest briefing");
+    addCmdLine("result", "", "  grid           Switch to agent arena");
     addCmdLine("result", "", "  clear          Clear terminal");
     addCmdLine("result", "", "  <anything>     Send to agent console");
     return;
@@ -937,6 +1097,17 @@ async function handleCommand(text) {
       var d = await r.json();
       addCmdLine("result", "", d.content || d.markdown || JSON.stringify(d).slice(0, 300));
     } catch (e) { addCmdLine("error", "", "ERROR: " + e.message); }
+    return;
+  }
+
+  if (text === "grid") {
+    // Switch to GRID tab
+    document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("on"); });
+    document.querySelectorAll(".tpane").forEach(function(p) { p.classList.remove("on"); });
+    document.querySelector('.tab[data-t="grid"]').classList.add("on");
+    $("tp-grid").classList.add("on");
+    if (!arenaBuilt) buildArena();
+    addCmdLine("result", "", "Switched to Agent Arena grid view.");
     return;
   }
 
@@ -1086,6 +1257,274 @@ function buildNetPane() {
 }
 
 /* ═══════════════════════════════════════════════════════
+   GRID — Agent Arena
+   ═══════════════════════════════════════════════════════ */
+var arenaData = null;
+var arenaBuilt = false;
+var arenaDetail = null; // currently inspected agent id
+
+var DEPT_COLORS = {
+  CORE: "#00e5c4",
+  DEPARTMENT: "#ff5c8a",
+  SPECIAL: "#7b6fff",
+  INFRASTRUCTURE: "#c8a84e",
+};
+
+var DEPT_LABELS = {
+  CORE: "OPERATIONS",
+  DEPARTMENT: "COMMS",
+  SPECIAL: "SPECIAL",
+  INFRASTRUCTURE: "INFRA",
+};
+
+function buildArena() {
+  var p = $("tp-grid");
+  p.innerHTML =
+    '<div class="arena-canvas"><div class="arena-dots"></div></div>' +
+    '<svg class="arena-svg" id="arenaSvg"></svg>' +
+    '<div class="arena-hub" id="arenaHub">' +
+      '<div class="arena-hub-ring"></div>' +
+      '<div class="arena-hub-label">HUB</div>' +
+    '</div>' +
+    '<div id="arenaNodes"></div>' +
+    '<div class="arena-detail" id="arenaDetail"></div>' +
+    '<div class="arena-legend" id="arenaLegend"></div>' +
+    '<div class="arena-stream" id="arenaStream"></div>';
+
+  // Build legend
+  var legend = "";
+  Object.keys(DEPT_LABELS).forEach(function(k) {
+    legend += '<div class="arena-legend-item"><div class="arena-legend-dot" style="background:' + DEPT_COLORS[k] + ';box-shadow:0 0 4px ' + DEPT_COLORS[k] + '"></div>' + DEPT_LABELS[k] + '</div>';
+  });
+  $("arenaLegend").innerHTML = legend;
+
+  // Hub click
+  $("arenaHub").addEventListener("click", function() {
+    showArenaDetail(null); // show hub info
+  });
+
+  // Close detail on background click
+  p.addEventListener("click", function(e) {
+    if (e.target === p || e.target.classList.contains("arena-canvas") || e.target.classList.contains("arena-dots")) {
+      hideArenaDetail();
+    }
+  });
+
+  arenaBuilt = true;
+  fetchArenaState();
+  // Poll every 30s
+  setInterval(fetchArenaState, 30000);
+}
+
+async function fetchArenaState() {
+  try {
+    var resp = await fetch(CMD_BASE + "/api/arena/state", { signal: AbortSignal.timeout(4000) });
+    arenaData = await resp.json();
+    if (arenaData.ok) renderArena();
+  } catch (_) {
+    // Silent — keep current display
+  }
+}
+
+function renderArena() {
+  if (!arenaData || !arenaData.agents) return;
+  var pane = $("tp-grid");
+  if (!pane) return;
+  var w = pane.offsetWidth || 600;
+  var h = pane.offsetHeight || 400;
+  var cx = w / 2;
+  var cy = h / 2;
+
+  // Group agents by department
+  var depts = {};
+  arenaData.agents.forEach(function(a) {
+    var d = a.department || "CORE";
+    if (!depts[d]) depts[d] = [];
+    depts[d].push(a);
+  });
+
+  // Position agents in concentric rings by department
+  var deptOrder = ["CORE", "DEPARTMENT", "SPECIAL", "INFRASTRUCTURE"];
+  var positions = {}; // agent_id -> {x, y}
+  var ringBase = Math.min(w, h) * 0.18;
+  var ringStep = Math.min(w, h) * 0.14;
+
+  deptOrder.forEach(function(dept, di) {
+    var group = depts[dept] || [];
+    var ring = ringBase + di * ringStep;
+    var offset = di * 0.3; // stagger start angle per department
+    group.forEach(function(a, ai) {
+      var angle = offset + (ai / Math.max(group.length, 1)) * Math.PI * 2;
+      positions[a.id] = {
+        x: cx + Math.cos(angle) * ring,
+        y: cy + Math.sin(angle) * ring,
+      };
+    });
+  });
+
+  // Render SVG connections
+  var svg = $("arenaSvg");
+  if (svg) {
+    svg.setAttribute("width", w);
+    svg.setAttribute("height", h);
+    var lines = '<defs><filter id="arena-glow"><feGaussianBlur stdDeviation="2" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+    (arenaData.connections || []).forEach(function(c) {
+      var from = c.from === "hub" ? {x: cx, y: cy} : positions[c.from];
+      var to = c.to === "hub" ? {x: cx, y: cy} : positions[c.to];
+      if (!from || !to) return;
+      var color = c.type === "pipeline" ? "rgba(0,229,196,.12)" : c.type === "control" ? "rgba(200,168,78,.1)" : "rgba(123,111,255,.08)";
+      var activeColor = c.type === "pipeline" ? "rgba(0,229,196,.3)" : c.type === "control" ? "rgba(200,168,78,.25)" : "rgba(123,111,255,.2)";
+      lines += '<line x1="' + from.x.toFixed(1) + '" y1="' + from.y.toFixed(1) + '" x2="' + to.x.toFixed(1) + '" y2="' + to.y.toFixed(1) + '" stroke="' + color + '" stroke-width="1" stroke-dasharray="4 6"><animate attributeName="stroke-dashoffset" values="0;-10" dur="1.2s" repeatCount="indefinite"/></line>';
+      // Animated data particle
+      lines += '<circle r="1.5" fill="' + activeColor + '" filter="url(#arena-glow)"><animateMotion dur="' + (2 + Math.random() * 2).toFixed(1) + 's" repeatCount="indefinite"><mpath href="#"/></animateMotion></circle>';
+    });
+    svg.innerHTML = lines;
+  }
+
+  // Render agent nodes
+  var nodesEl = $("arenaNodes");
+  if (nodesEl) {
+    var html = "";
+    arenaData.agents.forEach(function(a) {
+      var pos = positions[a.id];
+      if (!pos) return;
+      var color = a.color || DEPT_COLORS[a.department] || "var(--brass)";
+      var state = a.status || "idle";
+      var initials = a.id.split("_").map(function(w) { return w[0]; }).join("").toUpperCase().slice(0, 2);
+      html +=
+        '<div class="arena-node ' + state + '" id="an-' + a.id + '" data-aid="' + a.id + '" style="left:' + pos.x.toFixed(1) + 'px;top:' + pos.y.toFixed(1) + 'px;color:' + color + '">' +
+          '<div class="arena-node-orbit" style="border-color:' + color + ';color:' + color + '"></div>' +
+          '<div class="arena-node-orb" style="border-color:' + color + '">' +
+            '<span class="arena-node-icon" style="color:' + color + '">' + initials + '</span>' +
+          '</div>' +
+          '<div class="arena-node-name">' + esc(a.name) + '</div>' +
+        '</div>';
+    });
+    // Only update if changed
+    var newHTML = html;
+    if (nodesEl.dataset.hash !== hashStr(newHTML)) {
+      nodesEl.innerHTML = newHTML;
+      nodesEl.dataset.hash = hashStr(newHTML);
+      // Attach click handlers
+      nodesEl.querySelectorAll(".arena-node").forEach(function(node) {
+        node.addEventListener("click", function(e) {
+          e.stopPropagation();
+          showArenaDetail(node.dataset.aid);
+        });
+      });
+    } else {
+      // Update positions only (smooth transition)
+      arenaData.agents.forEach(function(a) {
+        var pos = positions[a.id];
+        var el = document.getElementById("an-" + a.id);
+        if (el && pos) {
+          el.style.left = pos.x.toFixed(1) + "px";
+          el.style.top = pos.y.toFixed(1) + "px";
+        }
+      });
+    }
+  }
+
+  // Update hub status
+  var hub = arenaData.hub || {};
+  var hubEl = $("arenaHub");
+  if (hubEl) {
+    var hubColor = hub.status === "online" ? "var(--accent)" : hub.status === "degraded" ? "var(--warn)" : "var(--bad)";
+    hubEl.style.borderColor = hubColor;
+    hubEl.style.boxShadow = "0 0 24px " + hubColor + "33, inset 0 0 12px " + hubColor + "14";
+  }
+
+  // Update thought stream
+  renderArenaStream();
+}
+
+function renderArenaStream() {
+  var el = $("arenaStream");
+  if (!el || !arenaData) return;
+  var events = arenaData.events || [];
+  if (!events.length) {
+    el.innerHTML = '<div class="arena-event"><span class="arena-event-ts">--:--:--</span> Waiting for events...</div>';
+    return;
+  }
+  var html = "";
+  events.forEach(function(ev) {
+    var ts = (ev.timestamp || "").slice(11, 19) || "--:--:--";
+    var cls = (ev.result || "").toLowerCase() === "ok" ? "arena-event-ok" : ev.result && ev.result.toLowerCase().indexOf("err") >= 0 ? "arena-event-err" : "";
+    html += '<div class="arena-event"><span class="arena-event-ts">' + ts + '</span><span class="' + cls + '">' + esc(ev.event || "?") + '</span></div>';
+  });
+  el.innerHTML = html;
+  el.scrollTop = el.scrollHeight;
+}
+
+function showArenaDetail(agentId) {
+  var el = $("arenaDetail");
+  if (!el || !arenaData) return;
+  arenaDetail = agentId;
+
+  if (agentId === null) {
+    // Hub info
+    var hub = arenaData.hub || {};
+    var spending = hub.spending || {};
+    el.innerHTML =
+      '<div class="arena-detail-hdr">' +
+        '<div class="arena-detail-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>' +
+        '<div class="arena-detail-name">System Hub</div>' +
+        '<button class="arena-detail-close" onclick="hideArenaDetail()">&times;</button>' +
+      '</div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">STATUS</span><span class="arena-detail-val" style="color:var(--good)">' + (hub.status || "unknown").toUpperCase() + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">AGENTS</span><span class="arena-detail-val">' + (arenaData.agents || []).length + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">SPEND MODE</span><span class="arena-detail-val">' + (spending.mode || "--") + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">TODAY</span><span class="arena-detail-val">$' + (spending.spent_today || 0).toFixed(4) + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">CONNECTIONS</span><span class="arena-detail-val">' + (arenaData.connections || []).length + '</span></div>';
+    // Position near hub
+    var pane = $("tp-grid");
+    el.style.left = (pane.offsetWidth / 2 + 40) + "px";
+    el.style.top = (pane.offsetHeight / 2 - 60) + "px";
+  } else {
+    // Agent info
+    var agent = null;
+    (arenaData.agents || []).forEach(function(a) { if (a.id === agentId) agent = a; });
+    if (!agent) return;
+    var color = agent.color || "var(--brass)";
+    el.innerHTML =
+      '<div class="arena-detail-hdr">' +
+        '<div class="arena-detail-dot" style="background:' + color + ';box-shadow:0 0 6px ' + color + '"></div>' +
+        '<div class="arena-detail-name">' + esc(agent.name) + '</div>' +
+        '<button class="arena-detail-close" onclick="hideArenaDetail()">&times;</button>' +
+      '</div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">DEPT</span><span class="arena-detail-val" style="color:' + color + '">' + (agent.department_label || agent.department) + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">STATUS</span><span class="arena-detail-val">' + (agent.status || "idle").toUpperCase() + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">RISK</span><span class="arena-detail-val">' + (agent.risk || "--").toUpperCase() + '</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">TOOLS</span><span class="arena-detail-val">' + (agent.allowed_tools || []).length + ' allowed</span></div>' +
+      '<div class="arena-detail-row"><span class="arena-detail-lbl">BLOCKED</span><span class="arena-detail-val" style="color:var(--bad)">' + (agent.forbidden_actions || []).length + ' actions</span></div>';
+    // Position near the node
+    var node = document.getElementById("an-" + agentId);
+    if (node) {
+      var nx = parseInt(node.style.left) || 0;
+      var ny = parseInt(node.style.top) || 0;
+      var pane = $("tp-grid");
+      var pw = pane.offsetWidth || 600;
+      // Place card to the right or left depending on position
+      el.style.left = (nx > pw / 2 ? nx - 232 : nx + 32) + "px";
+      el.style.top = Math.max(10, ny - 40) + "px";
+    }
+  }
+  el.classList.add("show");
+}
+
+function hideArenaDetail() {
+  var el = $("arenaDetail");
+  if (el) el.classList.remove("show");
+  arenaDetail = null;
+}
+
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+  return String(h);
+}
+
+/* ═══════════════════════════════════════════════════════
    CLOCK
    ═══════════════════════════════════════════════════════ */
 function startClock() {
@@ -1190,6 +1629,8 @@ function initTabs() {
       $("tp-" + tab.dataset.t).classList.add("on");
       // Build network pane on first view
       if (tab.dataset.t === "net" && !$("tp-net").querySelector("svg")) buildNetPane();
+      // Build arena on first view
+      if (tab.dataset.t === "grid" && !arenaBuilt) buildArena();
     });
   });
 }
