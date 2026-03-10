@@ -118,6 +118,9 @@ def log_api_call(method: str, endpoint: str, payload: Optional[dict] = None, res
 # SYSTEM STATUS
 # ─────────────────────────────────────────────
 
+SITE_DIR = os.path.join(APP_DIR, "site", "foundation")
+
+
 @app.route("/", methods=["GET"])
 def dashboard_home():
     """Serve dashboard UI from the same origin as the API."""
@@ -126,11 +129,62 @@ def dashboard_home():
         abort(404, description=f"{DASHBOARD_FILE} not found next to dashboard_api.py")
     return send_from_directory(APP_DIR, DASHBOARD_FILE)
 
+
+@app.route("/office", methods=["GET"])
+def serve_office():
+    """Serve the Office (command_center.html) at /office."""
+    return send_from_directory(SITE_DIR, "command_center.html")
+
+
+@app.route("/manifest.json", methods=["GET"])
+def serve_manifest():
+    """Serve PWA manifest."""
+    return send_from_directory(SITE_DIR, "manifest.json")
+
+
+@app.route("/sw.js", methods=["GET"])
+def serve_sw():
+    """Serve service worker."""
+    return send_from_directory(SITE_DIR, "sw.js")
+
+
+@app.route("/runtime.config.js", methods=["GET"])
+def serve_runtime_config():
+    """Serve runtime config (empty or generated)."""
+    config_path = os.path.join(SITE_DIR, "runtime.config.js")
+    if os.path.exists(config_path):
+        return send_from_directory(SITE_DIR, "runtime.config.js")
+    # Generate inline config pointing API to self
+    return f"window.__OPHTXN_RUNTIME={{apiBase:'',appBase:'http://127.0.0.1:8797'}};", 200, {"Content-Type": "application/javascript"}
+
+
+@app.route("/assets/<path:filename>", methods=["GET"])
+def serve_assets(filename):
+    """Serve static assets (icons, images)."""
+    assets_dir = os.path.join(SITE_DIR, "assets")
+    return send_from_directory(assets_dir, filename)
+
+
+@app.route("/<path:page>", methods=["GET"])
+def serve_site_page(page):
+    """Serve any site page (rooms.html, ophtxn_shell.html, etc.)."""
+    if page.startswith("api/"):
+        abort(404)
+    safe = os.path.basename(page)
+    if not safe.endswith((".html", ".css", ".js", ".svg", ".ico")):
+        abort(404)
+    site_path = os.path.join(SITE_DIR, safe)
+    if os.path.exists(site_path):
+        return send_from_directory(SITE_DIR, safe)
+    abort(404)
+
+
 @app.route("/api/status", methods=["GET"])
 def system_status():
     """
     Returns overall system health snapshot.
     Dashboard home screen reads from this.
+    Includes agent roster for the left panel and arena.
     """
     log_api_call("GET", "/api/status")
 
@@ -143,7 +197,34 @@ def system_status():
     latest_task = _load_latest_task_summary()
     promotion = _load_promotion_status()
 
-    return jsonify({"ok": True, "ts": utc_now().isoformat() + "Z", "version": API_VERSION})
+    # Build live agent roster
+    agents = _build_arena_agents()
+
+    # Check for active tasks to mark agents as active
+    try:
+        from core.task_planner import TaskPlanner
+        planner = TaskPlanner()
+        agenda = planner.get_agenda(status="running")
+        running_agent_ids = set()
+        if isinstance(agenda, dict):
+            for t in agenda.get("tasks", []):
+                aid = t.get("agent_id", "")
+                if aid:
+                    running_agent_ids.add(aid)
+        for a in agents:
+            if a["id"] in running_agent_ids:
+                a["status"] = "active"
+    except (ImportError, Exception):
+        pass
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_now().isoformat() + "Z",
+        "version": API_VERSION,
+        "agents": agents,
+        "pending_approvals": pending_approvals,
+        "canon_version": canon_version,
+    })
 
 
 # ─────────────────────────────────────────────
