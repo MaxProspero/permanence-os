@@ -442,21 +442,50 @@ body::after {
 [data-theme="copper"]{--bg:#0c0906;--bldg:rgba(24,16,8,0.55);--panel:rgba(30,20,10,0.7);--ink:#fff0d8;--dim:#3a2810;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
 /* ── THEME: VOID ───── */
 [data-theme="void"]{--bg:#000;--bldg:rgba(10,10,10,0.55);--panel:rgba(15,15,15,0.7);--ink:#c0c0c0;--dim:#333;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+/* ── THEME: OCEAN ──── */
+[data-theme="ocean"]{--bg:#060810;--bldg:rgba(8,14,30,0.55);--panel:rgba(12,20,40,0.7);--ink:#e0f0ff;--dim:#304868;--f-rgb:74,158,255;--f:rgb(var(--f-rgb))}
+/* ── THEME: ROSE ───── */
+[data-theme="rose"]{--bg:#100608;--bldg:rgba(24,10,14,0.55);--panel:rgba(30,14,20,0.7);--ink:#ffe7ef;--dim:#683040;--f-rgb:255,92,138;--f:rgb(var(--f-rgb))}
+/* ── THEME: VIOLET ─── */
+[data-theme="violet"]{--bg:#0a0610;--bldg:rgba(16,10,28,0.55);--panel:rgba(22,14,36,0.7);--ink:#f0e7ff;--dim:#483068;--f-rgb:155,109,255;--f:rgb(var(--f-rgb))}
+/* ── THEME: FOREST ─── */
+[data-theme="forest"]{--bg:#061008;--bldg:rgba(10,22,14,0.55);--panel:rgba(14,28,18,0.7);--ink:#e0ffe7;--dim:#286838;--f-rgb:61,220,132;--f:rgb(var(--f-rgb))}
+/* ── THEME: SOLAR ──── */
+[data-theme="solar"]{--bg:#100e06;--bldg:rgba(24,20,8,0.55);--panel:rgba(30,24,12,0.7);--ink:#fff8e0;--dim:#685828;--f-rgb:255,215,0;--f:rgb(var(--f-rgb))}
+/* ── THEME: CRIMSON ── */
+[data-theme="crimson"]{--bg:#100606;--bldg:rgba(24,10,10,0.55);--panel:rgba(30,14,14,0.7);--ink:#ffe0e0;--dim:#683030;--f-rgb:255,68,68;--f:rgb(var(--f-rgb))}
+/* ── THEME: FROST ──── */
+[data-theme="frost"]{--bg:#060e10;--bldg:rgba(10,20,24,0.55);--panel:rgba(14,26,30,0.7);--ink:#e8f8ff;--dim:#305058;--f-rgb:136,216,245;--f:rgb(var(--f-rgb))}
 /* ── BRIGHTNESS: LIGHT ── */
 [data-brightness="light"]{--bg:#f6f4f0;--bldg:rgba(240,240,235,0.55);--panel:rgba(255,255,255,0.7);--ink:#1a1a2e;--dim:#c0c0c8}
 [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--ink:#2a1e10}
 [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--ink:#111}
+[data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bldg:rgba(240,248,255,0.55);--panel:rgba(245,250,255,0.7);--ink:#0a1e3a;--dim:#c0d0e0}
+[data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bldg:rgba(255,240,245,0.55);--panel:rgba(255,245,248,0.7);--ink:#3a0a1e;--dim:#e0c0d0}
+[data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bldg:rgba(245,240,255,0.55);--panel:rgba(248,244,255,0.7);--ink:#1e0a3a;--dim:#d0c0e0}
+[data-brightness="light"][data-theme="forest"]{--bg:#f0faf4;--bldg:rgba(240,255,245,0.55);--panel:rgba(244,255,248,0.7);--ink:#0a3a1e;--dim:#c0e0d0}
+[data-brightness="light"][data-theme="solar"]{--bg:#faf8f0;--bldg:rgba(255,252,240,0.55);--panel:rgba(255,254,245,0.7);--ink:#3a2e0a;--dim:#e0d8c0}
+[data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--bldg:rgba(255,240,240,0.55);--panel:rgba(255,245,245,0.7);--ink:#3a0a0a;--dim:#e0c0c0}
+[data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--bldg:rgba(240,252,255,0.55);--panel:rgba(244,254,255,0.7);--ink:#0a2a3a;--dim:#c0d8e0}
 @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--bldg:rgba(240,240,235,0.55);--panel:rgba(255,255,255,0.7);--ink:#1a1a2e;--dim:#c0c0c8}}
 .gear-toggle{background:none;border:none;color:var(--dim);cursor:pointer;padding:4px;transition:color 0.2s}.gear-toggle:hover{color:var(--ink)}
-.gear-popover{display:none;position:absolute;top:42px;right:10px;background:rgba(8,14,22,0.95);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;z-index:900;backdrop-filter:blur(12px);min-width:220px}
+.gear-popover{display:none;position:absolute;top:42px;right:10px;background:rgba(8,14,22,0.95);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;z-index:900;backdrop-filter:blur(12px);min-width:260px}
 .gear-popover.open{display:block}
-.gs-theme-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.gs-theme-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase}
-.gs-theme-btns{display:flex;gap:4px}
-.gs-theme-btn{width:28px;height:28px;border-radius:8px;background:none;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);transition:all 0.15s}
-.gs-theme-btn:hover{border-color:rgba(255,255,255,0.15);color:var(--ink)}
-.gs-theme-btn.active{border-color:var(--f);background:rgba(var(--f-rgb),0.1);color:var(--ink)}
-.gs-swatch{width:14px;height:14px;border-radius:4px}
+.gs-theme-section{padding-top:4px}
+.gs-label{font-size:10px;color:var(--dim);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.gs-theme-row{display:flex;align-items:center;padding:0 4px;margin-bottom:8px;gap:8px}
+.gs-theme-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
+.gs-color-track{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px 0;scroll-behavior:smooth;flex:1}
+.gs-color-track::-webkit-scrollbar{display:none}
+.gs-color-dot{width:20px;height:20px;min-width:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all 0.15s;flex-shrink:0;padding:0;outline:none}
+.gs-color-dot:hover{transform:scale(1.15);border-color:rgba(255,255,255,0.3)}
+.gs-color-dot.active{border-color:var(--ink);box-shadow:0 0 8px rgba(var(--f-rgb),0.4)}
+.gs-color-custom{background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)!important;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.gs-color-input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:none}
+.gs-bright-btns{display:flex;gap:4px}
+.gs-bright-btn{width:28px;height:28px;border-radius:8px;background:none;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);transition:all 0.15s;padding:0}
+.gs-bright-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--ink)}
+.gs-bright-btn.active{border-color:var(--f);background:rgba(var(--f-rgb),0.1);color:var(--ink)}
 </style>
 <script src="runtime.config.js"></script>
 </head>
@@ -481,8 +510,11 @@ body::after {
     <span class="hud-stat">NET <span class="stat-val" id="netStat">SCANNING</span></span>
     <button class="gear-toggle" id="gearToggle" title="Appearance"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
 <div class="gear-popover" id="gearPopover">
-  <div class="gs-theme-row"><span class="gs-theme-label">Color</span><div class="gs-theme-btns" id="gsThemeColor"><button class="gs-theme-btn" data-color="aurora" title="Aurora"><span class="gs-swatch" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></span></button><button class="gs-theme-btn" data-color="copper" title="Copper"><span class="gs-swatch" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></span></button><button class="gs-theme-btn" data-color="void" title="Void"><span class="gs-swatch" style="background:linear-gradient(135deg,#888,#555)"></span></button></div></div>
-  <div class="gs-theme-row"><span class="gs-theme-label">Mode</span><div class="gs-theme-btns" id="gsThemeBright"><button class="gs-theme-btn" data-bright="dark" title="Dark"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button><button class="gs-theme-btn" data-bright="light" title="Light"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button><button class="gs-theme-btn" data-bright="system" title="System"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button></div></div>
+  <div class="gs-theme-section">
+    <p class="gs-label">Appearance</p>
+    <div class="gs-theme-row"><span class="gs-theme-label">Color</span><div class="gs-color-track" id="gsThemeColor"><button class="gs-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button><button class="gs-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button><button class="gs-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button><button class="gs-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button><button class="gs-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button><button class="gs-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button><button class="gs-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button><button class="gs-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button><button class="gs-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button><button class="gs-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button><button class="gs-color-dot gs-color-custom" data-color="custom" title="Custom"><input type="color" class="gs-color-input" id="gsCustomColor" value="#00e5c4"></button></div></div>
+    <div class="gs-theme-row"><span class="gs-theme-label">Mode</span><div class="gs-bright-btns" id="gsThemeBright"><button class="gs-bright-btn" data-bright="dark" title="Dark"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button><button class="gs-bright-btn" data-bright="light" title="Light"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button><button class="gs-bright-btn" data-bright="system" title="System"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button></div></div>
+  </div>
 </div>
   </div>
 </div>
@@ -757,19 +789,40 @@ setInterval(() => {
 })();
 </script>
 <script>
-  /* SITE THEME */
+  /* SHARED: SITE THEME */
   (function(){
-    var TK='ophtxn_site_theme',BK='ophtxn_site_brightness';
+    var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
     var gear=document.getElementById('gearToggle'),pop=document.getElementById('gearPopover');
     function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
     function gb(){try{return localStorage.getItem(BK)||'dark';}catch(e){return 'dark';}}
-    function apply(){var t=gt(),b=gb();document.body.dataset.theme=t;document.body.dataset.brightness=b;document.querySelectorAll('.gs-theme-btn[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});document.querySelectorAll('.gs-theme-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});}
+    function gc(){try{return localStorage.getItem(CK)||'#00e5c4';}catch(e){return '#00e5c4';}}
+    function hexToRgb(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
+    function applyCustom(hex){
+      var el=document.getElementById('customThemeStyle');
+      if(!el){el=document.createElement('style');el.id='customThemeStyle';document.head.appendChild(el);}
+      var rgb=hexToRgb(hex);
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var darkBg='#'+('0'+Math.round(r*.02).toString(16)).slice(-2)+('0'+Math.round(g*.02).toString(16)).slice(-2)+('0'+Math.round(b*.02).toString(16)).slice(-2);
+      el.textContent='[data-theme="custom"]{--bg:'+darkBg+';--bldg:rgba('+Math.round(r*.08)+','+Math.round(g*.08)+','+Math.round(b*.08)+',0.55);--panel:rgba('+Math.round(r*.1)+','+Math.round(g*.1)+','+Math.round(b*.1)+',0.7);--ink:#e8f0ff;--dim:#2e3d5c;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}[data-brightness="light"][data-theme="custom"]{--bg:#f6f4f0;--bldg:rgba(240,240,235,0.55);--panel:rgba(255,255,255,0.7);--ink:#1a1a2e;--dim:#c0c0c8}';
+      var ci=document.getElementById('gsCustomColor');if(ci)ci.value=hex;
+      var cd=document.querySelector('.gs-color-custom');if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
+    }
+    function apply(){
+      var t=gt(),b=gb();
+      document.body.dataset.theme=t;document.body.dataset.brightness=b;
+      if(t==='custom')applyCustom(gc());
+      else{var el=document.getElementById('customThemeStyle');if(el)el.textContent='';}
+      document.querySelectorAll('.gs-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
+      document.querySelectorAll('.gs-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+    }
     apply();
     if(gear&&pop){gear.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');});document.addEventListener('click',function(e){if(!pop.contains(e.target)&&e.target!==gear)pop.classList.remove('open');});}
     var cE=document.getElementById('gsThemeColor'),bE=document.getElementById('gsThemeBright');
-    if(cE)cE.addEventListener('click',function(e){var btn=e.target.closest('.gs-theme-btn');if(!btn||!btn.dataset.color)return;try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();});
-    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.gs-theme-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
-    window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK)apply();});
+    if(cE)cE.addEventListener('click',function(e){var btn=e.target.closest('.gs-color-dot');if(!btn||!btn.dataset.color)return;if(btn.dataset.color==='custom')return;try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();});
+    var ci=document.getElementById('gsCustomColor');
+    if(ci)ci.addEventListener('input',function(e){try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();});
+    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.gs-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
+    window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
   })();
 </script>
 <!-- SHARED: FAB BOT -->
