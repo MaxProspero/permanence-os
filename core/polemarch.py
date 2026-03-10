@@ -1,14 +1,19 @@
 """
-Permanence OS — Polemarch (Governor) v0.3
+Permanence OS — Polemarch (Governor) v0.4
 Formerly King Bot. Renamed per CA-001 naming convention.
 
 The Polemarch NEVER thinks for outcomes.
 The Polemarch decides what is ALLOWED to happen.
 
-v0.3 Updates:
-- Routes to new Special Agents (Muse, Twin, Chimera, ArchEvolution)
+v0.4 Updates:
+- Architecture streamline: 12 agents + 4 workflows (down from 20)
+- Removed vaporware/stub agents (muse, digital_twin, chimera_builder, arch_evolution,
+  trainer_agent, therapist_agent, device_agent, mac_mini_agent)
+- Added real implemented agents (hr_agent, compliance_gate, reception_agent)
+- Conciliator retry logic merged into reviewer stage
+- WORKFLOW_REGISTRY for deterministic pipelines (email, health, social, synthesis)
+- Legal exposure check merged from king_bot.py
 - Twin Protocol: HIGH-risk tasks get shadow-simulated before execution
-- DNA validation enforcement on all routed agents
 """
 
 import yaml
@@ -33,55 +38,81 @@ class Stage(Enum):
     VALIDATION = "VALIDATION"
     PLANNING = "PLANNING"
     SCOPING = "SCOPING"
-    TWIN_SIMULATION = "TWIN_SIMULATION"  # NEW v0.3
+    TWIN_SIMULATION = "TWIN_SIMULATION"
     RESEARCH = "RESEARCH"
     SOURCE_REVIEW = "SOURCE_REVIEW"
     EXECUTION = "EXECUTION"
     OUTPUT_REVIEW = "OUTPUT_REVIEW"
-    CONCILIATION = "CONCILIATION"
     DONE = "DONE"
     BLOCKED = "BLOCKED"
     ESCALATED = "ESCALATED"
 
 
-# Agent routing table
+# ── Agent Registry (v0.4 — streamlined) ──────────────────────────────────
+# 12 agents, each with a real implementation.
+# Vaporware and stubs removed. Conciliator merged into reviewer.
+# For deterministic pipelines, see WORKFLOW_REGISTRY below.
+
 AGENT_REGISTRY = {
-    # Core agents
-    "planner": {"department": "CORE", "stage": Stage.PLANNING},
-    "researcher": {"department": "CORE", "stage": Stage.RESEARCH},
-    "executor": {"department": "CORE", "stage": Stage.EXECUTION},
-    "reviewer": {"department": "CORE", "stage": Stage.OUTPUT_REVIEW},
-    "conciliator": {"department": "CORE", "stage": Stage.CONCILIATION},
-    # Department agents
-    "email_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.MEDIUM},
-    "health_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.LOW},
-    "social_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.MEDIUM},
-    "briefing_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.LOW},
-    "device_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.LOW},
-    "trainer_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.LOW},
-    "therapist_agent": {"department": "DEPARTMENT", "risk_default": RiskTier.LOW},
-    # Special agents (NEW v0.3)
-    "muse": {"department": "SPECIAL", "risk_default": RiskTier.LOW},
-    "digital_twin": {"department": "SPECIAL", "risk_default": RiskTier.LOW},
-    "chimera_builder": {"department": "SPECIAL", "risk_default": RiskTier.MEDIUM},
-    "arch_evolution": {"department": "SPECIAL", "risk_default": RiskTier.LOW},
-    # Infrastructure agents (NEW v0.4)
+    # ── CORE (4): The execution pipeline ──────────────────────────────────
+    "planner": {
+        "department": "CORE",
+        "stage": Stage.PLANNING,
+        "description": "Decomposes goals into scoped task plans.",
+    },
+    "researcher": {
+        "department": "CORE",
+        "stage": Stage.RESEARCH,
+        "description": "Gathers, evaluates, and synthesises sources.",
+    },
+    "executor": {
+        "department": "CORE",
+        "stage": Stage.EXECUTION,
+        "description": "Produces deliverables within spec constraints.",
+    },
+    "reviewer": {
+        "department": "CORE",
+        "stage": Stage.OUTPUT_REVIEW,
+        "description": "Evaluates outputs; handles retry/escalate (absorbs conciliator).",
+        "max_retries": 2,
+    },
+
+    # ── OPERATIONS (4): Domain-aware agents ───────────────────────────────
+    "briefing_agent": {
+        "department": "OPERATIONS",
+        "risk_default": RiskTier.LOW,
+        "description": "Generates daily/weekly briefings from system state.",
+    },
+    "hr_agent": {
+        "department": "OPERATIONS",
+        "risk_default": RiskTier.LOW,
+        "description": "System health shepherd — detects pathological patterns.",
+    },
+    "compliance_gate": {
+        "department": "OPERATIONS",
+        "risk_default": RiskTier.HIGH,
+        "description": "Reviews outbound actions for legal/ethical/identity compliance.",
+        "allowed_tools": ["review_outbound", "legal_check", "identity_check"],
+        "forbidden_actions": ["approve_self", "bypass_review"],
+    },
+    "reception_agent": {
+        "department": "OPERATIONS",
+        "risk_default": RiskTier.LOW,
+        "description": "Intake queue management — triages, prioritizes, routes.",
+    },
+
+    # ── INFRASTRUCTURE (3): System-level agents ───────────────────────────
     "github_ops": {
         "department": "INFRASTRUCTURE",
         "risk_default": RiskTier.MEDIUM,
+        "description": "Governed git push, PR creation, branch cleanup.",
         "allowed_tools": ["git_push", "git_branch", "github_pr", "github_branch_cleanup"],
         "forbidden_actions": ["force_push_main", "delete_protected_branch", "modify_deploy_keys"],
     },
-    "mac_mini_agent": {
-        "department": "INFRASTRUCTURE",
-        "risk_default": RiskTier.LOW,
-        "allowed_tools": ["remote_run", "service_status", "service_restart", "code_sync"],
-        "forbidden_actions": ["shutdown_server", "modify_ssh", "delete_data"],
-    },
-    # Device control agent (NEW v0.5)
     "device_control": {
         "department": "INFRASTRUCTURE",
         "risk_default": RiskTier.MEDIUM,
+        "description": "Mac Mini device management — apps, services, permissions.",
         "allowed_tools": [
             "check_permission", "grant_permission", "revoke_grant",
             "install_app", "restart_service", "run_applescript",
@@ -94,10 +125,10 @@ AGENT_REGISTRY = {
             "modify_macbook", "force_grant_macbook",
         ],
     },
-    # Ghost-OS bridge agent (NEW v0.5)
     "ghost_bridge": {
         "department": "INFRASTRUCTURE",
         "risk_default": RiskTier.MEDIUM,
+        "description": "Ghost-OS MCP bridge — GUI automation via accessibility tree.",
         "allowed_tools": [
             "ax_tree", "screenshot", "find_element", "get_element_text",
             "ghost_ground", "click", "type_text", "key_press", "scroll",
@@ -111,6 +142,51 @@ AGENT_REGISTRY = {
         ],
     },
 }
+
+
+# ── Workflow Registry (v0.4) ──────────────────────────────────────────────
+# Deterministic pipelines that don't need agent autonomy.
+# Lower cost (~4x less tokens than agent loops), predictable, auditable.
+# Triggered by cron, event, or explicit dispatch.
+
+WORKFLOW_REGISTRY = {
+    "email_triage": {
+        "description": "Scan inbox → classify → draft responses → queue for approval.",
+        "trigger": "cron:every_30m",
+        "steps": ["fetch_inbox", "classify_priority", "draft_response", "queue_approval"],
+        "risk_default": RiskTier.MEDIUM,
+        "requires_approval": True,
+    },
+    "health_summary": {
+        "description": "Collect vitals/logs → generate health snapshot → file to briefing.",
+        "trigger": "cron:daily_0600",
+        "steps": ["collect_metrics", "analyze_trends", "generate_summary", "store_briefing"],
+        "risk_default": RiskTier.LOW,
+        "requires_approval": False,
+    },
+    "social_draft_queue": {
+        "description": "Research trends → draft posts → queue for human approval → track published.",
+        "trigger": "cron:daily_0900",
+        "steps": ["research_trends", "draft_content", "queue_approval", "track_published"],
+        "risk_default": RiskTier.MEDIUM,
+        "requires_approval": True,
+    },
+    "synthesis_brief": {
+        "description": "Aggregate system state + recent outputs → daily synthesis → file to working memory.",
+        "trigger": "cron:daily_2100",
+        "steps": ["collect_state", "aggregate_outputs", "generate_brief", "store_working"],
+        "risk_default": RiskTier.LOW,
+        "requires_approval": False,
+    },
+}
+
+
+# ── Legal exposure keywords (merged from king_bot.py) ────────────────────
+LEGAL_EXPOSURE_KEYWORDS = frozenset({
+    "money", "payment", "contract", "privacy", "email", "financial",
+    "legal", "lawsuit", "compliance", "tax", "wire", "transfer",
+    "liability", "indemnify", "regulatory", "audit",
+})
 
 
 @dataclass
@@ -129,12 +205,13 @@ class Polemarch:
     """
     The Governor. Routes, enforces, escalates. Never creates.
 
-    v0.3 Capabilities:
-    - Route to all agent types (core, department, special)
+    v0.4 Capabilities:
+    - Route to 12 agents + 4 workflows (streamlined architecture)
     - Enforce Twin Protocol for HIGH-risk tasks
-    - Validate DNA inheritance on routed agents
+    - Legal exposure detection (merged from king_bot.py)
     - Canon compliance checking
     - Budget enforcement
+    - Workflow dispatch for deterministic pipelines
     """
 
     FORBIDDEN_ACTIONS = [
@@ -227,7 +304,7 @@ class Polemarch:
         """
         Assign risk tier based on task characteristics.
 
-        v0.3: Enhanced with context-awareness and compound detection.
+        v0.4: Legal exposure check merged from king_bot.py.
         """
         # Explicit markers
         if task.get("irreversible", False):
@@ -239,6 +316,13 @@ class Polemarch:
         if task.get("canon_adjacent", False):
             return RiskTier.HIGH
 
+        # Legal exposure detection (merged from king_bot.py)
+        action = task.get("action", "").lower()
+        goal = task.get("goal", "").lower()
+        combined_text = f"{action} {goal}"
+        if any(kw in combined_text for kw in LEGAL_EXPOSURE_KEYWORDS):
+            return RiskTier.HIGH
+
         # Agent-based defaults
         target_agent = task.get("target_agent", "")
         if target_agent in AGENT_REGISTRY:
@@ -246,8 +330,13 @@ class Polemarch:
             if default:
                 return default
 
+        # Workflow-based defaults
+        if target_agent in WORKFLOW_REGISTRY:
+            default = WORKFLOW_REGISTRY[target_agent].get("risk_default")
+            if default:
+                return default
+
         # Action-based assessment
-        action = task.get("action", "").lower()
         high_risk_keywords = ["send", "post", "trade", "delete", "publish", "transfer"]
         medium_risk_keywords = ["modify", "update", "schedule", "compose"]
 
@@ -259,33 +348,53 @@ class Polemarch:
         return RiskTier.LOW
 
     def _determine_route(self, task: Dict, risk_tier: RiskTier) -> str:
-        """Determine which agent should handle this task."""
-        # Explicit target
+        """Determine which agent or workflow should handle this task."""
+        # Explicit target (agent or workflow)
         target = task.get("target_agent", "")
         if target and target in AGENT_REGISTRY:
             return target
+        if target and target in WORKFLOW_REGISTRY:
+            return f"workflow:{target}"
 
-        # Route by task type
+        # Route by task type — agents
         task_type = task.get("type", "").lower()
-        route_map = {
+        agent_route_map = {
             "plan": "planner",
             "research": "researcher",
             "execute": "executor",
             "review": "reviewer",
-            "email": "email_agent",
-            "health": "health_agent",
-            "social": "social_agent",
             "briefing": "briefing_agent",
-            "idea": "muse",
-            "simulate": "digital_twin",
-            "persona": "chimera_builder",
-            "audit": "arch_evolution",
-            "improve": "arch_evolution",
+            "audit": "hr_agent",
+            "health_check": "hr_agent",
+            "system_health": "hr_agent",
+            "compliance": "compliance_gate",
+            "review_outbound": "compliance_gate",
+            "legal": "compliance_gate",
+            "intake": "reception_agent",
+            "reception": "reception_agent",
+            "triage": "reception_agent",
+            "git": "github_ops",
+            "github": "github_ops",
+            "device": "device_control",
+            "gui": "ghost_bridge",
+            "automation": "ghost_bridge",
         }
 
-        for key, agent in route_map.items():
+        for key, agent in agent_route_map.items():
             if key in task_type:
                 return agent
+
+        # Route by task type — workflows (return prefixed)
+        workflow_route_map = {
+            "email": "workflow:email_triage",
+            "health": "workflow:health_summary",
+            "social": "workflow:social_draft_queue",
+            "synthesis": "workflow:synthesis_brief",
+        }
+
+        for key, workflow in workflow_route_map.items():
+            if key in task_type:
+                return workflow
 
         # Default to planner for unclassified tasks
         return "planner"

@@ -4492,26 +4492,25 @@ def api_planner_stats():
 # ─────────────────────────────────────────────
 
 # Department color map — matches command_center.html arena
+# v0.4: streamlined from 4 depts to 3 (CORE, OPERATIONS, INFRASTRUCTURE)
 ARENA_DEPT_COLORS = {
     "CORE": "#00e5c4",
-    "DEPARTMENT": "#ff5c8a",
-    "SPECIAL": "#7b6fff",
+    "OPERATIONS": "#ff5c8a",
     "INFRASTRUCTURE": "#c8a84e",
 }
 
 ARENA_DEPT_LABELS = {
-    "CORE": "OPERATIONS",
-    "DEPARTMENT": "COMMS",
-    "SPECIAL": "SPECIAL",
+    "CORE": "CORE PIPELINE",
+    "OPERATIONS": "OPERATIONS",
     "INFRASTRUCTURE": "INFRASTRUCTURE",
 }
 
 
 def _build_arena_agents() -> list:
-    """Build arena agent list from Polemarch registry."""
+    """Build arena agent + workflow list from Polemarch registries."""
     agents = []
     try:
-        from core.polemarch import AGENT_REGISTRY, RiskTier
+        from core.polemarch import AGENT_REGISTRY, WORKFLOW_REGISTRY, RiskTier
     except ImportError:
         return agents
 
@@ -4527,8 +4526,29 @@ def _build_arena_agents() -> list:
             "color": ARENA_DEPT_COLORS.get(dept, "#c8a84e"),
             "risk": risk_str,
             "status": "idle",
+            "kind": "agent",
+            "description": info.get("description", ""),
             "allowed_tools": info.get("allowed_tools", []),
             "forbidden_actions": info.get("forbidden_actions", []),
+        })
+
+    # Append workflows as lightweight nodes
+    for wf_id, wf_info in WORKFLOW_REGISTRY.items():
+        risk = wf_info.get("risk_default")
+        risk_str = risk.value if hasattr(risk, "value") else str(risk) if risk else "low"
+        agents.append({
+            "id": f"wf:{wf_id}",
+            "name": wf_id.replace("_", " ").title(),
+            "department": "WORKFLOW",
+            "department_label": "WORKFLOW",
+            "color": "#6ecfff",
+            "risk": risk_str,
+            "status": "idle",
+            "kind": "workflow",
+            "description": wf_info.get("description", ""),
+            "trigger": wf_info.get("trigger", ""),
+            "steps": wf_info.get("steps", []),
+            "requires_approval": wf_info.get("requires_approval", False),
         })
     return agents
 

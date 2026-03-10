@@ -37,15 +37,15 @@ def client():
 # ── Department Map Tests ─────────────────────────────────────────────────
 
 def test_dept_colors_has_all_departments():
-    """All four departments have colors defined."""
-    for dept in ["CORE", "DEPARTMENT", "SPECIAL", "INFRASTRUCTURE"]:
+    """All three departments have colors defined (v0.4 streamlined)."""
+    for dept in ["CORE", "OPERATIONS", "INFRASTRUCTURE"]:
         assert dept in ARENA_DEPT_COLORS, f"Missing color for {dept}"
         assert ARENA_DEPT_COLORS[dept].startswith("#"), f"Color for {dept} should be hex"
 
 
 def test_dept_labels_has_all_departments():
-    """All four departments have labels defined."""
-    for dept in ["CORE", "DEPARTMENT", "SPECIAL", "INFRASTRUCTURE"]:
+    """All three departments have labels defined (v0.4 streamlined)."""
+    for dept in ["CORE", "OPERATIONS", "INFRASTRUCTURE"]:
         assert dept in ARENA_DEPT_LABELS, f"Missing label for {dept}"
         assert len(ARENA_DEPT_LABELS[dept]) > 0
 
@@ -74,8 +74,8 @@ def test_arena_agent_has_required_fields():
 
 
 def test_arena_agent_departments_are_valid():
-    """All agents have valid department assignments."""
-    valid_depts = {"CORE", "DEPARTMENT", "SPECIAL", "INFRASTRUCTURE"}
+    """All agents/workflows have valid department assignments (v0.4)."""
+    valid_depts = {"CORE", "OPERATIONS", "INFRASTRUCTURE", "WORKFLOW"}
     agents = _build_arena_agents()
     for a in agents:
         assert a["department"] in valid_depts, \
@@ -83,12 +83,16 @@ def test_arena_agent_departments_are_valid():
 
 
 def test_arena_agent_colors_match_department():
-    """Agent colors match their department's color."""
+    """Agent colors match their department's color (workflows use own color)."""
     agents = _build_arena_agents()
     for a in agents:
-        expected_color = ARENA_DEPT_COLORS.get(a["department"])
-        assert a["color"] == expected_color, \
-            f"Agent {a['id']} color {a['color']} != dept color {expected_color}"
+        if a.get("kind") == "workflow":
+            assert a["color"] == "#6ecfff", \
+                f"Workflow {a['id']} should have workflow color #6ecfff"
+        else:
+            expected_color = ARENA_DEPT_COLORS.get(a["department"])
+            assert a["color"] == expected_color, \
+                f"Agent {a['id']} color {a['color']} != dept color {expected_color}"
 
 
 def test_arena_agent_names_are_readable():
@@ -206,11 +210,13 @@ def test_arena_state_has_all_sections(client):
 
 
 def test_arena_state_agents_match_registry(client):
-    """Arena state agents match the Polemarch registry count."""
-    from core.polemarch import AGENT_REGISTRY
+    """Arena state agents+workflows match both registries."""
+    from core.polemarch import AGENT_REGISTRY, WORKFLOW_REGISTRY
     resp = client.get("/api/arena/state")
     data = resp.get_json()
-    assert len(data["agents"]) == len(AGENT_REGISTRY)
+    expected_total = len(AGENT_REGISTRY) + len(WORKFLOW_REGISTRY)
+    assert len(data["agents"]) == expected_total, \
+        f"Expected {expected_total} (agents+workflows), got {len(data['agents'])}"
 
 
 def test_arena_state_departments_have_colors(client):
