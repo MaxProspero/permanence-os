@@ -3101,15 +3101,22 @@
           }
         });
 
-        if (activeFilter !== 'all') {
-          levelSections.forEach(function (sec) {
-            if (sec.getAttribute('data-level') === activeFilter) {
+        /* Show/hide entire level sections based on filter */
+        levelSections.forEach(function (sec) {
+          var secLevel = sec.getAttribute('data-level');
+          if (activeFilter === 'all') {
+            sec.style.display = '';
+            /* Open intermediate by default, collapse others */
+            if (secLevel === 'intermediate') { sec.classList.add('open'); }
+          } else {
+            if (secLevel === activeFilter) {
+              sec.style.display = '';
               sec.classList.add('open');
             } else {
-              sec.classList.remove('open');
+              sec.style.display = 'none';
             }
-          });
-        }
+          }
+        });
       }
 
       filterBtns.forEach(function (btn) {
