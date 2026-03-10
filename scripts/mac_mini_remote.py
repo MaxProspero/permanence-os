@@ -30,7 +30,7 @@ DEFAULT_CONFIG_PATH = os.path.join(
 )
 
 DEFAULT_CONFIG = {
-    "host": "192.168.40.232",
+    "host": "100.118.168.26",
     "user": "permanence-os",
     "key_path": "~/.ssh/id_ed25519_mac_mini",
     "repo_path": "~/Code/permanence-os",

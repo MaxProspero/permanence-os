@@ -1265,16 +1265,16 @@ var arenaDetail = null; // currently inspected agent id
 
 var DEPT_COLORS = {
   CORE: "#00e5c4",
-  DEPARTMENT: "#ff5c8a",
-  SPECIAL: "#7b6fff",
+  OPERATIONS: "#ff5c8a",
   INFRASTRUCTURE: "#c8a84e",
+  WORKFLOW: "#6ecfff",
 };
 
 var DEPT_LABELS = {
-  CORE: "OPERATIONS",
-  DEPARTMENT: "COMMS",
-  SPECIAL: "SPECIAL",
-  INFRASTRUCTURE: "INFRA",
+  CORE: "CORE PIPELINE",
+  OPERATIONS: "OPERATIONS",
+  INFRASTRUCTURE: "INFRASTRUCTURE",
+  WORKFLOW: "WORKFLOWS",
 };
 
 function buildArena() {
@@ -1344,7 +1344,7 @@ function renderArena() {
   });
 
   // Position agents in concentric rings by department
-  var deptOrder = ["CORE", "DEPARTMENT", "SPECIAL", "INFRASTRUCTURE"];
+  var deptOrder = ["CORE", "OPERATIONS", "INFRASTRUCTURE", "WORKFLOW"];
   var positions = {}; // agent_id -> {x, y}
   var ringBase = Math.min(w, h) * 0.18;
   var ringStep = Math.min(w, h) * 0.14;
