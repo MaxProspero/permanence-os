@@ -487,6 +487,54 @@
       padding: 22px 24px;
       backdrop-filter: blur(8px);
       position: relative;
+      cursor: pointer;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    }
+
+    .timeline-step:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+      box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,229,196,0.12);
+    }
+
+    .timeline-step .step-tooltip {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-6px);
+      background: var(--lift);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      padding: 12px 16px;
+      width: max-content;
+      max-width: 260px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 10;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+
+    .timeline-step:hover .step-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .step-tooltip p {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .step-tooltip .step-go {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--c-teal);
+      text-decoration: none;
     }
 
     .timeline-step-num {
@@ -1025,7 +1073,11 @@
       <p class="section-label">Start Here</p>
       <div class="timeline" role="list">
 
-        <div class="timeline-step" role="listitem">
+        <div class="timeline-step" role="listitem" data-skill="CLAUDE.md Setup">
+          <div class="step-tooltip">
+            <p>Your agent&rsquo;s persistent memory starts here. Define identity, standards, and guardrails in one file.</p>
+            <span class="step-go">&rarr; Open skill card</span>
+          </div>
           <div class="timeline-step-num">1</div>
           <p class="timeline-step-label">Step 1: Learn</p>
           <h4>CLAUDE.md Setup</h4>
@@ -1033,7 +1085,11 @@
 
         <div class="timeline-arrow" aria-hidden="true">&rarr;</div>
 
-        <div class="timeline-step" role="listitem">
+        <div class="timeline-step" role="listitem" data-skill="Prompt Engineering">
+          <div class="step-tooltip">
+            <p>Structure beats length. Learn to give role, context, constraints, and a concrete example.</p>
+            <span class="step-go">&rarr; Open skill card</span>
+          </div>
           <div class="timeline-step-num">2</div>
           <p class="timeline-step-label">Step 2: Practice</p>
           <h4>Prompt Engineering</h4>
@@ -1041,7 +1097,11 @@
 
         <div class="timeline-arrow" aria-hidden="true">&rarr;</div>
 
-        <div class="timeline-step" role="listitem">
+        <div class="timeline-step" role="listitem" data-skill="Hook System">
+          <div class="step-tooltip">
+            <p>Wire up automated linting, testing, and notifications triggered by agent events.</p>
+            <span class="step-go">&rarr; Open skill card</span>
+          </div>
           <div class="timeline-step-num">3</div>
           <p class="timeline-step-label">Step 3: Ship</p>
           <h4>Hook System</h4>
@@ -1211,6 +1271,29 @@
               if (otherLink) otherLink.innerHTML = '&rarr; Explore';
             }
           });
+        });
+      });
+
+      // ── Timeline step click → scroll to + expand matching card ──
+      var timelineSteps = document.querySelectorAll('.timeline-step[data-skill]');
+      timelineSteps.forEach(function (step) {
+        step.addEventListener('click', function () {
+          var skillName = step.getAttribute('data-skill');
+          var target = null;
+          skillCards.forEach(function (card) {
+            if (card.getAttribute('data-title') === skillName) target = card;
+          });
+          if (!target) return;
+          // Close all cards, open target
+          skillCards.forEach(function (c) {
+            c.classList.remove('open');
+            var l = c.querySelector('.skill-link');
+            if (l) l.innerHTML = '&rarr; Explore';
+          });
+          target.classList.add('open');
+          var link = target.querySelector('.skill-link');
+          if (link) link.innerHTML = '&larr; Close';
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
       });
 
