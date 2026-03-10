@@ -669,6 +669,83 @@ body::after{
   #footer{flex-wrap:wrap;gap:8px;justify-content:center}
   .foot-l,.foot-r{width:100%;justify-content:center}
 }
+
+/* ═══════════════════════════════════════════════════════
+   CMD+K COMMAND PALETTE
+   ═══════════════════════════════════════════════════════ */
+#cmdK-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:flex-start;justify-content:center;
+  padding-top:min(18vh,160px);
+}
+#cmdK-overlay.show{display:flex}
+#cmdK-box{
+  width:min(540px,90vw);
+  background:var(--bg-1);
+  border:1px solid var(--border-hi);
+  border-radius:var(--r);
+  box-shadow:0 24px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);
+  overflow:hidden;
+  animation:cmdKSlide .15s cubic-bezier(.25,.46,.45,.94);
+}
+@keyframes cmdKSlide{from{opacity:0;transform:translateY(-12px) scale(.98)}to{opacity:1;transform:none}}
+#cmdK-input-wrap{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+}
+#cmdK-icon{
+  color:var(--muted);font-size:15px;flex-shrink:0;
+  font-family:var(--mono);
+}
+#cmdK-input{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--ink);font:400 15px/1.4 var(--sans);
+}
+#cmdK-input::placeholder{color:var(--muted)}
+#cmdK-hint{
+  color:var(--dim);font:400 11px var(--mono);
+  flex-shrink:0;
+}
+#cmdK-results{
+  max-height:min(360px,50vh);overflow-y:auto;
+  padding:6px 0;
+}
+#cmdK-results:empty::after{
+  content:"No matches";display:block;
+  padding:20px;text-align:center;
+  color:var(--muted);font:400 13px var(--sans);
+}
+.cmdK-item{
+  display:flex;align-items:center;gap:12px;
+  padding:9px 18px;cursor:pointer;
+  transition:background .1s;
+}
+.cmdK-item:hover,.cmdK-item.sel{background:var(--surface-hi)}
+.cmdK-item.sel{border-left:2px solid var(--accent)}
+.cmdK-cat{
+  font:500 10px/1 var(--mono);text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--muted);min-width:56px;
+}
+.cmdK-label{
+  flex:1;font:400 14px/1.3 var(--sans);color:var(--ink);
+}
+.cmdK-label mark{
+  background:var(--accent);color:var(--bg-0);
+  border-radius:2px;padding:0 2px;
+}
+.cmdK-key{
+  font:400 11px var(--mono);color:var(--dim);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:2px 6px;
+}
+#cmdK-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 18px;border-top:1px solid var(--border);
+  font:400 11px var(--mono);color:var(--muted);
+}
 </style>
 </head>
 <body data-theme="aurora" data-brightness="dark">
@@ -769,6 +846,22 @@ body::after{
 
   <!-- KEYBOARD (hidden) -->
   <div id="kb"></div>
+</div>
+
+<!-- CMD+K COMMAND PALETTE -->
+<div id="cmdK-overlay">
+  <div id="cmdK-box">
+    <div id="cmdK-input-wrap">
+      <span id="cmdK-icon">&#x2318;</span>
+      <input id="cmdK-input" placeholder="Search commands, agents, navigation..." autocomplete="off" spellcheck="false">
+      <span id="cmdK-hint">ESC to close</span>
+    </div>
+    <div id="cmdK-results"></div>
+    <div id="cmdK-footer">
+      <span>&#x2191;&#x2193; navigate &middot; &#x23CE; select &middot; ESC close</span>
+      <span>&#x2318;K</span>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -908,6 +1001,7 @@ async function checkStatus() {
     if (data.agents) {
       agents = data.agents;
       renderAgents();
+      if (typeof cmdKRefreshAgents === "function") cmdKRefreshAgents();
     }
   } catch (_) {
     setConn(false);
@@ -1642,6 +1736,222 @@ function esc(s) {
   if (!s) return "";
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+
+/* ═══════════════════════════════════════════════════════
+   CMD+K COMMAND PALETTE
+   ═══════════════════════════════════════════════════════ */
+var cmdKOpen = false;
+var cmdKSel = 0;
+
+var CMD_K_ITEMS = [
+  // Commands
+  { cat: "CMD", label: "Status Check", action: function() { handleCommand("status"); }, key: "" },
+  { cat: "CMD", label: "Agent Roster", action: function() { handleCommand("agents"); }, key: "" },
+  { cat: "CMD", label: "Pending Approvals", action: function() { handleCommand("approvals"); }, key: "" },
+  { cat: "CMD", label: "Recent Logs", action: function() { handleCommand("logs"); }, key: "" },
+  { cat: "CMD", label: "Latest Briefing", action: function() { handleCommand("briefing"); }, key: "" },
+  { cat: "CMD", label: "Clear Terminal", action: function() { handleCommand("clear"); }, key: "" },
+  { cat: "CMD", label: "Help", action: function() { handleCommand("help"); }, key: "" },
+  // Navigation
+  { cat: "NAV", label: "Command Terminal", action: function() { switchTab("cmd"); }, key: "" },
+  { cat: "NAV", label: "Construct (3D View)", action: function() { switchTab("construct"); }, key: "" },
+  { cat: "NAV", label: "Network Mesh", action: function() { switchTab("net"); }, key: "" },
+  { cat: "NAV", label: "Agent Arena Grid", action: function() { switchTab("grid"); }, key: "" },
+  { cat: "NAV", label: "Open Shell (Floor 05)", action: function() { window.open("ophtxn_shell.html","_blank"); }, key: "" },
+  { cat: "NAV", label: "Tower (Rooms)", action: function() { window.location.href="rooms.html"; }, key: "" },
+  // Themes
+  { cat: "THEME", label: "Dark Aurora", action: function() { setTheme("aurora","dark"); }, key: "" },
+  { cat: "THEME", label: "Copper", action: function() { setTheme("copper","dark"); }, key: "" },
+  { cat: "THEME", label: "Void", action: function() { setTheme("void","dark"); }, key: "" },
+  { cat: "THEME", label: "Light Mode", action: function() { setTheme("aurora","light"); }, key: "" },
+  // Settings
+  { cat: "SYS", label: "Toggle Keyboard", action: function() { $("kbToggle").click(); }, key: "" },
+];
+
+// Dynamically add agents (after they load)
+function cmdKRefreshAgents() {
+  // Remove old agent entries
+  CMD_K_ITEMS = CMD_K_ITEMS.filter(function(item) { return item.cat !== "AGENT"; });
+  // Add current agents
+  agents.forEach(function(a) {
+    CMD_K_ITEMS.push({
+      cat: "AGENT",
+      label: (a.name || a.id) + " — " + (a.department || ""),
+      action: function() {
+        // Switch to grid and highlight agent
+        switchTab("grid");
+        if (typeof showArenaDetail === "function") showArenaDetail(a.id);
+      },
+      key: ""
+    });
+  });
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("on"); });
+  document.querySelectorAll(".tpane").forEach(function(p) { p.classList.remove("on"); });
+  var tab = document.querySelector('.tab[data-t="' + name + '"]');
+  if (tab) tab.classList.add("on");
+  var pane = $("tp-" + name);
+  if (pane) pane.classList.add("on");
+  if (name === "net" && !$("tp-net").querySelector("svg")) buildNetPane();
+  if (name === "grid" && !arenaBuilt) buildArena();
+}
+
+function setTheme(theme, brightness) {
+  document.body.dataset.theme = theme;
+  document.body.dataset.brightness = brightness;
+  try { localStorage.setItem("ophtxn-theme", theme); localStorage.setItem("ophtxn-brightness", brightness); } catch(e) {}
+}
+
+function fuzzyMatch(query, text) {
+  var q = query.toLowerCase();
+  var t = text.toLowerCase();
+  if (!q) return { match: true, score: 0, ranges: [] };
+  if (t.indexOf(q) >= 0) return { match: true, score: 100, ranges: [[t.indexOf(q), t.indexOf(q) + q.length]] };
+  var qi = 0, ranges = [], start = -1;
+  for (var ti = 0; ti < t.length && qi < q.length; ti++) {
+    if (t[ti] === q[qi]) {
+      if (start < 0) start = ti;
+      qi++;
+    } else if (start >= 0) {
+      ranges.push([start, ti]);
+      start = -1;
+    }
+  }
+  if (start >= 0) ranges.push([start, t.length]);
+  if (qi < q.length) return { match: false, score: 0, ranges: [] };
+  return { match: true, score: qi * 10, ranges: ranges };
+}
+
+function highlightMatch(text, ranges) {
+  if (!ranges.length) return esc(text);
+  var result = "";
+  var prev = 0;
+  ranges.forEach(function(r) {
+    result += esc(text.slice(prev, r[0]));
+    result += "<mark>" + esc(text.slice(r[0], r[1])) + "</mark>";
+    prev = r[1];
+  });
+  result += esc(text.slice(prev));
+  return result;
+}
+
+function cmdKRender(query) {
+  var results = $("cmdK-results");
+  var matches = [];
+  CMD_K_ITEMS.forEach(function(item) {
+    var m = fuzzyMatch(query, item.label + " " + item.cat);
+    if (m.match) {
+      var labelMatch = fuzzyMatch(query, item.label);
+      matches.push({ item: item, score: m.score, labelRanges: labelMatch.ranges });
+    }
+  });
+  matches.sort(function(a, b) { return b.score - a.score; });
+  matches = matches.slice(0, 12);
+
+  results.innerHTML = matches.map(function(m, i) {
+    var sel = i === cmdKSel ? " sel" : "";
+    return '<div class="cmdK-item' + sel + '" data-idx="' + i + '">' +
+      '<span class="cmdK-cat">' + esc(m.item.cat) + '</span>' +
+      '<span class="cmdK-label">' + highlightMatch(m.item.label, m.labelRanges) + '</span>' +
+      (m.item.key ? '<span class="cmdK-key">' + esc(m.item.key) + '</span>' : '') +
+      '</div>';
+  }).join("");
+
+  // Store matches for selection
+  results._matches = matches;
+
+  // Click handlers
+  results.querySelectorAll(".cmdK-item").forEach(function(el) {
+    el.addEventListener("click", function() {
+      var idx = parseInt(el.dataset.idx);
+      var match = matches[idx];
+      if (match) { cmdKClose(); match.item.action(); }
+    });
+  });
+}
+
+function cmdKOpen_() {
+  cmdKOpen = true;
+  cmdKSel = 0;
+  var overlay = $("cmdK-overlay");
+  var input = $("cmdK-input");
+  overlay.classList.add("show");
+  input.value = "";
+  input.focus();
+  cmdKRender("");
+}
+
+function cmdKClose() {
+  cmdKOpen = false;
+  $("cmdK-overlay").classList.remove("show");
+  $("cmdK-input").value = "";
+}
+
+function cmdKExecSelected() {
+  var results = $("cmdK-results");
+  var matches = results._matches || [];
+  if (matches[cmdKSel]) {
+    cmdKClose();
+    matches[cmdKSel].item.action();
+  }
+}
+
+// Keyboard handler
+document.addEventListener("keydown", function(e) {
+  // Cmd+K / Ctrl+K to open
+  if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+    e.preventDefault();
+    if (cmdKOpen) { cmdKClose(); } else { cmdKOpen_(); }
+    return;
+  }
+
+  if (!cmdKOpen) return;
+
+  if (e.key === "Escape") {
+    e.preventDefault();
+    cmdKClose();
+    return;
+  }
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    var items = ($("cmdK-results")._matches || []);
+    cmdKSel = Math.min(cmdKSel + 1, items.length - 1);
+    cmdKRender($("cmdK-input").value);
+    return;
+  }
+
+  if (e.key === "ArrowUp") {
+    e.preventDefault();
+    cmdKSel = Math.max(cmdKSel - 1, 0);
+    cmdKRender($("cmdK-input").value);
+    return;
+  }
+
+  if (e.key === "Enter") {
+    e.preventDefault();
+    cmdKExecSelected();
+    return;
+  }
+});
+
+// Input handler
+document.addEventListener("DOMContentLoaded", function() {
+  var input = $("cmdK-input");
+  if (input) {
+    input.addEventListener("input", function() {
+      cmdKSel = 0;
+      cmdKRender(input.value);
+    });
+  }
+});
+
+// Close on overlay click
+document.addEventListener("click", function(e) {
+  if (e.target === $("cmdK-overlay")) cmdKClose();
+});
 
 /* ═══════════════════════════════════════════════════════
    GO
