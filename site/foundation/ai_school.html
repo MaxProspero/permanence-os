@@ -310,6 +310,7 @@
     .skill-card:nth-child(6) { animation-delay: 360ms; }
     .skill-card:nth-child(7) { animation-delay: 420ms; }
     .skill-card:nth-child(8) { animation-delay: 480ms; }
+    .skill-card:nth-child(9) { animation-delay: 540ms; }
 
     /* bento layout spans */
     .skill-card.span-2 { grid-column: span 2; }
@@ -379,6 +380,83 @@
 
     /* hidden state for filter */
     .skill-card[hidden] { display: none; }
+
+    /* ── EXPANDABLE DETAIL PANEL ── */
+    .skill-detail {
+      display: none;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 14px;
+    }
+
+    .skill-card.open .skill-detail {
+      display: block;
+      animation: fadeIn 300ms both;
+    }
+
+    .skill-card.open .skill-link { color: var(--c-gold); }
+
+    .skill-detail-text {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    .skill-detail-text strong { color: var(--ink); font-weight: 600; }
+
+    .code-block {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin: 0 0 10px;
+      position: relative;
+    }
+
+    .code-block code {
+      font-family: "DM Mono", monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      color: #c8d8ea;
+      white-space: pre;
+      display: block;
+    }
+
+    .code-block .cm { color: var(--muted); }
+    .code-block .ck { color: var(--c-teal); }
+    .code-block .cs { color: var(--c-gold); }
+    .code-block .cv { color: var(--c-violet); }
+    .code-block .cr { color: var(--c-rose); }
+
+    .code-lang {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .skill-tip {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .skill-tip strong { color: var(--c-teal); font-weight: 600; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     /* ── START HERE TIMELINE ── */
     .section-label {
@@ -723,7 +801,25 @@
         <span class="badge badge-beginner">Beginner</span>
         <h3>CLAUDE.md Setup</h3>
         <p class="skill-desc">Tell your agent how your world works.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">A <strong>CLAUDE.md</strong> file at your project root gives the agent persistent context — identity, file locations, coding standards, and guardrails. It&rsquo;s read automatically at session start.</p>
+          <div class="code-block"><span class="code-lang">markdown</span><code><span class="cm"># MY-PROJECT &mdash; CLAUDE.md</span>
+
+<span class="cm">## Identity</span>
+<span class="ck">Owner:</span> Your Name
+<span class="ck">Repo:</span>  github.com/you/my-project
+
+<span class="cm">## Code Standards</span>
+<span class="cs">- Python:</span> type hints on all public functions
+<span class="cs">- Tests:</span>  pytest, 80%+ coverage target
+<span class="cs">- Commits:</span> feat(scope): description
+
+<span class="cm">## Guardrails</span>
+<span class="cr">- Never commit secrets or .env files</span>
+<span class="cr">- Run linter before every push</span></code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Keep it under 200 lines. Link to detailed docs instead of inlining everything.</p>
+        </div>
       </article>
 
       <!-- 2: span 1 -->
@@ -731,7 +827,25 @@
         <span class="badge badge-intermediate">Intermediate</span>
         <h3>MCP Integration</h3>
         <p class="skill-desc">Connect Claude to external tools via protocol.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">The <strong>Model Context Protocol</strong> lets Claude call external tools &mdash; databases, APIs, browsers. Define servers in your project&rsquo;s <strong>.claude/settings.json</strong>.</p>
+          <div class="code-block"><span class="code-lang">json</span><code>{
+  <span class="cs">"mcpServers"</span>: {
+    <span class="ck">"github"</span>: {
+      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,
+      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,
+        <span class="cs">"@modelcontextprotocol/server-github"</span>]
+    },
+    <span class="ck">"notion"</span>: {
+      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,
+      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,
+        <span class="cs">"notion-mcp-server"</span>]
+    }
+  }
+}</code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Each server exposes tools Claude can call. Run <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">/mcp</code> to see active connections.</p>
+        </div>
       </article>
 
       <!-- 3: span 1 -->
@@ -739,7 +853,29 @@
         <span class="badge badge-intermediate">Intermediate</span>
         <h3>Hook System</h3>
         <p class="skill-desc">Trigger automated workflows from agent events.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text"><strong>Hooks</strong> run shell commands before or after agent actions &mdash; linting on save, tests on commit, notifications on task complete. Defined in <strong>.claude/settings.json</strong>.</p>
+          <div class="code-block"><span class="code-lang">json</span><code>{
+  <span class="cs">"hooks"</span>: {
+    <span class="ck">"PreToolUse"</span>: [{
+      <span class="cv">"matcher"</span>: <span class="cs">"Bash"</span>,
+      <span class="cv">"hooks"</span>: [{
+        <span class="cv">"type"</span>: <span class="cs">"command"</span>,
+        <span class="cv">"command"</span>: <span class="cs">"echo 'Reviewing&hellip;'"</span>
+      }]
+    }],
+    <span class="ck">"PostToolUse"</span>: [{
+      <span class="cv">"matcher"</span>: <span class="cs">"Write"</span>,
+      <span class="cv">"hooks"</span>: [{
+        <span class="cv">"type"</span>: <span class="cs">"command"</span>,
+        <span class="cv">"command"</span>: <span class="cs">"ruff check $CLAUDE_FILE"</span>
+      }]
+    }]
+  }
+}</code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Hook exit code 2 blocks the action. Use PreToolUse to enforce policy before writes.</p>
+        </div>
       </article>
 
       <!-- 4: span 1 -->
@@ -747,7 +883,20 @@
         <span class="badge badge-intermediate">Intermediate</span>
         <h3>Memory Persistence</h3>
         <p class="skill-desc">Retain context and knowledge across sessions.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Give your agent <strong>durable memory</strong> by persisting structured context to files that get loaded at session start. Think of it as the agent&rsquo;s notebook.</p>
+          <div class="code-block"><span class="code-lang">file tree</span><code><span class="ck">memory/</span>
+  <span class="cv">canon/</span>
+    identity.md       <span class="cm"># who you are</span>
+    principles.md     <span class="cm"># operating rules</span>
+  <span class="cv">working/</span>
+    decisions.jsonl   <span class="cm"># logged choices</span>
+    session_state.json <span class="cm"># resumable</span>
+  <span class="cv">reflections/</span>
+    weekly_review.md  <span class="cm"># agent self-eval</span></code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Use JSONL for append-only logs, Markdown for human-readable context. Load in CLAUDE.md bootstrap.</p>
+        </div>
       </article>
 
       <!-- 5: span 1 -->
@@ -755,7 +904,24 @@
         <span class="badge badge-advanced">Advanced</span>
         <h3>Agent Governance</h3>
         <p class="skill-desc">Policy enforcement + human approval gates.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Define <strong>risk tiers</strong> and <strong>approval gates</strong> so agents can act autonomously on safe tasks while escalating anything dangerous to a human.</p>
+          <div class="code-block"><span class="code-lang">python</span><code><span class="ck">RISK_TIERS</span> = {
+  <span class="cs">"low"</span>:  {<span class="cv">"auto"</span>: True},
+  <span class="cs">"med"</span>:  {<span class="cv">"auto"</span>: True,
+           <span class="cv">"log"</span>: True},
+  <span class="cs">"high"</span>: {<span class="cv">"auto"</span>: False,
+           <span class="cv">"require"</span>: <span class="cs">"human_approval"</span>},
+}
+
+<span class="ck">def</span> <span class="cv">gate</span>(action, tier):
+    rule = RISK_TIERS[tier]
+    <span class="ck">if not</span> rule[<span class="cs">"auto"</span>]:
+        <span class="ck">return</span> <span class="cr">request_approval</span>(action)
+    <span class="ck">return</span> <span class="cs">execute</span>(action)</code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Default to no-spend, no-delete. Let the human unlock higher tiers explicitly.</p>
+        </div>
       </article>
 
       <!-- 6: span 1 -->
@@ -763,7 +929,22 @@
         <span class="badge badge-beginner">Beginner</span>
         <h3>Prompt Engineering</h3>
         <p class="skill-desc">Get better outputs with better inputs.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Structure beats length. Give the agent <strong>role</strong>, <strong>context</strong>, <strong>constraints</strong>, and a <strong>concrete example</strong> of the output you want.</p>
+          <div class="code-block"><span class="code-lang">prompt</span><code><span class="cr">&#10008; Vague:</span>
+<span class="cm">"Write me a good commit message"</span>
+
+<span class="ck">&#10004; Structured:</span>
+<span class="cs">"Write a commit message for this diff.</span>
+<span class="cs"> Format: feat(scope): 1-line summary</span>
+<span class="cs"> Rules:</span>
+<span class="cs">  - Under 72 chars</span>
+<span class="cs">  - Imperative mood</span>
+<span class="cs">  - No period at end</span>
+<span class="cs"> Example: feat(auth): add JWT refresh"</span></code></div>
+          <p class="skill-tip"><strong>Tip:</strong> One concrete example is worth 100 words of description. Show, don&rsquo;t tell.</p>
+        </div>
       </article>
 
       <!-- 7: span 2 -->
@@ -771,15 +952,70 @@
         <span class="badge badge-beginner">Beginner</span>
         <h3>Skill Files</h3>
         <p class="skill-desc">Extend capabilities without writing code.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">A <strong>SKILL.md</strong> file teaches an agent a reusable workflow &mdash; no code required. Drop it in <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">.claude/skills/</code> and invoke it by name.</p>
+          <div class="code-block"><span class="code-lang">markdown</span><code><span class="cm">---</span>
+<span class="ck">name:</span> <span class="cs">code-review</span>
+<span class="ck">description:</span> Review a PR for quality
+<span class="cm">---</span>
+
+<span class="cv">## Steps</span>
+1. Read the diff with <span class="cs">`gh pr diff`</span>
+2. Check for:
+   - Missing error handling
+   - Untested code paths
+   - Security concerns
+3. Post review via <span class="cs">`gh pr review`</span>
+
+<span class="cv">## Constraints</span>
+<span class="cr">- Never approve without reading tests</span>
+<span class="cr">- Flag any secrets in the diff</span></code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Invoke with <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">/code-review</code> in the chat. Skills compose &mdash; one skill can call another.</p>
+        </div>
       </article>
 
-      <!-- 8: full width -->
+      <!-- 8: span 1 -->
+      <article class="skill-card" data-level="beginner" data-title="Open Source Stack" data-desc="Curated fonts and libraries powering the system.">
+        <span class="badge badge-beginner">Beginner</span>
+        <h3>Open Source Stack</h3>
+        <p class="skill-desc">Curated fonts and libraries powering the system.</p>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Every layer of Ophtxn is built on <strong>open source</strong>. Here&rsquo;s the curated type stack and core libraries &mdash; free to inspect, fork, and learn from.</p>
+          <div class="code-block"><span class="code-lang">type stack</span><code><span class="ck">Display</span>     <span class="cs">Instrument Serif</span>  <span class="cm">italic, editorial</span>
+<span class="ck">Body</span>        <span class="cs">Instrument Sans</span>   <span class="cm">400 / 600</span>
+<span class="ck">Mono</span>        <span class="cs">DM Mono</span>           <span class="cm">code blocks, data</span>
+<span class="ck">System</span>      <span class="cs">Orbitron</span>          <span class="cm">700 / 900, HUD labels</span></code></div>
+          <div class="code-block"><span class="code-lang">core libs</span><code><span class="ck">Runtime</span>     <span class="cs">Python 3.12</span>   <span class="cm">+ Flask + SQLite</span>
+<span class="ck">Agent SDK</span>   <span class="cs">Claude Code</span>   <span class="cm">+ MCP protocol</span>
+<span class="ck">Network</span>     <span class="cs">Tailscale</span>     <span class="cm">mesh VPN, zero-config</span>
+<span class="ck">Services</span>    <span class="cs">launchd</span>       <span class="cm">macOS process manager</span>
+<span class="ck">Frontend</span>    <span class="cs">Vanilla JS</span>    <span class="cm">no framework, no build</span></code></div>
+          <p class="skill-tip"><strong>Fonts:</strong> All available free on <a href="https://fonts.google.com" target="_blank" rel="noopener noreferrer" style="color:var(--c-teal);text-decoration:none">Google Fonts</a>. Search by name to preview and download.</p>
+        </div>
+      </article>
+
+      <!-- 9: full width -->
       <article class="skill-card span-3" data-level="advanced" data-title="Sub-agent Orchestration" data-desc="Spawn specialized agents for complex tasks.">
         <span class="badge badge-advanced">Advanced</span>
         <h3>Sub-agent Orchestration</h3>
         <p class="skill-desc">Spawn specialized agents for complex tasks.</p>
-        <a class="skill-link" href="#">&rarr; Explore</a>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Break complex tasks into smaller pieces and <strong>dispatch specialized sub-agents</strong> for each. A dispatcher routes by risk tier and capability, then merges the results.</p>
+          <div class="code-block"><span class="code-lang">python</span><code><span class="ck">async def</span> <span class="cv">dispatch</span>(task):
+    plan  = <span class="ck">await</span> planner.decompose(task)
+    <span class="cm"># Route sub-tasks to specialists</span>
+    jobs = []
+    <span class="ck">for</span> step <span class="ck">in</span> plan.steps:
+        agent = <span class="cv">pick_agent</span>(step.domain)
+        jobs.append(agent.run(step))
+    results = <span class="ck">await</span> asyncio.gather(*jobs)
+    <span class="cm"># Merge &amp; validate</span>
+    <span class="ck">return</span> <span class="cv">merge_outputs</span>(results)</code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Keep each sub-agent focused on one domain. The dispatcher handles coordination and conflict resolution.</p>
+        </div>
       </article>
 
     </section>
@@ -951,6 +1187,32 @@
       } catch (_e) {
         // localStorage unavailable — non-blocking
       }
+
+      // ── Expand / collapse skill details ──
+      skillCards.forEach(function (card) {
+        var link = card.querySelector('.skill-link');
+        if (!link) return;
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          var wasOpen = card.classList.contains('open');
+          // Close all other cards first
+          skillCards.forEach(function (c) { c.classList.remove('open'); });
+          // Toggle clicked card
+          if (!wasOpen) {
+            card.classList.add('open');
+            link.innerHTML = '&larr; Close';
+          } else {
+            link.innerHTML = '&rarr; Explore';
+          }
+          // Reset other links
+          skillCards.forEach(function (c) {
+            if (c !== card) {
+              var otherLink = c.querySelector('.skill-link');
+              if (otherLink) otherLink.innerHTML = '&rarr; Explore';
+            }
+          });
+        });
+      });
 
     })();
   </script>
