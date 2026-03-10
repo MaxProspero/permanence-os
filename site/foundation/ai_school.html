@@ -28,6 +28,7 @@
       --c-rose: #ff5c8a;
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
+      --sidebar-w: 260px;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -272,14 +273,7 @@
       border-color: var(--c-teal);
     }
 
-    /* ── BENTO GRID ── */
-    .bento {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 40px;
-    }
-
+    /* ── SKILL CARDS ── */
     .skill-card {
       position: relative;
       background: rgba(13,21,32,0.8);
@@ -315,34 +309,6 @@
     /* equal-size grid — no more spans */
     .skill-card.span-2, .skill-card.span-3 { grid-column: span 1; }
 
-    /* level group labels */
-    .level-group {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 8px 0 -4px;
-    }
-
-    .level-group-label {
-      font-family: "Instrument Sans", sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .level-group-label.lbl-beginner { color: var(--c-teal); }
-    .level-group-label.lbl-intermediate { color: var(--c-gold); }
-    .level-group-label.lbl-advanced { color: var(--c-rose); }
-
-    .level-group-line {
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
     /* skill card icon */
     .skill-icon {
       width: 28px;
@@ -368,25 +334,6 @@
     .skill-card[data-level="advanced"]:hover {
       border-color: rgba(255,92,138,0.3);
       box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(255,92,138,0.06);
-    }
-
-    /* video embed */
-    .video-wrap {
-      margin-bottom: 24px;
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      overflow: hidden;
-      position: relative;
-      padding-bottom: 56.25%;
-      background: var(--surface);
-    }
-
-    .video-wrap iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
     }
 
     .skill-card h3 {
@@ -914,6 +861,516 @@
       .resources-grid { grid-template-columns: 1fr; }
     }
 
+    /* ── LIBRARY LAYOUT ── */
+    .library-app {
+      display: flex;
+      min-height: calc(100vh - 42px);
+    }
+
+    /* ── SIDEBAR ── */
+    .library-sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 42px;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.22, 0.68, 0, 1);
+    }
+
+    .library-sidebar .sb-hdr {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .library-sidebar .sb-title {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .library-sidebar .sb-close {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .sb-section-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 14px 16px 6px;
+    }
+
+    .sb-nav {
+      display: flex;
+      flex-direction: column;
+      padding: 4px 8px;
+    }
+
+    .sb-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .sb-nav a:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
+    .sb-nav a.active { background: rgba(0,229,196,0.08); color: var(--c-teal); }
+
+    .sb-nav .sb-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+
+    .sb-nav a.active .sb-icon { opacity: 1; }
+
+    .sb-courses {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 8px;
+    }
+
+    .sb-course-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+    }
+
+    .sb-course-item:hover { background: rgba(255,255,255,0.04); }
+    .sb-course-item.active { background: rgba(0,229,196,0.08); }
+
+    .sb-course-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(0,229,196,0.12);
+      border: 1px solid rgba(0,229,196,0.25);
+      color: var(--c-teal);
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sb-request-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      margin: 4px 8px;
+      transition: border-color 0.2s, color 0.2s;
+      cursor: pointer;
+    }
+
+    .sb-request-link:hover { border-color: var(--c-teal); color: var(--c-teal); }
+
+    .sb-foot {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sb-signin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(0,229,196,0.08);
+      border: 1px solid rgba(0,229,196,0.2);
+      color: var(--c-teal);
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .sb-signin:hover { background: rgba(0,229,196,0.14); border-color: rgba(0,229,196,0.35); }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .sidebar-overlay.show { display: block; }
+
+    .library-main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-width: 0;
+    }
+
+    .th-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 12px 4px 0;
+      flex-shrink: 0;
+    }
+
+    .th-signin {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: rgba(90,200,250,0.45);
+      text-decoration: none;
+      transition: color 0.2s;
+      border: 1px solid rgba(90,200,250,0.15);
+      border-radius: 999px;
+      padding: 4px 12px;
+    }
+
+    .th-signin:hover { color: rgb(90,200,250); border-color: rgba(90,200,250,0.35); }
+
+    /* ── MOTION GRAPHIC HERO ── */
+    .motion-hero {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: rgba(13,21,32,0.6);
+      backdrop-filter: blur(8px);
+      padding: 32px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .motion-graphic {
+      flex: 0 0 55%;
+      position: relative;
+      height: 200px;
+    }
+
+    .motion-graphic svg { width: 100%; height: 100%; }
+
+    .node-pulse { animation: nodePulse 3s ease-in-out infinite; transform-origin: center; }
+    .node-pulse:nth-child(2) { animation-delay: 0.5s; }
+    .node-pulse:nth-child(3) { animation-delay: 1s; }
+    .node-pulse:nth-child(4) { animation-delay: 1.5s; }
+    .node-pulse:nth-child(5) { animation-delay: 2s; }
+
+    @keyframes nodePulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .edge-flow { stroke-dasharray: 8 4; animation: edgeFlow 2s linear infinite; }
+
+    @keyframes edgeFlow { to { stroke-dashoffset: -24; } }
+
+    .motion-quote {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .motion-quote blockquote {
+      margin: 0;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-style: italic;
+      font-size: 22px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .motion-quote cite {
+      display: block;
+      margin-top: 12px;
+      font-family: "Instrument Sans", sans-serif;
+      font-style: normal;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── COURSE HEADER ── */
+    .course-header {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: rgba(13,21,32,0.6);
+      backdrop-filter: blur(8px);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .course-meta { flex: 1; }
+
+    .course-eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c-teal);
+      margin: 0 0 4px;
+    }
+
+    .course-title {
+      margin: 0 0 4px;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-style: italic;
+      font-size: 24px;
+      color: var(--ink);
+    }
+
+    .course-desc {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .course-progress {
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      width: 140px;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--c-teal);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── LEVEL SECTION ACCORDION ── */
+    .level-section {
+      margin-bottom: 12px;
+    }
+
+    .level-section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: rgba(13,21,32,0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      user-select: none;
+    }
+
+    .level-section-header:hover {
+      border-color: var(--border-hi);
+      background: rgba(13,21,32,0.8);
+    }
+
+    .level-section-header .lsh-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .level-section-header .lsh-label {
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      flex: 1;
+    }
+
+    .level-section[data-level="beginner"] .lsh-label { color: var(--c-teal); }
+    .level-section[data-level="beginner"] .lsh-icon { color: var(--c-teal); }
+    .level-section[data-level="intermediate"] .lsh-label { color: var(--c-gold); }
+    .level-section[data-level="intermediate"] .lsh-icon { color: var(--c-gold); }
+    .level-section[data-level="advanced"] .lsh-label { color: var(--c-rose); }
+    .level-section[data-level="advanced"] .lsh-icon { color: var(--c-rose); }
+
+    .lsh-count {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .lsh-chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .level-section.open .lsh-chevron { transform: rotate(90deg); }
+
+    .level-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s ease, padding 0.3s ease;
+      padding: 0 0;
+    }
+
+    .level-section.open .level-cards {
+      max-height: 3000px;
+      padding: 14px 0 0;
+    }
+
+    /* ── SKILL REQUEST FORM ── */
+    .request-section {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: rgba(13,21,32,0.6);
+      backdrop-filter: blur(8px);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .request-section h3 {
+      margin: 0 0 4px;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .request-section .req-sub {
+      margin: 0 0 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .req-form {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .req-form textarea {
+      flex: 1;
+      min-height: 44px;
+      max-height: 100px;
+      resize: vertical;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .req-form textarea::placeholder { color: var(--muted); }
+    .req-form textarea:focus { border-color: var(--border-hi); }
+
+    .req-form select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 13px;
+      padding: 10px 14px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .req-submit {
+      padding: 10px 20px;
+      border-radius: 10px;
+      background: var(--c-teal);
+      color: #04201a;
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .req-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--c-teal);
+      color: #04201a;
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* ── FOOTER ── */
     .footer {
       border: 1px solid var(--border);
@@ -955,14 +1412,20 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      .bento {
-        grid-template-columns: 1fr;
+      .library-sidebar {
+        transform: translateX(-100%);
       }
 
+      .library-sidebar.open { transform: translateX(0); }
+      .library-sidebar .sb-close { display: block; }
+      .th-toggle { display: block; }
+
+      .library-main { margin-left: 0; }
+
+      .level-cards { grid-template-columns: 1fr; }
+
       .skill-card.span-2,
-      .skill-card.span-3 {
-        grid-column: span 1;
-      }
+      .skill-card.span-3 { grid-column: span 1; }
 
       .timeline {
         flex-direction: column;
@@ -991,18 +1454,33 @@
         flex-direction: column;
         align-items: flex-start;
       }
+
+      .motion-hero {
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px 20px;
+      }
+
+      .motion-graphic { flex: none; width: 100%; height: 150px; }
+
+      .course-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .course-progress { text-align: left; }
+
+      .req-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
 
     @media (max-width: 900px) and (min-width: 769px) {
-      .bento {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
+      .level-cards { grid-template-columns: repeat(2, 1fr); }
       .skill-card.span-2, .skill-card.span-3 { grid-column: span 1; }
-
-      .resources-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .resources-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     /* ── FILM GRAIN ──────────────────────────────── */
@@ -1070,16 +1548,59 @@
     <!-- TOWER HUD -->
     <div class="tower-hud">
       <div class="th-l">
+        <button class="th-toggle" id="sidebarToggle" aria-label="Toggle sidebar">&#9776;</button>
         <a href="rooms.html" class="th-brand">OPHTXN</a>
         <span class="th-sep">//</span>
         <span class="th-num">02</span>
         <span class="th-name">THE LIBRARY</span>
       </div>
       <div class="th-r">
-        <a href="rooms.html" class="th-back">↑ TOWER</a>
+        <a href="ophtxn_shell.html" class="th-signin">SIGN IN</a>
+        <a href="rooms.html" class="th-back">&uarr; TOWER</a>
       </div>
     </div>
     <div class="scanlines" aria-hidden="true"></div>
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="library-sidebar" id="librarySidebar">
+      <div class="sb-hdr">
+        <span class="sb-title">Ophtxn Library</span>
+        <button class="sb-close" id="sidebarClose">&times;</button>
+      </div>
+
+      <div class="sb-section-label">Navigate</div>
+      <nav class="sb-nav">
+        <a href="index.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</a>
+        <a href="rooms.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Tower</a>
+        <a href="ai_school.html" class="active"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Library</a>
+        <a href="official_app.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>App Studio</a>
+        <a href="command_center.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Control Room</a>
+        <a href="ophtxn_shell.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal</a>
+        <a href="press_kit.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Press Kit</a>
+      </nav>
+
+      <div class="sb-section-label">Courses</div>
+      <div class="sb-courses">
+        <a class="sb-course-item active" href="#course-agentic-os">
+          <span class="sb-course-num">01</span>
+          Agentic OS
+        </a>
+      </div>
+      <a class="sb-request-link" href="#request-skill">+ Request a course</a>
+
+      <div class="sb-foot">
+        <a href="ophtxn_shell.html" class="sb-signin">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Sign In
+        </a>
+      </div>
+    </aside>
+
+    <!-- LIBRARY MAIN -->
+    <div class="library-main">
 
     <!-- HERO -->
     <section class="hero">
@@ -1110,16 +1631,63 @@
       </div>
     </div>
 
-    <!-- VIDEO INTRO -->
-    <div class="video-wrap">
-      <iframe src="https://www.youtube.com/embed/kSEpSMOOqPE?rel=0&modestbranding=1" title="Build with Claude — Introduction" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    <!-- MOTION GRAPHIC + QUOTE -->
+    <div class="motion-hero">
+      <div class="motion-graphic">
+        <svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- connections -->
+          <line class="edge-flow" x1="80" y1="100" x2="200" y2="60" stroke="rgba(0,229,196,0.3)" stroke-width="1.5"/>
+          <line class="edge-flow" x1="200" y1="60" x2="320" y2="100" stroke="rgba(123,111,255,0.3)" stroke-width="1.5"/>
+          <line class="edge-flow" x1="80" y1="100" x2="160" y2="160" stroke="rgba(0,229,196,0.2)" stroke-width="1"/>
+          <line class="edge-flow" x1="160" y1="160" x2="280" y2="160" stroke="rgba(123,111,255,0.2)" stroke-width="1"/>
+          <line class="edge-flow" x1="280" y1="160" x2="320" y2="100" stroke="rgba(255,92,138,0.2)" stroke-width="1"/>
+          <line class="edge-flow" x1="200" y1="60" x2="160" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
+          <line class="edge-flow" x1="200" y1="60" x2="280" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
+          <!-- nodes -->
+          <circle class="node-pulse" cx="80" cy="100" r="8" fill="rgba(0,229,196,0.2)" stroke="var(--c-teal)" stroke-width="1.5"/>
+          <circle class="node-pulse" cx="200" cy="60" r="10" fill="rgba(123,111,255,0.2)" stroke="var(--c-violet)" stroke-width="1.5"/>
+          <circle class="node-pulse" cx="320" cy="100" r="8" fill="rgba(255,92,138,0.2)" stroke="var(--c-rose)" stroke-width="1.5"/>
+          <circle class="node-pulse" cx="160" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
+          <circle class="node-pulse" cx="280" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
+          <!-- inner dots -->
+          <circle cx="80" cy="100" r="3" fill="var(--c-teal)"/>
+          <circle cx="200" cy="60" r="4" fill="var(--c-violet)"/>
+          <circle cx="320" cy="100" r="3" fill="var(--c-rose)"/>
+          <circle cx="160" cy="160" r="2.5" fill="var(--c-gold)"/>
+          <circle cx="280" cy="160" r="2.5" fill="var(--c-gold)"/>
+        </svg>
+      </div>
+      <div class="motion-quote">
+        <blockquote>&ldquo;The best way to predict the future is to invent it.&rdquo;</blockquote>
+        <cite>&mdash; Alan Kay</cite>
+      </div>
     </div>
 
-    <!-- BENTO SKILL CARDS -->
-    <section class="bento" id="skills" aria-label="Skill cards">
+    <!-- COURSE HEADER -->
+    <div class="course-header" id="course-agentic-os">
+      <div class="course-meta">
+        <p class="course-eyebrow">Course 01</p>
+        <h2 class="course-title">Agentic OS</h2>
+        <p class="course-desc">Build a personal AI operating system &mdash; from CLAUDE.md to sub-agent orchestration.</p>
+      </div>
+      <div class="course-progress">
+        <p class="progress-label"><span id="progressCount">0</span>/9 explored</p>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- SKILL CARDS -->
+    <section id="skills" aria-label="Skill cards">
 
       <!-- ── BEGINNER ── -->
-      <div class="level-group"><span class="level-group-label lbl-beginner">Beginner</span><div class="level-group-line"></div></div>
+      <div class="level-section open" data-level="beginner">
+        <div class="level-section-header">
+          <svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span class="lsh-label">Beginner</span>
+          <span class="lsh-count">4 skills</span>
+          <svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="level-cards">
 
       <article class="skill-card" data-level="beginner" data-title="CLAUDE.md Setup" data-desc="Tell your agent how your world works.">
         <span class="badge badge-beginner">Beginner</span>
@@ -1215,8 +1783,18 @@
         </div>
       </article>
 
+        </div><!-- /.level-cards beginner -->
+      </div><!-- /.level-section beginner -->
+
       <!-- ── INTERMEDIATE ── -->
-      <div class="level-group"><span class="level-group-label lbl-intermediate">Intermediate</span><div class="level-group-line"></div></div>
+      <div class="level-section" data-level="intermediate">
+        <div class="level-section-header">
+          <svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          <span class="lsh-label">Intermediate</span>
+          <span class="lsh-count">3 skills</span>
+          <svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="level-cards">
 
       <article class="skill-card" data-level="intermediate" data-title="MCP Integration" data-desc="Connect Claude to external tools via protocol.">
         <span class="badge badge-intermediate">Intermediate</span>
@@ -1292,8 +1870,18 @@
         </div>
       </article>
 
+        </div><!-- /.level-cards intermediate -->
+      </div><!-- /.level-section intermediate -->
+
       <!-- ── ADVANCED ── -->
-      <div class="level-group"><span class="level-group-label lbl-advanced">Advanced</span><div class="level-group-line"></div></div>
+      <div class="level-section" data-level="advanced">
+        <div class="level-section-header">
+          <svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="lsh-label">Advanced</span>
+          <span class="lsh-count">2 skills</span>
+          <svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="level-cards">
 
       <article class="skill-card" data-level="advanced" data-title="Agent Governance" data-desc="Policy enforcement + human approval gates.">
         <span class="badge badge-advanced">Advanced</span>
@@ -1340,7 +1928,25 @@
         </div>
       </article>
 
+        </div><!-- /.level-cards advanced -->
+      </div><!-- /.level-section advanced -->
+
     </section>
+
+    <!-- SKILL REQUEST FORM -->
+    <div class="request-section" id="request-skill">
+      <h3>Request a Skill</h3>
+      <p class="req-sub">Describe a skill you&rsquo;d like to learn. Our agents will review and build it.</p>
+      <div class="req-form" id="requestForm">
+        <textarea id="reqText" placeholder="e.g. How to build a Discord bot with Claude&hellip;" rows="2"></textarea>
+        <select id="reqLevel">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+        <button class="req-submit" id="reqSubmit">Submit &rarr;</button>
+      </div>
+    </div>
 
     <!-- START HERE TIMELINE -->
     <div class="timeline-wrap" id="start-here">
@@ -1405,10 +2011,10 @@
         <div class="res-card cat-social">
           <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Socials</h3>
           <ul class="resource-list">
-            <li><a href="https://www.youtube.com/@anthropic-ai" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Anthropic YouTube</a></li>
+            <li><a href="https://x.com/ophtxn" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>@ophtxn</a></li>
             <li><a href="https://www.youtube.com/@simonwillison" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Simon Willison</a></li>
             <li><a href="https://x.com/AnthropicAI" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>@AnthropicAI</a></li>
-            <li><a href="https://x.com/alexalbert__" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>@alexalbert__</a></li>
+            <li><a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>permanence-os</a></li>
           </ul>
         </div>
 
@@ -1487,17 +2093,86 @@
       </nav>
     </footer>
 
+  </div><!-- /.library-main -->
   </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
   <script>
     (function () {
       'use strict';
 
+      /* ── DOM refs ── */
       var searchInput = document.getElementById('search-input');
       var filterBtns = document.querySelectorAll('.filter-btn');
       var skillCards = document.querySelectorAll('.skill-card');
+      var levelSections = document.querySelectorAll('.level-section');
       var activeFilter = 'all';
 
+      /* ── Sidebar ── */
+      var sidebar = document.getElementById('librarySidebar');
+      var sidebarToggle = document.getElementById('sidebarToggle');
+      var sidebarCloseBtn = document.getElementById('sidebarClose');
+      var sidebarOverlay = document.getElementById('sidebarOverlay');
+
+      function openSidebar() {
+        if (sidebar) sidebar.classList.add('open');
+        if (sidebarOverlay) sidebarOverlay.classList.add('show');
+      }
+
+      function closeSidebar() {
+        if (sidebar) sidebar.classList.remove('open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+      }
+
+      if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
+      if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+      if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
+      /* ── Level section accordion ── */
+      var levelHeaders = document.querySelectorAll('.level-section-header');
+      levelHeaders.forEach(function (header) {
+        header.addEventListener('click', function () {
+          header.parentElement.classList.toggle('open');
+        });
+      });
+
+      /* ── Course progress (localStorage) ── */
+      var PROGRESS_KEY = 'ophtxn_library_progress';
+      var progressCount = document.getElementById('progressCount');
+      var progressFill = document.getElementById('progressFill');
+      var totalSkills = skillCards.length;
+
+      function loadProgress() {
+        try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); }
+        catch (_e) { return {}; }
+      }
+
+      function saveProgress(data) {
+        try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); } catch (_e) {}
+      }
+
+      function updateProgressUI() {
+        var data = loadProgress();
+        var count = Object.keys(data).length;
+        if (progressCount) progressCount.textContent = count;
+        if (progressFill) progressFill.style.width = Math.round(count / totalSkills * 100) + '%';
+      }
+
+      function markExplored(title) {
+        if (!title) return;
+        var data = loadProgress();
+        if (!data[title]) {
+          data[title] = Date.now();
+          saveProgress(data);
+          updateProgressUI();
+        }
+      }
+
+      updateProgressUI();
+
+      /* ── Filter + search ── */
       function applyFilters() {
         var keyword = searchInput.value.trim().toLowerCase();
 
@@ -1515,6 +2190,17 @@
             card.setAttribute('hidden', '');
           }
         });
+
+        /* Auto-open matching level sections when a level filter is active */
+        if (activeFilter !== 'all') {
+          levelSections.forEach(function (sec) {
+            if (sec.getAttribute('data-level') === activeFilter) {
+              sec.classList.add('open');
+            } else {
+              sec.classList.remove('open');
+            }
+          });
+        }
       }
 
       filterBtns.forEach(function (btn) {
@@ -1524,11 +2210,7 @@
           filterBtns.forEach(function (b) { b.classList.remove('active'); });
           btn.classList.add('active');
 
-          try {
-            localStorage.setItem('ophtxn_skill_filter', activeFilter);
-          } catch (_e) {
-            // localStorage unavailable — non-blocking
-          }
+          try { localStorage.setItem('ophtxn_skill_filter', activeFilter); } catch (_e) {}
 
           applyFilters();
         });
@@ -1541,15 +2223,11 @@
         var saved = localStorage.getItem('ophtxn_skill_filter');
         if (saved && saved !== 'all') {
           var matchBtn = document.querySelector('.filter-btn[data-filter="' + saved + '"]');
-          if (matchBtn) {
-            matchBtn.click();
-          }
+          if (matchBtn) matchBtn.click();
         }
-      } catch (_e) {
-        // localStorage unavailable — non-blocking
-      }
+      } catch (_e) {}
 
-      // ── Expand / collapse skill details ──
+      /* ── Expand / collapse skill details ── */
       skillCards.forEach(function (card) {
         var link = card.querySelector('.skill-link');
         if (!link) return;
@@ -1562,6 +2240,8 @@
           if (!wasOpen) {
             card.classList.add('open');
             link.innerHTML = '&larr; Close';
+            // Track progress
+            markExplored(card.getAttribute('data-title'));
           } else {
             link.innerHTML = '&rarr; Explore';
           }
@@ -1575,29 +2255,30 @@
         });
       });
 
-      // ── Sources modal ──
+      /* ── Sources modal ── */
       var sourcesOverlay = document.getElementById('sources-overlay');
       var sourcesTrigger = document.getElementById('sources-trigger');
-      var sourcesClose = document.getElementById('sources-close');
+      var sourcesCloseBtn = document.getElementById('sources-close');
 
       if (sourcesTrigger && sourcesOverlay) {
         sourcesTrigger.addEventListener('click', function () {
           sourcesOverlay.classList.add('open');
         });
-        sourcesClose.addEventListener('click', function () {
+        sourcesCloseBtn.addEventListener('click', function () {
           sourcesOverlay.classList.remove('open');
         });
         sourcesOverlay.addEventListener('click', function (e) {
           if (e.target === sourcesOverlay) sourcesOverlay.classList.remove('open');
         });
         document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape' && sourcesOverlay.classList.contains('open')) {
-            sourcesOverlay.classList.remove('open');
+          if (e.key === 'Escape') {
+            if (sourcesOverlay.classList.contains('open')) sourcesOverlay.classList.remove('open');
+            closeSidebar();
           }
         });
       }
 
-      // ── Timeline step click → scroll to + expand matching card ──
+      /* ── Timeline step click → scroll to + expand matching card ── */
       var timelineSteps = document.querySelectorAll('.timeline-step[data-skill]');
       timelineSteps.forEach(function (step) {
         step.addEventListener('click', function () {
@@ -1607,6 +2288,11 @@
             if (card.getAttribute('data-title') === skillName) target = card;
           });
           if (!target) return;
+          // Ensure the parent level section is open
+          var parentSection = target.closest('.level-section');
+          if (parentSection && !parentSection.classList.contains('open')) {
+            parentSection.classList.add('open');
+          }
           // Close all cards, open target
           skillCards.forEach(function (c) {
             c.classList.remove('open');
@@ -1614,11 +2300,42 @@
             if (l) l.innerHTML = '&rarr; Explore';
           });
           target.classList.add('open');
-          var link = target.querySelector('.skill-link');
-          if (link) link.innerHTML = '&larr; Close';
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          var targetLink = target.querySelector('.skill-link');
+          if (targetLink) targetLink.innerHTML = '&larr; Close';
+          markExplored(skillName);
+          setTimeout(function () {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
         });
       });
+
+      /* ── Skill request form ── */
+      var reqText = document.getElementById('reqText');
+      var reqLevel = document.getElementById('reqLevel');
+      var reqSubmit = document.getElementById('reqSubmit');
+      var toast = document.getElementById('toast');
+
+      function showToast(msg) {
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(function () { toast.classList.remove('show'); }, 3200);
+      }
+
+      if (reqSubmit) {
+        reqSubmit.addEventListener('click', function () {
+          var text = (reqText.value || '').trim();
+          if (!text) { reqText.focus(); return; }
+          var level = reqLevel.value;
+          try {
+            var requests = JSON.parse(localStorage.getItem('ophtxn_skill_requests') || '[]');
+            requests.push({ text: text, level: level, ts: Date.now() });
+            localStorage.setItem('ophtxn_skill_requests', JSON.stringify(requests));
+          } catch (_e) {}
+          reqText.value = '';
+          showToast('Skill request submitted! Our agents will review it.');
+        });
+      }
 
     })();
   </script>

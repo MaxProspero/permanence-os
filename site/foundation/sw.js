@@ -1,4 +1,4 @@
-var CACHE_NAME = "ophtxn-v2";
+var CACHE_NAME = "ophtxn-v3";
 var PRECACHE_URLS = [
   "/",
   "/index.html",
