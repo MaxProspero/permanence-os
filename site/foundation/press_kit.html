@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <title>Brand + Press Kit — Ophtxn</title>
-  <meta name="description" content="Official brand assets, color system, typography, and press resources for Ophtxn." />
+  <title>Mind Map -- Ophtxn</title>
+  <meta name="description" content="Visual planning board for Ophtxn workflows and plans." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
@@ -30,6 +30,8 @@
       --c-rose: #ff5c8a;
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
+      --sans: 'DM Sans', sans-serif;
+      --mono: 'DM Mono', monospace;
     }
 
     html { scroll-behavior: smooth; }
@@ -68,538 +70,63 @@
       pointer-events: none;
     }
 
-    /* Layout wrapper */
-    .page-wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px 80px;
-    }
-
-    /* ── NAV ─────────────────────────────────────────────────────────────── */
-    nav {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 20px 0 24px;
-      flex-wrap: wrap;
-    }
-
-    .nav-brand {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 15px;
-      letter-spacing: 0.18em;
-      color: var(--c-teal);
-      text-decoration: none;
-      margin-right: 8px;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .nav-pill {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: border-color 160ms, color 160ms, background 160ms;
-    }
-
-    .nav-pill:hover {
-      border-color: var(--border-hi);
-      color: var(--ink);
-      background: var(--lift);
-    }
-
-    .nav-pill.active {
-      border-color: var(--c-teal);
-      color: var(--c-teal);
-    }
-
-    /* ── ANIMATIONS ──────────────────────────────────────────────────────── */
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    section {
-      animation: rise 500ms both;
-    }
-
-    section:nth-child(1) { animation-delay: 0ms; }
-    section:nth-child(2) { animation-delay: 80ms; }
-    section:nth-child(3) { animation-delay: 160ms; }
-    section:nth-child(4) { animation-delay: 240ms; }
-    section:nth-child(5) { animation-delay: 320ms; }
-    section:nth-child(6) { animation-delay: 400ms; }
-
-    /* ── HERO ────────────────────────────────────────────────────────────── */
-    .hero {
-      padding: 72px 0 80px;
-      text-align: center;
-    }
-
-    .eyebrow {
-      display: inline-block;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      color: var(--c-gold);
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      padding: 5px 14px;
-      border: 1px solid rgba(248,200,66,0.2);
-      border-radius: 999px;
-      background: rgba(248,200,66,0.06);
-    }
-
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 900;
-      font-size: clamp(36px, 6vw, 64px);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      margin-bottom: 20px;
-    }
-
-    .hero p {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 18px;
-      font-weight: 400;
-      color: var(--muted);
-      max-width: 520px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-
-    /* ── SECTION SHARED ──────────────────────────────────────────────────── */
-    .section-block {
-      margin-bottom: 80px;
-    }
-
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-weight: 900;
-      font-size: 28px;
-      color: var(--ink);
-      margin-bottom: 8px;
-      letter-spacing: -0.01em;
-    }
-
-    .section-divider {
-      width: 40px;
-      height: 2px;
-      background: linear-gradient(90deg, var(--c-teal), var(--c-violet));
-      border-radius: 2px;
-      margin-bottom: 32px;
-    }
-
-    /* ── SECTION 1 — BRAND COLORS ────────────────────────────────────────── */
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .swatch-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: border-color 160ms, transform 160ms;
-    }
-
-    .swatch-card:hover {
-      border-color: var(--border-hi);
-      transform: translateY(-2px);
-    }
-
-    .swatch-block {
-      min-height: 88px;
-      width: 100%;
-    }
-
-    .swatch-info {
-      padding: 14px 16px;
-    }
-
-    .swatch-name {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 13px;
-      color: var(--ink);
-      margin-bottom: 2px;
-    }
-
-    .swatch-hex {
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      color: var(--c-teal);
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .swatch-desc {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.4;
-      margin-bottom: 12px;
-    }
-
-    .copy-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--lift);
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 120ms, color 120ms, background 120ms;
-    }
-
-    .copy-btn:hover {
-      border-color: var(--c-teal);
-      color: var(--c-teal);
-      background: rgba(var(--f-rgb),0.06);
-    }
-
-    /* ── TOAST ───────────────────────────────────────────────────────────── */
-    #toast {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      z-index: 9999;
-      background: var(--lift);
-      border: 1px solid var(--c-teal);
-      color: var(--c-teal);
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      padding: 10px 18px;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 200ms, transform 200ms;
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── SECTION 2 — LOGO DOWNLOADS ──────────────────────────────────────── */
-    .logo-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .logo-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: border-color 160ms;
-    }
-
-    .logo-card:hover {
-      border-color: var(--border-hi);
-    }
-
-    .logo-preview {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      background: var(--lift);
-      min-height: 160px;
-    }
-
-    .logo-meta {
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .logo-label {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--ink);
-    }
-
-    .download-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--c-teal);
-      background: rgba(var(--f-rgb),0.06);
-      color: var(--c-teal);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 160ms, border-color 160ms;
-      white-space: nowrap;
-    }
-
-    .download-btn:hover {
-      background: rgba(var(--f-rgb),0.12);
-    }
-
-    /* ── SECTION 3 — TYPOGRAPHY ──────────────────────────────────────────── */
-    .type-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .type-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 28px 32px;
-      box-shadow: var(--shadow);
-      transition: border-color 160ms;
-    }
-
-    .type-card:hover {
-      border-color: var(--border-hi);
-    }
-
-    .type-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .type-name {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .type-badge {
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 500;
-      background: rgba(123,111,255,0.1);
-      border: 1px solid rgba(123,111,255,0.2);
-      color: var(--c-violet);
-    }
-
-    .type-sample-playfair {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-weight: 900;
-      font-size: clamp(24px, 4vw, 40px);
-      line-height: 1.15;
-      color: var(--ink);
-      letter-spacing: -0.01em;
-    }
-
-    .type-sample-dm {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: clamp(18px, 3vw, 28px);
-      color: var(--ink);
-      line-height: 1.3;
-    }
-
-    .type-sample-mono {
-      font-family: 'DM Mono', monospace;
-      font-size: clamp(13px, 2vw, 18px);
-      color: var(--c-teal);
-      line-height: 1.5;
-    }
-
-    /* ── SECTION 4 — BRAND VOICE ─────────────────────────────────────────── */
-    .voice-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .voice-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .voice-header {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 20px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .voice-group {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .voice-group.do-group {
-      border-top: 2px solid var(--c-teal);
-    }
-
-    .voice-group.dont-group {
-      border-top: 2px solid var(--c-rose);
-    }
-
-    .voice-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-
-    .voice-tag.do {
-      color: var(--c-teal);
-      background: rgba(var(--f-rgb),0.08);
-      border: 1px solid rgba(var(--f-rgb),0.15);
-    }
-
-    .voice-tag.dont {
-      color: var(--c-rose);
-      background: rgba(255,92,138,0.08);
-      border: 1px solid rgba(255,92,138,0.15);
-    }
-
-    .voice-topic {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 11px;
-      color: var(--c-gold);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 8px;
-    }
-
-    .voice-quote {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      color: var(--ink);
-      line-height: 1.5;
-    }
-
-    /* ── SECTION 5 — CONTACT ─────────────────────────────────────────────── */
-    .contact-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 40px 48px;
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-
-    .contact-text {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      color: var(--muted);
-      max-width: 480px;
-      line-height: 1.6;
-    }
-
-    .contact-text strong {
-      color: var(--ink);
-    }
-
-    .contact-link {
-      color: var(--c-teal);
-      text-decoration: none;
-      font-weight: 500;
-      border-bottom: 1px solid rgba(var(--f-rgb),0.3);
-      transition: border-color 160ms;
-    }
-
-    .contact-link:hover {
-      border-color: var(--c-teal);
-    }
-
-    /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
-    @media (max-width: 768px) {
-      .page-wrap { padding: 0 16px 60px; }
-
-      nav { gap: 8px; }
-      .nav-links { gap: 6px; }
-      .nav-pill { font-size: 12px; padding: 5px 11px; }
-
-      .hero { padding: 48px 0 56px; }
-
-      .color-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .logo-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .voice-row {
-        grid-template-columns: 1fr;
-      }
-
-      .contact-card {
-        padding: 28px 24px;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .type-card { padding: 22px 20px; }
-    }
-
-    @media (max-width: 480px) {
-      .color-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    /* ── MIND MAP ─────────────────────────────────────────────────── */
+    .mm-toolbar{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:900;display:flex;gap:4px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:left 0.3s}
+    body.sb-open .mm-toolbar{left:calc(50% + var(--sidebar-w)/2)}
+    .mm-toolbar button{height:32px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;white-space:nowrap}
+    .mm-toolbar button:hover{border-color:var(--border-hi);color:var(--ink)}
+    .mm-toolbar button.active{border-color:rgba(var(--f-rgb),0.4);background:rgba(var(--f-rgb),0.08);color:var(--ink)}
+    .mm-toolbar .mm-sep{width:1px;background:var(--border);margin:4px 2px}
+    .mm-toolbar .mm-zoom{font-family:var(--mono);font-size:10px;color:var(--muted);padding:0 6px;display:flex;align-items:center}
+
+    .mm-canvas-wrap{position:fixed;top:42px;left:0;right:0;bottom:0;overflow:hidden;z-index:1;transition:left 0.3s}
+    body.sb-open .mm-canvas-wrap{left:var(--sidebar-w)}
+    .mm-canvas{position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:0 0}
+    .mm-dot-grid{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(var(--f-rgb),0.12) 1px,transparent 1px);background-size:24px 24px}
+
+    .mm-edges{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+    .mm-edges path{fill:none;stroke:rgba(var(--f-rgb),0.3);stroke-width:2}
+    .mm-edges path:hover{stroke:rgba(var(--f-rgb),0.7);stroke-width:3}
+    .mm-edges marker path{fill:rgba(var(--f-rgb),0.3)}
+
+    .mm-node{position:absolute;width:240px;min-height:80px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 14px 14px 18px;cursor:grab;user-select:none;transition:box-shadow 0.15s;z-index:10}
+    .mm-node:hover{box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:11}
+    .mm-node.selected{border-color:rgba(var(--f-rgb),0.5);box-shadow:0 0 0 2px rgba(var(--f-rgb),0.2),0 8px 24px rgba(0,0,0,0.3);z-index:12}
+    .mm-node.dragging{cursor:grabbing;opacity:0.9;z-index:100}
+    .mm-node::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:2px}
+    .mm-node[data-type="plan"]::before{background:var(--c-teal)}
+    .mm-node[data-type="task"]::before{background:var(--c-gold)}
+    .mm-node[data-type="note"]::before{background:var(--c-violet)}
+    .mm-node[data-type="workflow"]::before{background:var(--c-rose)}
+    .mm-node-type{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    .mm-node-title{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:4px}
+    .mm-node-body{font-family:var(--sans);font-size:12px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .mm-node-port{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--border);cursor:crosshair;z-index:15;transition:all 0.15s}
+    .mm-node-port:hover{border-color:rgba(var(--f-rgb),0.6);background:rgba(var(--f-rgb),0.2);transform:scale(1.3)}
+    .mm-node-port.port-r{right:-5px;top:50%;transform:translateY(-50%)}
+    .mm-node-port.port-b{bottom:-5px;left:50%;transform:translateX(-50%)}
+    .mm-node-port.port-l{left:-5px;top:50%;transform:translateY(-50%)}
+    .mm-node-port.port-t{top:-5px;left:50%;transform:translateX(-50%)}
+
+    .mm-modal-overlay{display:none;position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+    .mm-modal-overlay.open{display:flex}
+    .mm-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:400px;max-width:90vw;box-shadow:0 24px 48px rgba(0,0,0,0.5)}
+    .mm-modal h3{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px}
+    .mm-modal label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;margin-top:12px}
+    .mm-modal input,.mm-modal textarea,.mm-modal select{width:100%;padding:8px 12px;background:var(--lift);border:1px solid var(--border);border-radius:8px;color:var(--ink);font-family:var(--sans);font-size:13px;outline:none;resize:vertical}
+    .mm-modal input:focus,.mm-modal textarea:focus,.mm-modal select:focus{border-color:rgba(var(--f-rgb),0.4)}
+    .mm-modal textarea{min-height:80px}
+    .mm-modal-actions{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+    .mm-modal-actions button{padding:8px 16px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all 0.15s}
+    .mm-modal-actions button:hover{border-color:var(--border-hi);color:var(--ink)}
+    .mm-modal-actions .mm-save{border-color:transparent;background:rgba(var(--f-rgb),0.15);color:var(--ink)}
+    .mm-modal-actions .mm-save:hover{background:rgba(var(--f-rgb),0.25)}
+    .mm-modal-actions .mm-delete{color:#ff5c5c;border-color:rgba(255,92,92,0.3)}
+    .mm-modal-actions .mm-delete:hover{background:rgba(255,92,92,0.1)}
+
+    .mm-empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:var(--muted);font-family:var(--sans);pointer-events:none}
+    .mm-empty h2{font-size:20px;font-weight:600;color:var(--ink);opacity:0.5;margin-bottom:8px}
+    .mm-empty p{font-size:13px;opacity:0.7}
 
     /* ── FILM GRAIN ──────────────────────────────── */
     #grain {
@@ -615,24 +142,6 @@
       60% { transform: translate(1%,-4%) } 70% { transform: translate(-4%,3%) }
       80% { transform: translate(2%,2%) }  90% { transform: translate(-2%,-1%) }
       100%{ transform: translate(0,0) }
-    }
-    /* make nav-brand flex for reticle */
-    .nav-brand {
-      display: inline-flex !important;
-      align-items: center;
-      gap: 10px;
-    }
-    .brand-reticle {
-      width: 28px; height: 28px; flex-shrink: 0;
-      color: var(--c-gold);
-    }
-    .arc-eyebrow {
-      display: block;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px; letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--c-gold); opacity: .45;
-      margin-bottom: 14px;
     }
   /* ── TOWER HUD ─── */
   :root { --f-rgb: 255,188,0; --f: rgb(var(--f-rgb)); }
@@ -751,9 +260,6 @@
     <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
   </svg>
 
-  <!-- TOAST -->
-  <div id="toast" role="alert" aria-live="polite"></div>
-
   <div class="page-wrap">
 
     <!-- TOWER HUD -->
@@ -763,7 +269,7 @@
         <a href="rooms.html" class="th-brand">OPHTXN</a>
         <span class="th-sep">//</span>
         <span class="th-num">04</span>
-        <span class="th-name">THE GALLERY</span>
+        <span class="th-name">MIND MAP</span>
       </div>
       <div class="th-r">
         <a href="rooms.html" class="th-back">↑ TOWER</a>
@@ -781,7 +287,7 @@
         <a href="command_center.html"><span class="gs-icon">⚙</span> The Office</a>
         <a href="ai_school.html"><span class="gs-icon">◈</span> Library</a>
         <a href="official_app.html"><span class="gs-icon">⬡</span> App Studio</a>
-        <a href="press_kit.html"><span class="gs-icon">◆</span> The Gallery</a>
+        <a href="press_kit.html"><span class="gs-icon">◆</span> Mind Map</a>
         <a href="ophtxn_shell.html"><span class="gs-icon">▸</span> Terminal</a>
         <a href="local_hub.html"><span class="gs-icon">◉</span> Control Room</a>
         <a href="rooms.html"><span class="gs-icon">▲</span> Tower</a>
@@ -808,416 +314,340 @@
 
     <div class="scanlines" aria-hidden="true"></div>
 
-    <!-- HERO -->
-    <section class="hero" aria-label="Hero">
-      <span class="arc-eyebrow">A-KWJ-0368 // BRAND ARCHIVE // 26.03.07</span>
-      <span class="eyebrow">Brand + Press Kit</span>
-      <h1>Brand assets for Ophtxn.</h1>
-      <p>Everything you need to represent Ophtxn accurately — colors, logos, typography, and voice guidelines for press, partners, and collaborators.</p>
-    </section>
-
-    <!-- SECTION 1 — BRAND COLORS -->
-    <section class="section-block" aria-labelledby="colors-title">
-      <h2 class="section-title" id="colors-title">Brand Colors</h2>
-      <div class="section-divider"></div>
-
-      <div class="color-grid">
-
-        <!-- Teal -->
-        <div class="swatch-card">
-          <div class="swatch-block" style="background: #00e5c4;"></div>
-          <div class="swatch-info">
-            <div class="swatch-name">Primary / Teal</div>
-            <code class="swatch-hex">#00e5c4</code>
-            <p class="swatch-desc">Actions, links, live indicators</p>
-            <button class="copy-btn" onclick="copyHex('#00e5c4', this)" aria-label="Copy hex value #00e5c4">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <!-- Gold -->
-        <div class="swatch-card">
-          <div class="swatch-block" style="background: #f8c842;"></div>
-          <div class="swatch-info">
-            <div class="swatch-name">Accent / Gold</div>
-            <code class="swatch-hex">#f8c842</code>
-            <p class="swatch-desc">Highlights, eyebrows, badges</p>
-            <button class="copy-btn" onclick="copyHex('#f8c842', this)" aria-label="Copy hex value #f8c842">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <!-- Violet -->
-        <div class="swatch-card">
-          <div class="swatch-block" style="background: #7b6fff;"></div>
-          <div class="swatch-info">
-            <div class="swatch-name">Accent / Violet</div>
-            <code class="swatch-hex">#7b6fff</code>
-            <p class="swatch-desc">Secondary accents</p>
-            <button class="copy-btn" onclick="copyHex('#7b6fff', this)" aria-label="Copy hex value #7b6fff">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <!-- Rose -->
-        <div class="swatch-card">
-          <div class="swatch-block" style="background: #ff5c8a;"></div>
-          <div class="swatch-info">
-            <div class="swatch-name">Alert / Rose</div>
-            <code class="swatch-hex">#ff5c8a</code>
-            <p class="swatch-desc">Errors, warnings, urgency</p>
-            <button class="copy-btn" onclick="copyHex('#ff5c8a', this)" aria-label="Copy hex value #ff5c8a">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <!-- Background -->
-        <div class="swatch-card">
-          <div class="swatch-block" style="background: #080d13; border-bottom: 1px solid rgba(255,255,255,0.07);"></div>
-          <div class="swatch-info">
-            <div class="swatch-name">Background</div>
-            <code class="swatch-hex">#080d13</code>
-            <p class="swatch-desc">Base dark</p>
-            <button class="copy-btn" onclick="copyHex('#080d13', this)" aria-label="Copy hex value #080d13">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <!-- Ink -->
-        <div class="swatch-card">
-          <div class="swatch-block" style="background: #e8f0ff;"></div>
-          <div class="swatch-info">
-            <div class="swatch-name">Ink</div>
-            <code class="swatch-hex">#e8f0ff</code>
-            <p class="swatch-desc">Primary text</p>
-            <button class="copy-btn" onclick="copyHex('#e8f0ff', this)" aria-label="Copy hex value #e8f0ff">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <rect x="1" y="3" width="7" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M3 1h7a1 1 0 0 1 1 1v8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 2 — LOGO DOWNLOADS -->
-    <section class="section-block" aria-labelledby="logo-title">
-      <h2 class="section-title" id="logo-title">Logo + Mark</h2>
-      <div class="section-divider"></div>
-
-      <div class="logo-grid">
-
-        <!-- Mark -->
-        <div class="logo-card">
-          <div class="logo-preview" aria-label="Ophtxn Mark preview">
-            <svg id="mark-svg" width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ophtxn square mark">
-              <defs>
-                <linearGradient id="mark-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#00e5c4"/>
-                  <stop offset="100%" stop-color="#7b6fff"/>
-                </linearGradient>
-              </defs>
-              <rect width="80" height="80" rx="16" fill="url(#mark-grad)"/>
-              <text x="40" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="900" fill="white">O</text>
-            </svg>
-          </div>
-          <div class="logo-meta">
-            <span class="logo-label">Ophtxn Mark (SVG)</span>
-            <button class="download-btn" onclick="downloadMark()" aria-label="Download Ophtxn mark SVG">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                <path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M1 10.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-              </svg>
-              Download SVG
-            </button>
-          </div>
-        </div>
-
-        <!-- Wordmark -->
-        <div class="logo-card">
-          <div class="logo-preview" aria-label="Ophtxn Wordmark preview">
-            <svg id="wordmark-svg" width="200" height="56" viewBox="0 0 200 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ophtxn wordmark">
-              <defs>
-                <linearGradient id="word-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#00e5c4"/>
-                  <stop offset="100%" stop-color="#7b6fff"/>
-                </linearGradient>
-              </defs>
-              <rect width="200" height="56" rx="12" fill="url(#word-grad)"/>
-              <text x="100" y="37" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="900" letter-spacing="4" fill="white">OPHTXN</text>
-            </svg>
-          </div>
-          <div class="logo-meta">
-            <span class="logo-label">Ophtxn Wordmark (SVG)</span>
-            <button class="download-btn" onclick="downloadWordmark()" aria-label="Download Ophtxn wordmark SVG">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                <path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M1 10.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-              </svg>
-              Download SVG
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 3 — TYPOGRAPHY -->
-    <section class="section-block" aria-labelledby="type-title">
-      <h2 class="section-title" id="type-title">Typography</h2>
-      <div class="section-divider"></div>
-
-      <div class="type-grid">
-
-        <!-- Playfair Display -->
-        <div class="type-card">
-          <div class="type-meta">
-            <span class="type-name">Playfair Display</span>
-            <span class="type-badge">Weight 900 Italic</span>
-            <span class="type-badge" style="background:rgba(248,200,66,0.1);border-color:rgba(248,200,66,0.2);color:var(--c-gold);">Display Headings</span>
-          </div>
-          <div class="type-sample-playfair">A personal intelligence OS</div>
-        </div>
-
-        <!-- DM Sans -->
-        <div class="type-card">
-          <div class="type-meta">
-            <span class="type-name">DM Sans</span>
-            <span class="type-badge">Weight 500</span>
-            <span class="type-badge" style="background:rgba(248,200,66,0.1);border-color:rgba(248,200,66,0.2);color:var(--c-gold);">Body Text</span>
-          </div>
-          <div class="type-sample-dm">Build intentionally. Move fast. Keep control.</div>
-        </div>
-
-        <!-- DM Mono -->
-        <div class="type-card">
-          <div class="type-meta">
-            <span class="type-name">DM Mono</span>
-            <span class="type-badge">Weight 400</span>
-            <span class="type-badge" style="background:rgba(248,200,66,0.1);border-color:rgba(248,200,66,0.2);color:var(--c-gold);">Code / Terminal</span>
-          </div>
-          <div class="type-sample-mono">python cli.py operator-surface --run-horizon</div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 4 — BRAND VOICE -->
-    <section class="section-block" aria-labelledby="voice-title">
-      <h2 class="section-title" id="voice-title">Brand Voice</h2>
-      <div class="section-divider"></div>
-
-      <div class="voice-grid">
-
-        <!-- Row 1: Clarity over hype -->
-        <div>
-          <p class="voice-header">1 — Clarity over hype</p>
-          <div class="voice-row">
-            <div class="voice-group do-group">
-              <span class="voice-tag do">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Do
-              </span>
-              <p class="voice-quote">"Governed actions pass through explicit approvals."</p>
-            </div>
-            <div class="voice-group dont-group">
-              <span class="voice-tag dont">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                Don't
-              </span>
-              <p class="voice-quote">"Revolutionary AI changes everything!"</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 2: Operator tone -->
-        <div>
-          <p class="voice-header">2 — Operator tone</p>
-          <div class="voice-row">
-            <div class="voice-group do-group">
-              <span class="voice-tag do">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Do
-              </span>
-              <p class="voice-quote">"Run the check. Review the output. Ship it."</p>
-            </div>
-            <div class="voice-group dont-group">
-              <span class="voice-tag dont">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                Don't
-              </span>
-              <p class="voice-quote">"Our platform empowers synergistic AI workflows."</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 3: Honest scope -->
-        <div>
-          <p class="voice-header">3 — Honest scope</p>
-          <div class="voice-row">
-            <div class="voice-group do-group">
-              <span class="voice-tag do">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Do
-              </span>
-              <p class="voice-quote">"This is a personal tool built for one serious operator."</p>
-            </div>
-            <div class="voice-group dont-group">
-              <span class="voice-tag dont">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                Don't
-              </span>
-              <p class="voice-quote">"The all-in-one AI solution for every team."</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 5 — CONTACT -->
-    <section class="section-block" aria-labelledby="contact-title">
-      <h2 class="section-title" id="contact-title">Press + Partnerships</h2>
-      <div class="section-divider"></div>
-
-      <div class="contact-card">
-        <p class="contact-text">
-          For press or partnership inquiries, reach out directly at<br />
-          <strong><a href="mailto:pbhicksfinn@gmail.com" class="contact-link">pbhicksfinn@gmail.com</a></strong>
-        </p>
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-          <rect width="48" height="48" rx="12" fill="rgba(0,229,196,0.07)" stroke="rgba(0,229,196,0.15)" stroke-width="1"/>
-          <path d="M12 16h24v16a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V16Z" stroke="#00e5c4" stroke-width="1.5" fill="none"/>
-          <path d="M12 16l12 10 12-10" stroke="#00e5c4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </section>
-
   </div><!-- /page-wrap -->
 
-  <script>
-    // ── TOAST ──────────────────────────────────────────────────────────────
-    let toastTimer = null;
+<main>
+  <!-- MIND MAP TOOLBAR -->
+  <div class="mm-toolbar" id="mmToolbar">
+    <button class="mm-tool active" data-tool="select" title="Select (V)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg> Select</button>
+    <button class="mm-tool" data-tool="pan" title="Pan (Space)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/></svg> Pan</button>
+    <div class="mm-sep"></div>
+    <button data-add="plan" title="New Plan">+ Plan</button>
+    <button data-add="task" title="New Task">+ Task</button>
+    <button data-add="note" title="New Note">+ Note</button>
+    <button data-add="workflow" title="New Workflow">+ Workflow</button>
+    <div class="mm-sep"></div>
+    <button class="mm-tool" data-tool="connect" title="Connect (C)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Link</button>
+    <div class="mm-sep"></div>
+    <button id="mmZoomOut" title="Zoom Out">-</button>
+    <span class="mm-zoom" id="mmZoomLevel">100%</span>
+    <button id="mmZoomIn" title="Zoom In">+</button>
+    <button id="mmFitAll" title="Fit All">Fit</button>
+    <div class="mm-sep"></div>
+    <button id="mmClear" title="Clear All">Clear</button>
+  </div>
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2000);
-    }
+  <!-- MIND MAP CANVAS -->
+  <div class="mm-canvas-wrap" id="mmCanvasWrap">
+    <div class="mm-canvas" id="mmCanvas">
+      <div class="mm-dot-grid"></div>
+      <svg class="mm-edges" id="mmEdges">
+        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><path d="M0 0 L10 3.5 L0 7 z"/></marker></defs>
+      </svg>
+      <div id="mmNodes"></div>
+      <div class="mm-empty" id="mmEmpty">
+        <h2>Mind Map</h2>
+        <p>Double-click anywhere or use the toolbar to create nodes</p>
+      </div>
+    </div>
+  </div>
 
-    // ── COPY HEX ───────────────────────────────────────────────────────────
-    function copyHex(hex, btn) {
-      navigator.clipboard.writeText(hex).then(() => {
-        showToast('Copied ' + hex);
-        const original = btn.innerHTML;
-        btn.textContent = 'Copied!';
-        btn.style.color = 'var(--c-teal)';
-        btn.style.borderColor = 'var(--c-teal)';
-        setTimeout(() => {
-          btn.innerHTML = original;
-          btn.style.color = '';
-          btn.style.borderColor = '';
-        }, 1400);
-      }).catch(() => {
-        // Fallback for older browsers
-        const el = document.createElement('textarea');
-        el.value = hex;
-        el.style.position = 'fixed';
-        el.style.opacity = '0';
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        showToast('Copied ' + hex);
-      });
-    }
+  <!-- EDIT MODAL -->
+  <div class="mm-modal-overlay" id="mmModal">
+    <div class="mm-modal">
+      <h3 id="mmModalTitle">Edit Node</h3>
+      <label>Title</label>
+      <input type="text" id="mmEditTitle" placeholder="Node title..." />
+      <label>Description</label>
+      <textarea id="mmEditBody" placeholder="Details, notes, steps..."></textarea>
+      <label>Type</label>
+      <select id="mmEditType">
+        <option value="plan">Plan</option>
+        <option value="task">Task</option>
+        <option value="note">Note</option>
+        <option value="workflow">Workflow</option>
+      </select>
+      <div class="mm-modal-actions">
+        <button class="mm-delete" id="mmDeleteNode">Delete</button>
+        <button id="mmCancelEdit">Cancel</button>
+        <button class="mm-save" id="mmSaveNode">Save</button>
+      </div>
+    </div>
+  </div>
+</main>
 
-    // ── DOWNLOAD MARK ──────────────────────────────────────────────────────
-    function downloadMark() {
-      const svgContent = `<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#00e5c4"/>
-      <stop offset="100%" stop-color="#7b6fff"/>
-    </linearGradient>
-  </defs>
-  <rect width="80" height="80" rx="16" fill="url(#grad)"/>
-  <text x="40" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="900" fill="white">O</text>
-</svg>`;
-      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ophtxn_mark.svg';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('Downloading ophtxn_mark.svg');
-    }
+<script>
+/* ── MIND MAP ENGINE ────────────────────────────── */
+(function(){
+  'use strict';
+  var SK='ophtxn_mindmap';
+  var canvas=document.getElementById('mmCanvas');
+  var nodesEl=document.getElementById('mmNodes');
+  var edgesSvg=document.getElementById('mmEdges');
+  var emptyEl=document.getElementById('mmEmpty');
+  var modal=document.getElementById('mmModal');
+  if(!canvas)return;
 
-    // ── DOWNLOAD WORDMARK ──────────────────────────────────────────────────
-    function downloadWordmark() {
-      const svgContent = `<svg width="200" height="56" viewBox="0 0 200 56" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#00e5c4"/>
-      <stop offset="100%" stop-color="#7b6fff"/>
-    </linearGradient>
-  </defs>
-  <rect width="200" height="56" rx="12" fill="url(#grad)"/>
-  <text x="100" y="37" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="900" letter-spacing="4" fill="white">OPHTXN</text>
-</svg>`;
-      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ophtxn_wordmark.svg';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('Downloading ophtxn_wordmark.svg');
+  /* ── Data ── */
+  var state={viewport:{x:0,y:0,zoom:1},nodes:[],edges:[]};
+  function load(){try{var s=JSON.parse(localStorage.getItem(SK));if(s&&s.nodes)state=s;}catch(e){}}
+  function save(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
+  function uid(){return 'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+  /* ── Render ── */
+  function render(){
+    /* Apply viewport */
+    canvas.style.transform='translate('+state.viewport.x+'px,'+state.viewport.y+'px) scale('+state.viewport.zoom+')';
+    var zl=document.getElementById('mmZoomLevel');
+    if(zl)zl.textContent=Math.round(state.viewport.zoom*100)+'%';
+
+    /* Nodes */
+    nodesEl.innerHTML='';
+    state.nodes.forEach(function(n){
+      var div=document.createElement('div');
+      div.className='mm-node'+(selectedId===n.id?' selected':'');
+      div.dataset.id=n.id;
+      div.dataset.type=n.type||'note';
+      div.style.left=n.x+'px';
+      div.style.top=n.y+'px';
+      if(n.w)div.style.width=n.w+'px';
+      div.innerHTML='<div class="mm-node-type">'+(n.type||'note').toUpperCase()+'</div>'+
+        '<div class="mm-node-title">'+(n.title||'Untitled')+'</div>'+
+        (n.body?'<div class="mm-node-body">'+n.body+'</div>':'')+
+        '<div class="mm-node-port port-r" data-port="r" data-node="'+n.id+'"></div>'+
+        '<div class="mm-node-port port-b" data-port="b" data-node="'+n.id+'"></div>'+
+        '<div class="mm-node-port port-l" data-port="l" data-node="'+n.id+'"></div>'+
+        '<div class="mm-node-port port-t" data-port="t" data-node="'+n.id+'"></div>';
+      nodesEl.appendChild(div);
+    });
+
+    /* Edges */
+    var paths=edgesSvg.querySelectorAll('path.mm-edge');
+    paths.forEach(function(p){p.remove();});
+    state.edges.forEach(function(e){
+      var from=state.nodes.find(function(n){return n.id===e.from;});
+      var to=state.nodes.find(function(n){return n.id===e.to;});
+      if(!from||!to)return;
+      var fx=from.x+(from.w||240)/2,fy=from.y+40;
+      var tx=to.x+(to.w||240)/2,ty=to.y+40;
+      var dx=Math.abs(tx-fx)*0.5;
+      var d='M'+fx+' '+fy+' C'+(fx+dx)+' '+fy+' '+(tx-dx)+' '+ty+' '+tx+' '+ty;
+      var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      path.setAttribute('marker-end','url(#arrowhead)');
+      path.classList.add('mm-edge');
+      path.dataset.edgeId=e.id;
+      edgesSvg.appendChild(path);
+    });
+
+    /* Empty state */
+    if(emptyEl)emptyEl.style.display=state.nodes.length?'none':'block';
+  }
+
+  /* ── Tools ── */
+  var currentTool='select';
+  var selectedId=null;
+  var dragNode=null,dragOffset={x:0,y:0};
+  var panning=false,panStart={x:0,y:0},panVp={x:0,y:0};
+  var connecting=false,connectFrom=null;
+
+  function setTool(t){
+    currentTool=t;
+    document.querySelectorAll('.mm-tool').forEach(function(b){b.classList.toggle('active',b.dataset.tool===t);});
+  }
+
+  /* ── Toolbar Events ── */
+  var toolbar=document.getElementById('mmToolbar');
+  if(toolbar){
+    toolbar.addEventListener('click',function(e){
+      var btn=e.target.closest('button');
+      if(!btn)return;
+      if(btn.dataset.tool){setTool(btn.dataset.tool);return;}
+      if(btn.dataset.add){
+        var wrap=document.getElementById('mmCanvasWrap');
+        var cx=(wrap.offsetWidth/2-state.viewport.x)/state.viewport.zoom;
+        var cy=(wrap.offsetHeight/2-state.viewport.y)/state.viewport.zoom;
+        cx+=Math.random()*100-50;cy+=Math.random()*100-50;
+        state.nodes.push({id:uid(),x:Math.round(cx-120),y:Math.round(cy-40),w:240,type:btn.dataset.add,title:'New '+btn.dataset.add.charAt(0).toUpperCase()+btn.dataset.add.slice(1),body:'',created:Date.now()});
+        save();render();return;
+      }
+      if(btn.id==='mmZoomIn'){state.viewport.zoom=Math.min(3,state.viewport.zoom*1.2);save();render();return;}
+      if(btn.id==='mmZoomOut'){state.viewport.zoom=Math.max(0.2,state.viewport.zoom/1.2);save();render();return;}
+      if(btn.id==='mmFitAll'){fitAll();return;}
+      if(btn.id==='mmClear'){if(confirm('Clear all nodes and connections?')){state.nodes=[];state.edges=[];selectedId=null;save();render();}return;}
+    });
+  }
+
+  function fitAll(){
+    if(!state.nodes.length)return;
+    var wrap=document.getElementById('mmCanvasWrap');
+    var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+    state.nodes.forEach(function(n){
+      if(n.x<minX)minX=n.x;if(n.y<minY)minY=n.y;
+      if(n.x+(n.w||240)>maxX)maxX=n.x+(n.w||240);if(n.y+100>maxY)maxY=n.y+100;
+    });
+    var bw=maxX-minX+100,bh=maxY-minY+100;
+    var scale=Math.min((wrap.offsetWidth-80)/bw,(wrap.offsetHeight-120)/bh,1.5);
+    scale=Math.max(0.2,Math.min(3,scale));
+    state.viewport.zoom=scale;
+    state.viewport.x=(wrap.offsetWidth-bw*scale)/2-minX*scale+50;
+    state.viewport.y=(wrap.offsetHeight-bh*scale)/2-minY*scale+60;
+    save();render();
+  }
+
+  /* ── Canvas Events ── */
+  var wrap=document.getElementById('mmCanvasWrap');
+  wrap.addEventListener('mousedown',function(e){
+    if(e.target.closest('.mm-node-port')){
+      /* Start connection */
+      var port=e.target.closest('.mm-node-port');
+      connecting=true;connectFrom=port.dataset.node;
+      setTool('connect');
+      e.preventDefault();return;
     }
-  </script>
+    var nodeEl=e.target.closest('.mm-node');
+    if(nodeEl&&currentTool==='select'){
+      /* Start drag */
+      var id=nodeEl.dataset.id;
+      selectedId=id;
+      var node=state.nodes.find(function(n){return n.id===id;});
+      if(!node)return;
+      var rect=nodeEl.getBoundingClientRect();
+      dragNode=node;
+      dragOffset.x=e.clientX/state.viewport.zoom-node.x;
+      dragOffset.y=e.clientY/state.viewport.zoom-node.y;
+      nodeEl.classList.add('dragging');
+      e.preventDefault();render();return;
+    }
+    if(!nodeEl){
+      /* Pan */
+      selectedId=null;
+      panning=true;panStart.x=e.clientX;panStart.y=e.clientY;
+      panVp.x=state.viewport.x;panVp.y=state.viewport.y;
+      wrap.style.cursor='grabbing';
+      render();
+    }
+  });
+
+  document.addEventListener('mousemove',function(e){
+    if(dragNode){
+      dragNode.x=Math.round(e.clientX/state.viewport.zoom-dragOffset.x-state.viewport.x/state.viewport.zoom);
+      dragNode.y=Math.round(e.clientY/state.viewport.zoom-dragOffset.y-state.viewport.y/state.viewport.zoom);
+      render();
+    }
+    if(panning){
+      state.viewport.x=panVp.x+(e.clientX-panStart.x);
+      state.viewport.y=panVp.y+(e.clientY-panStart.y);
+      render();
+    }
+  });
+
+  document.addEventListener('mouseup',function(e){
+    if(dragNode){
+      var el=document.querySelector('.mm-node.dragging');
+      if(el)el.classList.remove('dragging');
+      dragNode=null;save();
+    }
+    if(panning){panning=false;wrap.style.cursor='';save();}
+    if(connecting){
+      var port=e.target.closest('.mm-node-port');
+      if(port&&port.dataset.node!==connectFrom){
+        var exists=state.edges.some(function(ed){return ed.from===connectFrom&&ed.to===port.dataset.node;});
+        if(!exists){
+          state.edges.push({id:uid(),from:connectFrom,to:port.dataset.node});
+          save();
+        }
+      }
+      connecting=false;connectFrom=null;
+      setTool('select');render();
+    }
+  });
+
+  /* Double click → edit */
+  wrap.addEventListener('dblclick',function(e){
+    var nodeEl=e.target.closest('.mm-node');
+    if(nodeEl){openEdit(nodeEl.dataset.id);return;}
+    /* Create new node at click position */
+    var rect=wrap.getBoundingClientRect();
+    var x=(e.clientX-rect.left-state.viewport.x)/state.viewport.zoom;
+    var y=(e.clientY-rect.top-state.viewport.y)/state.viewport.zoom;
+    var n={id:uid(),x:Math.round(x-120),y:Math.round(y-40),w:240,type:'note',title:'',body:'',created:Date.now()};
+    state.nodes.push(n);save();render();
+    openEdit(n.id);
+  });
+
+  /* Zoom */
+  wrap.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var rect=wrap.getBoundingClientRect();
+    var mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    var oldZ=state.viewport.zoom;
+    var delta=e.deltaY>0?0.9:1.1;
+    var newZ=Math.max(0.2,Math.min(3,oldZ*delta));
+    state.viewport.x=mx-(mx-state.viewport.x)*(newZ/oldZ);
+    state.viewport.y=my-(my-state.viewport.y)*(newZ/oldZ);
+    state.viewport.zoom=newZ;
+    save();render();
+  },{passive:false});
+
+  /* ── Modal ── */
+  var editingId=null;
+  function openEdit(id){
+    editingId=id;
+    var n=state.nodes.find(function(nd){return nd.id===id;});
+    if(!n)return;
+    document.getElementById('mmEditTitle').value=n.title||'';
+    document.getElementById('mmEditBody').value=n.body||'';
+    document.getElementById('mmEditType').value=n.type||'note';
+    document.getElementById('mmModalTitle').textContent=n.title?'Edit Node':'New Node';
+    modal.classList.add('open');
+    setTimeout(function(){document.getElementById('mmEditTitle').focus();},100);
+  }
+  document.getElementById('mmSaveNode').addEventListener('click',function(){
+    var n=state.nodes.find(function(nd){return nd.id===editingId;});
+    if(!n)return;
+    n.title=document.getElementById('mmEditTitle').value.trim()||'Untitled';
+    n.body=document.getElementById('mmEditBody').value.trim();
+    n.type=document.getElementById('mmEditType').value;
+    save();render();
+    modal.classList.remove('open');editingId=null;
+  });
+  document.getElementById('mmCancelEdit').addEventListener('click',function(){
+    /* If new and empty, remove */
+    var n=state.nodes.find(function(nd){return nd.id===editingId;});
+    if(n&&!n.title&&!n.body){state.nodes=state.nodes.filter(function(nd){return nd.id!==editingId;});save();}
+    modal.classList.remove('open');editingId=null;render();
+  });
+  document.getElementById('mmDeleteNode').addEventListener('click',function(){
+    state.nodes=state.nodes.filter(function(nd){return nd.id!==editingId;});
+    state.edges=state.edges.filter(function(ed){return ed.from!==editingId&&ed.to!==editingId;});
+    if(selectedId===editingId)selectedId=null;
+    save();render();
+    modal.classList.remove('open');editingId=null;
+  });
+  modal.addEventListener('click',function(e){if(e.target===modal){modal.classList.remove('open');editingId=null;}});
+
+  /* ── Keyboard ── */
+  document.addEventListener('keydown',function(e){
+    if(modal.classList.contains('open'))return;
+    if(e.key==='v'||e.key==='V')setTool('select');
+    if(e.key==='c'||e.key==='C')setTool('connect');
+    if(e.key==='Delete'||e.key==='Backspace'){
+      if(selectedId){
+        state.nodes=state.nodes.filter(function(n){return n.id!==selectedId;});
+        state.edges=state.edges.filter(function(ed){return ed.from!==selectedId&&ed.to!==selectedId;});
+        selectedId=null;save();render();
+      }
+    }
+    if(e.key==='='||e.key==='+'){state.viewport.zoom=Math.min(3,state.viewport.zoom*1.2);save();render();}
+    if(e.key==='-'){state.viewport.zoom=Math.max(0.2,state.viewport.zoom/1.2);save();render();}
+    if(e.key==='Escape'){selectedId=null;setTool('select');render();}
+  });
+
+  /* ── Init ── */
+  load();render();
+})();
+</script>
 <!-- SHARED: FAB BOT -->
 <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
