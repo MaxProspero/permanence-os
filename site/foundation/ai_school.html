@@ -481,7 +481,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── START HERE TIMELINE ── */
+    /* ── ROUTE MAP (Duolingo-style path) ── */
     .section-label {
       margin: 0 0 20px;
       font-family: "Instrument Sans", sans-serif;
@@ -492,118 +492,167 @@
       color: var(--muted);
     }
 
-    .timeline-wrap {
-      margin-bottom: 80px;
-      overflow: visible;
+    .route-map {
       position: relative;
-      z-index: 2;
-    }
-
-    .timeline {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-    }
-
-    .timeline-step {
-      flex: 1;
-      background: rgba(13,21,32,0.8);
+      margin-bottom: 28px;
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 22px 24px;
+      background: rgba(13,21,32,0.5);
       backdrop-filter: blur(8px);
-      position: relative;
-      cursor: pointer;
-      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+      padding: 28px 24px 20px;
     }
 
-    .timeline-step:hover {
-      border-color: var(--border-hi);
-      transform: translateY(-2px);
-      box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,229,196,0.12);
-    }
-
-    .timeline-step .step-tooltip {
-      position: absolute;
-      top: calc(100% + 10px);
-      left: 50%;
-      transform: translateX(-50%) translateY(-6px);
-      background: var(--lift);
-      border: 1px solid var(--border-hi);
-      border-radius: 10px;
-      padding: 12px 16px;
-      width: max-content;
-      max-width: 260px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-      z-index: 10;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-    }
-
-    .timeline-step:hover .step-tooltip {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .step-tooltip p {
-      margin: 0 0 8px;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .step-tooltip .step-go {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--c-teal);
-      text-decoration: none;
-    }
-
-    .timeline-step-num {
-      display: inline-block;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(0,229,196,0.12);
-      border: 1px solid rgba(0,229,196,0.3);
-      color: var(--c-teal);
-      font-size: 12px;
-      font-weight: 600;
+    .route-map-title {
+      margin: 0 0 24px;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-style: italic;
+      font-size: 22px;
+      color: var(--ink);
       text-align: center;
-      line-height: 26px;
-      margin-bottom: 10px;
     }
 
-    .timeline-step-label {
-      margin: 0 0 4px;
-      font-size: 10px;
+    .route-path {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+    }
+
+    /* Connecting SVG line between nodes */
+    .route-path::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: linear-gradient(90deg,
+        var(--c-teal), var(--c-violet) 50%, var(--c-rose));
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    .route-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      padding: 0 8px;
+      transition: transform 0.2s;
+    }
+
+    .route-node:hover { transform: translateY(-3px); }
+
+    .route-orb {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Orbitron", monospace;
+      font-size: 16px;
+      font-weight: 900;
+      position: relative;
+      transition: box-shadow 0.3s, transform 0.2s;
+    }
+
+    .route-orb::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px dashed currentColor;
+      opacity: 0.25;
+      animation: orbSpin 12s linear infinite;
+    }
+
+    @keyframes orbSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .route-node:nth-child(1) .route-orb {
+      background: rgba(0,229,196,0.12);
+      border: 2px solid rgba(0,229,196,0.5);
+      color: var(--c-teal);
+      box-shadow: 0 0 20px rgba(0,229,196,0.15);
+    }
+
+    .route-node:nth-child(1) .route-orb::after { animation-delay: 0s; }
+
+    .route-node:nth-child(2) .route-orb {
+      background: rgba(123,111,255,0.12);
+      border: 2px solid rgba(123,111,255,0.5);
+      color: var(--c-violet);
+      box-shadow: 0 0 20px rgba(123,111,255,0.15);
+    }
+
+    .route-node:nth-child(2) .route-orb::after { animation-delay: -4s; }
+
+    .route-node:nth-child(3) .route-orb {
+      background: rgba(255,92,138,0.12);
+      border: 2px solid rgba(255,92,138,0.5);
+      color: var(--c-rose);
+      box-shadow: 0 0 20px rgba(255,92,138,0.15);
+    }
+
+    .route-node:nth-child(3) .route-orb::after { animation-delay: -8s; }
+
+    .route-node:hover .route-orb {
+      box-shadow: 0 0 32px currentColor;
+      transform: scale(1.08);
+    }
+
+    .route-label {
+      margin: 0;
+      font-size: 9px;
       font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
     }
 
-    .timeline-step h4 {
+    .route-skill {
       margin: 0;
       font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
-      font-weight: 400;
-      font-size: 18px;
+      font-size: 15px;
       color: var(--ink);
       line-height: 1.2;
+      text-align: center;
+      max-width: 140px;
     }
 
-    .timeline-arrow {
+    .route-desc {
+      margin: 0;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 160px;
+      line-height: 1.4;
+    }
+
+    /* Connecting dashes between orbs */
+    .route-dash {
+      flex: 0 0 32px;
       display: flex;
       align-items: center;
-      padding: 0 14px;
+      justify-content: center;
+      padding-top: 14px;
       color: var(--muted);
-      font-size: 18px;
-      flex-shrink: 0;
+      font-size: 14px;
+      z-index: 1;
+    }
+
+    .route-dash svg {
+      width: 28px;
+      height: 28px;
+      opacity: 0.3;
     }
 
     /* ── RESOURCES ── */
@@ -1001,6 +1050,57 @@
     }
 
     .sb-request-link:hover { border-color: var(--c-teal); color: var(--c-teal); }
+
+    /* Quick-ask terminal in sidebar */
+    .sb-quick-ask {
+      display: flex;
+      gap: 6px;
+      padding: 6px 8px 10px;
+    }
+
+    .sb-qa-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      transition: border-color 0.2s;
+    }
+
+    .sb-qa-input-wrap:focus-within { border-color: var(--c-teal); }
+
+    .sb-qa-icon { color: var(--c-teal); flex-shrink: 0; opacity: 0.6; }
+
+    .sb-qa-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--ink);
+      font-family: "DM Mono", monospace;
+      font-size: 12px;
+    }
+
+    .sb-qa-input::placeholder { color: var(--muted); }
+
+    .sb-qa-terminal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(0,229,196,0.08);
+      border: 1px solid rgba(0,229,196,0.2);
+      color: var(--c-teal);
+      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .sb-qa-terminal:hover { background: rgba(0,229,196,0.14); border-color: rgba(0,229,196,0.35); }
 
     .sb-foot {
       padding: 12px 16px;
@@ -1427,16 +1527,15 @@
       .skill-card.span-2,
       .skill-card.span-3 { grid-column: span 1; }
 
-      .timeline {
-        flex-direction: column;
-        gap: 8px;
+      .route-path { flex-direction: column; align-items: center; gap: 6px; }
+      .route-path::before {
+        top: 0; bottom: 0; left: 50%; right: auto;
+        width: 2px; height: auto;
       }
-
-      .timeline-arrow {
-        padding: 2px 0;
-        justify-content: center;
-        transform: rotate(90deg);
-      }
+      .route-dash { flex: 0 0 auto; padding: 0; transform: rotate(90deg); }
+      .route-node { flex: none; flex-direction: row; gap: 14px; padding: 6px 0; }
+      .route-orb { width: 48px; height: 48px; font-size: 14px; flex-shrink: 0; }
+      .route-skill, .route-desc { text-align: left; max-width: none; }
 
       .resources-grid {
         grid-template-columns: 1fr;
@@ -1591,6 +1690,18 @@
       </div>
       <a class="sb-request-link" href="#request-skill">+ Request a course</a>
 
+      <!-- Quick-access terminal -->
+      <div class="sb-section-label">Quick Ask</div>
+      <div class="sb-quick-ask">
+        <div class="sb-qa-input-wrap">
+          <svg class="sb-qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <input class="sb-qa-input" id="sidebarQuickAsk" type="text" placeholder="Ask anything&hellip;" autocomplete="off">
+        </div>
+        <a class="sb-qa-terminal" href="ophtxn_shell.html" title="Open Terminal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </a>
+      </div>
+
       <div class="sb-foot">
         <a href="ophtxn_shell.html" class="sb-signin">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -1660,6 +1771,49 @@
       <div class="motion-quote">
         <blockquote>&ldquo;The best way to predict the future is to invent it.&rdquo;</blockquote>
         <cite>&mdash; Alan Kay</cite>
+      </div>
+    </div>
+
+    <!-- ROUTE MAP (Duolingo-style recommended path) -->
+    <div class="route-map" id="start-here">
+      <h3 class="route-map-title">Recommended Route</h3>
+      <div class="route-path">
+
+        <div class="route-node" data-skill="CLAUDE.md Setup">
+          <div class="route-orb">1</div>
+          <div>
+            <p class="route-label">Learn</p>
+            <p class="route-skill">CLAUDE.md Setup</p>
+            <p class="route-desc">Define your agent&rsquo;s identity and rules</p>
+          </div>
+        </div>
+
+        <div class="route-dash" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+
+        <div class="route-node" data-skill="Prompt Engineering">
+          <div class="route-orb">2</div>
+          <div>
+            <p class="route-label">Practice</p>
+            <p class="route-skill">Prompt Engineering</p>
+            <p class="route-desc">Structure inputs for better outputs</p>
+          </div>
+        </div>
+
+        <div class="route-dash" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+
+        <div class="route-node" data-skill="Hook System">
+          <div class="route-orb">3</div>
+          <div>
+            <p class="route-label">Ship</p>
+            <p class="route-skill">Hook System</p>
+            <p class="route-desc">Automate linting, tests, and alerts</p>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1945,48 +2099,6 @@
           <option value="advanced">Advanced</option>
         </select>
         <button class="req-submit" id="reqSubmit">Submit &rarr;</button>
-      </div>
-    </div>
-
-    <!-- START HERE TIMELINE -->
-    <div class="timeline-wrap" id="start-here">
-      <p class="section-label">Start Here</p>
-      <div class="timeline" role="list">
-
-        <div class="timeline-step" role="listitem" data-skill="CLAUDE.md Setup">
-          <div class="step-tooltip">
-            <p>Your agent&rsquo;s persistent memory starts here. Define identity, standards, and guardrails in one file.</p>
-            <span class="step-go">&rarr; Open skill card</span>
-          </div>
-          <div class="timeline-step-num">1</div>
-          <p class="timeline-step-label">Step 1: Learn</p>
-          <h4>CLAUDE.md Setup</h4>
-        </div>
-
-        <div class="timeline-arrow" aria-hidden="true">&rarr;</div>
-
-        <div class="timeline-step" role="listitem" data-skill="Prompt Engineering">
-          <div class="step-tooltip">
-            <p>Structure beats length. Learn to give role, context, constraints, and a concrete example.</p>
-            <span class="step-go">&rarr; Open skill card</span>
-          </div>
-          <div class="timeline-step-num">2</div>
-          <p class="timeline-step-label">Step 2: Practice</p>
-          <h4>Prompt Engineering</h4>
-        </div>
-
-        <div class="timeline-arrow" aria-hidden="true">&rarr;</div>
-
-        <div class="timeline-step" role="listitem" data-skill="Hook System">
-          <div class="step-tooltip">
-            <p>Wire up automated linting, testing, and notifications triggered by agent events.</p>
-            <span class="step-go">&rarr; Open skill card</span>
-          </div>
-          <div class="timeline-step-num">3</div>
-          <p class="timeline-step-label">Step 3: Ship</p>
-          <h4>Hook System</h4>
-        </div>
-
       </div>
     </div>
 
@@ -2278,9 +2390,9 @@
         });
       }
 
-      /* ── Timeline step click → scroll to + expand matching card ── */
-      var timelineSteps = document.querySelectorAll('.timeline-step[data-skill]');
-      timelineSteps.forEach(function (step) {
+      /* ── Route node click → scroll to + expand matching card ── */
+      var routeNodes = document.querySelectorAll('.route-node[data-skill]');
+      routeNodes.forEach(function (step) {
         step.addEventListener('click', function () {
           var skillName = step.getAttribute('data-skill');
           var target = null;
@@ -2334,6 +2446,21 @@
           } catch (_e) {}
           reqText.value = '';
           showToast('Skill request submitted! Our agents will review it.');
+        });
+      }
+
+      /* ── Quick-ask sidebar input ── */
+      var quickAskInput = document.getElementById('sidebarQuickAsk');
+      if (quickAskInput) {
+        quickAskInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            var q = quickAskInput.value.trim();
+            if (q) {
+              window.location.href = 'ophtxn_shell.html?q=' + encodeURIComponent(q);
+            } else {
+              window.location.href = 'ophtxn_shell.html';
+            }
+          }
         });
       }
 
