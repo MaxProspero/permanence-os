@@ -687,18 +687,33 @@
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
 
 /* -- GLOBAL SIDEBAR -- */
-.global-sidebar{position:fixed;top:42px;left:0;width:260px;height:calc(100vh - 42px);background:rgba(8,14,22,0.97);border-right:1px solid rgba(146,188,214,0.1);z-index:900;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;transition:transform 0.3s ease}
-.global-sidebar.closed{transform:translateX(-100%)}
-.gs-section{padding:4px 16px 12px;border-bottom:1px solid rgba(146,188,214,0.06)}.gs-section:last-child{border-bottom:none}
-.gs-label{font-size:10px;color:#7b96af;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
-.gs-nav a{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;color:#7b96af;text-decoration:none;font-size:13px;font-family:"DM Mono",monospace;transition:background 0.15s,color 0.15s}
-.gs-nav a:hover,.gs-nav a.active{background:rgba(0,229,196,0.08);color:#e7f4ff}
-.gs-nav a.active{border-left:2px solid #00e5c4}
-.gs-nav a .gs-icon{width:16px;text-align:center;font-size:14px;flex-shrink:0}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:899}.sidebar-overlay.open{display:block}
-.th-toggle{background:none;border:1px solid rgba(146,188,214,0.14);color:#e7f4ff;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:"DM Mono",monospace;display:inline-flex;align-items:center;margin-right:8px;transition:border-color 0.2s}.th-toggle:hover{border-color:rgba(0,229,196,0.4)}
-@media(min-width:769px){.sidebar-overlay{display:none!important}body.sb-open{padding-left:260px}.global-sidebar{transform:translateX(0)}.global-sidebar.closed{transform:translateX(-100%)}body.sb-open .tower-hud{padding-left:260px}}
-@media(max-width:768px){.global-sidebar{transform:translateX(-100%)}.global-sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}}
+    :root{--sidebar-w:260px}
+    .global-sidebar{position:fixed;top:42px;left:0;width:var(--sidebar-w);height:calc(100vh - 42px);background:rgba(8,14,22,0.97);border-right:1px solid rgba(146,188,214,0.1);z-index:900;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;transition:transform 0.3s cubic-bezier(0.22,0.68,0,1),width 0.3s ease;transform:translateX(-100%)}
+    .global-sidebar.open{transform:translateX(0)}
+    .gs-section{padding:4px 16px 12px;border-bottom:1px solid rgba(146,188,214,0.06)}.gs-section:last-child{border-bottom:none}
+    .gs-label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+    .gs-nav a{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:13px;font-family:var(--mono);transition:background 0.15s,color 0.15s}
+    .gs-nav a:hover,.gs-nav a.active{background:rgba(0,229,196,0.08);color:var(--ink)}
+    .gs-nav a.active{border-left:2px solid var(--c1)}
+    .gs-nav a .gs-icon{width:16px;text-align:center;font-size:14px;flex-shrink:0}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:899}
+    .sidebar-overlay.open{display:block}
+    .th-toggle{background:none;border:1px solid rgba(146,188,214,0.14);color:var(--ink);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:var(--mono);display:inline-flex;align-items:center;margin-right:8px;transition:border-color 0.2s}
+    .th-toggle:hover{border-color:rgba(0,229,196,0.4)}
+    .gs-resize-handle{position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:901;transition:background 0.2s}
+    .gs-resize-handle:hover,.gs-resize-handle.active{background:rgba(0,229,196,0.3)}
+    .gs-courses-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0;margin-bottom:8px;cursor:pointer;font-family:inherit}
+    .gs-courses-toggle .gs-chevron{width:12px;height:12px;transition:transform 0.2s}
+    .gs-courses-toggle.open .gs-chevron{transform:rotate(90deg)}
+    .gs-courses-nav.collapsed{display:none}
+    @media(min-width:769px){
+      .sidebar-overlay{display:none!important}
+      body.sb-open{padding-left:var(--sidebar-w)}
+      body.sb-open .tower-hud{padding-left:var(--sidebar-w)}
+    }
+    @media(max-width:768px){
+      .sidebar-overlay.open{display:block}
+    }
 
 /* -- FAB BOT -- */
 .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,196,0.2),rgba(0,229,196,0.08));border:1px solid rgba(0,229,196,0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(0,229,196,0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
@@ -741,32 +756,36 @@
     </div>
   </div>
 
-<!-- SHARED: GLOBAL SIDEBAR -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<aside class="global-sidebar" id="globalSidebar">
-  <div class="gs-section">
-    <p class="gs-label">Navigate</p>
-    <nav class="gs-nav">
-      <a href="index.html"><span class="gs-icon">⌂</span> Entry Hall</a>
-      <a href="command_center.html"><span class="gs-icon">⚙</span> The Office</a>
-      <a href="ai_school.html"><span class="gs-icon">📚</span> Library</a>
-      <a href="official_app.html"><span class="gs-icon">⬡</span> App Studio</a>
-      <a href="press_kit.html"><span class="gs-icon">◆</span> The Gallery</a>
-      <a href="ophtxn_shell.html"><span class="gs-icon">▸</span> Terminal</a>
-      <a href="local_hub.html"><span class="gs-icon">◉</span> Control Room</a>
-      <a href="rooms.html"><span class="gs-icon">▲</span> Tower</a>
-    </nav>
-  </div>
-  <div class="gs-section">
-    <p class="gs-label">Quick Courses</p>
-    <nav class="gs-nav">
-      <a href="ai_school.html"><span class="gs-icon">🤖</span> Agentic OS</a>
-      <a href="ai_school.html#ai-workflows"><span class="gs-icon">⚡</span> AI Workflows</a>
-      <a href="ai_school.html#python-ai"><span class="gs-icon">🐍</span> Python + AI</a>
-      <a href="ai_school.html#trading-ai"><span class="gs-icon">📈</span> Trading</a>
-    </nav>
-  </div>
-</aside>
+  <!-- SHARED: GLOBAL SIDEBAR -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="global-sidebar" id="globalSidebar">
+    <div class="gs-resize-handle" id="gsResizeHandle"></div>
+    <div class="gs-section">
+      <p class="gs-label">Navigate</p>
+      <nav class="gs-nav">
+        <a href="index.html"><span class="gs-icon">⌂</span> Entry Hall</a>
+        <a href="command_center.html"><span class="gs-icon">⚙</span> The Office</a>
+        <a href="ai_school.html"><span class="gs-icon">📚</span> Library</a>
+        <a href="official_app.html"><span class="gs-icon">⬡</span> App Studio</a>
+        <a href="press_kit.html"><span class="gs-icon">◆</span> The Gallery</a>
+        <a href="ophtxn_shell.html"><span class="gs-icon">▸</span> Terminal</a>
+        <a href="local_hub.html"><span class="gs-icon">◉</span> Control Room</a>
+        <a href="rooms.html"><span class="gs-icon">▲</span> Tower</a>
+      </nav>
+    </div>
+    <div class="gs-section">
+      <button class="gs-courses-toggle open" id="gsCoursesToggle">
+        Quick Courses
+        <svg class="gs-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <nav class="gs-nav gs-courses-nav" id="gsCoursesNav">
+        <a href="ai_school.html"><span class="gs-icon">🤖</span> Agentic OS</a>
+        <a href="ai_school.html#ai-workflows"><span class="gs-icon">⚡</span> AI Workflows</a>
+        <a href="ai_school.html#python-ai"><span class="gs-icon">🐍</span> Python + AI</a>
+        <a href="ai_school.html#trading-ai"><span class="gs-icon">📈</span> Trading</a>
+      </nav>
+    </div>
+  </aside>
 
   <div class="scanlines" aria-hidden="true"></div>
 
@@ -1202,22 +1221,51 @@
 </div>
 
 <script>
-/* SHARED: GLOBAL SIDEBAR */
-(function(){
-  var sb=document.getElementById('globalSidebar'),toggle=document.getElementById('sidebarToggle'),overlay=document.getElementById('sidebarOverlay');
-  if(!sb||!toggle)return;
-  var isDesktop=function(){return window.innerWidth>=769;};
-  if(isDesktop()){document.body.classList.add('sb-open');}else{sb.classList.add('closed');}
-  toggle.addEventListener('click',function(){
-    if(isDesktop()){var open=document.body.classList.toggle('sb-open');if(!open)sb.classList.add('closed');else sb.classList.remove('closed');}
-    else{var wasOpen=sb.classList.contains('open');if(wasOpen){sb.classList.remove('open');overlay.classList.remove('open');}else{sb.classList.add('open');sb.classList.remove('closed');overlay.classList.add('open');}}
-  });
-  if(overlay)overlay.addEventListener('click',function(){sb.classList.remove('open');overlay.classList.remove('open');});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!isDesktop()){sb.classList.remove('open');overlay.classList.remove('open');}});
-  var path=window.location.pathname.split('/').pop()||'index.html';
-  var links=sb.querySelectorAll('.gs-nav a');
-  for(var i=0;i<links.length;i++){if(links[i].getAttribute('href')===path)links[i].classList.add('active');}
-})();
+  /* SHARED: GLOBAL SIDEBAR */
+  (function(){
+    var sb=document.getElementById('globalSidebar'),toggle=document.getElementById('sidebarToggle'),overlay=document.getElementById('sidebarOverlay');
+    if(!sb||!toggle)return;
+    var resizeHandle=document.getElementById('gsResizeHandle');
+    var coursesToggle=document.getElementById('gsCoursesToggle');
+    var coursesNav=document.getElementById('gsCoursesNav');
+    var sidebarOpen=false;
+    var savedW=localStorage.getItem('ophtxn_sidebar_w');
+    if(savedW){document.documentElement.style.setProperty('--sidebar-w',savedW+'px');}
+
+    function openSidebar(){sb.classList.add('open');document.body.classList.add('sb-open');if(window.innerWidth<769&&overlay)overlay.classList.add('open');sidebarOpen=true;}
+    function closeSidebar(){sb.classList.remove('open');document.body.classList.remove('sb-open');if(overlay)overlay.classList.remove('open');sidebarOpen=false;}
+
+    if(window.innerWidth>=769){openSidebar();}
+
+    toggle.addEventListener('click',function(){if(sidebarOpen)closeSidebar();else openSidebar();});
+    if(overlay)overlay.addEventListener('click',function(){closeSidebar();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sidebarOpen)closeSidebar();});
+
+    /* Courses dropdown */
+    if(coursesToggle&&coursesNav){
+      coursesToggle.addEventListener('click',function(){
+        var isOpen=coursesToggle.classList.toggle('open');
+        if(isOpen)coursesNav.classList.remove('collapsed');else coursesNav.classList.add('collapsed');
+      });
+    }
+
+    /* Drag to resize */
+    if(resizeHandle){
+      var resizing=false;
+      resizeHandle.addEventListener('mousedown',function(e){
+        e.preventDefault();resizing=true;resizeHandle.classList.add('active');
+        sb.style.transition='none';
+        var onMove=function(ev){if(!resizing)return;var nw=Math.max(200,Math.min(500,ev.clientX));document.documentElement.style.setProperty('--sidebar-w',nw+'px');};
+        var onUp=function(){resizing=false;resizeHandle.classList.remove('active');sb.style.transition='';var cur=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-w'));if(cur)localStorage.setItem('ophtxn_sidebar_w',String(cur));document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+        document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+      });
+    }
+
+    /* Active page highlight */
+    var path=window.location.pathname.split('/').pop()||'index.html';
+    var links=sb.querySelectorAll('.gs-nav a');
+    for(var i=0;i<links.length;i++){if(links[i].getAttribute('href')===path)links[i].classList.add('active');}
+  })();
 
 /* SHARED: FAB BOT */
 (function(){

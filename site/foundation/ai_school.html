@@ -906,7 +906,12 @@
       bottom: 0;
       z-index: 100;
       overflow-y: auto;
-      transition: transform 0.3s cubic-bezier(0.22, 0.68, 0, 1);
+      transition: transform 0.3s cubic-bezier(0.22, 0.68, 0, 1), width 0.3s ease;
+      transform: translateX(-100%);
+    }
+
+    .library-sidebar.open {
+      transform: translateX(0);
     }
 
     .library-sidebar .sb-hdr {
@@ -933,6 +938,52 @@
       font-size: 18px;
       cursor: pointer;
       padding: 4px;
+    }
+
+    /* Sidebar resize handle */
+    .sb-resize-handle {
+      position: absolute;
+      top: 0;
+      right: -3px;
+      width: 6px;
+      height: 100%;
+      cursor: col-resize;
+      z-index: 101;
+      transition: background 0.2s;
+    }
+    .sb-resize-handle:hover,
+    .sb-resize-handle.active {
+      background: rgba(0,229,196,0.3);
+    }
+
+    /* Courses dropdown toggle */
+    .sb-courses-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 14px 16px 6px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .sb-courses-toggle:hover { color: var(--ink); }
+    .sb-courses-toggle .sb-chevron {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.2s;
+    }
+    .sb-courses-toggle.open .sb-chevron {
+      transform: rotate(90deg);
+    }
+    .sb-courses.collapsed {
+      display: none;
     }
 
     .sb-section-label {
@@ -1118,8 +1169,13 @@
 
     .library-main {
       flex: 1;
-      margin-left: var(--sidebar-w);
+      margin-left: 0;
       min-width: 0;
+      transition: margin-left 0.3s cubic-bezier(0.22, 0.68, 0, 1);
+    }
+
+    body.sb-open .library-main {
+      margin-left: var(--sidebar-w);
     }
 
     .th-toggle {
@@ -1678,14 +1734,7 @@
 
     /* -- RESPONSIVE -- */
     @media (max-width: 768px) {
-      .library-sidebar {
-        transform: translateX(-100%);
-      }
-
-      .library-sidebar.open { transform: translateX(0); }
       .library-sidebar .sb-close { display: block; }
-
-      .library-main { margin-left: 0; }
 
       .level-cards { grid-template-columns: 1fr; }
 
@@ -1830,6 +1879,7 @@
 
     <!-- SIDEBAR -->
     <aside class="library-sidebar" id="librarySidebar">
+      <div class="sb-resize-handle" id="sbResizeHandle"></div>
       <div class="sb-hdr">
         <span class="sb-title">Ophtxn Library</span>
         <button class="sb-close" id="sidebarClose">&times;</button>
@@ -1846,7 +1896,10 @@
         <a href="press_kit.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Press Kit</a>
       </nav>
 
-      <div class="sb-section-label">Courses</div>
+      <button class="sb-courses-toggle" id="sbCoursesToggle">
+        Courses
+        <svg class="sb-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
       <div class="sb-courses" id="sbCourseList"></div>
       <a class="sb-request-link" href="#create-course">+ Create a course</a>
 
@@ -2664,16 +2717,18 @@
       var sidebarToggle = document.getElementById('sidebarToggle');
       var sidebarCloseBtn = document.getElementById('sidebarClose');
       var sidebarOverlay = document.getElementById('sidebarOverlay');
-      var sidebarOpen = window.innerWidth >= 769;
+      var sidebarOpen = false;
 
       function openSidebar() {
         if (sidebar) sidebar.classList.add('open');
-        if (sidebarOverlay) sidebarOverlay.classList.add('show');
+        document.body.classList.add('sb-open');
+        if (sidebarOverlay && window.innerWidth < 769) sidebarOverlay.classList.add('show');
         sidebarOpen = true;
       }
 
       function closeSidebar() {
         if (sidebar) sidebar.classList.remove('open');
+        document.body.classList.remove('sb-open');
         if (sidebarOverlay) sidebarOverlay.classList.remove('show');
         sidebarOpen = false;
       }
@@ -2685,9 +2740,99 @@
       if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
       if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
       if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebarOpen) closeSidebar();
+      });
 
       /* Desktop: open by default */
       if (window.innerWidth >= 769) { openSidebar(); }
+
+      /* Courses dropdown toggle */
+      var sbCoursesToggle = document.getElementById('sbCoursesToggle');
+      var sbCoursesEl = document.getElementById('sbCourseList');
+      if (sbCoursesToggle && sbCoursesEl) {
+        sbCoursesToggle.addEventListener('click', function () {
+          sbCoursesToggle.classList.toggle('open');
+          sbCoursesEl.classList.toggle('collapsed');
+        });
+        /* Open by default */
+        sbCoursesToggle.classList.add('open');
+      }
+
+      /* Sidebar drag-to-resize */
+      var sbResizeHandle = document.getElementById('sbResizeHandle');
+      if (sbResizeHandle && sidebar) {
+        var sbResizing = false;
+        /* Restore saved width */
+        try {
+          var savedW = parseInt(localStorage.getItem('ophtxn_sidebar_w'));
+          if (savedW && savedW >= 200 && savedW <= 500) {
+            document.documentElement.style.setProperty('--sidebar-w', savedW + 'px');
+          }
+        } catch (_e) {}
+
+        sbResizeHandle.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          sbResizing = true;
+          sbResizeHandle.classList.add('active');
+          sidebar.style.transition = 'none';
+          document.querySelector('.library-main').style.transition = 'none';
+
+          var onMove = function (ev) {
+            if (!sbResizing) return;
+            var newW = Math.max(200, Math.min(500, ev.clientX));
+            document.documentElement.style.setProperty('--sidebar-w', newW + 'px');
+          };
+
+          var onUp = function () {
+            sbResizing = false;
+            sbResizeHandle.classList.remove('active');
+            sidebar.style.transition = '';
+            document.querySelector('.library-main').style.transition = '';
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            try {
+              var currentW = parseInt(getComputedStyle(sidebar).width);
+              localStorage.setItem('ophtxn_sidebar_w', String(currentW));
+            } catch (_e) {}
+          };
+
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        });
+
+        /* Touch support for resize */
+        sbResizeHandle.addEventListener('touchstart', function (e) {
+          if (e.touches.length !== 1) return;
+          e.preventDefault();
+          sbResizing = true;
+          sbResizeHandle.classList.add('active');
+          sidebar.style.transition = 'none';
+          document.querySelector('.library-main').style.transition = 'none';
+
+          var onTouchMove = function (ev) {
+            if (!sbResizing || ev.touches.length !== 1) return;
+            var newW = Math.max(200, Math.min(500, ev.touches[0].clientX));
+            document.documentElement.style.setProperty('--sidebar-w', newW + 'px');
+          };
+
+          var onTouchEnd = function () {
+            sbResizing = false;
+            sbResizeHandle.classList.remove('active');
+            sidebar.style.transition = '';
+            document.querySelector('.library-main').style.transition = '';
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+            try {
+              var currentW = parseInt(getComputedStyle(sidebar).width);
+              localStorage.setItem('ophtxn_sidebar_w', String(currentW));
+            } catch (_e) {}
+          };
+
+          document.addEventListener('touchmove', onTouchMove, { passive: false });
+          document.addEventListener('touchend', onTouchEnd);
+        }, { passive: false });
+      }
 
       /* Sidebar Resources toggle */
       var sbResToggle = document.getElementById('sbResToggle');
