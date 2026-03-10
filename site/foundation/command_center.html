@@ -793,6 +793,32 @@ body::after{
   padding:8px 18px;border-top:1px solid var(--border);
   font:400 11px var(--mono);color:var(--muted);
 }
+
+/* -- GLOBAL SIDEBAR -- */
+.global-sidebar{position:fixed;top:42px;left:0;width:260px;height:calc(100vh - 42px);background:rgba(8,14,22,0.97);border-right:1px solid rgba(146,188,214,0.1);z-index:900;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;transition:transform 0.3s ease}
+.global-sidebar.closed{transform:translateX(-100%)}
+.gs-section{padding:4px 16px 12px;border-bottom:1px solid rgba(146,188,214,0.06)}.gs-section:last-child{border-bottom:none}
+.gs-label{font-size:10px;color:#7b96af;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.gs-nav a{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;color:#7b96af;text-decoration:none;font-size:13px;font-family:"DM Mono",monospace;transition:background 0.15s,color 0.15s}
+.gs-nav a:hover,.gs-nav a.active{background:rgba(0,229,196,0.08);color:#e7f4ff}
+.gs-nav a.active{border-left:2px solid #00e5c4}
+.gs-nav a .gs-icon{width:16px;text-align:center;font-size:14px;flex-shrink:0}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:899}.sidebar-overlay.open{display:block}
+.th-toggle{background:none;border:1px solid rgba(146,188,214,0.14);color:#e7f4ff;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:"DM Mono",monospace;display:inline-flex;align-items:center;margin-right:8px;transition:border-color 0.2s}.th-toggle:hover{border-color:rgba(0,229,196,0.4)}
+@media(min-width:769px){.sidebar-overlay{display:none!important}body.sb-open{padding-left:260px}.global-sidebar{transform:translateX(0)}.global-sidebar.closed{transform:translateX(-100%)}body.sb-open .tower-hud{padding-left:260px}}
+@media(max-width:768px){.global-sidebar{transform:translateX(-100%)}.global-sidebar.open{transform:translateX(0)}.sidebar-overlay.open{display:block}}
+
+/* -- FAB BOT -- */
+.fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,196,0.2),rgba(0,229,196,0.08));border:1px solid rgba(0,229,196,0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(0,229,196,0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
+.fab-bot:hover{box-shadow:0 0 36px rgba(0,229,196,0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
+.fab-bot svg{color:#00e5c4;pointer-events:none}
+.fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid rgba(0,229,196,0.25);border-radius:14px;padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(0,229,196,0.08)}
+.fab-popup.open{display:block;animation:fabIn 200ms both}
+@keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(146,188,214,0.14);border-radius:8px;color:#e7f4ff;font-family:"DM Mono",monospace;font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
+.fab-popup input:focus{border-color:#00e5c4}
+.fab-popup input::placeholder{color:#7b96af}
+.fab-popup-label{font-size:11px;color:#7b96af;margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
 </style>
 </head>
 <body data-theme="aurora" data-brightness="dark">
@@ -812,6 +838,7 @@ body::after{
 <!-- Tower HUD -->
 <div class="tower-hud">
   <div class="th-l">
+    <button class="th-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
     <a href="rooms.html" class="th-brand">OPHTXN</a>
     <span class="th-sep">//</span>
     <span class="th-num">01</span>
@@ -822,6 +849,33 @@ body::after{
     <a href="rooms.html" class="th-back">&uarr; TOWER</a>
   </div>
 </div>
+
+<!-- SHARED: GLOBAL SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="global-sidebar" id="globalSidebar">
+  <div class="gs-section">
+    <p class="gs-label">Navigate</p>
+    <nav class="gs-nav">
+      <a href="index.html"><span class="gs-icon">⌂</span> Entry Hall</a>
+      <a href="command_center.html"><span class="gs-icon">⚙</span> The Office</a>
+      <a href="ai_school.html"><span class="gs-icon">📚</span> Library</a>
+      <a href="official_app.html"><span class="gs-icon">⬡</span> App Studio</a>
+      <a href="press_kit.html"><span class="gs-icon">◆</span> The Gallery</a>
+      <a href="ophtxn_shell.html"><span class="gs-icon">▸</span> Terminal</a>
+      <a href="local_hub.html"><span class="gs-icon">◉</span> Control Room</a>
+      <a href="rooms.html"><span class="gs-icon">▲</span> Tower</a>
+    </nav>
+  </div>
+  <div class="gs-section">
+    <p class="gs-label">Quick Courses</p>
+    <nav class="gs-nav">
+      <a href="ai_school.html"><span class="gs-icon">🤖</span> Agentic OS</a>
+      <a href="ai_school.html#ai-workflows"><span class="gs-icon">⚡</span> AI Workflows</a>
+      <a href="ai_school.html#python-ai"><span class="gs-icon">🐍</span> Python + AI</a>
+      <a href="ai_school.html#trading-ai"><span class="gs-icon">📈</span> Trading</a>
+    </nav>
+  </div>
+</aside>
 
 <!-- Boot -->
 <div id="boot">
@@ -2096,6 +2150,52 @@ if (window.__OPHTXN_RUNTIME) {
   APP_BASE = rt.appBase || APP_BASE;
 }
 </script>
+<!-- SHARED: FAB BOT -->
+<div class="fab-bot" id="fabBot" title="Ask Ophtxn">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+</div>
+<div class="fab-popup" id="fabPopup">
+  <p class="fab-popup-label">Ask Ophtxn</p>
+  <input type="text" id="fabInput" placeholder="Type a question&hellip;" autocomplete="off">
+</div>
+
+<script>
+/* SHARED: GLOBAL SIDEBAR */
+(function(){
+  var sb=document.getElementById('globalSidebar'),toggle=document.getElementById('sidebarToggle'),overlay=document.getElementById('sidebarOverlay');
+  if(!sb||!toggle)return;
+  var isDesktop=function(){return window.innerWidth>=769;};
+  if(isDesktop()){document.body.classList.add('sb-open');}else{sb.classList.add('closed');}
+  toggle.addEventListener('click',function(){
+    if(isDesktop()){var open=document.body.classList.toggle('sb-open');if(!open)sb.classList.add('closed');else sb.classList.remove('closed');}
+    else{var wasOpen=sb.classList.contains('open');if(wasOpen){sb.classList.remove('open');overlay.classList.remove('open');}else{sb.classList.add('open');sb.classList.remove('closed');overlay.classList.add('open');}}
+  });
+  if(overlay)overlay.addEventListener('click',function(){sb.classList.remove('open');overlay.classList.remove('open');});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!isDesktop()){sb.classList.remove('open');overlay.classList.remove('open');}});
+  var path=window.location.pathname.split('/').pop()||'index.html';
+  var links=sb.querySelectorAll('.gs-nav a');
+  for(var i=0;i<links.length;i++){if(links[i].getAttribute('href')===path)links[i].classList.add('active');}
+})();
+
+/* SHARED: FAB BOT */
+(function(){
+  var fabBot=document.getElementById('fabBot'),fabPopup=document.getElementById('fabPopup'),fabInput=document.getElementById('fabInput');
+  if(!fabBot)return;
+  var fabDragging=false,fabDragStart={x:0,y:0},fabPos={x:0,y:0};
+  try{var sp=JSON.parse(localStorage.getItem('ophtxn_fab_pos'));if(sp&&typeof sp.right==='number'){fabBot.style.right=sp.right+'px';fabBot.style.bottom=sp.bottom+'px';fabPopup.style.right=sp.right+'px';fabPopup.style.bottom=(sp.bottom+68)+'px';}}catch(_){}
+  fabBot.addEventListener('click',function(){if(fabDragging)return;if(fabPopup){fabPopup.classList.toggle('open');if(fabPopup.classList.contains('open')&&fabInput)setTimeout(function(){fabInput.focus();},100);}});
+  var startDrag=function(sx,sy){fabDragging=false;var r=fabBot.getBoundingClientRect();fabDragStart={x:sx,y:sy};fabPos={right:window.innerWidth-r.right,bottom:window.innerHeight-r.bottom};
+    var moved=function(mx,my){var dx=mx-fabDragStart.x,dy=my-fabDragStart.y;if(Math.abs(dx)>4||Math.abs(dy)>4)fabDragging=true;if(!fabDragging)return;var nr=Math.max(8,Math.min(fabPos.right-dx,window.innerWidth-64)),nb=Math.max(8,Math.min(fabPos.bottom-dy,window.innerHeight-64));fabBot.style.right=nr+'px';fabBot.style.bottom=nb+'px';fabPopup.style.right=nr+'px';fabPopup.style.bottom=(nb+68)+'px';};
+    var end=function(){document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',end);document.removeEventListener('touchmove',tm);document.removeEventListener('touchend',end);if(fabDragging){try{localStorage.setItem('ophtxn_fab_pos',JSON.stringify({right:parseInt(fabBot.style.right),bottom:parseInt(fabBot.style.bottom)}));}catch(_){}setTimeout(function(){fabDragging=false;},50);}};
+    var mm=function(e){moved(e.clientX,e.clientY);};var tm=function(e){if(e.touches.length===1){moved(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();}};
+    document.addEventListener('mousemove',mm);document.addEventListener('mouseup',end);document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',end);
+  };
+  fabBot.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);});
+  fabBot.addEventListener('touchstart',function(e){if(e.touches.length===1)startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+  if(fabInput)fabInput.addEventListener('keydown',function(e){if(e.key==='Enter'){var q=fabInput.value.trim();if(q)window.location.href='ophtxn_shell.html?q='+encodeURIComponent(q);}});
+})();
+</script>
+
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

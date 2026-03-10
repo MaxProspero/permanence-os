@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <title>Ophtxn AI School | Learn AI Like a Craftsman</title>
-  <meta name="description" content="Practical AI skills for builders, operators, and founders who ship with AI. CLAUDE.md, MCP, hooks, memory, and more.">
+  <title>Ophtxn Library | Multi-Course AI Learning Platform</title>
+  <meta name="description" content="Practical AI skills for builders, operators, and founders who ship with AI. Agentic OS, AI Workflows, Python, Finance, Marketing, Trading, and more.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -77,7 +77,7 @@
       padding: 28px 0 96px;
     }
 
-    /* ── NAV ── */
+    /* -- NAV -- */
     .nav {
       display: flex;
       justify-content: space-between;
@@ -121,7 +121,7 @@
       background: rgba(0,229,196,0.05);
     }
 
-    /* ── HERO ── */
+    /* -- HERO -- */
     .hero {
       border: 1px solid var(--border);
       border-radius: var(--r);
@@ -217,31 +217,14 @@
       background: rgba(0,229,196,0.05);
     }
 
-    /* ── FILTER BAR ── */
+    /* -- FILTER BAR -- */
     .filter-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      margin-bottom: 24px;
       flex-wrap: wrap;
-      margin-bottom: 20px;
     }
-
-    .filter-input {
-      flex: 1;
-      min-width: 200px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--ink);
-      font-family: "Instrument Sans", sans-serif;
-      font-size: 14px;
-      padding: 10px 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .filter-input::placeholder { color: var(--muted); }
-    .filter-input:focus { border-color: var(--border-hi); }
 
     .filter-toggles {
       display: inline-flex;
@@ -273,7 +256,7 @@
       border-color: var(--c-teal);
     }
 
-    /* ── SKILL CARDS ── */
+    /* -- SKILL CARDS -- */
     .skill-card {
       position: relative;
       background: rgba(13,21,32,0.8);
@@ -306,10 +289,8 @@
     .skill-card:nth-child(8) { animation-delay: 480ms; }
     .skill-card:nth-child(9) { animation-delay: 540ms; }
 
-    /* equal-size grid — no more spans */
     .skill-card.span-2, .skill-card.span-3 { grid-column: span 1; }
 
-    /* skill card icon */
     .skill-icon {
       width: 28px;
       height: 28px;
@@ -320,7 +301,6 @@
 
     .skill-card:hover .skill-icon { opacity: 1; }
 
-    /* enhanced hover glow per level */
     .skill-card[data-level="beginner"]:hover {
       border-color: rgba(0,229,196,0.3);
       box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(0,229,196,0.06);
@@ -367,11 +347,11 @@
       font-weight: 600;
       margin-top: 4px;
       transition: gap 0.2s;
+      cursor: pointer;
     }
 
     .skill-link:hover { gap: 8px; }
 
-    /* level badges */
     .badge {
       display: inline-block;
       font-size: 10px;
@@ -401,10 +381,9 @@
       border: 1px solid rgba(255,92,138,0.25);
     }
 
-    /* hidden state for filter */
     .skill-card[hidden] { display: none; }
 
-    /* ── EXPANDABLE DETAIL PANEL ── */
+    /* -- EXPANDABLE DETAIL PANEL -- */
     .skill-detail {
       display: none;
       border-top: 1px solid var(--border);
@@ -481,7 +460,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── ROUTE MAP (Duolingo-style path) ── */
+    /* -- ROUTE MAP -- */
     .section-label {
       margin: 0 0 20px;
       font-family: "Instrument Sans", sans-serif;
@@ -519,7 +498,6 @@
       position: relative;
     }
 
-    /* Connecting SVG line between nodes */
     .route-path::before {
       content: "";
       position: absolute;
@@ -637,7 +615,6 @@
       line-height: 1.4;
     }
 
-    /* Connecting dashes between orbs */
     .route-dash {
       flex: 0 0 32px;
       display: flex;
@@ -655,7 +632,7 @@
       opacity: 0.3;
     }
 
-    /* ── RESOURCES ── */
+    /* -- RESOURCES (kept for sidebar) -- */
     .resources-wrap {
       margin-bottom: 40px;
     }
@@ -760,7 +737,6 @@
       opacity: 0.5;
     }
 
-    /* Sources glow card */
     .res-card.cat-sources {
       position: relative;
       overflow: hidden;
@@ -800,7 +776,7 @@
 
     .sources-cta:hover { gap: 8px; }
 
-    /* ── SOURCES MODAL ── */
+    /* -- SOURCES MODAL -- */
     .sources-overlay {
       display: none;
       position: fixed;
@@ -910,13 +886,13 @@
       .resources-grid { grid-template-columns: 1fr; }
     }
 
-    /* ── LIBRARY LAYOUT ── */
+    /* -- LIBRARY LAYOUT -- */
     .library-app {
       display: flex;
       min-height: calc(100vh - 42px);
     }
 
-    /* ── SIDEBAR ── */
+    /* -- SIDEBAR -- */
     .library-sidebar {
       width: var(--sidebar-w);
       flex-shrink: 0;
@@ -929,6 +905,7 @@
       left: 0;
       bottom: 0;
       z-index: 100;
+      overflow-y: auto;
       transition: transform 0.3s cubic-bezier(0.22, 0.68, 0, 1);
     }
 
@@ -998,8 +975,9 @@
     .sb-nav a.active .sb-icon { opacity: 1; }
 
     .sb-courses {
-      flex: 1;
+      flex: 0 0 auto;
       overflow-y: auto;
+      max-height: 260px;
       padding: 4px 8px;
     }
 
@@ -1051,7 +1029,6 @@
 
     .sb-request-link:hover { border-color: var(--c-teal); color: var(--c-teal); }
 
-    /* Quick-ask terminal in sidebar */
     .sb-quick-ask {
       display: flex;
       gap: 6px;
@@ -1146,7 +1123,7 @@
     }
 
     .th-toggle {
-      display: none;
+      display: block;
       background: none;
       border: none;
       color: var(--muted);
@@ -1170,7 +1147,7 @@
 
     .th-signin:hover { color: rgb(90,200,250); border-color: rgba(90,200,250,0.35); }
 
-    /* ── MOTION GRAPHIC HERO ── */
+    /* -- MOTION GRAPHIC HERO -- */
     .motion-hero {
       display: flex;
       align-items: center;
@@ -1230,7 +1207,7 @@
       color: var(--muted);
     }
 
-    /* ── COURSE HEADER ── */
+    /* -- COURSE HEADER -- */
     .course-header {
       border: 1px solid var(--border);
       border-radius: var(--r);
@@ -1294,7 +1271,7 @@
       transition: width 0.4s ease;
     }
 
-    /* ── LEVEL SECTION ACCORDION ── */
+    /* -- LEVEL SECTION ACCORDION -- */
     .level-section {
       margin-bottom: 12px;
     }
@@ -1366,11 +1343,11 @@
     }
 
     .level-section.open .level-cards {
-      max-height: 3000px;
+      max-height: 5000px;
       padding: 14px 0 0;
     }
 
-    /* ── SKILL REQUEST FORM ── */
+    /* -- SKILL REQUEST / CREATE COURSE FORM -- */
     .request-section {
       border: 1px solid var(--border);
       border-radius: var(--r);
@@ -1394,42 +1371,98 @@
       color: var(--muted);
     }
 
-    .req-form {
+    /* Subject pill scroller */
+    .cc-subject-wrap {
+      margin-bottom: 16px;
+    }
+    .cc-subject-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .cc-subject-scroller {
       display: flex;
-      gap: 10px;
-      align-items: flex-end;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .cc-subject-scroller::-webkit-scrollbar { display: none; }
+    .cc-subject-pill {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .cc-subject-pill:hover {
+      border-color: var(--border-hi);
+      color: var(--ink);
+    }
+    .cc-subject-pill.active {
+      background: rgba(0,229,196,0.12);
+      border-color: var(--c-teal);
+      color: var(--c-teal);
+      font-weight: 600;
     }
 
-    .req-form textarea {
-      flex: 1;
-      min-height: 44px;
-      max-height: 100px;
-      resize: vertical;
-      background: var(--surface);
+    /* Title + Description boxes */
+    .cc-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .cc-field-box {
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 14px;
+      cursor: text;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+    }
+    .cc-field-box:focus-within {
+      border-color: var(--border-hi);
+      box-shadow: 0 0 0 2px rgba(0,229,196,0.08);
+    }
+    .cc-field-box.expanded {
+      min-height: 140px;
+    }
+    .cc-field-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      flex-shrink: 0;
+    }
+    .cc-field-input {
+      flex: 1;
+      background: none;
+      border: none;
       color: var(--ink);
       font-family: "Instrument Sans", sans-serif;
       font-size: 14px;
-      padding: 10px 14px;
       outline: none;
-      transition: border-color 0.2s;
+      resize: none;
+      line-height: 1.5;
     }
-
-    .req-form textarea::placeholder { color: var(--muted); }
-    .req-form textarea:focus { border-color: var(--border-hi); }
-
-    .req-form select {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--ink);
-      font-family: "Instrument Sans", sans-serif;
-      font-size: 13px;
-      padding: 10px 14px;
-      cursor: pointer;
-      outline: none;
-    }
+    .cc-field-input::placeholder { color: var(--muted); opacity: 0.6; }
 
     .req-submit {
       padding: 10px 20px;
@@ -1447,7 +1480,82 @@
 
     .req-submit:hover { opacity: 0.88; transform: translateY(-1px); }
 
-    /* ── TOAST ── */
+    /* Suggestion bar */
+    .suggest-bar {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: rgba(13,21,32,0.4);
+      padding: 18px 24px;
+      margin-bottom: 24px;
+    }
+    .suggest-bar-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .suggest-bar-items {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .suggest-pill {
+      padding: 6px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "DM Mono", monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggest-pill:hover {
+      border-color: var(--c-teal);
+      color: var(--ink);
+      background: rgba(0,229,196,0.06);
+    }
+
+    /* -- SIDEBAR RESOURCES COLLAPSIBLE -- */
+    .sb-resources-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: calc(100% - 16px);
+      margin: 0 8px;
+      border-radius: 8px;
+      font-family: "Instrument Sans", sans-serif;
+      transition: background 0.15s, color 0.15s;
+      text-align: left;
+    }
+    .sb-resources-toggle:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
+    .sb-resources-toggle .sb-res-chevron {
+      width: 12px; height: 12px; transition: transform 0.3s; flex-shrink: 0;
+      margin-left: auto;
+    }
+    .sb-resources-toggle.open .sb-res-chevron { transform: rotate(90deg); }
+    .sb-resources-body {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+      padding: 0 8px;
+    }
+    .sb-resources-toggle.open + .sb-resources-body { max-height: 600px; }
+    .sb-resources-body a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 12px; font-size: 12px; color: var(--muted);
+      text-decoration: none; border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sb-resources-body a:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
+
+    /* -- TOAST -- */
     .toast {
       position: fixed;
       bottom: 24px;
@@ -1471,7 +1579,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ── FOOTER ── */
+    /* -- FOOTER -- */
     .footer {
       border: 1px solid var(--border);
       border-radius: var(--r);
@@ -1504,13 +1612,71 @@
 
     .footer-links a:hover { color: var(--ink); }
 
-    /* ── ANIMATIONS ── */
+    /* -- ANIMATIONS -- */
     @keyframes rise {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── RESPONSIVE ── */
+    /* -- FAB BOT -- */
+    .fab-bot {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 9500;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,229,196,0.2), rgba(0,229,196,0.08));
+      border: 1px solid rgba(0,229,196,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(0,229,196,0.2), 0 8px 32px rgba(0,0,0,0.4);
+      transition: box-shadow 0.3s, transform 0.2s;
+      user-select: none;
+      touch-action: none;
+    }
+    .fab-bot:hover {
+      box-shadow: 0 0 36px rgba(0,229,196,0.35), 0 8px 32px rgba(0,0,0,0.4);
+      transform: scale(1.05);
+    }
+    .fab-bot svg { color: var(--c-teal); pointer-events: none; }
+    .fab-popup {
+      display: none;
+      position: fixed;
+      bottom: 96px;
+      right: 28px;
+      z-index: 9501;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 14px;
+      width: 280px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 32px rgba(0,229,196,0.08);
+    }
+    .fab-popup.open { display: block; animation: fadeIn 200ms both; }
+    .fab-popup input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--ink);
+      font-family: "DM Mono", monospace;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .fab-popup input:focus { border-color: var(--c-teal); }
+    .fab-popup input::placeholder { color: var(--muted); }
+    .fab-popup-label {
+      font-size: 11px; color: var(--muted); margin: 0 0 8px;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* -- RESPONSIVE -- */
     @media (max-width: 768px) {
       .library-sidebar {
         transform: translateX(-100%);
@@ -1518,7 +1684,6 @@
 
       .library-sidebar.open { transform: translateX(0); }
       .library-sidebar .sb-close { display: block; }
-      .th-toggle { display: block; }
 
       .library-main { margin-left: 0; }
 
@@ -1547,8 +1712,6 @@
         align-items: stretch;
       }
 
-      .filter-input { min-width: unset; }
-
       .footer {
         flex-direction: column;
         align-items: flex-start;
@@ -1570,10 +1733,12 @@
 
       .course-progress { text-align: left; }
 
-      .req-form {
-        flex-direction: column;
-        align-items: stretch;
+      .cc-fields {
+        grid-template-columns: 1fr;
       }
+
+      .fab-popup { right: 16px; width: 260px; }
+      .fab-bot { bottom: 20px; right: 20px; }
     }
 
     @media (max-width: 900px) and (min-width: 769px) {
@@ -1582,7 +1747,7 @@
       .resources-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ── FILM GRAIN ──────────────────────────────── */
+    /* -- FILM GRAIN -- */
     #grain {
       position: fixed; inset: -50%; width: 200%; height: 200%;
       opacity: .05; mix-blend-mode: overlay;
@@ -1614,7 +1779,7 @@
       color: var(--c-gold); opacity: .4;
       margin-bottom: 10px;
     }
-  /* ── TOWER HUD ─── */
+  /* -- TOWER HUD -- */
   :root { --f-rgb: 90,200,250; --f: rgb(var(--f-rgb)); }
   body { padding-top: 42px; }
   .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
@@ -1682,13 +1847,26 @@
       </nav>
 
       <div class="sb-section-label">Courses</div>
-      <div class="sb-courses">
-        <a class="sb-course-item active" href="#course-agentic-os">
-          <span class="sb-course-num">01</span>
-          Agentic OS
-        </a>
+      <div class="sb-courses" id="sbCourseList"></div>
+      <a class="sb-request-link" href="#create-course">+ Create a course</a>
+
+      <!-- Resources collapsible -->
+      <div class="sb-section-label">Resources</div>
+      <button class="sb-resources-toggle" id="sbResToggle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        Links &amp; References
+        <svg class="sb-res-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="sb-resources-body" id="sbResBody">
+        <a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener noreferrer">&#9654; anthropic-cookbook</a>
+        <a href="https://github.com/modelcontextprotocol" target="_blank" rel="noopener noreferrer">&#9654; MCP org</a>
+        <a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener noreferrer">&#9654; claude-code</a>
+        <a href="https://docs.anthropic.com" target="_blank" rel="noopener noreferrer">&#9654; docs.anthropic.com</a>
+        <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">&#9654; MCP specification</a>
+        <a href="https://x.com/ophtxn" target="_blank" rel="noopener noreferrer">&#9654; @ophtxn</a>
+        <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener noreferrer">&#9654; permanence-os</a>
+        <a href="javascript:void(0)" id="sbSourcesLink">&#9654; View all sources</a>
       </div>
-      <a class="sb-request-link" href="#request-skill">+ Request a course</a>
 
       <!-- Quick-access terminal -->
       <div class="sb-section-label">Quick Ask</div>
@@ -1718,7 +1896,7 @@
       <span class="arc-eyebrow">A-KWJ-0368 // AI SCHOOL // 26.03.07</span>
       <p class="eyebrow">AI Skills Library</p>
       <h1>Learn AI like a craftsman.</h1>
-      <p class="hero-sub">Practical skills for builders, operators, and founders who ship with AI.</p>
+      <p class="hero-sub">Practical skills for builders, operators, and founders who ship with AI. Seven courses from agentic OS to trading.</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="#start-here">Start Here &rarr;</a>
         <a class="btn btn-secondary" href="#skills">View All Skills</a>
@@ -1727,13 +1905,6 @@
 
     <!-- FILTER BAR -->
     <div class="filter-bar" id="filter-bar">
-      <input
-        class="filter-input"
-        type="text"
-        id="search-input"
-        placeholder="Search skills&hellip;"
-        aria-label="Search skills"
-      >
       <div class="filter-toggles" role="group" aria-label="Filter by level">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="beginner">Beginner</button>
@@ -1746,7 +1917,6 @@
     <div class="motion-hero">
       <div class="motion-graphic">
         <svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- connections -->
           <line class="edge-flow" x1="80" y1="100" x2="200" y2="60" stroke="rgba(0,229,196,0.3)" stroke-width="1.5"/>
           <line class="edge-flow" x1="200" y1="60" x2="320" y2="100" stroke="rgba(123,111,255,0.3)" stroke-width="1.5"/>
           <line class="edge-flow" x1="80" y1="100" x2="160" y2="160" stroke="rgba(0,229,196,0.2)" stroke-width="1"/>
@@ -1754,13 +1924,11 @@
           <line class="edge-flow" x1="280" y1="160" x2="320" y2="100" stroke="rgba(255,92,138,0.2)" stroke-width="1"/>
           <line class="edge-flow" x1="200" y1="60" x2="160" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
           <line class="edge-flow" x1="200" y1="60" x2="280" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
-          <!-- nodes -->
           <circle class="node-pulse" cx="80" cy="100" r="8" fill="rgba(0,229,196,0.2)" stroke="var(--c-teal)" stroke-width="1.5"/>
           <circle class="node-pulse" cx="200" cy="60" r="10" fill="rgba(123,111,255,0.2)" stroke="var(--c-violet)" stroke-width="1.5"/>
           <circle class="node-pulse" cx="320" cy="100" r="8" fill="rgba(255,92,138,0.2)" stroke="var(--c-rose)" stroke-width="1.5"/>
           <circle class="node-pulse" cx="160" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
           <circle class="node-pulse" cx="280" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
-          <!-- inner dots -->
           <circle cx="80" cy="100" r="3" fill="var(--c-teal)"/>
           <circle cx="200" cy="60" r="4" fill="var(--c-violet)"/>
           <circle cx="320" cy="100" r="3" fill="var(--c-rose)"/>
@@ -1774,378 +1942,62 @@
       </div>
     </div>
 
-    <!-- ROUTE MAP (Duolingo-style recommended path) -->
+    <!-- ROUTE MAP (dynamic) -->
     <div class="route-map" id="start-here">
       <h3 class="route-map-title">Recommended Route</h3>
-      <div class="route-path">
-
-        <div class="route-node" data-skill="CLAUDE.md Setup">
-          <div class="route-orb">1</div>
-          <div>
-            <p class="route-label">Learn</p>
-            <p class="route-skill">CLAUDE.md Setup</p>
-            <p class="route-desc">Define your agent&rsquo;s identity and rules</p>
-          </div>
-        </div>
-
-        <div class="route-dash" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-
-        <div class="route-node" data-skill="Prompt Engineering">
-          <div class="route-orb">2</div>
-          <div>
-            <p class="route-label">Practice</p>
-            <p class="route-skill">Prompt Engineering</p>
-            <p class="route-desc">Structure inputs for better outputs</p>
-          </div>
-        </div>
-
-        <div class="route-dash" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-
-        <div class="route-node" data-skill="Hook System">
-          <div class="route-orb">3</div>
-          <div>
-            <p class="route-label">Ship</p>
-            <p class="route-skill">Hook System</p>
-            <p class="route-desc">Automate linting, tests, and alerts</p>
-          </div>
-        </div>
-
-      </div>
+      <div class="route-path" id="routePath"></div>
     </div>
 
-    <!-- COURSE HEADER -->
-    <div class="course-header" id="course-agentic-os">
-      <div class="course-meta">
-        <p class="course-eyebrow">Course 01</p>
-        <h2 class="course-title">Agentic OS</h2>
-        <p class="course-desc">Build a personal AI operating system &mdash; from CLAUDE.md to sub-agent orchestration.</p>
+    <!-- COURSE HEADER (dynamic) -->
+    <div class="course-header" id="courseHeader"></div>
+
+    <!-- SKILL CARDS (dynamic) -->
+    <section id="skills" aria-label="Skill cards"></section>
+
+    <!-- CREATE A COURSE FORM -->
+    <div class="request-section" id="create-course">
+      <h3>Create a Course</h3>
+      <p class="req-sub">Design your own learning path. It will appear in the sidebar and persist locally.</p>
+
+      <!-- Subject selector (swipeable pills) -->
+      <div class="cc-subject-wrap">
+        <p class="cc-subject-label">Subject</p>
+        <div class="cc-subject-scroller" id="ccSubjectScroller">
+          <button class="cc-subject-pill active" data-cat="ai-core">AI Core</button>
+          <button class="cc-subject-pill" data-cat="automation">Automation</button>
+          <button class="cc-subject-pill" data-cat="engineering">Engineering</button>
+          <button class="cc-subject-pill" data-cat="finance">Finance</button>
+          <button class="cc-subject-pill" data-cat="marketing">Marketing</button>
+          <button class="cc-subject-pill" data-cat="custom">Custom</button>
+        </div>
       </div>
-      <div class="course-progress">
-        <p class="progress-label"><span id="progressCount">0</span>/9 explored</p>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+      <!-- Title + Description expandable boxes -->
+      <div class="cc-fields">
+        <div class="cc-field-box" id="ccTitleBox">
+          <span class="cc-field-label">Title</span>
+          <input class="cc-field-input" type="text" id="ccTitle" placeholder="Course title&hellip;">
+        </div>
+        <div class="cc-field-box" id="ccDescBox">
+          <span class="cc-field-label">Description</span>
+          <textarea class="cc-field-input" id="ccDesc" placeholder="Brief description&hellip;" rows="2"></textarea>
+        </div>
       </div>
+
+      <button class="req-submit" id="ccSubmit">Create &rarr;</button>
     </div>
 
-    <!-- SKILL CARDS -->
-    <section id="skills" aria-label="Skill cards">
-
-      <!-- ── BEGINNER ── -->
-      <div class="level-section open" data-level="beginner">
-        <div class="level-section-header">
-          <svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-          <span class="lsh-label">Beginner</span>
-          <span class="lsh-count">4 skills</span>
-          <svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-        <div class="level-cards">
-
-      <article class="skill-card" data-level="beginner" data-title="CLAUDE.md Setup" data-desc="Tell your agent how your world works.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>CLAUDE.md Setup</h3>
-        <p class="skill-desc">Tell your agent how your world works.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">A <strong>CLAUDE.md</strong> file at your project root gives the agent persistent context — identity, file locations, coding standards, and guardrails. It&rsquo;s read automatically at session start.</p>
-          <div class="code-block"><span class="code-lang">markdown</span><code><span class="cm"># MY-PROJECT &mdash; CLAUDE.md</span>
-
-<span class="cm">## Identity</span>
-<span class="ck">Owner:</span> Your Name
-<span class="ck">Repo:</span>  github.com/you/my-project
-
-<span class="cm">## Code Standards</span>
-<span class="cs">- Python:</span> type hints on all public functions
-<span class="cs">- Tests:</span>  pytest, 80%+ coverage target
-<span class="cs">- Commits:</span> feat(scope): description
-
-<span class="cm">## Guardrails</span>
-<span class="cr">- Never commit secrets or .env files</span>
-<span class="cr">- Run linter before every push</span></code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Keep it under 200 lines. Link to detailed docs instead of inlining everything.</p>
-        </div>
-      </article>
-
-      <article class="skill-card" data-level="beginner" data-title="Prompt Engineering" data-desc="Get better outputs with better inputs.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Prompt Engineering</h3>
-        <p class="skill-desc">Get better outputs with better inputs.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Structure beats length. Give the agent <strong>role</strong>, <strong>context</strong>, <strong>constraints</strong>, and a <strong>concrete example</strong> of the output you want.</p>
-          <div class="code-block"><span class="code-lang">prompt</span><code><span class="cr">&#10008; Vague:</span>
-<span class="cm">"Write me a good commit message"</span>
-
-<span class="ck">&#10004; Structured:</span>
-<span class="cs">"Write a commit message for this diff.</span>
-<span class="cs"> Format: feat(scope): 1-line summary</span>
-<span class="cs"> Rules:</span>
-<span class="cs">  - Under 72 chars</span>
-<span class="cs">  - Imperative mood</span>
-<span class="cs">  - No period at end</span>
-<span class="cs"> Example: feat(auth): add JWT refresh"</span></code></div>
-          <p class="skill-tip"><strong>Tip:</strong> One concrete example is worth 100 words of description. Show, don&rsquo;t tell.</p>
-        </div>
-      </article>
-
-      <article class="skill-card" data-level="beginner" data-title="Skill Files" data-desc="Extend capabilities without writing code.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Skill Files</h3>
-        <p class="skill-desc">Extend capabilities without writing code.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">A <strong>SKILL.md</strong> file teaches an agent a reusable workflow &mdash; no code required. Drop it in <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">.claude/skills/</code> and invoke it by name.</p>
-          <div class="code-block"><span class="code-lang">markdown</span><code><span class="cm">---</span>
-<span class="ck">name:</span> <span class="cs">code-review</span>
-<span class="ck">description:</span> Review a PR for quality
-<span class="cm">---</span>
-
-<span class="cv">## Steps</span>
-1. Read the diff with <span class="cs">`gh pr diff`</span>
-2. Check for:
-   - Missing error handling
-   - Untested code paths
-   - Security concerns
-3. Post review via <span class="cs">`gh pr review`</span>
-
-<span class="cv">## Constraints</span>
-<span class="cr">- Never approve without reading tests</span>
-<span class="cr">- Flag any secrets in the diff</span></code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Invoke with <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">/code-review</code> in the chat. Skills compose &mdash; one skill can call another.</p>
-        </div>
-      </article>
-
-      <article class="skill-card" data-level="beginner" data-title="Open Source Stack" data-desc="Curated fonts and libraries powering the system.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Open Source Stack</h3>
-        <p class="skill-desc">Curated fonts and libraries powering the system.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Every layer of Ophtxn is built on <strong>open source</strong>. Here&rsquo;s the curated type stack and core libraries &mdash; free to inspect, fork, and learn from.</p>
-          <div class="code-block"><span class="code-lang">type stack</span><code><span class="ck">Display</span>     <span class="cs">Instrument Serif</span>  <span class="cm">italic, editorial</span>
-<span class="ck">Body</span>        <span class="cs">Instrument Sans</span>   <span class="cm">400 / 600</span>
-<span class="ck">Mono</span>        <span class="cs">DM Mono</span>           <span class="cm">code blocks, data</span>
-<span class="ck">System</span>      <span class="cs">Orbitron</span>          <span class="cm">700 / 900, HUD labels</span></code></div>
-          <div class="code-block"><span class="code-lang">core libs</span><code><span class="ck">Runtime</span>     <span class="cs">Python 3.12</span>   <span class="cm">+ Flask + SQLite</span>
-<span class="ck">Agent SDK</span>   <span class="cs">Claude Code</span>   <span class="cm">+ MCP protocol</span>
-<span class="ck">Network</span>     <span class="cs">Tailscale</span>     <span class="cm">mesh VPN, zero-config</span>
-<span class="ck">Services</span>    <span class="cs">launchd</span>       <span class="cm">macOS process manager</span>
-<span class="ck">Frontend</span>    <span class="cs">Vanilla JS</span>    <span class="cm">no framework, no build</span></code></div>
-          <p class="skill-tip"><strong>Fonts:</strong> All available free on <a href="https://fonts.google.com" target="_blank" rel="noopener noreferrer" style="color:var(--c-teal);text-decoration:none">Google Fonts</a>. Search by name to preview and download.</p>
-        </div>
-      </article>
-
-        </div><!-- /.level-cards beginner -->
-      </div><!-- /.level-section beginner -->
-
-      <!-- ── INTERMEDIATE ── -->
-      <div class="level-section" data-level="intermediate">
-        <div class="level-section-header">
-          <svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-          <span class="lsh-label">Intermediate</span>
-          <span class="lsh-count">3 skills</span>
-          <svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-        <div class="level-cards">
-
-      <article class="skill-card" data-level="intermediate" data-title="MCP Integration" data-desc="Connect Claude to external tools via protocol.">
-        <span class="badge badge-intermediate">Intermediate</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>MCP Integration</h3>
-        <p class="skill-desc">Connect Claude to external tools via protocol.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">The <strong>Model Context Protocol</strong> lets Claude call external tools &mdash; databases, APIs, browsers. Define servers in your project&rsquo;s <strong>.claude/settings.json</strong>.</p>
-          <div class="code-block"><span class="code-lang">json</span><code>{
-  <span class="cs">"mcpServers"</span>: {
-    <span class="ck">"github"</span>: {
-      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,
-      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,
-        <span class="cs">"@modelcontextprotocol/server-github"</span>]
-    },
-    <span class="ck">"notion"</span>: {
-      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,
-      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,
-        <span class="cs">"notion-mcp-server"</span>]
-    }
-  }
-}</code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Each server exposes tools Claude can call. Run <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">/mcp</code> to see active connections.</p>
-        </div>
-      </article>
-
-      <article class="skill-card" data-level="intermediate" data-title="Hook System" data-desc="Trigger automated workflows from agent events.">
-        <span class="badge badge-intermediate">Intermediate</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Hook System</h3>
-        <p class="skill-desc">Trigger automated workflows from agent events.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text"><strong>Hooks</strong> run shell commands before or after agent actions &mdash; linting on save, tests on commit, notifications on task complete. Defined in <strong>.claude/settings.json</strong>.</p>
-          <div class="code-block"><span class="code-lang">json</span><code>{
-  <span class="cs">"hooks"</span>: {
-    <span class="ck">"PreToolUse"</span>: [{
-      <span class="cv">"matcher"</span>: <span class="cs">"Bash"</span>,
-      <span class="cv">"hooks"</span>: [{
-        <span class="cv">"type"</span>: <span class="cs">"command"</span>,
-        <span class="cv">"command"</span>: <span class="cs">"echo 'Reviewing&hellip;'"</span>
-      }]
-    }],
-    <span class="ck">"PostToolUse"</span>: [{
-      <span class="cv">"matcher"</span>: <span class="cs">"Write"</span>,
-      <span class="cv">"hooks"</span>: [{
-        <span class="cv">"type"</span>: <span class="cs">"command"</span>,
-        <span class="cv">"command"</span>: <span class="cs">"ruff check $CLAUDE_FILE"</span>
-      }]
-    }]
-  }
-}</code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Hook exit code 2 blocks the action. Use PreToolUse to enforce policy before writes.</p>
-        </div>
-      </article>
-
-      <article class="skill-card" data-level="intermediate" data-title="Memory Persistence" data-desc="Retain context and knowledge across sessions.">
-        <span class="badge badge-intermediate">Intermediate</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Memory Persistence</h3>
-        <p class="skill-desc">Retain context and knowledge across sessions.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Give your agent <strong>durable memory</strong> by persisting structured context to files that get loaded at session start. Think of it as the agent&rsquo;s notebook.</p>
-          <div class="code-block"><span class="code-lang">file tree</span><code><span class="ck">memory/</span>
-  <span class="cv">canon/</span>
-    identity.md       <span class="cm"># who you are</span>
-    principles.md     <span class="cm"># operating rules</span>
-  <span class="cv">working/</span>
-    decisions.jsonl   <span class="cm"># logged choices</span>
-    session_state.json <span class="cm"># resumable</span>
-  <span class="cv">reflections/</span>
-    weekly_review.md  <span class="cm"># agent self-eval</span></code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Use JSONL for append-only logs, Markdown for human-readable context. Load in CLAUDE.md bootstrap.</p>
-        </div>
-      </article>
-
-        </div><!-- /.level-cards intermediate -->
-      </div><!-- /.level-section intermediate -->
-
-      <!-- ── ADVANCED ── -->
-      <div class="level-section" data-level="advanced">
-        <div class="level-section-header">
-          <svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span class="lsh-label">Advanced</span>
-          <span class="lsh-count">2 skills</span>
-          <svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-        <div class="level-cards">
-
-      <article class="skill-card" data-level="advanced" data-title="Agent Governance" data-desc="Policy enforcement + human approval gates.">
-        <span class="badge badge-advanced">Advanced</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Agent Governance</h3>
-        <p class="skill-desc">Policy enforcement + human approval gates.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Define <strong>risk tiers</strong> and <strong>approval gates</strong> so agents can act autonomously on safe tasks while escalating anything dangerous to a human.</p>
-          <div class="code-block"><span class="code-lang">python</span><code><span class="ck">RISK_TIERS</span> = {
-  <span class="cs">"low"</span>:  {<span class="cv">"auto"</span>: True},
-  <span class="cs">"med"</span>:  {<span class="cv">"auto"</span>: True,
-           <span class="cv">"log"</span>: True},
-  <span class="cs">"high"</span>: {<span class="cv">"auto"</span>: False,
-           <span class="cv">"require"</span>: <span class="cs">"human_approval"</span>},
-}
-
-<span class="ck">def</span> <span class="cv">gate</span>(action, tier):
-    rule = RISK_TIERS[tier]
-    <span class="ck">if not</span> rule[<span class="cs">"auto"</span>]:
-        <span class="ck">return</span> <span class="cr">request_approval</span>(action)
-    <span class="ck">return</span> <span class="cs">execute</span>(action)</code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Default to no-spend, no-delete. Let the human unlock higher tiers explicitly.</p>
-        </div>
-      </article>
-
-      <article class="skill-card" data-level="advanced" data-title="Sub-agent Orchestration" data-desc="Spawn specialized agents for complex tasks.">
-        <span class="badge badge-advanced">Advanced</span>
-        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>Sub-agent Orchestration</h3>
-        <p class="skill-desc">Spawn specialized agents for complex tasks.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Break complex tasks into smaller pieces and <strong>dispatch specialized sub-agents</strong> for each. A dispatcher routes by risk tier and capability, then merges the results.</p>
-          <div class="code-block"><span class="code-lang">python</span><code><span class="ck">async def</span> <span class="cv">dispatch</span>(task):
-    plan  = <span class="ck">await</span> planner.decompose(task)
-    <span class="cm"># Route sub-tasks to specialists</span>
-    jobs = []
-    <span class="ck">for</span> step <span class="ck">in</span> plan.steps:
-        agent = <span class="cv">pick_agent</span>(step.domain)
-        jobs.append(agent.run(step))
-    results = <span class="ck">await</span> asyncio.gather(*jobs)
-    <span class="cm"># Merge &amp; validate</span>
-    <span class="ck">return</span> <span class="cv">merge_outputs</span>(results)</code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Keep each sub-agent focused on one domain. The dispatcher handles coordination and conflict resolution.</p>
-        </div>
-      </article>
-
-        </div><!-- /.level-cards advanced -->
-      </div><!-- /.level-section advanced -->
-
-    </section>
-
-    <!-- SKILL REQUEST FORM -->
-    <div class="request-section" id="request-skill">
-      <h3>Request a Skill</h3>
-      <p class="req-sub">Describe a skill you&rsquo;d like to learn. Our agents will review and build it.</p>
-      <div class="req-form" id="requestForm">
-        <textarea id="reqText" placeholder="e.g. How to build a Discord bot with Claude&hellip;" rows="2"></textarea>
-        <select id="reqLevel">
-          <option value="beginner">Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="advanced">Advanced</option>
-        </select>
-        <button class="req-submit" id="reqSubmit">Submit &rarr;</button>
-      </div>
-    </div>
-
-    <!-- RESOURCE LINKS -->
-    <div class="resources-wrap">
-      <div class="resources-header">
-        <h2>Resources</h2>
-        <div class="shimmer-line" aria-hidden="true"></div>
-      </div>
-      <div class="resources-grid">
-
-        <div class="res-card cat-github">
-          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> GitHub</h3>
-          <ul class="resource-list">
-            <li><a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>anthropic-cookbook</a></li>
-            <li><a href="https://github.com/heshengtao/awesome-claude" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>awesome-claude</a></li>
-            <li><a href="https://github.com/modelcontextprotocol" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>MCP org</a></li>
-            <li><a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>claude-code</a></li>
-          </ul>
-        </div>
-
-        <div class="res-card cat-social">
-          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Socials</h3>
-          <ul class="resource-list">
-            <li><a href="https://x.com/ophtxn" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>@ophtxn</a></li>
-            <li><a href="https://www.youtube.com/@simonwillison" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Simon Willison</a></li>
-            <li><a href="https://x.com/AnthropicAI" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>@AnthropicAI</a></li>
-            <li><a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>permanence-os</a></li>
-          </ul>
-        </div>
-
-        <div class="res-card cat-docs">
-          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> Docs</h3>
-          <ul class="resource-list">
-            <li><a href="https://docs.anthropic.com" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>docs.anthropic.com</a></li>
-            <li><a href="https://docs.anthropic.com/en/api/getting-started" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Claude API reference</a></li>
-            <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>MCP specification</a></li>
-            <li><a href="https://fonts.google.com" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Google Fonts</a></li>
-          </ul>
-        </div>
-
-        <div class="res-card cat-sources" id="sources-trigger">
-          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Sources</h3>
-          <p style="margin:0;color:var(--muted);font-size:13px;line-height:1.5;">Research, papers, and references behind the skill content on this page.</p>
-          <button class="sources-cta">&rarr; View all sources</button>
-        </div>
-
+    <!-- SUGGESTED SKILLS -->
+    <div class="suggest-bar" id="suggestBar">
+      <p class="suggest-bar-label">Explore More Skills</p>
+      <div class="suggest-bar-items" id="suggestItems">
+        <span class="suggest-pill" data-course="agentic-os">Agentic OS</span>
+        <span class="suggest-pill" data-course="ai-workflows">AI Workflows</span>
+        <span class="suggest-pill" data-course="python-ai">Python + AI</span>
+        <span class="suggest-pill" data-course="personal-finance">Personal Finance</span>
+        <span class="suggest-pill" data-course="business-finance">Business Finance</span>
+        <span class="suggest-pill" data-course="marketing-ai">Marketing</span>
+        <span class="suggest-pill" data-course="trading-ai">Trading</span>
       </div>
     </div>
 
@@ -2211,91 +2063,892 @@
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
+  <!-- FAB BOT -->
+  <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+  </div>
+  <div class="fab-popup" id="fabPopup">
+    <p class="fab-popup-label">Ask Ophtxn</p>
+    <input type="text" id="fabInput" placeholder="Type a question&hellip;" autocomplete="off">
+  </div>
   <script>
     (function () {
       'use strict';
 
-      /* ── DOM refs ── */
-      var searchInput = document.getElementById('search-input');
+      /* ================================================================
+         COURSE REGISTRY
+         ================================================================ */
+      var COURSE_REGISTRY = {
+
+        /* ── COURSE 01: Agentic OS ── */
+        'agentic-os': {
+          id: 'agentic-os',
+          num: '01',
+          title: 'Agentic OS',
+          category: 'ai-core',
+          desc: 'Build a personal AI operating system &mdash; from CLAUDE.md to sub-agent orchestration.',
+          color: '--c-teal',
+          icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
+          skills: [
+            {
+              title: 'CLAUDE.md Setup',
+              level: 'beginner',
+              desc: 'Tell your agent how your world works.',
+              icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
+              detail: '<p class="skill-detail-text">A <strong>CLAUDE.md</strong> file at your project root gives the agent persistent context &mdash; identity, file locations, coding standards, and guardrails. It&rsquo;s read automatically at session start.</p><div class="code-block"><span class="code-lang">markdown</span><code><span class="cm"># MY-PROJECT &mdash; CLAUDE.md</span>\n\n<span class="cm">## Identity</span>\n<span class="ck">Owner:</span> Your Name\n<span class="ck">Repo:</span>  github.com/you/my-project\n\n<span class="cm">## Code Standards</span>\n<span class="cs">- Python:</span> type hints on all public functions\n<span class="cs">- Tests:</span>  pytest, 80%+ coverage target\n<span class="cs">- Commits:</span> feat(scope): description\n\n<span class="cm">## Guardrails</span>\n<span class="cr">- Never commit secrets or .env files</span>\n<span class="cr">- Run linter before every push</span></code></div><p class="skill-tip"><strong>Tip:</strong> Keep it under 200 lines. Link to detailed docs instead of inlining everything.</p>',
+              tip: 'Keep it under 200 lines. Link to detailed docs instead of inlining everything.'
+            },
+            {
+              title: 'Prompt Engineering',
+              level: 'beginner',
+              desc: 'Get better outputs with better inputs.',
+              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
+              detail: '<p class="skill-detail-text">Structure beats length. Give the agent <strong>role</strong>, <strong>context</strong>, <strong>constraints</strong>, and a <strong>concrete example</strong> of the output you want.</p><div class="code-block"><span class="code-lang">prompt</span><code><span class="cr">&#10008; Vague:</span>\n<span class="cm">"Write me a good commit message"</span>\n\n<span class="ck">&#10004; Structured:</span>\n<span class="cs">"Write a commit message for this diff.</span>\n<span class="cs"> Format: feat(scope): 1-line summary</span>\n<span class="cs"> Rules:</span>\n<span class="cs">  - Under 72 chars</span>\n<span class="cs">  - Imperative mood</span>\n<span class="cs">  - No period at end</span>\n<span class="cs"> Example: feat(auth): add JWT refresh"</span></code></div><p class="skill-tip"><strong>Tip:</strong> One concrete example is worth 100 words of description. Show, don&rsquo;t tell.</p>',
+              tip: 'One concrete example is worth 100 words of description.'
+            },
+            {
+              title: 'Skill Files',
+              level: 'beginner',
+              desc: 'Extend capabilities without writing code.',
+              icon: 'M12 2l-10 5 10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text">A <strong>SKILL.md</strong> file teaches an agent a reusable workflow &mdash; no code required. Drop it in <code style="color:var(--c-teal);font-family:\'DM Mono\',monospace;font-size:12px">.claude/skills/</code> and invoke it by name.</p><div class="code-block"><span class="code-lang">markdown</span><code><span class="cm">---</span>\n<span class="ck">name:</span> <span class="cs">code-review</span>\n<span class="ck">description:</span> Review a PR for quality\n<span class="cm">---</span>\n\n<span class="cv">## Steps</span>\n1. Read the diff with <span class="cs">`gh pr diff`</span>\n2. Check for:\n   - Missing error handling\n   - Untested code paths\n   - Security concerns\n3. Post review via <span class="cs">`gh pr review`</span>\n\n<span class="cv">## Constraints</span>\n<span class="cr">- Never approve without reading tests</span>\n<span class="cr">- Flag any secrets in the diff</span></code></div><p class="skill-tip"><strong>Tip:</strong> Invoke with <code style="color:var(--c-teal);font-family:\'DM Mono\',monospace;font-size:12px">/code-review</code> in the chat. Skills compose &mdash; one skill can call another.</p>',
+              tip: 'Skills compose &mdash; one skill can call another.'
+            },
+            {
+              title: 'Open Source Stack',
+              level: 'beginner',
+              desc: 'Curated fonts and libraries powering the system.',
+              icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12',
+              detail: '<p class="skill-detail-text">Every layer of Ophtxn is built on <strong>open source</strong>. Here&rsquo;s the curated type stack and core libraries &mdash; free to inspect, fork, and learn from.</p><div class="code-block"><span class="code-lang">type stack</span><code><span class="ck">Display</span>     <span class="cs">Instrument Serif</span>  <span class="cm">italic, editorial</span>\n<span class="ck">Body</span>        <span class="cs">Instrument Sans</span>   <span class="cm">400 / 600</span>\n<span class="ck">Mono</span>        <span class="cs">DM Mono</span>           <span class="cm">code blocks, data</span>\n<span class="ck">System</span>      <span class="cs">Orbitron</span>          <span class="cm">700 / 900, HUD labels</span></code></div><div class="code-block"><span class="code-lang">core libs</span><code><span class="ck">Runtime</span>     <span class="cs">Python 3.12</span>   <span class="cm">+ Flask + SQLite</span>\n<span class="ck">Agent SDK</span>   <span class="cs">Claude Code</span>   <span class="cm">+ MCP protocol</span>\n<span class="ck">Network</span>     <span class="cs">Tailscale</span>     <span class="cm">mesh VPN, zero-config</span>\n<span class="ck">Services</span>    <span class="cs">launchd</span>       <span class="cm">macOS process manager</span>\n<span class="ck">Frontend</span>    <span class="cs">Vanilla JS</span>    <span class="cm">no framework, no build</span></code></div><p class="skill-tip"><strong>Fonts:</strong> All available free on Google Fonts. Search by name to preview and download.</p>',
+              tip: 'All fonts available free on Google Fonts.'
+            },
+            {
+              title: 'MCP Integration',
+              level: 'intermediate',
+              desc: 'Connect Claude to external tools via protocol.',
+              icon: 'M12 12m-3 0a3 3 0 106 0 3 3 0 10-6 0z M12 1v4 M12 19v4 M4.22 4.22l2.83 2.83 M16.95 16.95l2.83 2.83 M1 12h4 M19 12h4 M4.22 19.78l2.83-2.83 M16.95 7.05l2.83-2.83',
+              detail: '<p class="skill-detail-text">The <strong>Model Context Protocol</strong> lets Claude call external tools &mdash; databases, APIs, browsers. Define servers in your project&rsquo;s <strong>.claude/settings.json</strong>.</p><div class="code-block"><span class="code-lang">json</span><code>{\n  <span class="cs">"mcpServers"</span>: {\n    <span class="ck">"github"</span>: {\n      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,\n      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,\n        <span class="cs">"@modelcontextprotocol/server-github"</span>]\n    },\n    <span class="ck">"notion"</span>: {\n      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,\n      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,\n        <span class="cs">"notion-mcp-server"</span>]\n    }\n  }\n}</code></div><p class="skill-tip"><strong>Tip:</strong> Each server exposes tools Claude can call. Run <code style="color:var(--c-teal);font-family:\'DM Mono\',monospace;font-size:12px">/mcp</code> to see active connections.</p>',
+              tip: 'Run /mcp to see active connections.'
+            },
+            {
+              title: 'Hook System',
+              level: 'intermediate',
+              desc: 'Trigger automated workflows from agent events.',
+              icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+              detail: '<p class="skill-detail-text"><strong>Hooks</strong> run shell commands before or after agent actions &mdash; linting on save, tests on commit, notifications on task complete. Defined in <strong>.claude/settings.json</strong>.</p><div class="code-block"><span class="code-lang">json</span><code>{\n  <span class="cs">"hooks"</span>: {\n    <span class="ck">"PreToolUse"</span>: [{\n      <span class="cv">"matcher"</span>: <span class="cs">"Bash"</span>,\n      <span class="cv">"hooks"</span>: [{\n        <span class="cv">"type"</span>: <span class="cs">"command"</span>,\n        <span class="cv">"command"</span>: <span class="cs">"echo \'Reviewing&hellip;\'"</span>\n      }]\n    }],\n    <span class="ck">"PostToolUse"</span>: [{\n      <span class="cv">"matcher"</span>: <span class="cs">"Write"</span>,\n      <span class="cv">"hooks"</span>: [{\n        <span class="cv">"type"</span>: <span class="cs">"command"</span>,\n        <span class="cv">"command"</span>: <span class="cs">"ruff check $CLAUDE_FILE"</span>\n      }]\n    }]\n  }\n}</code></div><p class="skill-tip"><strong>Tip:</strong> Hook exit code 2 blocks the action. Use PreToolUse to enforce policy before writes.</p>',
+              tip: 'Hook exit code 2 blocks the action.'
+            },
+            {
+              title: 'Memory Persistence',
+              level: 'intermediate',
+              desc: 'Retain context and knowledge across sessions.',
+              icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z',
+              detail: '<p class="skill-detail-text">Give your agent <strong>durable memory</strong> by persisting structured context to files that get loaded at session start. Think of it as the agent&rsquo;s notebook.</p><div class="code-block"><span class="code-lang">file tree</span><code><span class="ck">memory/</span>\n  <span class="cv">canon/</span>\n    identity.md       <span class="cm"># who you are</span>\n    principles.md     <span class="cm"># operating rules</span>\n  <span class="cv">working/</span>\n    decisions.jsonl   <span class="cm"># logged choices</span>\n    session_state.json <span class="cm"># resumable</span>\n  <span class="cv">reflections/</span>\n    weekly_review.md  <span class="cm"># agent self-eval</span></code></div><p class="skill-tip"><strong>Tip:</strong> Use JSONL for append-only logs, Markdown for human-readable context. Load in CLAUDE.md bootstrap.</p>',
+              tip: 'Use JSONL for append-only logs, Markdown for human-readable context.'
+            },
+            {
+              title: 'Agent Governance',
+              level: 'advanced',
+              desc: 'Policy enforcement + human approval gates.',
+              icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+              detail: '<p class="skill-detail-text">Define <strong>risk tiers</strong> and <strong>approval gates</strong> so agents can act autonomously on safe tasks while escalating anything dangerous to a human.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">RISK_TIERS</span> = {\n  <span class="cs">"low"</span>:  {<span class="cv">"auto"</span>: True},\n  <span class="cs">"med"</span>:  {<span class="cv">"auto"</span>: True,\n           <span class="cv">"log"</span>: True},\n  <span class="cs">"high"</span>: {<span class="cv">"auto"</span>: False,\n           <span class="cv">"require"</span>: <span class="cs">"human_approval"</span>},\n}\n\n<span class="ck">def</span> <span class="cv">gate</span>(action, tier):\n    rule = RISK_TIERS[tier]\n    <span class="ck">if not</span> rule[<span class="cs">"auto"</span>]:\n        <span class="ck">return</span> <span class="cr">request_approval</span>(action)\n    <span class="ck">return</span> <span class="cs">execute</span>(action)</code></div><p class="skill-tip"><strong>Tip:</strong> Default to no-spend, no-delete. Let the human unlock higher tiers explicitly.</p>',
+              tip: 'Default to no-spend, no-delete.'
+            },
+            {
+              title: 'Sub-agent Orchestration',
+              level: 'advanced',
+              desc: 'Spawn specialized agents for complex tasks.',
+              icon: 'M12 12m-10 0a10 10 0 1020 0 10 10 0 10-20 0z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z',
+              detail: '<p class="skill-detail-text">Break complex tasks into smaller pieces and <strong>dispatch specialized sub-agents</strong> for each. A dispatcher routes by risk tier and capability, then merges the results.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">async def</span> <span class="cv">dispatch</span>(task):\n    plan  = <span class="ck">await</span> planner.decompose(task)\n    <span class="cm"># Route sub-tasks to specialists</span>\n    jobs = []\n    <span class="ck">for</span> step <span class="ck">in</span> plan.steps:\n        agent = <span class="cv">pick_agent</span>(step.domain)\n        jobs.append(agent.run(step))\n    results = <span class="ck">await</span> asyncio.gather(*jobs)\n    <span class="cm"># Merge &amp; validate</span>\n    <span class="ck">return</span> <span class="cv">merge_outputs</span>(results)</code></div><p class="skill-tip"><strong>Tip:</strong> Keep each sub-agent focused on one domain. The dispatcher handles coordination and conflict resolution.</p>',
+              tip: 'Keep each sub-agent focused on one domain.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Learn', skill: 'CLAUDE.md Setup', desc: 'Define your agent&rsquo;s identity and rules' },
+              { label: 'Practice', skill: 'Prompt Engineering', desc: 'Structure inputs for better outputs' },
+              { label: 'Ship', skill: 'Skill Files', desc: 'Create reusable agent workflows' }
+            ],
+            intermediate: [
+              { label: 'Connect', skill: 'MCP Integration', desc: 'Wire Claude to external tools' },
+              { label: 'Automate', skill: 'Hook System', desc: 'Trigger workflows on agent events' },
+              { label: 'Remember', skill: 'Memory Persistence', desc: 'Persist context across sessions' }
+            ],
+            advanced: [
+              { label: 'Govern', skill: 'Agent Governance', desc: 'Policy enforcement and approval gates' },
+              { label: 'Scale', skill: 'Sub-agent Orchestration', desc: 'Dispatch specialized agent teams' }
+            ]
+          }
+        },
+
+        /* ── COURSE 02: AI Workflows ── */
+        'ai-workflows': {
+          id: 'ai-workflows',
+          num: '02',
+          title: 'AI Workflows',
+          category: 'automation',
+          desc: 'Automate everything &mdash; from simple triggers to multi-agent pipelines.',
+          color: '--c-violet',
+          icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+          skills: [
+            {
+              title: 'Workflow Basics',
+              level: 'beginner',
+              desc: 'Triggers, actions, and data flow fundamentals.',
+              icon: 'M22 11.08V12a10 10 0 11-5.93-9.14',
+              detail: '<p class="skill-detail-text">Every automation has three parts: a <strong>trigger</strong> (what starts it), <strong>actions</strong> (what happens), and <strong>data flow</strong> (how information moves between steps). Master these and you can automate anything.</p><div class="code-block"><span class="code-lang">yaml</span><code><span class="ck">trigger:</span> <span class="cs">new_email</span>\n<span class="ck">filter:</span>  <span class="cs">subject contains "invoice"</span>\n<span class="ck">actions:</span>\n  - <span class="cv">extract_amount</span>(email.body)\n  - <span class="cv">log_to_sheet</span>(amount, date)\n  - <span class="cv">send_slack</span>(<span class="cs">"New invoice: ${{amount}}"</span>)</code></div><p class="skill-tip"><strong>Tip:</strong> Start with the simplest trigger-action pair. Add complexity only when the basic flow works.</p>',
+              tip: 'Start with the simplest trigger-action pair.'
+            },
+            {
+              title: 'n8n First Flow',
+              level: 'beginner',
+              desc: 'Build your first n8n automation end to end.',
+              icon: 'M4 4h16v16H4z M9 9h6v6H9z',
+              detail: '<p class="skill-detail-text"><strong>n8n</strong> is an open-source workflow automation tool. Build visual pipelines that connect APIs, databases, and AI models with a drag-and-drop interface.</p><div class="code-block"><span class="code-lang">n8n flow</span><code><span class="ck">Webhook</span> &rarr; <span class="cv">Set Fields</span> &rarr; <span class="cs">HTTP Request</span> &rarr; <span class="cv">IF</span>\n  &rarr; <span class="cs">Success:</span> Slack notification\n  &rarr; <span class="cr">Failure:</span> Email alert\n\n<span class="cm"># Install: docker run -p 5678:5678 n8nio/n8n</span>\n<span class="cm"># Open: http://localhost:5678</span></code></div><p class="skill-tip"><strong>Tip:</strong> Use the webhook trigger for instant testing. Pin sample data to avoid re-triggering while building.</p>',
+              tip: 'Use the webhook trigger for instant testing.'
+            },
+            {
+              title: 'Template Library',
+              level: 'beginner',
+              desc: 'Save, share, and reuse workflow templates.',
+              icon: 'M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z',
+              detail: '<p class="skill-detail-text">Don&rsquo;t rebuild flows from scratch. Export working workflows as <strong>JSON templates</strong>, version them in Git, and share across your team or community.</p><div class="code-block"><span class="code-lang">bash</span><code><span class="cm"># Export a workflow</span>\n<span class="ck">n8n</span> export:workflow --id=12 \\\n  --output=<span class="cs">templates/invoice-processor.json</span>\n\n<span class="cm"># Import on another machine</span>\n<span class="ck">n8n</span> import:workflow \\\n  --input=<span class="cs">templates/invoice-processor.json</span></code></div><p class="skill-tip"><strong>Tip:</strong> Strip credentials from templates before sharing. Use environment variables for sensitive values.</p>',
+              tip: 'Strip credentials from templates before sharing.'
+            },
+            {
+              title: 'LangGraph Pipelines',
+              level: 'intermediate',
+              desc: 'Stateful agent workflows with decision graphs.',
+              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text"><strong>LangGraph</strong> lets you build stateful, multi-step agent workflows as directed graphs. Each node is a function, edges define control flow, and state persists across steps.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">from</span> langgraph.graph <span class="ck">import</span> StateGraph\n\n<span class="cv">graph</span> = StateGraph(AgentState)\ngraph.add_node(<span class="cs">"research"</span>, research_fn)\ngraph.add_node(<span class="cs">"draft"</span>, draft_fn)\ngraph.add_node(<span class="cs">"review"</span>, review_fn)\n\ngraph.add_edge(<span class="cs">"research"</span>, <span class="cs">"draft"</span>)\ngraph.add_conditional_edges(\n    <span class="cs">"review"</span>,\n    should_revise,\n    {<span class="cs">"revise"</span>: <span class="cs">"draft"</span>, <span class="cs">"done"</span>: END}\n)\n<span class="cv">app</span> = graph.compile()</code></div><p class="skill-tip"><strong>Tip:</strong> Use conditional edges for branching logic. The graph automatically handles retries and state persistence.</p>',
+              tip: 'Use conditional edges for branching logic.'
+            },
+            {
+              title: 'API Orchestration',
+              level: 'intermediate',
+              desc: 'Chain multiple APIs with error handling.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Real workflows chain multiple APIs together. Handle <strong>rate limits</strong>, <strong>retries</strong>, and <strong>cascading failures</strong> gracefully to build reliable multi-service pipelines.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> httpx\n<span class="ck">from</span> tenacity <span class="ck">import</span> retry, stop_after_attempt\n\n<span class="ck">@retry</span>(stop=stop_after_attempt(3))\n<span class="ck">async def</span> <span class="cv">enrich_lead</span>(email):\n    <span class="cm"># Step 1: Lookup company</span>\n    co = <span class="ck">await</span> client.get(\n        <span class="cs">f"https://api.clearbit.com/v1/{email}"</span>)\n    <span class="cm"># Step 2: Score lead</span>\n    score = <span class="ck">await</span> client.post(\n        <span class="cs">"https://api.openai.com/v1/chat"</span>,\n        json={<span class="cs">"prompt"</span>: <span class="cs">f"Score: {co.json()}"</span>})\n    <span class="ck">return</span> {<span class="cs">"company"</span>: co, <span class="cs">"score"</span>: score}</code></div><p class="skill-tip"><strong>Tip:</strong> Always set timeouts on HTTP calls. Use circuit breakers for third-party APIs that go down frequently.</p>',
+              tip: 'Always set timeouts on HTTP calls.'
+            },
+            {
+              title: 'Multi-Agent Pipelines',
+              level: 'advanced',
+              desc: 'Coordinate agent teams across workflow stages.',
+              icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 7a4 4 0 100-8 4 4 0 000 8z M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75',
+              detail: '<p class="skill-detail-text">For complex tasks, deploy <strong>multiple specialized agents</strong> in a pipeline. A coordinator routes tasks, agents execute in parallel, and a merger validates outputs.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">Pipeline</span>:\n    agents = {\n        <span class="cs">"researcher"</span>: ResearchAgent(),\n        <span class="cs">"writer"</span>: WriterAgent(),\n        <span class="cs">"reviewer"</span>: ReviewAgent(),\n    }\n\n    <span class="ck">async def</span> <span class="cv">run</span>(self, task):\n        research = <span class="ck">await</span> self.agents[<span class="cs">"researcher"</span>].run(task)\n        draft = <span class="ck">await</span> self.agents[<span class="cs">"writer"</span>].run(research)\n        review = <span class="ck">await</span> self.agents[<span class="cs">"reviewer"</span>].run(draft)\n        <span class="ck">if</span> review.needs_revision:\n            <span class="ck">return await</span> self.<span class="cv">run</span>(review.feedback)\n        <span class="ck">return</span> review.final</code></div><p class="skill-tip"><strong>Tip:</strong> Give each agent a single responsibility. Let the pipeline handle coordination and error recovery.</p>',
+              tip: 'Give each agent a single responsibility.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Learn', skill: 'Workflow Basics', desc: 'Triggers, actions, data flow' },
+              { label: 'Build', skill: 'n8n First Flow', desc: 'Your first visual automation' },
+              { label: 'Save', skill: 'Template Library', desc: 'Reuse and share workflows' }
+            ],
+            intermediate: [
+              { label: 'Graph', skill: 'LangGraph Pipelines', desc: 'Stateful agent decision graphs' },
+              { label: 'Chain', skill: 'API Orchestration', desc: 'Multi-API error handling' }
+            ],
+            advanced: [
+              { label: 'Scale', skill: 'Multi-Agent Pipelines', desc: 'Coordinate agent teams' }
+            ]
+          }
+        },
+
+        /* ── COURSE 03: Python + AI ── */
+        'python-ai': {
+          id: 'python-ai',
+          num: '03',
+          title: 'Python + AI',
+          category: 'engineering',
+          desc: 'From scripts to production agents &mdash; Python as the AI engineering language.',
+          color: '--c-gold',
+          icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z M2 12h20',
+          skills: [
+            {
+              title: 'Python for Automation',
+              level: 'beginner',
+              desc: 'Scripts, APIs, and file operations.',
+              icon: 'M4 17l6-6-6-6 M12 19h8',
+              detail: '<p class="skill-detail-text">Python is the backbone of AI automation. Master <strong>file I/O</strong>, <strong>API calls</strong>, and <strong>scripting patterns</strong> to build the glue that holds your agent stack together.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> pathlib, json, httpx\n\n<span class="cm"># Read config</span>\n<span class="cv">config</span> = json.loads(\n    pathlib.Path(<span class="cs">"config.json"</span>).read_text())\n\n<span class="cm"># Call an API</span>\n<span class="cv">resp</span> = httpx.get(\n    config[<span class="cs">"api_url"</span>],\n    headers={<span class="cs">"Authorization"</span>: <span class="cs">f"Bearer {config[\'key\']}"</span>})\n\n<span class="cm"># Write results</span>\npathlib.Path(<span class="cs">"output.json"</span>).write_text(\n    json.dumps(resp.json(), indent=2))</code></div><p class="skill-tip"><strong>Tip:</strong> Use pathlib over os.path. Use httpx over requests for async support.</p>',
+              tip: 'Use pathlib over os.path. Use httpx over requests.'
+            },
+            {
+              title: 'Data Wrangling',
+              level: 'beginner',
+              desc: 'Pandas, cleaning, and transformation.',
+              icon: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18',
+              detail: '<p class="skill-detail-text">Before any AI model can help, the data needs to be clean. Learn <strong>pandas</strong> for tabular data, <strong>cleaning patterns</strong>, and <strong>transformation pipelines</strong>.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> pandas <span class="ck">as</span> pd\n\n<span class="cv">df</span> = pd.read_csv(<span class="cs">"transactions.csv"</span>)\n\n<span class="cm"># Clean</span>\ndf[<span class="cs">"amount"</span>] = df[<span class="cs">"amount"</span>].str.replace(<span class="cs">"$"</span>, <span class="cs">""</span>).astype(float)\ndf[<span class="cs">"date"</span>] = pd.to_datetime(df[<span class="cs">"date"</span>])\ndf = df.dropna(subset=[<span class="cs">"category"</span>])\n\n<span class="cm"># Transform</span>\n<span class="cv">monthly</span> = df.groupby(\n    df[<span class="cs">"date"</span>].dt.to_period(<span class="cs">"M"</span>)\n)[<span class="cs">"amount"</span>].sum()</code></div><p class="skill-tip"><strong>Tip:</strong> Always check df.info() and df.describe() before transforming. Missing data hides everywhere.</p>',
+              tip: 'Always check df.info() and df.describe() first.'
+            },
+            {
+              title: 'API Integration',
+              level: 'beginner',
+              desc: 'REST, authentication, and rate limiting.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Most AI tools are accessed through <strong>REST APIs</strong>. Understand <strong>authentication</strong> (API keys, OAuth), <strong>rate limits</strong>, and <strong>pagination</strong> to integrate any service.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> httpx, time\n\n<span class="ck">class</span> <span class="cv">APIClient</span>:\n    <span class="ck">def</span> __init__(self, base, key):\n        self.client = httpx.Client(\n            base_url=base,\n            headers={<span class="cs">"Authorization"</span>: <span class="cs">f"Bearer {key}"</span>},\n            timeout=30)\n\n    <span class="ck">def</span> <span class="cv">get_paginated</span>(self, endpoint):\n        results, page = [], 1\n        <span class="ck">while True</span>:\n            r = self.client.get(endpoint,\n                params={<span class="cs">"page"</span>: page})\n            data = r.json()\n            results.extend(data[<span class="cs">"items"</span>])\n            <span class="ck">if not</span> data.get(<span class="cs">"next"</span>): <span class="ck">break</span>\n            page += 1\n            time.sleep(0.5)  <span class="cm"># rate limit</span>\n        <span class="ck">return</span> results</code></div><p class="skill-tip"><strong>Tip:</strong> Always respect rate limits. A 429 response means slow down, not retry harder.</p>',
+              tip: 'A 429 response means slow down, not retry harder.'
+            },
+            {
+              title: 'LLM Integration',
+              level: 'intermediate',
+              desc: 'OpenAI/Anthropic SDKs, streaming, tool use.',
+              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
+              detail: '<p class="skill-detail-text">Connect your Python code to <strong>LLM APIs</strong> directly. Learn <strong>streaming responses</strong>, <strong>tool/function calling</strong>, and <strong>structured outputs</strong> for reliable AI integration.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> anthropic\n\n<span class="cv">client</span> = anthropic.Anthropic()\n\n<span class="cm"># Streaming response</span>\n<span class="ck">with</span> client.messages.stream(\n    model=<span class="cs">"claude-sonnet-4-20250514"</span>,\n    max_tokens=1024,\n    messages=[{<span class="cs">"role"</span>: <span class="cs">"user"</span>,\n               <span class="cs">"content"</span>: <span class="cs">"Analyze this CSV"</span>}]\n) <span class="ck">as</span> stream:\n    <span class="ck">for</span> text <span class="ck">in</span> stream.text_stream:\n        print(text, end=<span class="cs">""</span>, flush=True)</code></div><p class="skill-tip"><strong>Tip:</strong> Use streaming for long responses &mdash; it feels 10x faster to the user even though total time is similar.</p>',
+              tip: 'Use streaming for long responses.'
+            },
+            {
+              title: 'Agent Loops',
+              level: 'intermediate',
+              desc: 'ReAct pattern, tool calling, and memory.',
+              icon: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0114.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0020.49 15',
+              detail: '<p class="skill-detail-text">The <strong>ReAct pattern</strong> (Reason + Act) is the foundation of useful agents. The agent thinks, picks a tool, observes the result, and loops until the task is done.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">agent_loop</span>(task, tools, max_steps=10):\n    messages = [{<span class="cs">"role"</span>: <span class="cs">"user"</span>, <span class="cs">"content"</span>: task}]\n    <span class="ck">for</span> _ <span class="ck">in</span> range(max_steps):\n        resp = llm.chat(messages, tools=tools)\n        <span class="ck">if</span> resp.stop_reason == <span class="cs">"end_turn"</span>:\n            <span class="ck">return</span> resp.content\n        <span class="cm"># Execute tool calls</span>\n        <span class="ck">for</span> call <span class="ck">in</span> resp.tool_calls:\n            result = tools[call.name](call.args)\n            messages.append(\n                {<span class="cs">"role"</span>: <span class="cs">"tool"</span>,\n                 <span class="cs">"content"</span>: str(result)})\n    <span class="ck">return</span> <span class="cr">"Max steps reached"</span></code></div><p class="skill-tip"><strong>Tip:</strong> Always set a max_steps limit. Agents without bounds will loop forever on edge cases.</p>',
+              tip: 'Always set a max_steps limit.'
+            },
+            {
+              title: 'Production Agents',
+              level: 'advanced',
+              desc: 'Deployment, monitoring, error recovery, scaling.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">Moving agents from notebooks to <strong>production</strong> requires observability, graceful error handling, structured logging, and deployment strategies.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> structlog, sentry_sdk\n\n<span class="cv">log</span> = structlog.get_logger()\n\n<span class="ck">class</span> <span class="cv">ProductionAgent</span>:\n    <span class="ck">def</span> <span class="cv">run</span>(self, task):\n        <span class="ck">with</span> sentry_sdk.start_transaction(\n            name=<span class="cs">"agent.run"</span>):\n            <span class="ck">try</span>:\n                result = self._execute(task)\n                log.info(<span class="cs">"task.complete"</span>,\n                    task=task, tokens=result.usage)\n                <span class="ck">return</span> result\n            <span class="ck">except</span> Exception <span class="ck">as</span> e:\n                log.error(<span class="cs">"task.failed"</span>, error=str(e))\n                <span class="ck">return</span> self._fallback(task, e)</code></div><p class="skill-tip"><strong>Tip:</strong> Log token usage and latency for every call. Cost surprises kill AI projects.</p>',
+              tip: 'Log token usage and latency for every call.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Script', skill: 'Python for Automation', desc: 'Files, APIs, scripting' },
+              { label: 'Clean', skill: 'Data Wrangling', desc: 'Pandas and transformation' },
+              { label: 'Connect', skill: 'API Integration', desc: 'REST, auth, rate limits' }
+            ],
+            intermediate: [
+              { label: 'Chat', skill: 'LLM Integration', desc: 'SDKs and streaming' },
+              { label: 'Loop', skill: 'Agent Loops', desc: 'ReAct and tool calling' }
+            ],
+            advanced: [
+              { label: 'Deploy', skill: 'Production Agents', desc: 'Monitoring and scaling' }
+            ]
+          }
+        },
+        /* ── COURSE 04: Personal Finance & Accounting ── */
+        'personal-finance': {
+          id: 'personal-finance',
+          num: '04',
+          title: 'Personal Finance &amp; Accounting',
+          category: 'finance',
+          desc: 'AI agents that manage your money &mdash; budgets, taxes, investments, and planning.',
+          color: '--c-gold',
+          icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+          skills: [
+            {
+              title: 'Budget Automation',
+              level: 'beginner',
+              desc: 'AI agents that categorize transactions and track spending.',
+              icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+              detail: '<p class="skill-detail-text">Build an agent that <strong>automatically categorizes</strong> bank transactions, tracks spending against budgets, and sends weekly summaries &mdash; no spreadsheet required.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">categorize_transaction</span>(txn):\n    prompt = <span class="cs">f"""Categorize this transaction:\n    {txn[\'description\']} - ${txn[\'amount\']}\n    Categories: groceries, dining, transport,\n    utilities, entertainment, other"""</span>\n    category = llm.complete(prompt).strip()\n    <span class="ck">return</span> {\n        <span class="cs">"date"</span>: txn[<span class="cs">"date"</span>],\n        <span class="cs">"amount"</span>: txn[<span class="cs">"amount"</span>],\n        <span class="cs">"category"</span>: category,\n        <span class="cs">"budget_remaining"</span>: get_budget(category)\n    }</code></div><p class="skill-tip"><strong>Tip:</strong> Train on your own transactions first. Generic categories miss your actual spending patterns.</p>',
+              tip: 'Train on your own transactions first.'
+            },
+            {
+              title: 'Tax Prep Assistant',
+              level: 'beginner',
+              desc: 'Organize receipts and estimate deductions with agents.',
+              icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8',
+              detail: '<p class="skill-detail-text">An agent that <strong>scans receipts</strong>, extracts amounts, matches to tax categories, and estimates your deductions throughout the year &mdash; not just at tax time.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">process_receipt</span>(image_path):\n    <span class="cm"># Extract with vision model</span>\n    data = vision_model.extract(\n        image_path,\n        schema={<span class="cs">"vendor"</span>: str,\n                <span class="cs">"amount"</span>: float,\n                <span class="cs">"date"</span>: str,\n                <span class="cs">"items"</span>: list})\n    <span class="cm"># Match to tax category</span>\n    data[<span class="cs">"deduction_type"</span>] = classify_deduction(\n        data[<span class="cs">"vendor"</span>], data[<span class="cs">"items"</span>])\n    db.receipts.insert(data)\n    <span class="ck">return</span> data</code></div><p class="skill-tip"><strong>Tip:</strong> Process receipts the same day. Waiting until April means lost deductions and missing context.</p>',
+              tip: 'Process receipts the same day you get them.'
+            },
+            {
+              title: 'Expense Intelligence',
+              level: 'intermediate',
+              desc: 'Pattern detection, anomaly flagging, spending forecasts.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">Go beyond categorization. Build agents that <strong>detect spending patterns</strong>, flag anomalies (unexpected charges, subscription creep), and forecast next month&rsquo;s expenses.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">detect_anomalies</span>(transactions):\n    <span class="cm"># Group by category, compute stats</span>\n    stats = transactions.groupby(<span class="cs">"category"</span>).agg(\n        mean=(<span class="cs">"amount"</span>, <span class="cs">"mean"</span>),\n        std=(<span class="cs">"amount"</span>, <span class="cs">"std"</span>))\n    alerts = []\n    <span class="ck">for</span> txn <span class="ck">in</span> transactions.itertuples():\n        z = (txn.amount - stats.loc[txn.category, <span class="cs">"mean"</span>]\n             ) / stats.loc[txn.category, <span class="cs">"std"</span>]\n        <span class="ck">if</span> abs(z) > 2:\n            alerts.append({\n                <span class="cs">"txn"</span>: txn, <span class="cs">"z_score"</span>: z,\n                <span class="cs">"flag"</span>: <span class="cr">"anomaly"</span>})\n    <span class="ck">return</span> alerts</code></div><p class="skill-tip"><strong>Tip:</strong> A simple z-score catches 80% of anomalies. Don&rsquo;t over-engineer the detection model.</p>',
+              tip: 'A simple z-score catches 80% of anomalies.'
+            },
+            {
+              title: 'Investment Tracking',
+              level: 'intermediate',
+              desc: 'Portfolio monitoring and rebalancing alerts.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Build an agent that <strong>monitors your portfolio</strong> allocations, tracks drift from target weights, and sends rebalancing alerts when thresholds are crossed.</p><div class="code-block"><span class="code-lang">python</span><code><span class="cv">TARGET</span> = {<span class="cs">"stocks"</span>: 0.60,\n          <span class="cs">"bonds"</span>: 0.30,\n          <span class="cs">"cash"</span>: 0.10}\n\n<span class="ck">def</span> <span class="cv">check_drift</span>(portfolio, threshold=0.05):\n    total = sum(portfolio.values())\n    alerts = []\n    <span class="ck">for</span> asset, target <span class="ck">in</span> TARGET.items():\n        actual = portfolio[asset] / total\n        drift = abs(actual - target)\n        <span class="ck">if</span> drift > threshold:\n            alerts.append({\n                <span class="cs">"asset"</span>: asset,\n                <span class="cs">"target"</span>: <span class="cs">f"{target:.0%}"</span>,\n                <span class="cs">"actual"</span>: <span class="cs">f"{actual:.0%}"</span>,\n                <span class="cs">"action"</span>: <span class="cs">"rebalance"</span>})\n    <span class="ck">return</span> alerts</code></div><p class="skill-tip"><strong>Tip:</strong> Check drift monthly, not daily. Frequent rebalancing creates tax events and trading costs.</p>',
+              tip: 'Check drift monthly, not daily.'
+            },
+            {
+              title: 'Financial Planning Agent',
+              level: 'advanced',
+              desc: 'Multi-goal optimization, retirement projections, scenario analysis.',
+              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text">An autonomous agent that <strong>models multiple financial goals</strong> simultaneously &mdash; retirement, home purchase, education &mdash; with Monte Carlo simulations and scenario analysis.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> numpy <span class="ck">as</span> np\n\n<span class="ck">def</span> <span class="cv">monte_carlo_retirement</span>(\n    savings, monthly_add, years, n_sims=10000):\n    <span class="cv">results</span> = []\n    <span class="ck">for</span> _ <span class="ck">in</span> range(n_sims):\n        balance = savings\n        <span class="ck">for</span> y <span class="ck">in</span> range(years * 12):\n            ret = np.random.normal(0.07/12, 0.15/12)\n            balance = balance * (1 + ret) + monthly_add\n        results.append(balance)\n    <span class="ck">return</span> {\n        <span class="cs">"median"</span>: np.median(results),\n        <span class="cs">"p10"</span>: np.percentile(results, 10),\n        <span class="cs">"p90"</span>: np.percentile(results, 90)}</code></div><p class="skill-tip"><strong>Tip:</strong> Always show the range, not just the median. Financial plans should prepare for bad scenarios too.</p>',
+              tip: 'Always show the range, not just the median.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Track', skill: 'Budget Automation', desc: 'Auto-categorize spending' },
+              { label: 'Prep', skill: 'Tax Prep Assistant', desc: 'Receipts and deductions' }
+            ],
+            intermediate: [
+              { label: 'Analyze', skill: 'Expense Intelligence', desc: 'Patterns and anomalies' },
+              { label: 'Monitor', skill: 'Investment Tracking', desc: 'Portfolio drift alerts' }
+            ],
+            advanced: [
+              { label: 'Plan', skill: 'Financial Planning Agent', desc: 'Multi-goal optimization' }
+            ]
+          }
+        },
+
+        /* ── COURSE 05: Business Finance & Accounting ── */
+        'business-finance': {
+          id: 'business-finance',
+          num: '05',
+          title: 'Business Finance &amp; Accounting',
+          category: 'finance',
+          desc: 'AI-powered financial statements, audit automation, and CFO-grade dashboards.',
+          color: '--c-gold',
+          icon: 'M3 3h18v18H3z M3 9h18 M9 3v18',
+          skills: [
+            {
+              title: 'Financial Statements 101',
+              level: 'beginner',
+              desc: 'Agents that read and generate P&amp;L, balance sheets, cash flow.',
+              icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6',
+              detail: '<p class="skill-detail-text">Build agents that can <strong>parse, generate, and explain</strong> the three core financial statements &mdash; income statement, balance sheet, and cash flow statement.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">generate_pnl</span>(transactions, period):\n    revenue = sum(t[<span class="cs">"amount"</span>]\n        <span class="ck">for</span> t <span class="ck">in</span> transactions\n        <span class="ck">if</span> t[<span class="cs">"type"</span>] == <span class="cs">"revenue"</span>)\n    cogs = sum(t[<span class="cs">"amount"</span>]\n        <span class="ck">for</span> t <span class="ck">in</span> transactions\n        <span class="ck">if</span> t[<span class="cs">"type"</span>] == <span class="cs">"cogs"</span>)\n    opex = sum(t[<span class="cs">"amount"</span>]\n        <span class="ck">for</span> t <span class="ck">in</span> transactions\n        <span class="ck">if</span> t[<span class="cs">"type"</span>] == <span class="cs">"opex"</span>)\n    <span class="ck">return</span> {\n        <span class="cs">"revenue"</span>: revenue,\n        <span class="cs">"gross_profit"</span>: revenue - cogs,\n        <span class="cs">"net_income"</span>: revenue - cogs - opex}</code></div><p class="skill-tip"><strong>Tip:</strong> Start with the income statement. It&rsquo;s the most intuitive of the three and feeds into the others.</p>',
+              tip: 'Start with the income statement.'
+            },
+            {
+              title: 'Bookkeeping Automation',
+              level: 'beginner',
+              desc: 'Journal entries, reconciliation, and classification.',
+              icon: 'M4 4h16v16H4z M4 10h16 M10 4v16',
+              detail: '<p class="skill-detail-text">Automate the tedious parts of bookkeeping: <strong>journal entry creation</strong>, <strong>bank reconciliation</strong>, and <strong>account classification</strong> using AI to match and categorize.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">auto_reconcile</span>(bank_txns, book_txns):\n    matched, unmatched = [], []\n    <span class="ck">for</span> bt <span class="ck">in</span> bank_txns:\n        match = find_closest(\n            bt, book_txns,\n            keys=[<span class="cs">"amount"</span>, <span class="cs">"date"</span>],\n            tolerance={<span class="cs">"amount"</span>: 0.01,\n                       <span class="cs">"date"</span>: 3})  <span class="cm"># 3 day window</span>\n        <span class="ck">if</span> match:\n            matched.append((bt, match))\n        <span class="ck">else</span>:\n            unmatched.append(bt)\n    <span class="ck">return</span> {<span class="cs">"matched"</span>: matched,\n            <span class="cs">"unmatched"</span>: unmatched}</code></div><p class="skill-tip"><strong>Tip:</strong> Reconcile weekly, not monthly. Small mismatches are easier to find when they&rsquo;re fresh.</p>',
+              tip: 'Reconcile weekly, not monthly.'
+            },
+            {
+              title: 'Audit &amp; Compliance',
+              level: 'intermediate',
+              desc: 'Automated audit trails, regulatory checks, SOX compliance.',
+              icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+              detail: '<p class="skill-detail-text">Build agents that maintain <strong>audit trails</strong>, run <strong>compliance checks</strong> against regulatory requirements, and flag potential issues before auditors find them.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">AuditAgent</span>:\n    <span class="ck">def</span> <span class="cv">check_sox_controls</span>(self, entries):\n        findings = []\n        <span class="ck">for</span> entry <span class="ck">in</span> entries:\n            <span class="cm"># Segregation of duties</span>\n            <span class="ck">if</span> entry.creator == entry.approver:\n                findings.append({\n                    <span class="cs">"type"</span>: <span class="cr">"SOD_VIOLATION"</span>,\n                    <span class="cs">"entry"</span>: entry.id})\n            <span class="cm"># Amount thresholds</span>\n            <span class="ck">if</span> entry.amount > 10000 \\\n               <span class="ck">and not</span> entry.dual_approved:\n                findings.append({\n                    <span class="cs">"type"</span>: <span class="cr">"APPROVAL_MISSING"</span>,\n                    <span class="cs">"entry"</span>: entry.id})\n        <span class="ck">return</span> findings</code></div><p class="skill-tip"><strong>Tip:</strong> Automate the obvious checks. Auditors appreciate when you catch the easy stuff so they can focus on judgment calls.</p>',
+              tip: 'Automate the obvious checks first.'
+            },
+            {
+              title: 'FP&amp;A with Agents',
+              level: 'intermediate',
+              desc: 'Forecasting, variance analysis, budget vs actual.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Financial Planning &amp; Analysis powered by agents: <strong>forecast revenue</strong>, analyze <strong>budget variances</strong>, and generate <strong>monthly reports</strong> automatically.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">variance_analysis</span>(budget, actual):\n    report = []\n    <span class="ck">for</span> line <span class="ck">in</span> budget.keys():\n        var_amt = actual[line] - budget[line]\n        var_pct = var_amt / budget[line] * 100\n        flag = <span class="cr">"OVER"</span> <span class="ck">if</span> var_pct > 10 \\\n               <span class="ck">else</span> <span class="cs">"OK"</span>\n        report.append({\n            <span class="cs">"line"</span>: line,\n            <span class="cs">"budget"</span>: budget[line],\n            <span class="cs">"actual"</span>: actual[line],\n            <span class="cs">"variance"</span>: <span class="cs">f"{var_pct:+.1f}%"</span>,\n            <span class="cs">"flag"</span>: flag})\n    <span class="ck">return</span> report</code></div><p class="skill-tip"><strong>Tip:</strong> Focus on variances over 10%. Explaining every 2% fluctuation wastes everyone&rsquo;s time.</p>',
+              tip: 'Focus on variances over 10%.'
+            },
+            {
+              title: 'CFO Dashboard Agent',
+              level: 'advanced',
+              desc: 'Real-time KPIs, board-ready reports, multi-entity consolidation.',
+              icon: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18 M15 3v18',
+              detail: '<p class="skill-detail-text">An autonomous agent that builds <strong>real-time CFO dashboards</strong>, generates board-ready financial reports, and consolidates data across multiple entities.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">CFODashboard</span>:\n    <span class="cv">kpis</span> = [\n        <span class="cs">"revenue_growth"</span>, <span class="cs">"burn_rate"</span>,\n        <span class="cs">"runway_months"</span>, <span class="cs">"gross_margin"</span>,\n        <span class="cs">"arr"</span>, <span class="cs">"ltv_cac_ratio"</span>]\n\n    <span class="ck">def</span> <span class="cv">generate_board_report</span>(self):\n        data = self.consolidate_entities()\n        kpis = self.compute_kpis(data)\n        narrative = llm.generate(\n            <span class="cs">f"Write a CFO summary for:\\n"</span>\n            <span class="cs">f"{json.dumps(kpis, indent=2)}\\n"</span>\n            <span class="cs">f"Tone: professional, concise"</span>)\n        <span class="ck">return</span> {<span class="cs">"kpis"</span>: kpis,\n                <span class="cs">"narrative"</span>: narrative}</code></div><p class="skill-tip"><strong>Tip:</strong> Board reports should tell a story. Lead with the 3 most important metrics, then provide detail for those who want it.</p>',
+              tip: 'Lead with the 3 most important metrics.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Read', skill: 'Financial Statements 101', desc: 'P&L, balance sheet, cash flow' },
+              { label: 'Automate', skill: 'Bookkeeping Automation', desc: 'Journal entries and reconciliation' }
+            ],
+            intermediate: [
+              { label: 'Audit', skill: 'Audit &amp; Compliance', desc: 'SOX controls and trails' },
+              { label: 'Plan', skill: 'FP&amp;A with Agents', desc: 'Forecasting and variance' }
+            ],
+            advanced: [
+              { label: 'Command', skill: 'CFO Dashboard Agent', desc: 'Board-ready KPI dashboards' }
+            ]
+          }
+        },
+
+        /* ── COURSE 06: Marketing with AI ── */
+        'marketing-ai': {
+          id: 'marketing-ai',
+          num: '06',
+          title: 'Marketing with AI',
+          category: 'marketing',
+          desc: 'Content generation, SEO, campaigns, and autonomous growth engines.',
+          color: '--c-violet',
+          icon: 'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0',
+          skills: [
+            {
+              title: 'Content Generation',
+              level: 'beginner',
+              desc: 'Blog posts, social captions, email copy with agents.',
+              icon: 'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z',
+              detail: '<p class="skill-detail-text">Use agents to draft <strong>blog posts</strong>, <strong>social media captions</strong>, and <strong>email copy</strong> &mdash; then refine with your brand voice and publish.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">generate_blog_post</span>(topic, brand_voice):\n    outline = llm.complete(\n        <span class="cs">f"Create a blog outline for: {topic}\\n"</span>\n        <span class="cs">f"Voice: {brand_voice}\\n"</span>\n        <span class="cs">f"Sections: intro, 3 main points, CTA"</span>)\n    draft = llm.complete(\n        <span class="cs">f"Write the full post from:\\n{outline}\\n"</span>\n        <span class="cs">f"Length: 800-1200 words\\n"</span>\n        <span class="cs">f"Include: examples, data points"</span>)\n    <span class="ck">return</span> {<span class="cs">"outline"</span>: outline,\n            <span class="cs">"draft"</span>: draft}</code></div><p class="skill-tip"><strong>Tip:</strong> Always generate an outline first. Direct-to-draft produces unfocused content that needs more editing.</p>',
+              tip: 'Always generate an outline first.'
+            },
+            {
+              title: 'SEO Fundamentals',
+              level: 'beginner',
+              desc: 'Keyword research, meta optimization, content scoring.',
+              icon: 'M11 19a8 8 0 100-16 8 8 0 000 16z M21 21l-4.35-4.35',
+              detail: '<p class="skill-detail-text">Build agents that do <strong>keyword research</strong>, optimize <strong>meta tags</strong>, and <strong>score content</strong> for SEO before publishing &mdash; automated quality gates for organic traffic.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">seo_score</span>(content, target_keyword):\n    checks = {\n        <span class="cs">"keyword_in_title"</span>: target_keyword.lower()\n            <span class="ck">in</span> content[<span class="cs">"title"</span>].lower(),\n        <span class="cs">"keyword_in_h1"</span>: target_keyword.lower()\n            <span class="ck">in</span> content[<span class="cs">"h1"</span>].lower(),\n        <span class="cs">"meta_length"</span>: 120 < len(\n            content[<span class="cs">"meta_desc"</span>]) < 160,\n        <span class="cs">"word_count"</span>: len(\n            content[<span class="cs">"body"</span>].split()) > 800,\n        <span class="cs">"has_internal_links"</span>: <span class="cs">"href="</span>\n            <span class="ck">in</span> content[<span class="cs">"body"</span>],\n    }\n    score = sum(checks.values()) / len(checks)\n    <span class="ck">return</span> {<span class="cs">"score"</span>: score, <span class="cs">"checks"</span>: checks}</code></div><p class="skill-tip"><strong>Tip:</strong> Write for humans first, optimize for search engines second. Google rewards genuinely useful content.</p>',
+              tip: 'Write for humans first, optimize for search second.'
+            },
+            {
+              title: 'Campaign Orchestration',
+              level: 'intermediate',
+              desc: 'Multi-channel scheduling, A/B testing, performance tracking.',
+              icon: 'M22 11.08V12a10 10 0 11-5.93-9.14 M22 4L12 14.01l-3-3',
+              detail: '<p class="skill-detail-text">Coordinate campaigns across <strong>email, social, ads, and content</strong> channels. Agents handle scheduling, A/B test setup, and performance monitoring.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">CampaignAgent</span>:\n    <span class="ck">def</span> <span class="cv">launch_ab_test</span>(self, campaign):\n        variant_a = campaign.copy()\n        variant_b = campaign.copy()\n        variant_b[<span class="cs">"subject"</span>] = llm.rewrite(\n            campaign[<span class="cs">"subject"</span>],\n            style=<span class="cs">"more urgent"</span>)\n        <span class="cm"># Split audience 50/50</span>\n        audience = self.segment_audience(\n            campaign[<span class="cs">"list_id"</span>])\n        self.send(variant_a, audience[:len(audience)//2])\n        self.send(variant_b, audience[len(audience)//2:])\n        <span class="ck">return</span> self.track([variant_a, variant_b])</code></div><p class="skill-tip"><strong>Tip:</strong> Test one variable at a time. Changing subject AND body makes it impossible to know what worked.</p>',
+              tip: 'Test one variable at a time.'
+            },
+            {
+              title: 'Analytics Automation',
+              level: 'intermediate',
+              desc: 'Dashboards, attribution modeling, funnel analysis.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Automate your marketing analytics: <strong>build dashboards</strong>, set up <strong>attribution models</strong>, and run <strong>funnel analysis</strong> to understand what&rsquo;s actually driving conversions.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">funnel_analysis</span>(events):\n    stages = [<span class="cs">"visit"</span>, <span class="cs">"signup"</span>,\n              <span class="cs">"activate"</span>, <span class="cs">"purchase"</span>]\n    counts = {}\n    <span class="ck">for</span> stage <span class="ck">in</span> stages:\n        counts[stage] = len([\n            e <span class="ck">for</span> e <span class="ck">in</span> events\n            <span class="ck">if</span> e[<span class="cs">"event"</span>] == stage])\n    <span class="cm"># Compute drop-off rates</span>\n    <span class="ck">for</span> i <span class="ck">in</span> range(1, len(stages)):\n        prev = counts[stages[i-1]]\n        curr = counts[stages[i]]\n        rate = curr / prev * 100 <span class="ck">if</span> prev <span class="ck">else</span> 0\n        counts[stages[i] + <span class="cs">"_rate"</span>] = \\\n            <span class="cs">f"{rate:.1f}%"</span>\n    <span class="ck">return</span> counts</code></div><p class="skill-tip"><strong>Tip:</strong> The biggest conversion gains are at the widest part of the funnel. Fix the top before optimizing the bottom.</p>',
+              tip: 'Fix the top of the funnel first.'
+            },
+            {
+              title: 'Growth Engine Agent',
+              level: 'advanced',
+              desc: 'Autonomous pipeline from research to publish to optimize.',
+              icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+              detail: '<p class="skill-detail-text">The end goal: an <strong>autonomous content pipeline</strong> that researches topics, generates content, publishes across channels, monitors performance, and optimizes &mdash; all with minimal human oversight.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">GrowthEngine</span>:\n    <span class="ck">async def</span> <span class="cv">weekly_cycle</span>(self):\n        <span class="cm"># 1. Research trending topics</span>\n        topics = <span class="ck">await</span> self.researcher.find_topics()\n        <span class="cm"># 2. Generate content</span>\n        posts = <span class="ck">await</span> self.writer.batch_create(\n            topics, count=5)\n        <span class="cm"># 3. SEO optimize</span>\n        optimized = <span class="ck">await</span> self.seo.optimize(posts)\n        <span class="cm"># 4. Schedule publication</span>\n        <span class="ck">await</span> self.publisher.schedule(optimized)\n        <span class="cm"># 5. Monitor and learn</span>\n        <span class="ck">await</span> self.analytics.track_and_adapt()</code></div><p class="skill-tip"><strong>Tip:</strong> Start fully supervised. Remove human checkpoints one at a time as you build confidence in each stage.</p>',
+              tip: 'Remove human checkpoints one at a time.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Write', skill: 'Content Generation', desc: 'Blog, social, email copy' },
+              { label: 'Rank', skill: 'SEO Fundamentals', desc: 'Keywords and optimization' }
+            ],
+            intermediate: [
+              { label: 'Launch', skill: 'Campaign Orchestration', desc: 'Multi-channel A/B testing' },
+              { label: 'Measure', skill: 'Analytics Automation', desc: 'Funnels and attribution' }
+            ],
+            advanced: [
+              { label: 'Automate', skill: 'Growth Engine Agent', desc: 'Autonomous content pipeline' }
+            ]
+          }
+        },
+
+        /* ── COURSE 07: Trading with AI ── */
+        'trading-ai': {
+          id: 'trading-ai',
+          num: '07',
+          title: 'Trading with AI',
+          category: 'finance',
+          desc: 'Market data, technical analysis, backtesting, and autonomous trading systems.',
+          color: '--c-rose',
+          icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+          skills: [
+            {
+              title: 'Market Data Pipelines',
+              level: 'beginner',
+              desc: 'Real-time feeds, historical data, API connections.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">Every trading system starts with data. Build <strong>reliable data pipelines</strong> that fetch real-time prices, store historical data, and handle API rate limits gracefully.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> yfinance <span class="ck">as</span> yf\n<span class="ck">import</span> sqlite3\n\n<span class="ck">def</span> <span class="cv">ingest_daily</span>(symbols):\n    conn = sqlite3.connect(<span class="cs">"market.db"</span>)\n    <span class="ck">for</span> sym <span class="ck">in</span> symbols:\n        df = yf.download(sym, period=<span class="cs">"1d"</span>,\n                         interval=<span class="cs">"1m"</span>)\n        df[<span class="cs">"symbol"</span>] = sym\n        df.to_sql(<span class="cs">"prices"</span>, conn,\n                  if_exists=<span class="cs">"append"</span>)\n    conn.close()\n    <span class="ck">return</span> <span class="cs">f"Ingested {len(symbols)} symbols"</span></code></div><p class="skill-tip"><strong>Tip:</strong> Store raw data separately from derived data. You&rsquo;ll want to recompute indicators without re-fetching.</p>',
+              tip: 'Store raw data separately from derived data.'
+            },
+            {
+              title: 'Technical Analysis Agent',
+              level: 'beginner',
+              desc: 'Chart patterns, indicators, signal generation.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Build an agent that computes <strong>technical indicators</strong> (RSI, MACD, Bollinger Bands), identifies <strong>chart patterns</strong>, and generates buy/sell signals.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> pandas_ta <span class="ck">as</span> ta\n\n<span class="ck">def</span> <span class="cv">generate_signals</span>(df):\n    <span class="cm"># Compute indicators</span>\n    df[<span class="cs">"rsi"</span>] = ta.rsi(df[<span class="cs">"close"</span>], length=14)\n    macd = ta.macd(df[<span class="cs">"close"</span>])\n    df = df.join(macd)\n    <span class="cm"># Generate signals</span>\n    df[<span class="cs">"signal"</span>] = <span class="cs">"hold"</span>\n    df.loc[df[<span class="cs">"rsi"</span>] < 30, <span class="cs">"signal"</span>] = <span class="cs">"buy"</span>\n    df.loc[df[<span class="cs">"rsi"</span>] > 70, <span class="cs">"signal"</span>] = <span class="cs">"sell"</span>\n    <span class="ck">return</span> df[[<span class="cs">"close"</span>, <span class="cs">"rsi"</span>, <span class="cs">"signal"</span>]]</code></div><p class="skill-tip"><strong>Tip:</strong> No single indicator is reliable alone. Combine 2&ndash;3 indicators and require confirmation before acting.</p>',
+              tip: 'Combine 2-3 indicators and require confirmation.'
+            },
+            {
+              title: 'Strategy Backtesting',
+              level: 'intermediate',
+              desc: 'Historical simulation, performance metrics, risk-adjusted returns.',
+              icon: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0114.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0020.49 15',
+              detail: '<p class="skill-detail-text">Before risking real money, <strong>backtest every strategy</strong> against historical data. Measure Sharpe ratio, max drawdown, and win rate to separate luck from edge.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">backtest</span>(strategy, data, capital=10000):\n    positions, equity = [], [capital]\n    <span class="ck">for</span> i, row <span class="ck">in</span> data.iterrows():\n        signal = strategy.evaluate(row)\n        <span class="ck">if</span> signal == <span class="cs">"buy"</span>:\n            positions.append(row[<span class="cs">"close"</span>])\n        <span class="ck">elif</span> signal == <span class="cs">"sell"</span> <span class="ck">and</span> positions:\n            pnl = row[<span class="cs">"close"</span>] - positions.pop(0)\n            equity.append(equity[-1] + pnl)\n    <span class="ck">return</span> {\n        <span class="cs">"total_return"</span>: (equity[-1]/capital - 1),\n        <span class="cs">"max_drawdown"</span>: max_drawdown(equity),\n        <span class="cs">"sharpe"</span>: sharpe_ratio(equity)}</code></div><p class="skill-tip"><strong>Tip:</strong> If your backtest looks too good, it probably is. Check for look-ahead bias and survivorship bias.</p>',
+              tip: 'If your backtest looks too good, it probably is.'
+            },
+            {
+              title: 'Sentiment Analysis',
+              level: 'intermediate',
+              desc: 'News, social media, and earnings call parsing.',
+              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
+              detail: '<p class="skill-detail-text">Markets move on sentiment. Build agents that parse <strong>news headlines</strong>, <strong>social media buzz</strong>, and <strong>earnings call transcripts</strong> to gauge market mood in real time.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">analyze_sentiment</span>(headlines):\n    results = []\n    <span class="ck">for</span> h <span class="ck">in</span> headlines:\n        score = llm.complete(\n            <span class="cs">f"Rate sentiment -1 to 1:\\n{h}"</span>)\n        results.append({\n            <span class="cs">"headline"</span>: h,\n            <span class="cs">"score"</span>: float(score.strip()),\n        })\n    avg = sum(r[<span class="cs">"score"</span>] <span class="ck">for</span> r <span class="ck">in</span> results) \\\n          / len(results)\n    <span class="ck">return</span> {\n        <span class="cs">"avg_sentiment"</span>: avg,\n        <span class="cs">"bullish"</span>: avg > 0.2,\n        <span class="cs">"bearish"</span>: avg < -0.2,\n        <span class="cs">"details"</span>: results}</code></div><p class="skill-tip"><strong>Tip:</strong> Sentiment is a leading indicator but a terrible sole signal. Always combine with price action and volume.</p>',
+              tip: 'Always combine sentiment with price action.'
+            },
+            {
+              title: 'Autonomous Trading System',
+              level: 'advanced',
+              desc: 'Multi-agent trading desk with risk manager, analyst, executor.',
+              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text">The full system: a <strong>multi-agent trading desk</strong> where specialized agents handle analysis, risk management, execution, and portfolio oversight &mdash; each with clear boundaries.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">TradingDesk</span>:\n    agents = {\n        <span class="cs">"analyst"</span>: MarketAnalyst(),\n        <span class="cs">"risk_mgr"</span>: RiskManager(),\n        <span class="cs">"executor"</span>: OrderExecutor(),\n    }\n\n    <span class="ck">async def</span> <span class="cv">trade_cycle</span>(self):\n        signals = <span class="ck">await</span> self.agents[\n            <span class="cs">"analyst"</span>].scan_markets()\n        <span class="ck">for</span> signal <span class="ck">in</span> signals:\n            approved = <span class="ck">await</span> self.agents[\n                <span class="cs">"risk_mgr"</span>].evaluate(signal)\n            <span class="ck">if</span> approved:\n                <span class="ck">await</span> self.agents[\n                    <span class="cs">"executor"</span>].place_order(\n                    signal, approved.size)</code></div><p class="skill-tip"><strong>Tip:</strong> The risk manager must have veto power over everything. Never let the analyst or executor bypass risk checks.</p>',
+              tip: 'The risk manager must have veto power.'
+            }
+          ],
+          route: {
+            beginner: [
+              { label: 'Ingest', skill: 'Market Data Pipelines', desc: 'Real-time and historical feeds' },
+              { label: 'Analyze', skill: 'Technical Analysis Agent', desc: 'Indicators and signals' }
+            ],
+            intermediate: [
+              { label: 'Test', skill: 'Strategy Backtesting', desc: 'Simulate before risking capital' },
+              { label: 'Read', skill: 'Sentiment Analysis', desc: 'News and social sentiment' }
+            ],
+            advanced: [
+              { label: 'Deploy', skill: 'Autonomous Trading System', desc: 'Multi-agent trading desk' }
+            ]
+          }
+        }
+      };
+
+      /* ================================================================
+         LOCALSTORAGE MIGRATION + HELPERS
+         ================================================================ */
+      var ACTIVE_KEY = 'ophtxn_active_course';
+      var OLD_PROGRESS_KEY = 'ophtxn_library_progress';
+
+      function progressKey(courseId) { return 'ophtxn_progress_' + courseId; }
+
+      /* Migrate old single-course progress to new per-course format */
+      (function migrateProgress() {
+        try {
+          var old = localStorage.getItem(OLD_PROGRESS_KEY);
+          if (old && !localStorage.getItem(progressKey('agentic-os'))) {
+            localStorage.setItem(progressKey('agentic-os'), old);
+          }
+        } catch (_e) {}
+      })();
+
+      /* Load custom courses from localStorage */
+      (function loadCustomCourses() {
+        try {
+          var custom = JSON.parse(localStorage.getItem('ophtxn_custom_courses') || '[]');
+          custom.forEach(function (c) {
+            if (!COURSE_REGISTRY[c.id]) {
+              COURSE_REGISTRY[c.id] = c;
+            }
+          });
+        } catch (_e) {}
+      })();
+
+      function getActiveCourse() {
+        try {
+          var id = localStorage.getItem(ACTIVE_KEY) || 'agentic-os';
+          return COURSE_REGISTRY[id] ? id : 'agentic-os';
+        } catch (_e) { return 'agentic-os'; }
+      }
+
+      function setActiveCourse(id) {
+        try { localStorage.setItem(ACTIVE_KEY, id); } catch (_e) {}
+      }
+
+      function loadProgress(courseId) {
+        try { return JSON.parse(localStorage.getItem(progressKey(courseId)) || '{}'); }
+        catch (_e) { return {}; }
+      }
+
+      function saveProgress(courseId, data) {
+        try { localStorage.setItem(progressKey(courseId), JSON.stringify(data)); } catch (_e) {}
+      }
+
+      /* ================================================================
+         DOM REFS
+         ================================================================ */
+      var searchInput = null; /* removed — suggestions bar replaces search */
       var filterBtns = document.querySelectorAll('.filter-btn');
-      var skillCards = document.querySelectorAll('.skill-card');
-      var levelSections = document.querySelectorAll('.level-section');
+      var skillsSection = document.getElementById('skills');
+      var courseHeaderEl = document.getElementById('courseHeader');
+      var routePathEl = document.getElementById('routePath');
+      var sbCourseList = document.getElementById('sbCourseList');
+      var toast = document.getElementById('toast');
       var activeFilter = 'all';
 
-      /* ── Sidebar ── */
+      /* ================================================================
+         SIDEBAR
+         ================================================================ */
       var sidebar = document.getElementById('librarySidebar');
       var sidebarToggle = document.getElementById('sidebarToggle');
       var sidebarCloseBtn = document.getElementById('sidebarClose');
       var sidebarOverlay = document.getElementById('sidebarOverlay');
+      var sidebarOpen = window.innerWidth >= 769;
 
       function openSidebar() {
         if (sidebar) sidebar.classList.add('open');
         if (sidebarOverlay) sidebarOverlay.classList.add('show');
+        sidebarOpen = true;
       }
 
       function closeSidebar() {
         if (sidebar) sidebar.classList.remove('open');
         if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+        sidebarOpen = false;
       }
 
-      if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
+      function toggleSidebar() {
+        if (sidebarOpen) { closeSidebar(); } else { openSidebar(); }
+      }
+
+      if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
       if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
       if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
-      /* ── Level section accordion ── */
-      var levelHeaders = document.querySelectorAll('.level-section-header');
-      levelHeaders.forEach(function (header) {
-        header.addEventListener('click', function () {
-          header.parentElement.classList.toggle('open');
+      /* Desktop: open by default */
+      if (window.innerWidth >= 769) { openSidebar(); }
+
+      /* Sidebar Resources toggle */
+      var sbResToggle = document.getElementById('sbResToggle');
+      if (sbResToggle) {
+        sbResToggle.addEventListener('click', function () {
+          sbResToggle.classList.toggle('open');
         });
-      });
-
-      /* ── Course progress (localStorage) ── */
-      var PROGRESS_KEY = 'ophtxn_library_progress';
-      var progressCount = document.getElementById('progressCount');
-      var progressFill = document.getElementById('progressFill');
-      var totalSkills = skillCards.length;
-
-      function loadProgress() {
-        try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); }
-        catch (_e) { return {}; }
       }
 
-      function saveProgress(data) {
-        try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); } catch (_e) {}
+      /* Sidebar sources link */
+      var sbSourcesLink = document.getElementById('sbSourcesLink');
+      if (sbSourcesLink) {
+        sbSourcesLink.addEventListener('click', function () {
+          var overlay = document.getElementById('sources-overlay');
+          if (overlay) overlay.classList.add('open');
+        });
       }
 
-      function updateProgressUI() {
-        var data = loadProgress();
-        var count = Object.keys(data).length;
-        if (progressCount) progressCount.textContent = count;
-        if (progressFill) progressFill.style.width = Math.round(count / totalSkills * 100) + '%';
+      /* ================================================================
+         RENDER: SIDEBAR COURSES
+         ================================================================ */
+      function renderSidebarCourses() {
+        if (!sbCourseList) return;
+        var activeCourseId = getActiveCourse();
+        var html = '';
+        var ids = Object.keys(COURSE_REGISTRY);
+        ids.forEach(function (id) {
+          var c = COURSE_REGISTRY[id];
+          var cls = id === activeCourseId ? ' active' : '';
+          html += '<a class="sb-course-item' + cls + '" data-course="' + id + '">'
+            + '<span class="sb-course-num">' + c.num + '</span>'
+            + c.title
+            + '</a>';
+        });
+        sbCourseList.innerHTML = html;
+
+        /* Bind clicks */
+        var items = sbCourseList.querySelectorAll('.sb-course-item');
+        items.forEach(function (item) {
+          item.addEventListener('click', function () {
+            switchCourse(item.getAttribute('data-course'));
+            if (window.innerWidth < 769) closeSidebar();
+          });
+        });
       }
 
-      function markExplored(title) {
+      /* ================================================================
+         RENDER: COURSE HEADER
+         ================================================================ */
+      function renderCourseHeader(course) {
+        if (!courseHeaderEl) return;
+        var prog = loadProgress(course.id);
+        var total = course.skills.length;
+        var count = Object.keys(prog).length;
+        var pct = total > 0 ? Math.round(count / total * 100) : 0;
+
+        courseHeaderEl.innerHTML =
+          '<div class="course-meta">'
+          + '<p class="course-eyebrow">Course ' + course.num + '</p>'
+          + '<h2 class="course-title">' + course.title + '</h2>'
+          + '<p class="course-desc">' + course.desc + '</p>'
+          + '</div>'
+          + '<div class="course-progress">'
+          + '<p class="progress-label"><span id="progressCount">' + count + '</span>/' + total + ' explored</p>'
+          + '<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:' + pct + '%"></div></div>'
+          + '</div>';
+      }
+
+      /* ================================================================
+         RENDER: ROUTE MAP
+         ================================================================ */
+      function renderRouteMap(course) {
+        if (!routePathEl) return;
+        /* Pick the first non-empty route level based on filter, or default to beginner */
+        var level = activeFilter !== 'all' ? activeFilter : 'beginner';
+        var nodes = (course.route && course.route[level]) ? course.route[level] : [];
+        if (nodes.length === 0 && course.route) {
+          var levels = ['beginner', 'intermediate', 'advanced'];
+          for (var i = 0; i < levels.length; i++) {
+            if (course.route[levels[i]] && course.route[levels[i]].length > 0) {
+              nodes = course.route[levels[i]];
+              break;
+            }
+          }
+        }
+
+        var html = '';
+        var dashSvg = '<div class="route-dash" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
+        nodes.forEach(function (node, idx) {
+          if (idx > 0) html += dashSvg;
+          html += '<div class="route-node" data-skill="' + node.skill + '">'
+            + '<div class="route-orb">' + (idx + 1) + '</div>'
+            + '<div>'
+            + '<p class="route-label">' + node.label + '</p>'
+            + '<p class="route-skill">' + node.skill + '</p>'
+            + '<p class="route-desc">' + node.desc + '</p>'
+            + '</div></div>';
+        });
+        routePathEl.innerHTML = html;
+
+        /* Bind route node clicks */
+        var routeNodes = routePathEl.querySelectorAll('.route-node[data-skill]');
+        routeNodes.forEach(function (rn) {
+          rn.addEventListener('click', function () {
+            var skillName = rn.getAttribute('data-skill');
+            var target = skillsSection.querySelector('.skill-card[data-title="' + skillName + '"]');
+            if (!target) return;
+            var parentSection = target.closest('.level-section');
+            if (parentSection && !parentSection.classList.contains('open')) {
+              parentSection.classList.add('open');
+            }
+            var allCards = skillsSection.querySelectorAll('.skill-card');
+            allCards.forEach(function (c) {
+              c.classList.remove('open');
+              var l = c.querySelector('.skill-link');
+              if (l) l.innerHTML = '&rarr; Explore';
+            });
+            target.classList.add('open');
+            var tl = target.querySelector('.skill-link');
+            if (tl) tl.innerHTML = '&larr; Close';
+            markExplored(getActiveCourse(), skillName);
+            setTimeout(function () {
+              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+          });
+        });
+      }
+
+      /* ================================================================
+         RENDER: SKILL CARDS
+         ================================================================ */
+      function renderSkillCards(course) {
+        if (!skillsSection) return;
+        var levels = ['beginner', 'intermediate', 'advanced'];
+        var levelIcons = {
+          beginner: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+          intermediate: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>',
+          advanced: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+        };
+
+        var html = '';
+        levels.forEach(function (level) {
+          var skills = course.skills.filter(function (s) { return s.level === level; });
+          if (skills.length === 0) return;
+
+          var isOpen = level === 'beginner' ? ' open' : '';
+          html += '<div class="level-section' + isOpen + '" data-level="' + level + '">';
+          html += '<div class="level-section-header">';
+          html += levelIcons[level];
+          html += '<span class="lsh-label">' + level.charAt(0).toUpperCase() + level.slice(1) + '</span>';
+          html += '<span class="lsh-count">' + skills.length + ' skill' + (skills.length !== 1 ? 's' : '') + '</span>';
+          html += '<svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
+          html += '</div>';
+          html += '<div class="level-cards">';
+
+          skills.forEach(function (skill) {
+            html += '<article class="skill-card" data-level="' + skill.level + '" data-title="' + skill.title + '" data-desc="' + skill.desc + '">';
+            html += '<span class="badge badge-' + skill.level + '">' + skill.level.charAt(0).toUpperCase() + skill.level.slice(1) + '</span>';
+            html += '<h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="' + skill.icon + '"/></svg>' + skill.title + '</h3>';
+            html += '<p class="skill-desc">' + skill.desc + '</p>';
+            html += '<a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>';
+            html += '<div class="skill-detail">' + skill.detail + '</div>';
+            html += '</article>';
+          });
+
+          html += '</div></div>';
+        });
+
+        skillsSection.innerHTML = html;
+      }
+
+      /* ================================================================
+         REBIND CARD LISTENERS
+         ================================================================ */
+      function rebindCardListeners() {
+        var cards = skillsSection.querySelectorAll('.skill-card');
+        var headers = skillsSection.querySelectorAll('.level-section-header');
+
+        /* Level accordions */
+        headers.forEach(function (header) {
+          header.addEventListener('click', function () {
+            header.parentElement.classList.toggle('open');
+          });
+        });
+
+        /* Expand/collapse */
+        cards.forEach(function (card) {
+          var link = card.querySelector('.skill-link');
+          if (!link) return;
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var wasOpen = card.classList.contains('open');
+            cards.forEach(function (c) {
+              c.classList.remove('open');
+              var ol = c.querySelector('.skill-link');
+              if (ol) ol.innerHTML = '&rarr; Explore';
+            });
+            if (!wasOpen) {
+              card.classList.add('open');
+              link.innerHTML = '&larr; Close';
+              markExplored(getActiveCourse(), card.getAttribute('data-title'));
+            }
+          });
+        });
+      }
+
+      /* ================================================================
+         PROGRESS TRACKING
+         ================================================================ */
+      function markExplored(courseId, title) {
         if (!title) return;
-        var data = loadProgress();
+        var data = loadProgress(courseId);
         if (!data[title]) {
           data[title] = Date.now();
-          saveProgress(data);
-          updateProgressUI();
+          saveProgress(courseId, data);
+          updateProgressUI(courseId);
         }
       }
 
-      updateProgressUI();
+      function updateProgressUI(courseId) {
+        var course = COURSE_REGISTRY[courseId];
+        if (!course) return;
+        var data = loadProgress(courseId);
+        var count = Object.keys(data).length;
+        var total = course.skills.length;
+        var pct = total > 0 ? Math.round(count / total * 100) : 0;
+        var el = document.getElementById('progressCount');
+        var fill = document.getElementById('progressFill');
+        if (el) el.textContent = count;
+        if (fill) fill.style.width = pct + '%';
+      }
 
-      /* ── Filter + search ── */
+      /* ================================================================
+         SWITCH COURSE
+         ================================================================ */
+      function switchCourse(courseId) {
+        if (!COURSE_REGISTRY[courseId]) return;
+        setActiveCourse(courseId);
+        var course = COURSE_REGISTRY[courseId];
+        renderCourseHeader(course);
+        renderSkillCards(course);
+        renderRouteMap(course);
+        rebindCardListeners();
+        renderSidebarCourses();
+        applyFilters();
+      }
+
+      /* ================================================================
+         FILTER + SEARCH
+         ================================================================ */
       function applyFilters() {
-        var keyword = searchInput.value.trim().toLowerCase();
+        var keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        var cards = skillsSection.querySelectorAll('.skill-card');
+        var levelSections = skillsSection.querySelectorAll('.level-section');
 
-        skillCards.forEach(function (card) {
+        cards.forEach(function (card) {
           var level = (card.getAttribute('data-level') || '').toLowerCase();
           var title = (card.getAttribute('data-title') || '').toLowerCase();
           var desc = (card.getAttribute('data-desc') || '').toLowerCase();
-
           var matchesLevel = activeFilter === 'all' || level === activeFilter;
           var matchesKeyword = !keyword || title.indexOf(keyword) !== -1 || desc.indexOf(keyword) !== -1;
-
           if (matchesLevel && matchesKeyword) {
             card.removeAttribute('hidden');
           } else {
@@ -2303,7 +2956,6 @@
           }
         });
 
-        /* Auto-open matching level sections when a level filter is active */
         if (activeFilter !== 'all') {
           levelSections.forEach(function (sec) {
             if (sec.getAttribute('data-level') === activeFilter) {
@@ -2318,115 +2970,56 @@
       filterBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
           activeFilter = btn.getAttribute('data-filter') || 'all';
-
           filterBtns.forEach(function (b) { b.classList.remove('active'); });
           btn.classList.add('active');
-
           try { localStorage.setItem('ophtxn_skill_filter', activeFilter); } catch (_e) {}
-
           applyFilters();
+          renderRouteMap(COURSE_REGISTRY[getActiveCourse()]);
         });
       });
 
-      searchInput.addEventListener('input', applyFilters);
+      /* searchInput removed — suggestion bar replaces search */
 
-      // Restore last filter from localStorage
+      /* Restore saved filter */
       try {
-        var saved = localStorage.getItem('ophtxn_skill_filter');
-        if (saved && saved !== 'all') {
-          var matchBtn = document.querySelector('.filter-btn[data-filter="' + saved + '"]');
-          if (matchBtn) matchBtn.click();
+        var savedFilter = localStorage.getItem('ophtxn_skill_filter');
+        if (savedFilter && savedFilter !== 'all') {
+          activeFilter = savedFilter;
+          var matchBtn = document.querySelector('.filter-btn[data-filter="' + savedFilter + '"]');
+          if (matchBtn) {
+            filterBtns.forEach(function (b) { b.classList.remove('active'); });
+            matchBtn.classList.add('active');
+          }
         }
       } catch (_e) {}
 
-      /* ── Expand / collapse skill details ── */
-      skillCards.forEach(function (card) {
-        var link = card.querySelector('.skill-link');
-        if (!link) return;
-        link.addEventListener('click', function (e) {
-          e.preventDefault();
-          var wasOpen = card.classList.contains('open');
-          // Close all other cards first
-          skillCards.forEach(function (c) { c.classList.remove('open'); });
-          // Toggle clicked card
-          if (!wasOpen) {
-            card.classList.add('open');
-            link.innerHTML = '&larr; Close';
-            // Track progress
-            markExplored(card.getAttribute('data-title'));
-          } else {
-            link.innerHTML = '&rarr; Explore';
-          }
-          // Reset other links
-          skillCards.forEach(function (c) {
-            if (c !== card) {
-              var otherLink = c.querySelector('.skill-link');
-              if (otherLink) otherLink.innerHTML = '&rarr; Explore';
-            }
-          });
-        });
-      });
-
-      /* ── Sources modal ── */
+      /* ================================================================
+         SOURCES MODAL
+         ================================================================ */
       var sourcesOverlay = document.getElementById('sources-overlay');
-      var sourcesTrigger = document.getElementById('sources-trigger');
       var sourcesCloseBtn = document.getElementById('sources-close');
 
-      if (sourcesTrigger && sourcesOverlay) {
-        sourcesTrigger.addEventListener('click', function () {
-          sourcesOverlay.classList.add('open');
-        });
-        sourcesCloseBtn.addEventListener('click', function () {
-          sourcesOverlay.classList.remove('open');
-        });
+      if (sourcesOverlay) {
+        if (sourcesCloseBtn) {
+          sourcesCloseBtn.addEventListener('click', function () {
+            sourcesOverlay.classList.remove('open');
+          });
+        }
         sourcesOverlay.addEventListener('click', function (e) {
           if (e.target === sourcesOverlay) sourcesOverlay.classList.remove('open');
         });
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') {
-            if (sourcesOverlay.classList.contains('open')) sourcesOverlay.classList.remove('open');
-            closeSidebar();
-          }
-        });
       }
 
-      /* ── Route node click → scroll to + expand matching card ── */
-      var routeNodes = document.querySelectorAll('.route-node[data-skill]');
-      routeNodes.forEach(function (step) {
-        step.addEventListener('click', function () {
-          var skillName = step.getAttribute('data-skill');
-          var target = null;
-          skillCards.forEach(function (card) {
-            if (card.getAttribute('data-title') === skillName) target = card;
-          });
-          if (!target) return;
-          // Ensure the parent level section is open
-          var parentSection = target.closest('.level-section');
-          if (parentSection && !parentSection.classList.contains('open')) {
-            parentSection.classList.add('open');
-          }
-          // Close all cards, open target
-          skillCards.forEach(function (c) {
-            c.classList.remove('open');
-            var l = c.querySelector('.skill-link');
-            if (l) l.innerHTML = '&rarr; Explore';
-          });
-          target.classList.add('open');
-          var targetLink = target.querySelector('.skill-link');
-          if (targetLink) targetLink.innerHTML = '&larr; Close';
-          markExplored(skillName);
-          setTimeout(function () {
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 100);
-        });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          if (sourcesOverlay && sourcesOverlay.classList.contains('open')) sourcesOverlay.classList.remove('open');
+          if (window.innerWidth < 769) closeSidebar();
+        }
       });
 
-      /* ── Skill request form ── */
-      var reqText = document.getElementById('reqText');
-      var reqLevel = document.getElementById('reqLevel');
-      var reqSubmit = document.getElementById('reqSubmit');
-      var toast = document.getElementById('toast');
-
+      /* ================================================================
+         TOAST
+         ================================================================ */
       function showToast(msg) {
         if (!toast) return;
         toast.textContent = msg;
@@ -2434,22 +3027,108 @@
         setTimeout(function () { toast.classList.remove('show'); }, 3200);
       }
 
-      if (reqSubmit) {
-        reqSubmit.addEventListener('click', function () {
-          var text = (reqText.value || '').trim();
-          if (!text) { reqText.focus(); return; }
-          var level = reqLevel.value;
+      /* ================================================================
+         CREATE A COURSE
+         ================================================================ */
+      /* Subject pill selection */
+      var ccSubjectScroller = document.getElementById('ccSubjectScroller');
+      var ccSelectedCategory = 'ai-core';
+      if (ccSubjectScroller) {
+        var pills = ccSubjectScroller.querySelectorAll('.cc-subject-pill');
+        for (var pi = 0; pi < pills.length; pi++) {
+          pills[pi].addEventListener('click', function () {
+            for (var pj = 0; pj < pills.length; pj++) pills[pj].classList.remove('active');
+            this.classList.add('active');
+            ccSelectedCategory = this.getAttribute('data-cat');
+          });
+        }
+      }
+
+      /* Expandable field boxes */
+      var ccTitleBox = document.getElementById('ccTitleBox');
+      var ccDescBox = document.getElementById('ccDescBox');
+      var ccTitleInput = document.getElementById('ccTitle');
+      var ccDescInput = document.getElementById('ccDesc');
+      if (ccTitleInput) {
+        ccTitleInput.addEventListener('focus', function () { if (ccTitleBox) ccTitleBox.classList.add('expanded'); });
+        ccTitleInput.addEventListener('blur', function () { if (!this.value && ccTitleBox) ccTitleBox.classList.remove('expanded'); });
+      }
+      if (ccDescInput) {
+        ccDescInput.addEventListener('focus', function () { if (ccDescBox) ccDescBox.classList.add('expanded'); });
+        ccDescInput.addEventListener('blur', function () { if (!this.value && ccDescBox) ccDescBox.classList.remove('expanded'); });
+      }
+
+      /* Create course submit */
+      var ccSubmit = document.getElementById('ccSubmit');
+      if (ccSubmit) {
+        ccSubmit.addEventListener('click', function () {
+          var titleEl = document.getElementById('ccTitle');
+          var descEl = document.getElementById('ccDesc');
+          var title = (titleEl.value || '').trim();
+          var desc = (descEl.value || '').trim();
+          var category = ccSelectedCategory;
+          if (!title) { titleEl.focus(); return; }
+
+          var id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          var existingIds = Object.keys(COURSE_REGISTRY);
+          var num = String(existingIds.length + 1).padStart(2, '0');
+
+          var newCourse = {
+            id: id,
+            num: num,
+            title: title,
+            category: category,
+            desc: desc || 'A custom course.',
+            color: '--c-teal',
+            icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+            skills: [],
+            route: { beginner: [], intermediate: [], advanced: [] },
+            custom: true
+          };
+
+          COURSE_REGISTRY[id] = newCourse;
+
+          /* Persist to localStorage */
           try {
-            var requests = JSON.parse(localStorage.getItem('ophtxn_skill_requests') || '[]');
-            requests.push({ text: text, level: level, ts: Date.now() });
-            localStorage.setItem('ophtxn_skill_requests', JSON.stringify(requests));
+            var stored = JSON.parse(localStorage.getItem('ophtxn_custom_courses') || '[]');
+            stored.push(newCourse);
+            localStorage.setItem('ophtxn_custom_courses', JSON.stringify(stored));
           } catch (_e) {}
-          reqText.value = '';
-          showToast('Skill request submitted! Our agents will review it.');
+
+          titleEl.value = '';
+          descEl.value = '';
+          if (ccTitleBox) ccTitleBox.classList.remove('expanded');
+          if (ccDescBox) ccDescBox.classList.remove('expanded');
+          /* Reset pills to first */
+          if (ccSubjectScroller) {
+            var allPills = ccSubjectScroller.querySelectorAll('.cc-subject-pill');
+            for (var rp = 0; rp < allPills.length; rp++) allPills[rp].classList.remove('active');
+            if (allPills[0]) allPills[0].classList.add('active');
+            ccSelectedCategory = 'ai-core';
+          }
+          switchCourse(id);
+          showToast('Course "' + title + '" created!');
         });
       }
 
-      /* ── Quick-ask sidebar input ── */
+      /* Suggestion bar — click to switch course */
+      var suggestItems = document.getElementById('suggestItems');
+      if (suggestItems) {
+        var suggestPills = suggestItems.querySelectorAll('.suggest-pill');
+        for (var si = 0; si < suggestPills.length; si++) {
+          suggestPills[si].addEventListener('click', function () {
+            var courseId = this.getAttribute('data-course');
+            if (COURSE_REGISTRY[courseId]) {
+              switchCourse(courseId);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          });
+        }
+      }
+
+      /* ================================================================
+         QUICK ASK
+         ================================================================ */
       var quickAskInput = document.getElementById('sidebarQuickAsk');
       if (quickAskInput) {
         quickAskInput.addEventListener('keydown', function (e) {
@@ -2463,6 +3142,120 @@
           }
         });
       }
+
+      /* ================================================================
+         FAB BOT
+         ================================================================ */
+      var fabBot = document.getElementById('fabBot');
+      var fabPopup = document.getElementById('fabPopup');
+      var fabInput = document.getElementById('fabInput');
+      var fabDragging = false;
+      var fabDragStart = { x: 0, y: 0 };
+      var fabPos = { x: 0, y: 0 };
+
+      /* Restore position */
+      try {
+        var savedPos = JSON.parse(localStorage.getItem('ophtxn_fab_pos'));
+        if (savedPos && typeof savedPos.right === 'number') {
+          fabBot.style.right = savedPos.right + 'px';
+          fabBot.style.bottom = savedPos.bottom + 'px';
+          fabPopup.style.right = savedPos.right + 'px';
+          fabPopup.style.bottom = (savedPos.bottom + 68) + 'px';
+        }
+      } catch (_e) {}
+
+      if (fabBot) {
+        /* Click toggle */
+        fabBot.addEventListener('click', function () {
+          if (fabDragging) return;
+          if (fabPopup) {
+            fabPopup.classList.toggle('open');
+            if (fabPopup.classList.contains('open') && fabInput) {
+              setTimeout(function () { fabInput.focus(); }, 100);
+            }
+          }
+        });
+
+        /* Drag support */
+        var startDrag = function (startX, startY) {
+          fabDragging = false;
+          var rect = fabBot.getBoundingClientRect();
+          fabDragStart = { x: startX, y: startY };
+          fabPos = { right: window.innerWidth - rect.right, bottom: window.innerHeight - rect.bottom };
+
+          var moved = function (mx, my) {
+            var dx = mx - fabDragStart.x;
+            var dy = my - fabDragStart.y;
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) fabDragging = true;
+            if (!fabDragging) return;
+            var newRight = fabPos.right - dx;
+            var newBottom = fabPos.bottom - dy;
+            newRight = Math.max(8, Math.min(newRight, window.innerWidth - 64));
+            newBottom = Math.max(8, Math.min(newBottom, window.innerHeight - 64));
+            fabBot.style.right = newRight + 'px';
+            fabBot.style.bottom = newBottom + 'px';
+            fabPopup.style.right = newRight + 'px';
+            fabPopup.style.bottom = (newBottom + 68) + 'px';
+          };
+
+          var endDrag = function () {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', endDrag);
+            if (fabDragging) {
+              try {
+                localStorage.setItem('ophtxn_fab_pos', JSON.stringify({
+                  right: parseInt(fabBot.style.right),
+                  bottom: parseInt(fabBot.style.bottom)
+                }));
+              } catch (_e) {}
+              setTimeout(function () { fabDragging = false; }, 50);
+            }
+          };
+
+          var onMouseMove = function (e) { moved(e.clientX, e.clientY); };
+          var onTouchMove = function (e) {
+            if (e.touches.length === 1) {
+              moved(e.touches[0].clientX, e.touches[0].clientY);
+              e.preventDefault();
+            }
+          };
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', endDrag);
+          document.addEventListener('touchmove', onTouchMove, { passive: false });
+          document.addEventListener('touchend', endDrag);
+        };
+
+        fabBot.addEventListener('mousedown', function (e) { startDrag(e.clientX, e.clientY); });
+        fabBot.addEventListener('touchstart', function (e) {
+          if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+      }
+
+      if (fabInput) {
+        fabInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            var q = fabInput.value.trim();
+            if (q) {
+              window.location.href = 'ophtxn_shell.html?q=' + encodeURIComponent(q);
+            }
+          }
+        });
+      }
+
+      /* ================================================================
+         INIT
+         ================================================================ */
+      var activeCourseId = getActiveCourse();
+      var activeCourse = COURSE_REGISTRY[activeCourseId];
+      renderSidebarCourses();
+      renderCourseHeader(activeCourse);
+      renderSkillCards(activeCourse);
+      renderRouteMap(activeCourse);
+      rebindCardListeners();
+      applyFilters();
 
     })();
   </script>
