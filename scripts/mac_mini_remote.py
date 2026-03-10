@@ -26,11 +26,11 @@ from typing import Any
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DEFAULT_CONFIG_PATH = os.path.join(
-    os.path.expanduser("~"), ".permanence", "mac_mini_remote.json"
+    BASE_DIR, "memory", "working", "remote", "mac_mini_remote.json"
 )
 
 DEFAULT_CONFIG = {
-    "host": "100.118.168.26",
+    "host": "192.168.40.232",
     "user": "permanence-os",
     "key_path": "~/.ssh/id_ed25519_mac_mini",
     "repo_path": "~/Code/permanence-os",

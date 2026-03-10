@@ -304,6 +304,9 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_cli_chronicle_control.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_report.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_init.py"),
+        os.path.join(BASE_DIR, "tests", "test_mac_mini_remote.py"),
+        os.path.join(BASE_DIR, "tests", "test_social_draft_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_dashboard_social_api.py"),
     ]
     exit_code = 0
     for t in tests:
