@@ -276,6 +276,30 @@ body::after{
 .badge-idle{background:rgba(90,106,138,.06);color:var(--muted);border:1px solid rgba(90,106,138,.15)}
 .badge-sync{background:rgba(0,229,196,.08);color:var(--accent);border:1px solid rgba(0,229,196,.2)}
 
+/* Processing indicator (typing-style) */
+.badge-processing{
+  background:rgba(0,229,196,.08);color:var(--accent);
+  border:1px solid rgba(0,229,196,.2);
+}
+.badge-processing::after{
+  content:"...";display:inline-block;
+  animation:typing 1.4s steps(4,end) infinite;
+  width:0;overflow:hidden;vertical-align:bottom;
+}
+@keyframes typing{0%{width:0}100%{width:1.2em}}
+
+/* Notification badge (approval count) */
+.notif-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;
+  border-radius:999px;
+  background:#ff3b30;color:#fff;
+  font:600 10px/1 var(--mono);
+  animation:notifPulse 2s ease-in-out infinite;
+}
+.notif-badge:empty{display:none}
+@keyframes notifPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
 /* system meters at bottom of left panel */
 .meters{padding:10px 12px;border-top:1px solid var(--glass-border);flex-shrink:0}
 .meters-label{font-size:8px;color:var(--muted);letter-spacing:2px;font-family:var(--mono);margin-bottom:8px}
@@ -415,6 +439,10 @@ body::after{
 .ls-warn{background:rgba(247,191,94,.08);color:var(--warn);border:1px solid rgba(247,191,94,.2)}
 .ls-err{background:rgba(255,127,127,.08);color:var(--bad);border:1px solid rgba(255,127,127,.2)}
 .ls-info{background:var(--brass-dim);color:var(--brass);border:1px solid var(--brass-border)}
+
+/* New entry flash animation */
+.ls-new{animation:ledgerFlash .6s ease-out}
+@keyframes ledgerFlash{0%{background:rgba(0,229,196,.15);transform:translateX(-4px)}100%{background:transparent;transform:none}}
 
 /* ═══════════════════════════════════════════════════════
    FOOTER
@@ -790,7 +818,7 @@ body::after{
   <!-- LEFT: AGENTS -->
   <div class="pnl" id="pl">
     <div class="ph">
-      <span>Agents</span>
+      <span>Agents <span class="notif-badge" id="approvalBadge"></span></span>
       <span class="ph-sub" id="agentCount">--</span>
     </div>
     <div class="pb" id="agentList"></div>
@@ -1006,6 +1034,17 @@ async function checkStatus() {
   } catch (_) {
     setConn(false);
   }
+  // Also fetch pending approvals for badge
+  try {
+    var ar = await fetch(CMD_BASE + "/api/approvals", { signal: AbortSignal.timeout(4000) });
+    var ad = await ar.json();
+    var pending = ad.total_pending || (ad.pending || []).length || 0;
+    var badge = $("approvalBadge");
+    if (badge) {
+      badge.textContent = pending > 0 ? pending : "";
+      badge.title = pending > 0 ? pending + " pending approval" + (pending > 1 ? "s" : "") : "";
+    }
+  } catch (_) {}
 }
 
 function renderAgents() {
@@ -1016,11 +1055,12 @@ function renderAgents() {
     var st = (a.status || "idle").toLowerCase();
     var isActive = st === "active" || st === "online" || st === "running";
     if (isActive) activeCount++;
-    var badge = isActive ? "badge-active" : st === "sync" ? "badge-sync" : "badge-idle";
+    var isProcessing = st === "processing" || st === "working" || st === "thinking";
+    var badge = isProcessing ? "badge-processing" : isActive ? "badge-active" : st === "sync" ? "badge-sync" : "badge-idle";
     var color = a.color || "var(--accent)";
     html +=
       '<div class="arow">' +
-        '<div class="adot' + (isActive ? ' pulse' : '') + '" style="background:' + color + ';box-shadow:0 0 6px ' + color + '60"></div>' +
+        '<div class="adot' + ((isActive || isProcessing) ? ' pulse' : '') + '" style="background:' + color + ';box-shadow:0 0 6px ' + color + '60"></div>' +
         '<div class="ainf">' +
           '<div class="aname">' + esc(a.name || a.id || "?") + '</div>' +
           '<div class="arole">' + esc(a.role || a.type || "--") + '</div>' +
@@ -1047,6 +1087,7 @@ async function fetchLedger() {
   }
 }
 
+var lastLedgerTs = "";
 function renderLedger(entries) {
   var list = $("ledgerList");
   if (!entries.length) {
@@ -1054,13 +1095,16 @@ function renderLedger(entries) {
     return;
   }
   var html = "";
+  var newestTs = "";
   entries.forEach(function(e) {
     var level = (e.level || e.result || "info").toLowerCase();
     var cls = level === "error" ? "ls-err" : level === "warning" || level === "warn" ? "ls-warn" : level === "ok" || level === "success" ? "ls-ok" : "ls-info";
     var ts = e.timestamp || e.ts || "";
+    if (ts > newestTs) newestTs = ts;
+    var isNew = lastLedgerTs && ts > lastLedgerTs;
     if (ts && ts.length > 19) ts = ts.slice(0, 19);
     html +=
-      '<div class="lrow">' +
+      '<div class="lrow' + (isNew ? ' ls-new' : '') + '">' +
         '<div class="lno">' + esc(e.method || e.endpoint || e.source || "--") + '</div>' +
         '<div class="lcls">' + esc(e.description || e.message || e.endpoint || "--") + '</div>' +
         '<div class="lmeta">' +
@@ -1069,6 +1113,7 @@ function renderLedger(entries) {
         '</div>' +
       '</div>';
   });
+  if (newestTs) lastLedgerTs = newestTs;
   list.innerHTML = html;
 }
 
