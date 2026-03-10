@@ -312,9 +312,82 @@
     .skill-card:nth-child(8) { animation-delay: 480ms; }
     .skill-card:nth-child(9) { animation-delay: 540ms; }
 
-    /* bento layout spans */
-    .skill-card.span-2 { grid-column: span 2; }
-    .skill-card.span-3 { grid-column: span 3; }
+    /* equal-size grid — no more spans */
+    .skill-card.span-2, .skill-card.span-3 { grid-column: span 1; }
+
+    /* level group labels */
+    .level-group {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 -4px;
+    }
+
+    .level-group-label {
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .level-group-label.lbl-beginner { color: var(--c-teal); }
+    .level-group-label.lbl-intermediate { color: var(--c-gold); }
+    .level-group-label.lbl-advanced { color: var(--c-rose); }
+
+    .level-group-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* skill card icon */
+    .skill-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      opacity: 0.6;
+      transition: opacity 0.25s;
+    }
+
+    .skill-card:hover .skill-icon { opacity: 1; }
+
+    /* enhanced hover glow per level */
+    .skill-card[data-level="beginner"]:hover {
+      border-color: rgba(0,229,196,0.3);
+      box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(0,229,196,0.06);
+    }
+
+    .skill-card[data-level="intermediate"]:hover {
+      border-color: rgba(248,200,66,0.3);
+      box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(248,200,66,0.06);
+    }
+
+    .skill-card[data-level="advanced"]:hover {
+      border-color: rgba(255,92,138,0.3);
+      box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(255,92,138,0.06);
+    }
+
+    /* video embed */
+    .video-wrap {
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      position: relative;
+      padding-bottom: 56.25%;
+      background: var(--surface);
+    }
+
+    .video-wrap iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
 
     .skill-card h3 {
       margin: 0;
@@ -324,6 +397,9 @@
       font-size: 20px;
       line-height: 1.2;
       color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .skill-desc {
@@ -470,7 +546,10 @@
     }
 
     .timeline-wrap {
-      margin-bottom: 40px;
+      margin-bottom: 80px;
+      overflow: visible;
+      position: relative;
+      z-index: 2;
     }
 
     .timeline {
@@ -649,7 +728,11 @@
       gap: 6px;
     }
 
-    .res-card h3 .res-emoji { font-size: 14px; }
+    .res-card h3 .res-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
     .res-card.cat-github h3 { color: var(--ink); }
     .res-card.cat-social h3 { color: var(--c-violet); }
     .res-card.cat-docs h3 { color: var(--c-gold); }
@@ -915,8 +998,7 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
-      .skill-card.span-2 { grid-column: span 2; }
-      .skill-card.span-3 { grid-column: span 2; }
+      .skill-card.span-2, .skill-card.span-3 { grid-column: span 1; }
 
       .resources-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1028,13 +1110,20 @@
       </div>
     </div>
 
+    <!-- VIDEO INTRO -->
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/kSEpSMOOqPE?rel=0&modestbranding=1" title="Build with Claude — Introduction" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    </div>
+
     <!-- BENTO SKILL CARDS -->
     <section class="bento" id="skills" aria-label="Skill cards">
 
-      <!-- 1: span 2 -->
-      <article class="skill-card span-2" data-level="beginner" data-title="CLAUDE.md Setup" data-desc="Tell your agent how your world works.">
+      <!-- ── BEGINNER ── -->
+      <div class="level-group"><span class="level-group-label lbl-beginner">Beginner</span><div class="level-group-line"></div></div>
+
+      <article class="skill-card" data-level="beginner" data-title="CLAUDE.md Setup" data-desc="Tell your agent how your world works.">
         <span class="badge badge-beginner">Beginner</span>
-        <h3>CLAUDE.md Setup</h3>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>CLAUDE.md Setup</h3>
         <p class="skill-desc">Tell your agent how your world works.</p>
         <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
         <div class="skill-detail">
@@ -1057,10 +1146,81 @@
         </div>
       </article>
 
-      <!-- 2: span 1 -->
+      <article class="skill-card" data-level="beginner" data-title="Prompt Engineering" data-desc="Get better outputs with better inputs.">
+        <span class="badge badge-beginner">Beginner</span>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Prompt Engineering</h3>
+        <p class="skill-desc">Get better outputs with better inputs.</p>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Structure beats length. Give the agent <strong>role</strong>, <strong>context</strong>, <strong>constraints</strong>, and a <strong>concrete example</strong> of the output you want.</p>
+          <div class="code-block"><span class="code-lang">prompt</span><code><span class="cr">&#10008; Vague:</span>
+<span class="cm">"Write me a good commit message"</span>
+
+<span class="ck">&#10004; Structured:</span>
+<span class="cs">"Write a commit message for this diff.</span>
+<span class="cs"> Format: feat(scope): 1-line summary</span>
+<span class="cs"> Rules:</span>
+<span class="cs">  - Under 72 chars</span>
+<span class="cs">  - Imperative mood</span>
+<span class="cs">  - No period at end</span>
+<span class="cs"> Example: feat(auth): add JWT refresh"</span></code></div>
+          <p class="skill-tip"><strong>Tip:</strong> One concrete example is worth 100 words of description. Show, don&rsquo;t tell.</p>
+        </div>
+      </article>
+
+      <article class="skill-card" data-level="beginner" data-title="Skill Files" data-desc="Extend capabilities without writing code.">
+        <span class="badge badge-beginner">Beginner</span>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Skill Files</h3>
+        <p class="skill-desc">Extend capabilities without writing code.</p>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">A <strong>SKILL.md</strong> file teaches an agent a reusable workflow &mdash; no code required. Drop it in <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">.claude/skills/</code> and invoke it by name.</p>
+          <div class="code-block"><span class="code-lang">markdown</span><code><span class="cm">---</span>
+<span class="ck">name:</span> <span class="cs">code-review</span>
+<span class="ck">description:</span> Review a PR for quality
+<span class="cm">---</span>
+
+<span class="cv">## Steps</span>
+1. Read the diff with <span class="cs">`gh pr diff`</span>
+2. Check for:
+   - Missing error handling
+   - Untested code paths
+   - Security concerns
+3. Post review via <span class="cs">`gh pr review`</span>
+
+<span class="cv">## Constraints</span>
+<span class="cr">- Never approve without reading tests</span>
+<span class="cr">- Flag any secrets in the diff</span></code></div>
+          <p class="skill-tip"><strong>Tip:</strong> Invoke with <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">/code-review</code> in the chat. Skills compose &mdash; one skill can call another.</p>
+        </div>
+      </article>
+
+      <article class="skill-card" data-level="beginner" data-title="Open Source Stack" data-desc="Curated fonts and libraries powering the system.">
+        <span class="badge badge-beginner">Beginner</span>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Open Source Stack</h3>
+        <p class="skill-desc">Curated fonts and libraries powering the system.</p>
+        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
+        <div class="skill-detail">
+          <p class="skill-detail-text">Every layer of Ophtxn is built on <strong>open source</strong>. Here&rsquo;s the curated type stack and core libraries &mdash; free to inspect, fork, and learn from.</p>
+          <div class="code-block"><span class="code-lang">type stack</span><code><span class="ck">Display</span>     <span class="cs">Instrument Serif</span>  <span class="cm">italic, editorial</span>
+<span class="ck">Body</span>        <span class="cs">Instrument Sans</span>   <span class="cm">400 / 600</span>
+<span class="ck">Mono</span>        <span class="cs">DM Mono</span>           <span class="cm">code blocks, data</span>
+<span class="ck">System</span>      <span class="cs">Orbitron</span>          <span class="cm">700 / 900, HUD labels</span></code></div>
+          <div class="code-block"><span class="code-lang">core libs</span><code><span class="ck">Runtime</span>     <span class="cs">Python 3.12</span>   <span class="cm">+ Flask + SQLite</span>
+<span class="ck">Agent SDK</span>   <span class="cs">Claude Code</span>   <span class="cm">+ MCP protocol</span>
+<span class="ck">Network</span>     <span class="cs">Tailscale</span>     <span class="cm">mesh VPN, zero-config</span>
+<span class="ck">Services</span>    <span class="cs">launchd</span>       <span class="cm">macOS process manager</span>
+<span class="ck">Frontend</span>    <span class="cs">Vanilla JS</span>    <span class="cm">no framework, no build</span></code></div>
+          <p class="skill-tip"><strong>Fonts:</strong> All available free on <a href="https://fonts.google.com" target="_blank" rel="noopener noreferrer" style="color:var(--c-teal);text-decoration:none">Google Fonts</a>. Search by name to preview and download.</p>
+        </div>
+      </article>
+
+      <!-- ── INTERMEDIATE ── -->
+      <div class="level-group"><span class="level-group-label lbl-intermediate">Intermediate</span><div class="level-group-line"></div></div>
+
       <article class="skill-card" data-level="intermediate" data-title="MCP Integration" data-desc="Connect Claude to external tools via protocol.">
         <span class="badge badge-intermediate">Intermediate</span>
-        <h3>MCP Integration</h3>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>MCP Integration</h3>
         <p class="skill-desc">Connect Claude to external tools via protocol.</p>
         <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
         <div class="skill-detail">
@@ -1083,10 +1243,9 @@
         </div>
       </article>
 
-      <!-- 3: span 1 -->
       <article class="skill-card" data-level="intermediate" data-title="Hook System" data-desc="Trigger automated workflows from agent events.">
         <span class="badge badge-intermediate">Intermediate</span>
-        <h3>Hook System</h3>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Hook System</h3>
         <p class="skill-desc">Trigger automated workflows from agent events.</p>
         <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
         <div class="skill-detail">
@@ -1113,10 +1272,9 @@
         </div>
       </article>
 
-      <!-- 4: span 1 -->
       <article class="skill-card" data-level="intermediate" data-title="Memory Persistence" data-desc="Retain context and knowledge across sessions.">
         <span class="badge badge-intermediate">Intermediate</span>
-        <h3>Memory Persistence</h3>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Memory Persistence</h3>
         <p class="skill-desc">Retain context and knowledge across sessions.</p>
         <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
         <div class="skill-detail">
@@ -1134,10 +1292,12 @@
         </div>
       </article>
 
-      <!-- 5: span 1 -->
+      <!-- ── ADVANCED ── -->
+      <div class="level-group"><span class="level-group-label lbl-advanced">Advanced</span><div class="level-group-line"></div></div>
+
       <article class="skill-card" data-level="advanced" data-title="Agent Governance" data-desc="Policy enforcement + human approval gates.">
         <span class="badge badge-advanced">Advanced</span>
-        <h3>Agent Governance</h3>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Agent Governance</h3>
         <p class="skill-desc">Policy enforcement + human approval gates.</p>
         <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
         <div class="skill-detail">
@@ -1159,82 +1319,9 @@
         </div>
       </article>
 
-      <!-- 6: span 1 -->
-      <article class="skill-card" data-level="beginner" data-title="Prompt Engineering" data-desc="Get better outputs with better inputs.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3>Prompt Engineering</h3>
-        <p class="skill-desc">Get better outputs with better inputs.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Structure beats length. Give the agent <strong>role</strong>, <strong>context</strong>, <strong>constraints</strong>, and a <strong>concrete example</strong> of the output you want.</p>
-          <div class="code-block"><span class="code-lang">prompt</span><code><span class="cr">&#10008; Vague:</span>
-<span class="cm">"Write me a good commit message"</span>
-
-<span class="ck">&#10004; Structured:</span>
-<span class="cs">"Write a commit message for this diff.</span>
-<span class="cs"> Format: feat(scope): 1-line summary</span>
-<span class="cs"> Rules:</span>
-<span class="cs">  - Under 72 chars</span>
-<span class="cs">  - Imperative mood</span>
-<span class="cs">  - No period at end</span>
-<span class="cs"> Example: feat(auth): add JWT refresh"</span></code></div>
-          <p class="skill-tip"><strong>Tip:</strong> One concrete example is worth 100 words of description. Show, don&rsquo;t tell.</p>
-        </div>
-      </article>
-
-      <!-- 7: span 2 -->
-      <article class="skill-card span-2" data-level="beginner" data-title="Skill Files" data-desc="Extend capabilities without writing code.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3>Skill Files</h3>
-        <p class="skill-desc">Extend capabilities without writing code.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">A <strong>SKILL.md</strong> file teaches an agent a reusable workflow &mdash; no code required. Drop it in <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">.claude/skills/</code> and invoke it by name.</p>
-          <div class="code-block"><span class="code-lang">markdown</span><code><span class="cm">---</span>
-<span class="ck">name:</span> <span class="cs">code-review</span>
-<span class="ck">description:</span> Review a PR for quality
-<span class="cm">---</span>
-
-<span class="cv">## Steps</span>
-1. Read the diff with <span class="cs">`gh pr diff`</span>
-2. Check for:
-   - Missing error handling
-   - Untested code paths
-   - Security concerns
-3. Post review via <span class="cs">`gh pr review`</span>
-
-<span class="cv">## Constraints</span>
-<span class="cr">- Never approve without reading tests</span>
-<span class="cr">- Flag any secrets in the diff</span></code></div>
-          <p class="skill-tip"><strong>Tip:</strong> Invoke with <code style="color:var(--c-teal);font-family:'DM Mono',monospace;font-size:12px">/code-review</code> in the chat. Skills compose &mdash; one skill can call another.</p>
-        </div>
-      </article>
-
-      <!-- 8: span 1 -->
-      <article class="skill-card" data-level="beginner" data-title="Open Source Stack" data-desc="Curated fonts and libraries powering the system.">
-        <span class="badge badge-beginner">Beginner</span>
-        <h3>Open Source Stack</h3>
-        <p class="skill-desc">Curated fonts and libraries powering the system.</p>
-        <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
-        <div class="skill-detail">
-          <p class="skill-detail-text">Every layer of Ophtxn is built on <strong>open source</strong>. Here&rsquo;s the curated type stack and core libraries &mdash; free to inspect, fork, and learn from.</p>
-          <div class="code-block"><span class="code-lang">type stack</span><code><span class="ck">Display</span>     <span class="cs">Instrument Serif</span>  <span class="cm">italic, editorial</span>
-<span class="ck">Body</span>        <span class="cs">Instrument Sans</span>   <span class="cm">400 / 600</span>
-<span class="ck">Mono</span>        <span class="cs">DM Mono</span>           <span class="cm">code blocks, data</span>
-<span class="ck">System</span>      <span class="cs">Orbitron</span>          <span class="cm">700 / 900, HUD labels</span></code></div>
-          <div class="code-block"><span class="code-lang">core libs</span><code><span class="ck">Runtime</span>     <span class="cs">Python 3.12</span>   <span class="cm">+ Flask + SQLite</span>
-<span class="ck">Agent SDK</span>   <span class="cs">Claude Code</span>   <span class="cm">+ MCP protocol</span>
-<span class="ck">Network</span>     <span class="cs">Tailscale</span>     <span class="cm">mesh VPN, zero-config</span>
-<span class="ck">Services</span>    <span class="cs">launchd</span>       <span class="cm">macOS process manager</span>
-<span class="ck">Frontend</span>    <span class="cs">Vanilla JS</span>    <span class="cm">no framework, no build</span></code></div>
-          <p class="skill-tip"><strong>Fonts:</strong> All available free on <a href="https://fonts.google.com" target="_blank" rel="noopener noreferrer" style="color:var(--c-teal);text-decoration:none">Google Fonts</a>. Search by name to preview and download.</p>
-        </div>
-      </article>
-
-      <!-- 9: full width -->
-      <article class="skill-card span-3" data-level="advanced" data-title="Sub-agent Orchestration" data-desc="Spawn specialized agents for complex tasks.">
+      <article class="skill-card" data-level="advanced" data-title="Sub-agent Orchestration" data-desc="Spawn specialized agents for complex tasks.">
         <span class="badge badge-advanced">Advanced</span>
-        <h3>Sub-agent Orchestration</h3>
+        <h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>Sub-agent Orchestration</h3>
         <p class="skill-desc">Spawn specialized agents for complex tasks.</p>
         <a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>
         <div class="skill-detail">
@@ -1306,7 +1393,7 @@
       <div class="resources-grid">
 
         <div class="res-card cat-github">
-          <h3><span class="res-emoji" aria-hidden="true">&#128736;</span> GitHub</h3>
+          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> GitHub</h3>
           <ul class="resource-list">
             <li><a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>anthropic-cookbook</a></li>
             <li><a href="https://github.com/heshengtao/awesome-claude" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>awesome-claude</a></li>
@@ -1316,7 +1403,7 @@
         </div>
 
         <div class="res-card cat-social">
-          <h3><span class="res-emoji" aria-hidden="true">&#127760;</span> Socials</h3>
+          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Socials</h3>
           <ul class="resource-list">
             <li><a href="https://www.youtube.com/@anthropic-ai" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Anthropic YouTube</a></li>
             <li><a href="https://www.youtube.com/@simonwillison" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Simon Willison</a></li>
@@ -1326,7 +1413,7 @@
         </div>
 
         <div class="res-card cat-docs">
-          <h3><span class="res-emoji" aria-hidden="true">&#128218;</span> Docs</h3>
+          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> Docs</h3>
           <ul class="resource-list">
             <li><a href="https://docs.anthropic.com" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>docs.anthropic.com</a></li>
             <li><a href="https://docs.anthropic.com/en/api/getting-started" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Claude API reference</a></li>
@@ -1336,7 +1423,7 @@
         </div>
 
         <div class="res-card cat-sources" id="sources-trigger">
-          <h3><span class="res-emoji" aria-hidden="true">&#10024;</span> Sources</h3>
+          <h3><svg class="res-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Sources</h3>
           <p style="margin:0;color:var(--muted);font-size:13px;line-height:1.5;">Research, papers, and references behind the skill content on this page.</p>
           <button class="sources-cta">&rarr; View all sources</button>
         </div>
