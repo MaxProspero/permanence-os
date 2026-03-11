@@ -1352,6 +1352,137 @@ def test_second_brain_latest_endpoint_returns_snapshot():
             dashboard_api.PATHS.update(original_paths)
 
 
+def test_update_approval_status_sets_decision_source():
+    """Verify _update_approval_status records decision_source when provided."""
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        approvals_path = os.path.join(tmp, "approvals.json")
+        with open(approvals_path, "w") as f:
+            json.dump(
+                [
+                    {
+                        "id": "APR-001",
+                        "status": "PENDING_HUMAN_REVIEW",
+                        "title": "Test item",
+                    }
+                ],
+                f,
+            )
+
+        original_path = dashboard_api.PATHS["approvals"]
+        try:
+            dashboard_api.PATHS["approvals"] = approvals_path
+            result = dashboard_api._update_approval_status(
+                "APR-001", "APPROVED", "test notes", decision_source="dashboard_api"
+            )
+            assert result is True
+
+            with open(approvals_path) as f:
+                rows = json.load(f)
+            item = rows[0]
+            assert item["status"] == "APPROVED"
+            assert item["decision_source"] == "dashboard_api"
+            assert item["decision_notes"] == "test notes"
+            assert "decision_hash" in item
+            assert "decided_at" in item
+        finally:
+            dashboard_api.PATHS["approvals"] = original_path
+
+
+def test_approve_all_skips_critical_and_missing_priority():
+    """Verify approve-all skips CRITICAL, HIGH, and items with no priority set."""
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        approvals_path = os.path.join(tmp, "approvals.json")
+        with open(approvals_path, "w") as f:
+            json.dump(
+                [
+                    {"id": "LOW-1", "status": "PENDING_HUMAN_REVIEW", "priority": "LOW"},
+                    {"id": "MED-1", "status": "PENDING_HUMAN_REVIEW", "priority": "MEDIUM"},
+                    {"id": "HIGH-1", "status": "PENDING_HUMAN_REVIEW", "priority": "HIGH"},
+                    {"id": "CRIT-1", "status": "PENDING_HUMAN_REVIEW", "priority": "CRITICAL"},
+                    {"id": "NONE-1", "status": "PENDING_HUMAN_REVIEW"},
+                    {"id": "EMPTY-1", "status": "PENDING_HUMAN_REVIEW", "priority": ""},
+                ],
+                f,
+            )
+
+        original_path = dashboard_api.PATHS["approvals"]
+        try:
+            dashboard_api.PATHS["approvals"] = approvals_path
+            app = dashboard_api.app
+            app.config["TESTING"] = True
+            with app.test_client() as client:
+                resp = client.post(
+                    "/api/approvals/approve-all",
+                    json={"notes": "bulk test"},
+                    content_type="application/json",
+                )
+                assert resp.status_code == 200
+                payload = resp.get_json()
+                assert payload["approved"] == 2  # LOW-1 and MED-1 only
+                assert "LOW-1" in payload["approved_ids"]
+                assert "MED-1" in payload["approved_ids"]
+                assert payload["skipped_high_risk"] == 2  # HIGH-1 and CRIT-1
+                assert payload["skipped_no_priority"] == 2  # NONE-1 and EMPTY-1
+
+            # Verify file state
+            with open(approvals_path) as f:
+                rows = json.load(f)
+            statuses = {r["id"]: r["status"] for r in rows}
+            assert statuses["LOW-1"] == "APPROVED"
+            assert statuses["MED-1"] == "APPROVED"
+            assert statuses["HIGH-1"] == "PENDING_HUMAN_REVIEW"
+            assert statuses["CRIT-1"] == "PENDING_HUMAN_REVIEW"
+            assert statuses["NONE-1"] == "PENDING_HUMAN_REVIEW"
+            assert statuses["EMPTY-1"] == "PENDING_HUMAN_REVIEW"
+
+            # Verify decision_source on approved items
+            approved = [r for r in rows if r["status"] == "APPROVED"]
+            for item in approved:
+                assert item.get("decision_source") == "dashboard_api_bulk"
+        finally:
+            dashboard_api.PATHS["approvals"] = original_path
+
+
+def test_update_approval_status_file_locking_integrity():
+    """Verify file locking creates lock file and writes are atomic."""
+    if _skip_if_missing_dashboard_api():
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        approvals_path = os.path.join(tmp, "approvals.json")
+        lock_path = approvals_path + ".lock"
+        with open(approvals_path, "w") as f:
+            json.dump(
+                [
+                    {"id": "LOCK-1", "status": "PENDING_HUMAN_REVIEW"},
+                    {"id": "LOCK-2", "status": "PENDING_HUMAN_REVIEW"},
+                ],
+                f,
+            )
+
+        original_path = dashboard_api.PATHS["approvals"]
+        try:
+            dashboard_api.PATHS["approvals"] = approvals_path
+            # Sequential updates should not corrupt the file
+            dashboard_api._update_approval_status("LOCK-1", "APPROVED", "first")
+            dashboard_api._update_approval_status("LOCK-2", "REJECTED", "second")
+
+            # Lock file should exist after writes
+            assert os.path.exists(lock_path)
+
+            # Both updates should be persisted correctly
+            with open(approvals_path) as f:
+                rows = json.load(f)
+            statuses = {r["id"]: r["status"] for r in rows}
+            assert statuses["LOCK-1"] == "APPROVED"
+            assert statuses["LOCK-2"] == "REJECTED"
+        finally:
+            dashboard_api.PATHS["approvals"] = original_path
+
+
 if __name__ == "__main__":
     test_load_latest_task_summary_includes_model_routes()
     test_load_latest_briefing_supports_markdown()
@@ -1375,4 +1506,7 @@ if __name__ == "__main__":
     test_agent_console_send_blocks_guardrail_bypass_message()
     test_agent_console_send_runs_selected_command()
     test_second_brain_latest_endpoint_returns_snapshot()
+    test_update_approval_status_sets_decision_source()
+    test_approve_all_skips_critical_and_missing_priority()
+    test_update_approval_status_file_locking_integrity()
     print("✓ Dashboard API helper tests passed")

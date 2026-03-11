@@ -151,7 +151,7 @@ class OpenAIModel(BaseModel):
         with open(CALL_LOG, "a", encoding="utf-8") as handle:
             handle.write(json.dumps(log_entry) + "\n")
 
-        return ModelResponse(
+        resp = ModelResponse(
             text=text,
             metadata={
                 "model": self.model_id,
@@ -163,6 +163,15 @@ class OpenAIModel(BaseModel):
                 "stop_reason": stop_reason,
             },
         )
+
+        # Cost tracking (non-blocking — never break inference)
+        try:
+            from core.cost_tracker import _ensure_tracker
+            _ensure_tracker().record(resp.metadata)
+        except Exception:
+            pass
+
+        return resp
 
     def is_available(self) -> bool:
         api_key = str(os.getenv("OPENAI_API_KEY", "")).strip()

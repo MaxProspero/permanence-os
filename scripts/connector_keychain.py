@@ -136,6 +136,24 @@ TARGETS = {
         help_text="Glassnode API key for on-chain market intelligence.",
         pattern=re.compile(r"^\S{8,}$"),
     ),
+    "notion-api-key": Target(
+        name="notion-api-key",
+        env_key="NOTION_API_KEY",
+        service_env="NOTION_API_KEY_KEYCHAIN_SERVICE",
+        account_env="NOTION_API_KEY_KEYCHAIN_ACCOUNT",
+        default_service="permanence_os_notion_api_key",
+        help_text="Notion internal integration secret for THE LEDGER. Create at https://www.notion.so/my-integrations",
+        pattern=re.compile(r"^(secret_[A-Za-z0-9]{20,}|ntn_[A-Za-z0-9]{20,})$"),
+    ),
+    "brave-api-key": Target(
+        name="brave-api-key",
+        env_key="BRAVE_API_KEY",
+        service_env="BRAVE_API_KEY_KEYCHAIN_SERVICE",
+        account_env="BRAVE_API_KEY_KEYCHAIN_ACCOUNT",
+        default_service="permanence_os_brave_api_key",
+        help_text="Brave Search API key for web search MCP. Get one at https://api.search.brave.com/app/keys",
+        pattern=re.compile(r"^BSA[A-Za-z0-9_-]{20,}$"),
+    ),
 }
 
 

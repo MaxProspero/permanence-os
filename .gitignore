@@ -25,6 +25,8 @@ outputs/chronicle/*.md
 outputs/chronicle/*.json
 permanence_storage/
 .wrangler/
+.cloudflared/
+tunnel/*-credentials.json
 backups/
 *.bak
 *.tmp

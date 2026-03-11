@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Permanence OS — Open WebUI (Ollama frontend)
+  Port: 3000
+  Requires: Ollama running on :11434
+  Installed by: scripts/mac_mini_setup.sh
+  Logs: /tmp/permanence-open-webui.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.permanence.open-webui</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/permanence-os/open-webui/venv/bin/open-webui</string>
+    <string>serve</string>
+    <string>--host</string>
+    <string>0.0.0.0</string>
+    <string>--port</string>
+    <string>3000</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/permanence-os/open-webui</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/Users/permanence-os</string>
+    <key>PATH</key>
+    <string>/Users/permanence-os/open-webui/venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>OLLAMA_BASE_URL</key>
+    <string>http://127.0.0.1:11434</string>
+    <key>WEBUI_AUTH</key>
+    <string>false</string>
+    <key>DATA_DIR</key>
+    <string>/Users/permanence-os/open-webui/data</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/permanence-open-webui.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/permanence-open-webui.log</string>
+
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>

@@ -21,6 +21,7 @@ try:
     from flask_cors import CORS
 except ModuleNotFoundError:
     CORS = None
+import fcntl
 import json
 import os
 import datetime
@@ -43,6 +44,12 @@ if CORS is not None:
             "http://127.0.0.1:8797",
             "http://localhost:8797",
             "https://permanencesystems.com",
+            "https://www.permanencesystems.com",
+            "https://ophtxn.com",
+            "https://www.ophtxn.com",
+            "https://api.permanencesystems.com",
+            "https://app.permanencesystems.com",
+            "https://ophtxn-official.pages.dev",
         ],
     )
 
@@ -112,6 +119,9 @@ def log_api_call(method: str, endpoint: str, payload: Optional[dict] = None, res
 # SYSTEM STATUS
 # ─────────────────────────────────────────────
 
+SITE_DIR = os.path.join(APP_DIR, "site", "foundation")
+
+
 @app.route("/", methods=["GET"])
 def dashboard_home():
     """Serve dashboard UI from the same origin as the API."""
@@ -120,11 +130,62 @@ def dashboard_home():
         abort(404, description=f"{DASHBOARD_FILE} not found next to dashboard_api.py")
     return send_from_directory(APP_DIR, DASHBOARD_FILE)
 
+
+@app.route("/office", methods=["GET"])
+def serve_office():
+    """Serve the Office (command_center.html) at /office."""
+    return send_from_directory(SITE_DIR, "command_center.html")
+
+
+@app.route("/manifest.json", methods=["GET"])
+def serve_manifest():
+    """Serve PWA manifest."""
+    return send_from_directory(SITE_DIR, "manifest.json")
+
+
+@app.route("/sw.js", methods=["GET"])
+def serve_sw():
+    """Serve service worker."""
+    return send_from_directory(SITE_DIR, "sw.js")
+
+
+@app.route("/runtime.config.js", methods=["GET"])
+def serve_runtime_config():
+    """Serve runtime config (empty or generated)."""
+    config_path = os.path.join(SITE_DIR, "runtime.config.js")
+    if os.path.exists(config_path):
+        return send_from_directory(SITE_DIR, "runtime.config.js")
+    # Generate inline config pointing API to self
+    return f"window.__OPHTXN_RUNTIME={{apiBase:'',appBase:'http://127.0.0.1:8797'}};", 200, {"Content-Type": "application/javascript"}
+
+
+@app.route("/assets/<path:filename>", methods=["GET"])
+def serve_assets(filename):
+    """Serve static assets (icons, images)."""
+    assets_dir = os.path.join(SITE_DIR, "assets")
+    return send_from_directory(assets_dir, filename)
+
+
+@app.route("/<path:page>", methods=["GET"])
+def serve_site_page(page):
+    """Serve any site page (rooms.html, ophtxn_shell.html, etc.)."""
+    if page.startswith("api/"):
+        abort(404)
+    safe = os.path.basename(page)
+    if not safe.endswith((".html", ".css", ".js", ".svg", ".ico")):
+        abort(404)
+    site_path = os.path.join(SITE_DIR, safe)
+    if os.path.exists(site_path):
+        return send_from_directory(SITE_DIR, safe)
+    abort(404)
+
+
 @app.route("/api/status", methods=["GET"])
 def system_status():
     """
     Returns overall system health snapshot.
     Dashboard home screen reads from this.
+    Includes agent roster for the left panel and arena.
     """
     log_api_call("GET", "/api/status")
 
@@ -137,7 +198,34 @@ def system_status():
     latest_task = _load_latest_task_summary()
     promotion = _load_promotion_status()
 
-    return jsonify({"ok": True, "ts": utc_now().isoformat() + "Z", "version": API_VERSION})
+    # Build live agent roster
+    agents = _build_arena_agents()
+
+    # Check for active tasks to mark agents as active
+    try:
+        from core.task_planner import TaskPlanner
+        planner = TaskPlanner()
+        agenda = planner.get_agenda(status="running")
+        running_agent_ids = set()
+        if isinstance(agenda, dict):
+            for t in agenda.get("tasks", []):
+                aid = t.get("agent_id", "")
+                if aid:
+                    running_agent_ids.add(aid)
+        for a in agents:
+            if a["id"] in running_agent_ids:
+                a["status"] = "active"
+    except (ImportError, Exception):
+        pass
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_now().isoformat() + "Z",
+        "version": API_VERSION,
+        "agents": agents,
+        "pending_approvals": pending_approvals,
+        "canon_version": canon_version,
+    })
 
 
 # ─────────────────────────────────────────────
@@ -177,7 +265,7 @@ def approve_item(approval_id: str):
 
     log_api_call("POST", f"/api/approvals/{approval_id}/approve", payload)
 
-    result = _update_approval_status(approval_id, "APPROVED", notes)
+    result = _update_approval_status(approval_id, "APPROVED", notes, decision_source="dashboard_api")
     if not result:
         log_api_call("POST", f"/api/approvals/{approval_id}/approve", payload, "NOT_FOUND")
         abort(404, description="Approval not found")
@@ -207,7 +295,7 @@ def reject_item(approval_id: str):
 
     log_api_call("POST", f"/api/approvals/{approval_id}/reject", payload)
 
-    result = _update_approval_status(approval_id, "REJECTED", reason)
+    result = _update_approval_status(approval_id, "REJECTED", reason, decision_source="dashboard_api")
     if not result:
         log_api_call("POST", f"/api/approvals/{approval_id}/reject", payload, "NOT_FOUND")
         abort(404, description="Approval not found")
@@ -237,25 +325,31 @@ def approve_all():
     approvals = _load_approvals()
     approved_ids = []
     skipped_high = []
+    skipped_no_priority = []
 
     for item in approvals:
         if item.get("status") != "PENDING_HUMAN_REVIEW":
             continue
-        priority = str(item.get("priority", "")).upper()
-        if priority == "HIGH":
-            skipped_high.append(item.get("id") or item.get("approval_id", ""))
+        priority = str(item.get("priority") or "").strip().upper()
+        item_id = item.get("id") or item.get("approval_id", "")
+        if priority in ("HIGH", "CRITICAL"):
+            skipped_high.append(item_id)
             continue
-        approval_id = item.get("id") or item.get("approval_id", "")
-        _update_approval_status(approval_id, "APPROVED", notes)
-        approved_ids.append(approval_id)
+        if not priority:
+            skipped_no_priority.append(item_id)
+            continue
+        _update_approval_status(item_id, "APPROVED", notes, decision_source="dashboard_api_bulk")
+        approved_ids.append(item_id)
 
     return jsonify({
         "approved": len(approved_ids),
         "skipped_high_risk": len(skipped_high),
+        "skipped_no_priority": len(skipped_no_priority),
         "approved_ids": approved_ids,
         "skipped_ids": skipped_high,
+        "skipped_no_priority_ids": skipped_no_priority,
         "decided_at": utc_iso(),
-        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH-risk items kept for individual review.",
+        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH/CRITICAL-risk items kept for individual review. {len(skipped_no_priority)} items skipped (missing priority).",
     })
 
 
@@ -3762,24 +3856,36 @@ def _load_approvals() -> list:
             return []
 
 
-def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
-    approvals = _load_approvals()
-    found = False
-    for a in approvals:
-        if a.get("id") == approval_id or a.get("approval_id") == approval_id or a.get("proposal_id") == approval_id:
-            a["status"] = status
-            a["decided_at"] = utc_iso()
-            a["decision_notes"] = notes
-            a["decision_hash"] = hashlib.sha256(
-                f"{approval_id}{status}{notes}{utc_iso()}".encode()
-            ).hexdigest()[:16]
-            found = True
-            break
+def _update_approval_status(approval_id: str, status: str, notes: str, decision_source: str = "") -> bool:
+    """Update approval status with advisory file lock to prevent concurrent corruption."""
+    approvals_path = PATHS["approvals"]
+    lock_path = approvals_path + ".lock"
+    os.makedirs(os.path.dirname(approvals_path), exist_ok=True)
 
-    if found:
-        os.makedirs(os.path.dirname(PATHS["approvals"]), exist_ok=True)
-        with open(PATHS["approvals"], "w") as f:
-            json.dump(approvals, f, indent=2)
+    with open(lock_path, "a") as lock_fh:
+        fcntl.flock(lock_fh, fcntl.LOCK_EX)
+        try:
+            approvals = _load_approvals()
+            found = False
+            decided_at = utc_iso()
+            for a in approvals:
+                if a.get("id") == approval_id or a.get("approval_id") == approval_id or a.get("proposal_id") == approval_id:
+                    a["status"] = status
+                    a["decided_at"] = decided_at
+                    a["decision_notes"] = notes
+                    if decision_source:
+                        a["decision_source"] = decision_source
+                    a["decision_hash"] = hashlib.sha256(
+                        f"{approval_id}{status}{notes}{decided_at}".encode()
+                    ).hexdigest()[:16]
+                    found = True
+                    break
+
+            if found:
+                with open(approvals_path, "w") as f:
+                    json.dump(approvals, f, indent=2)
+        finally:
+            fcntl.flock(lock_fh, fcntl.LOCK_UN)
 
     return found
 
@@ -3952,6 +4058,609 @@ def _load_log_entries(agent: Optional[str], limit: int) -> list:
         entries.extend([l.strip() for l in lines[-limit:]])
 
     return entries[-limit:]
+
+
+# ─────────────────────────────────────────────
+# SOCIAL DRAFT QUEUE API
+# ─────────────────────────────────────────────
+
+
+@app.route("/api/social/drafts", methods=["GET"])
+def api_social_drafts_list():
+    """List social media drafts with optional filters."""
+    try:
+        from scripts.social_draft_queue import list_drafts
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    platform = request.args.get("platform")
+    status = request.args.get("status")
+    limit = int(request.args.get("limit", 50))
+    drafts = list_drafts(platform=platform, status=status, limit=limit)
+    return jsonify({"drafts": drafts, "count": len(drafts)})
+
+
+@app.route("/api/social/drafts/<int:draft_id>", methods=["GET"])
+def api_social_draft_get(draft_id):
+    """Get a single draft by ID."""
+    try:
+        from scripts.social_draft_queue import get_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    draft = get_draft(draft_id)
+    if not draft:
+        abort(404, description=f"Draft {draft_id} not found")
+    return jsonify(draft)
+
+
+@app.route("/api/social/drafts", methods=["POST"])
+def api_social_draft_submit():
+    """Agent submits a new social media draft."""
+    try:
+        from scripts.social_draft_queue import submit_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("POST", "/api/social/drafts", payload)
+    result = submit_draft(
+        platform=payload.get("platform", ""),
+        content=payload.get("content", ""),
+        content_type=payload.get("content_type", "post"),
+        media_notes=payload.get("media_notes", ""),
+        hashtags=payload.get("hashtags", ""),
+        suggested_time=payload.get("suggested_time", ""),
+        agent_id=payload.get("agent_id", ""),
+        metadata=payload.get("metadata"),
+    )
+    status_code = 201 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/drafts/<int:draft_id>/approve", methods=["PATCH", "POST"])
+def api_social_draft_approve(draft_id):
+    """Human approves a draft for publishing."""
+    try:
+        from scripts.social_draft_queue import approve_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("PATCH", f"/api/social/drafts/{draft_id}/approve", payload)
+    result = approve_draft(draft_id, reviewer_notes=payload.get("notes", ""))
+    status_code = 200 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/drafts/<int:draft_id>/reject", methods=["PATCH", "POST"])
+def api_social_draft_reject(draft_id):
+    """Human rejects a draft with feedback."""
+    try:
+        from scripts.social_draft_queue import reject_draft
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("PATCH", f"/api/social/drafts/{draft_id}/reject", payload)
+    result = reject_draft(draft_id, reviewer_notes=payload.get("notes", ""))
+    status_code = 200 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/drafts/<int:draft_id>/published", methods=["PATCH", "POST"])
+def api_social_draft_published(draft_id):
+    """Mark an approved draft as published."""
+    try:
+        from scripts.social_draft_queue import mark_published
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    payload = request.get_json() or {}
+    log_api_call("PATCH", f"/api/social/drafts/{draft_id}/published", payload)
+    result = mark_published(draft_id)
+    status_code = 200 if result.get("ok") else 400
+    return jsonify(result), status_code
+
+
+@app.route("/api/social/stats", methods=["GET"])
+def api_social_stats():
+    """Get social draft queue statistics."""
+    try:
+        from scripts.social_draft_queue import get_stats
+    except ImportError:
+        return jsonify({"error": "social_draft_queue not available"}), 500
+
+    return jsonify(get_stats())
+
+
+# ─────────────────────────────────────────────
+# SPENDING GATE ENDPOINTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/spending/status", methods=["GET"])
+def api_spending_status():
+    """Get spending gate status — credits, mode, pending approvals."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    return jsonify(gate.status())
+
+
+@app.route("/api/spending/approve", methods=["POST"])
+def api_spending_approve():
+    """Approve additional spending for a provider. Human action."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    if not provider or amount <= 0:
+        return jsonify({"error": "provider and amount (>0) required"}), 400
+    gate = SpendingGate()
+    result = gate.approve_spending(provider=provider, amount_usd=amount, approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/mode", methods=["POST"])
+def api_spending_mode():
+    """Change spending gate mode: gate/auto/block."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    mode = data.get("mode", "")
+    if not mode:
+        return jsonify({"error": "mode required (gate/auto/block)"}), 400
+    gate = SpendingGate()
+    return jsonify(gate.set_mode(mode))
+
+
+@app.route("/api/spending/requests", methods=["GET"])
+def api_spending_requests():
+    """Get pending approval requests."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    return jsonify(gate.get_approval_requests())
+
+
+@app.route("/api/spending/approve-timed", methods=["POST"])
+def api_spending_approve_timed():
+    """Approve spending for a time window (30 min, 1 hr, eod, custom)."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    duration = data.get("duration", "60")  # minutes, or "eod"
+    if not provider or amount <= 0:
+        return jsonify({"error": "provider and amount (>0) required"}), 400
+    gate = SpendingGate()
+    if str(duration).lower() == "eod":
+        result = gate.approve_timed_eod(provider=provider, amount_usd=amount, approved_by="dashboard")
+    else:
+        result = gate.approve_timed(provider=provider, amount_usd=amount, duration_minutes=int(duration), approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/approve-steps", methods=["POST"])
+def api_spending_approve_steps():
+    """Approve spending for next N steps."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    max_steps = int(data.get("steps", 10))
+    if not provider or amount <= 0:
+        return jsonify({"error": "provider and amount (>0) required"}), 400
+    gate = SpendingGate()
+    result = gate.approve_steps(provider=provider, amount_usd=amount, max_steps=max_steps, approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/approve-task", methods=["POST"])
+def api_spending_approve_task():
+    """Approve spending until a task/goal completes."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    provider = data.get("provider", "")
+    amount = float(data.get("amount", 0))
+    task_id = data.get("task_id", "")
+    if not provider or amount <= 0 or not task_id:
+        return jsonify({"error": "provider, amount (>0), and task_id required"}), 400
+    gate = SpendingGate()
+    result = gate.approve_task(provider=provider, amount_usd=amount, task_id=task_id, approved_by="dashboard")
+    return jsonify(result)
+
+
+@app.route("/api/spending/complete-task", methods=["POST"])
+def api_spending_complete_task():
+    """Mark a task as complete — revokes task-scoped approvals."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    task_id = data.get("task_id", "")
+    if not task_id:
+        return jsonify({"error": "task_id required"}), 400
+    gate = SpendingGate()
+    return jsonify(gate.complete_task(task_id))
+
+
+@app.route("/api/spending/daily-cap", methods=["POST"])
+def api_spending_daily_cap():
+    """Set daily spend cap."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    cap = float(data.get("cap", 0))
+    gate = SpendingGate()
+    return jsonify(gate.set_daily_cap(cap))
+
+
+@app.route("/api/spending/budget-plan", methods=["GET"])
+def api_spending_budget_plan():
+    """Get budget allocation plan across priorities."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    task_types = request.args.getlist("task_type") or None
+    return jsonify(gate.get_budget_plan(task_types=task_types))
+
+
+@app.route("/api/spending/revoke-all", methods=["POST"])
+def api_spending_revoke_all():
+    """Emergency: revoke all active timed/step/task approvals."""
+    try:
+        from core.spending_gate import SpendingGate
+    except ImportError:
+        return jsonify({"error": "spending_gate not available"}), 500
+    gate = SpendingGate()
+    return jsonify(gate.revoke_all_approvals())
+
+
+# ─────────────────────────────────────────────
+# MODEL JUDGE ENDPOINTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/judge/report", methods=["GET"])
+def api_judge_report():
+    """Get model performance report."""
+    try:
+        from core.model_judge import ModelJudge
+    except ImportError:
+        return jsonify({"error": "model_judge not available"}), 500
+    days = int(request.args.get("days", 30))
+    judge = ModelJudge()
+    return jsonify(judge.get_performance_report(days=days))
+
+
+@app.route("/api/judge/ranking", methods=["GET"])
+def api_judge_ranking():
+    """Get model rankings by quality-per-dollar."""
+    try:
+        from core.model_judge import ModelJudge
+    except ImportError:
+        return jsonify({"error": "model_judge not available"}), 500
+    days = int(request.args.get("days", 30))
+    judge = ModelJudge()
+    return jsonify(judge.get_model_ranking(days=days))
+
+
+@app.route("/api/judge/recommend", methods=["GET"])
+def api_judge_recommend():
+    """Get model recommendation for a task type."""
+    try:
+        from core.model_judge import ModelJudge
+    except ImportError:
+        return jsonify({"error": "model_judge not available"}), 500
+    task_type = request.args.get("task_type", "")
+    if not task_type:
+        return jsonify({"error": "task_type parameter required"}), 400
+    days = int(request.args.get("days", 30))
+    judge = ModelJudge()
+    return jsonify(judge.recommend_model(task_type=task_type, days=days))
+
+
+# ─────────────────────────────────────────────
+# TASK PLANNER ENDPOINTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/planner/agenda", methods=["GET"])
+def api_planner_agenda():
+    """Get task agenda with optional filters."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    tasks = planner.get_agenda(
+        date=request.args.get("date"),
+        status=request.args.get("status"),
+        priority=request.args.get("priority"),
+        agent_id=request.args.get("agent_id"),
+    )
+    return jsonify(tasks)
+
+
+@app.route("/api/planner/tasks", methods=["POST"])
+def api_planner_create_task():
+    """Create a new planned task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    title = data.get("title", "")
+    if not title:
+        return jsonify({"error": "title required"}), 400
+    planner = TaskPlanner()
+    task = planner.create_task(
+        title=title,
+        task_type=data.get("task_type", "general"),
+        agent_id=data.get("agent_id", ""),
+        priority=data.get("priority", "normal"),
+        budget_usd=float(data.get("budget_usd", 0)),
+        provider=data.get("provider", "anthropic"),
+        scheduled_for=data.get("scheduled_for"),
+        description=data.get("description", ""),
+        depends_on=data.get("depends_on"),
+        parameters=data.get("parameters"),
+    )
+    return jsonify(task)
+
+
+@app.route("/api/planner/tasks/<task_id>", methods=["GET"])
+def api_planner_get_task(task_id):
+    """Get a single task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    task = planner.get_task(task_id)
+    if not task:
+        return jsonify({"error": f"Task not found: {task_id}"}), 404
+    return jsonify(task)
+
+
+@app.route("/api/planner/tasks/<task_id>/start", methods=["POST"])
+def api_planner_start_task(task_id):
+    """Start a planned task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    return jsonify(planner.start_task(task_id))
+
+
+@app.route("/api/planner/tasks/<task_id>/complete", methods=["POST"])
+def api_planner_complete_task(task_id):
+    """Complete a task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    planner = TaskPlanner()
+    return jsonify(planner.complete_task(
+        task_id,
+        result=data.get("result"),
+        spent_usd=float(data.get("spent_usd", 0)),
+    ))
+
+
+@app.route("/api/planner/tasks/<task_id>/cancel", methods=["POST"])
+def api_planner_cancel_task(task_id):
+    """Cancel a task."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    return jsonify(planner.cancel_task(task_id))
+
+
+@app.route("/api/planner/plan", methods=["GET"])
+def api_planner_execution_plan():
+    """Get the optimal execution plan for pending tasks."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    daily_budget = float(request.args.get("daily_budget", 0))
+    planner = TaskPlanner()
+    return jsonify(planner.get_execution_plan(daily_budget_usd=daily_budget))
+
+
+@app.route("/api/planner/stats", methods=["GET"])
+def api_planner_stats():
+    """Get task statistics."""
+    try:
+        from core.task_planner import TaskPlanner
+    except ImportError:
+        return jsonify({"error": "task_planner not available"}), 500
+    planner = TaskPlanner()
+    return jsonify(planner.get_stats())
+
+
+# ─────────────────────────────────────────────
+# ARENA STATE (Agent Grid visualization)
+# ─────────────────────────────────────────────
+
+# Department color map — matches command_center.html arena
+# v0.4: streamlined from 4 depts to 3 (CORE, OPERATIONS, INFRASTRUCTURE)
+ARENA_DEPT_COLORS = {
+    "CORE": "#00e5c4",
+    "OPERATIONS": "#ff5c8a",
+    "INFRASTRUCTURE": "#c8a84e",
+}
+
+ARENA_DEPT_LABELS = {
+    "CORE": "CORE PIPELINE",
+    "OPERATIONS": "OPERATIONS",
+    "INFRASTRUCTURE": "INFRASTRUCTURE",
+}
+
+
+def _build_arena_agents() -> list:
+    """Build arena agent + workflow list from Polemarch registries."""
+    agents = []
+    try:
+        from core.polemarch import AGENT_REGISTRY, WORKFLOW_REGISTRY, RiskTier
+    except ImportError:
+        return agents
+
+    for agent_id, info in AGENT_REGISTRY.items():
+        dept = info.get("department", "CORE")
+        risk = info.get("risk_default")
+        risk_str = risk.value if hasattr(risk, "value") else str(risk) if risk else "low"
+        agents.append({
+            "id": agent_id,
+            "name": agent_id.replace("_", " ").title(),
+            "department": dept,
+            "department_label": ARENA_DEPT_LABELS.get(dept, dept),
+            "color": ARENA_DEPT_COLORS.get(dept, "#c8a84e"),
+            "risk": risk_str,
+            "status": "idle",
+            "kind": "agent",
+            "description": info.get("description", ""),
+            "allowed_tools": info.get("allowed_tools", []),
+            "forbidden_actions": info.get("forbidden_actions", []),
+        })
+
+    # Append workflows as lightweight nodes
+    for wf_id, wf_info in WORKFLOW_REGISTRY.items():
+        risk = wf_info.get("risk_default")
+        risk_str = risk.value if hasattr(risk, "value") else str(risk) if risk else "low"
+        agents.append({
+            "id": f"wf:{wf_id}",
+            "name": wf_id.replace("_", " ").title(),
+            "department": "WORKFLOW",
+            "department_label": "WORKFLOW",
+            "color": "#6ecfff",
+            "risk": risk_str,
+            "status": "idle",
+            "kind": "workflow",
+            "description": wf_info.get("description", ""),
+            "trigger": wf_info.get("trigger", ""),
+            "steps": wf_info.get("steps", []),
+            "requires_approval": wf_info.get("requires_approval", False),
+        })
+    return agents
+
+
+def _get_arena_hub() -> dict:
+    """Build hub health summary."""
+    hub = {"status": "online", "uptime_s": 0, "services": {}}
+    # Check spending gate
+    try:
+        from core.spending_gate import SpendingGate
+        gate = SpendingGate()
+        status = gate.status()
+        hub["spending"] = {
+            "mode": status.get("mode", "unknown"),
+            "spent_today": status.get("spent_today_usd", 0),
+            "budget_limit": status.get("daily_cap_usd", 0),
+        }
+    except (ImportError, Exception):
+        hub["spending"] = {"mode": "unknown", "spent_today": 0, "budget_limit": 0}
+    return hub
+
+
+def _get_arena_connections(agents: list) -> list:
+    """Build connection lines between related agents."""
+    connections = []
+    # Core agents form a pipeline
+    core_ids = [a["id"] for a in agents if a["department"] == "CORE"]
+    for i in range(len(core_ids) - 1):
+        connections.append({"from": core_ids[i], "to": core_ids[i + 1], "type": "pipeline"})
+    # Infrastructure agents connect to hub
+    infra_ids = [a["id"] for a in agents if a["department"] == "INFRASTRUCTURE"]
+    if core_ids and infra_ids:
+        for iid in infra_ids:
+            connections.append({"from": "hub", "to": iid, "type": "control"})
+    # Department agents connect to executor
+    dept_ids = [a["id"] for a in agents if a["department"] == "DEPARTMENT"]
+    if "executor" in core_ids:
+        for did in dept_ids:
+            connections.append({"from": "executor", "to": did, "type": "dispatch"})
+    return connections
+
+
+def _get_arena_events() -> list:
+    """Get recent log events for the thought stream."""
+    events = []
+    try:
+        log_path = PATHS.get("api_log", "")
+        if log_path and os.path.exists(log_path):
+            with open(log_path) as f:
+                lines = f.readlines()
+            for line in lines[-15:]:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    events.append({
+                        "timestamp": entry.get("timestamp", ""),
+                        "event": entry.get("endpoint", entry.get("action", "")),
+                        "result": entry.get("result", "OK"),
+                        "agent": entry.get("agent_id", "system"),
+                    })
+                except json.JSONDecodeError:
+                    continue
+    except OSError:
+        pass
+    return events[-10:]
+
+
+@app.route("/api/arena/state", methods=["GET"])
+def api_arena_state():
+    """
+    Aggregated arena state for the GRID visualization.
+    Returns agents, hub health, connections, and recent events.
+    """
+    log_api_call("GET", "/api/arena/state")
+    agents = _build_arena_agents()
+    hub = _get_arena_hub()
+    connections = _get_arena_connections(agents)
+    events = _get_arena_events()
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_iso(),
+        "agents": agents,
+        "hub": hub,
+        "connections": connections,
+        "events": events,
+        "departments": {
+            k: {"label": ARENA_DEPT_LABELS[k], "color": v}
+            for k, v in ARENA_DEPT_COLORS.items()
+        },
+    })
 
 
 # ─────────────────────────────────────────────

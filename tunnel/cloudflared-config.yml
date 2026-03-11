@@ -1,0 +1,25 @@
+# Cloudflare Tunnel configuration for Permanence OS backends.
+# Run: cloudflared tunnel run permanence-os
+#
+# Setup:
+#   1. brew install cloudflared
+#   2. cloudflared tunnel login
+#   3. cloudflared tunnel create permanence-os
+#   4. Copy the tunnel UUID into the 'tunnel' field below
+#   5. cloudflared tunnel route dns permanence-os api.permanencesystems.com
+#   6. cloudflared tunnel route dns permanence-os app.permanencesystems.com
+
+tunnel: <TUNNEL_UUID>
+credentials-file: ~/.cloudflared/<TUNNEL_UUID>.json
+
+ingress:
+  - hostname: api.permanencesystems.com
+    service: http://127.0.0.1:8000
+    originRequest:
+      noTLSVerify: true
+  - hostname: app.permanencesystems.com
+    service: http://127.0.0.1:8797
+    originRequest:
+      noTLSVerify: true
+  # Catch-all (required by cloudflared)
+  - service: http_status:404

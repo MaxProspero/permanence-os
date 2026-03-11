@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Permanence OS — Git Auto-Sync
+  Pulls latest changes from origin every 30 minutes.
+  Only fast-forward merges — fails safely on conflicts.
+  Logs: /tmp/permanence-git-sync.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.permanence.git-sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <string>export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:$PATH" &amp;&amp; cd __REPO_DIR__ &amp;&amp; git fetch origin 2&gt;&amp;1 &amp;&amp; git pull --ff-only origin claude/vibrant-merkle 2&gt;&amp;1 || echo "git-sync: pull failed (conflicts?) at $(date)"</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO_DIR__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__HOME__</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>StartInterval</key>
+  <integer>1800</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/permanence-git-sync.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/permanence-git-sync.log</string>
+
+  <key>ThrottleInterval</key>
+  <integer>60</integer>
+</dict>
+</plist>

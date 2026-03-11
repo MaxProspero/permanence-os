@@ -95,14 +95,18 @@ def _default_policy() -> dict[str, Any]:
                 "allowed_repos": [],
             },
             "github_write": {
-                "enabled": False,
-                "mode": "manual_approval_only",
+                "enabled": True,
+                "mode": "supervised_write",
                 "permissions": [
                     "contents:write",
                     "pull_requests:write",
                     "issues:write",
                 ],
                 "daily_write_limit": 10,
+                "protected_branches": ["main", "claude/vibrant-merkle"],
+                "require_pr_for_main": True,
+                "branch_prefix_required": "agent/{agent_id}/",
+                "secret_scan_required": True,
             },
             "social_research": {
                 "enabled": True,

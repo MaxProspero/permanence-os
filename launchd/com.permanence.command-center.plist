@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Permanence OS — Command Center (Dashboard API)
+  Port: 8000
+  Installed by: scripts/mac_mini_setup.sh
+  Logs: /tmp/permanence-command-center.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.permanence.command-center</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__REPO_DIR__/venv/bin/python</string>
+    <string>__REPO_DIR__/scripts/command_center.py</string>
+    <string>--host</string>
+    <string>0.0.0.0</string>
+    <string>--port</string>
+    <string>8000</string>
+    <string>--no-open</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO_DIR__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__HOME__</string>
+    <key>PATH</key>
+    <string>__REPO_DIR__/venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>PERMANENCE_BASE_DIR</key>
+    <string>__REPO_DIR__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/permanence-command-center.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/permanence-command-center.log</string>
+
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>

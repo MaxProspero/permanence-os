@@ -115,6 +115,29 @@ def _status_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return out
 
 
+STALE_THRESHOLD_HOURS = 48
+
+
+def _stale_pending_count(rows: list[dict[str, Any]], threshold_hours: int = STALE_THRESHOLD_HOURS) -> int:
+    """Count PENDING_HUMAN_REVIEW items older than threshold_hours."""
+    now = _now()
+    count = 0
+    for row in rows:
+        if str(row.get("status") or "").strip().upper() != "PENDING_HUMAN_REVIEW":
+            continue
+        ts_str = str(row.get("queued_at") or row.get("created_at") or row.get("timestamp") or "").strip()
+        if not ts_str:
+            count += 1  # no timestamp = treat as stale
+            continue
+        try:
+            ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+            if (now - ts).total_seconds() > threshold_hours * 3600:
+                count += 1
+        except (ValueError, TypeError):
+            count += 1
+    return count
+
+
 def _is_level_at_or_below(value: str, ceiling: str) -> bool:
     value_norm = _normalize_level(value)
     ceiling_norm = _normalize_level(ceiling)
@@ -357,6 +380,7 @@ def _write_outputs(
 
     scoped = [row for row in rows if _in_scope(row, source_filters)]
     counts = _status_counts(scoped)
+    stale = _stale_pending_count(scoped)
     sort_mode = "top" if action == "top" else "oldest"
     pending = _pending_rows(
         rows,
@@ -384,6 +408,7 @@ def _write_outputs(
         f"- Approved: {counts.get('APPROVED', 0)}",
         f"- Rejected: {counts.get('REJECTED', 0)}",
         f"- Deferred: {counts.get('DEFERRED', 0)}",
+        f"- Stale (>{STALE_THRESHOLD_HOURS}h pending): {stale}",
         "",
         "## Source Mix (Scoped)",
     ]
@@ -423,10 +448,14 @@ def _write_outputs(
             f"{_safe_text(str(row.get('title') or ''))} (source={_row_source(row)})"
         )
 
-    if warnings:
+    all_notices = list(warnings)
+    if stale > 0:
+        all_notices.append(f"{stale} approval(s) have been pending for more than {STALE_THRESHOLD_HOURS} hours — review recommended.")
+
+    if all_notices:
         lines.extend(["", "## Warnings"])
-        for warning in warnings:
-            lines.append(f"- {warning}")
+        for notice in all_notices:
+            lines.append(f"- {notice}")
 
     lines.extend(
         [
@@ -451,6 +480,7 @@ def _write_outputs(
         "safe_max_risk": _normalize_level(safe_max_risk),
         "scoped_total": len(scoped),
         "counts": counts,
+        "stale_pending_count": stale,
         "pending_by_source": pending_by_source,
         "decision_target_id": _row_id(targets[0]) if targets else "",
         "decision_target_ids": [_row_id(row) for row in targets],

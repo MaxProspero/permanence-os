@@ -48,7 +48,47 @@ def test_secret_scan_ignores_placeholders():
         assert findings == []
 
 
+def test_secret_scan_detects_notion_secret():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        project = root / "repo"
+        project.mkdir(parents=True, exist_ok=True)
+        file_path = project / "config.txt"
+        file_path.write_text("NOTION_API_KEY=secret_abcdefghijklmnopqrstuvwxyz123456\n", encoding="utf-8")
+
+        original = {"BASE_DIR": scan_mod.BASE_DIR}
+        try:
+            scan_mod.BASE_DIR = project
+            findings = scan_mod.scan_paths([file_path])
+        finally:
+            scan_mod.BASE_DIR = original["BASE_DIR"]
+
+        assert findings
+        assert any(row.get("type") in {"key_assignment", "notion_secret"} for row in findings)
+
+
+def test_secret_scan_detects_brave_key():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        project = root / "repo"
+        project.mkdir(parents=True, exist_ok=True)
+        file_path = project / "config.txt"
+        file_path.write_text("BRAVE_API_KEY=BSAabcdefghijklmnopqrstuvwxyz123456\n", encoding="utf-8")
+
+        original = {"BASE_DIR": scan_mod.BASE_DIR}
+        try:
+            scan_mod.BASE_DIR = project
+            findings = scan_mod.scan_paths([file_path])
+        finally:
+            scan_mod.BASE_DIR = original["BASE_DIR"]
+
+        assert findings
+        assert any(row.get("type") in {"key_assignment", "brave_key"} for row in findings)
+
+
 if __name__ == "__main__":
     test_secret_scan_detects_raw_keys()
     test_secret_scan_ignores_placeholders()
+    test_secret_scan_detects_notion_secret()
+    test_secret_scan_detects_brave_key()
     print("✓ Secret scan tests passed")

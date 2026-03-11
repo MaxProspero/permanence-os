@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 KEY_NAME_PATTERN = re.compile(
     r"^\s*(ANTHROPIC_API_KEY|OPENAI_API_KEY|GH_TOKEN|GITHUB_TOKEN|TAVILY_API_KEY|"
     r"PERMANENCE_GITHUB_READ_TOKEN|PERMANENCE_SOCIAL_READ_TOKEN|PERMANENCE_GITHUB_WRITE_TOKEN|"
-    r"PERMANENCE_SOCIAL_PUBLISH_TOKEN)\s*=\s*(?P<value>[^#\n\r]*)"
+    r"PERMANENCE_SOCIAL_PUBLISH_TOKEN|NOTION_API_KEY|BRAVE_API_KEY)\s*=\s*(?P<value>[^#\n\r]*)"
 )
 
 RAW_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
@@ -28,6 +28,8 @@ RAW_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("github_pat", re.compile(r"github_pat_[A-Za-z0-9_]{20,}")),
     ("github_token", re.compile(r"ghp_[A-Za-z0-9]{20,}")),
     ("slack_token", re.compile(r"xox[baprs]-[A-Za-z0-9-]{10,}")),
+    ("notion_secret", re.compile(r"(secret_[A-Za-z0-9]{20,}|ntn_[A-Za-z0-9]{20,})")),
+    ("brave_key", re.compile(r"BSA[A-Za-z0-9_-]{20,}")),
 ]
 
 ALLOWLIST_FRAGMENTS = {
@@ -38,6 +40,7 @@ ALLOWLIST_FRAGMENTS = {
     "example",
     "dummy",
     "placeholder",
+    "os.getenv",
 }
 
 

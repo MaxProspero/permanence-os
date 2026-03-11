@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-ops-pack, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, ledger,github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-ops-pack, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, ledger,github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
 """
 
 import argparse
@@ -132,6 +132,18 @@ def _inject_keychain_env(env: dict[str, str]) -> None:
             "GLASSNODE_KEYCHAIN_SERVICE",
             "GLASSNODE_KEYCHAIN_ACCOUNT",
             "permanence_os_glassnode_api_key",
+        ),
+        (
+            "NOTION_API_KEY",
+            "NOTION_API_KEY_KEYCHAIN_SERVICE",
+            "NOTION_API_KEY_KEYCHAIN_ACCOUNT",
+            "permanence_os_notion_api_key",
+        ),
+        (
+            "BRAVE_API_KEY",
+            "BRAVE_API_KEY_KEYCHAIN_SERVICE",
+            "BRAVE_API_KEY_KEYCHAIN_ACCOUNT",
+            "permanence_os_brave_api_key",
         ),
     ]
     user = os.getenv("USER", "")
@@ -304,6 +316,9 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_cli_chronicle_control.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_report.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_init.py"),
+        os.path.join(BASE_DIR, "tests", "test_mac_mini_remote.py"),
+        os.path.join(BASE_DIR, "tests", "test_social_draft_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_dashboard_social_api.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -975,6 +990,399 @@ def main() -> int:
             ]
         )
     )
+
+    # ── Mac Mini Remote Bridge ──────────────────────────────────────────────
+    mini_remote_p = sub.add_parser(
+        "mini",
+        help="MacBook→Mac Mini bridge for SSH command execution, sync, and service management",
+    )
+    mini_remote_p.add_argument(
+        "--action",
+        choices=["configure", "show", "test", "run", "sync-code", "status", "logs", "restart"],
+        default="status",
+        help="Bridge action",
+    )
+    mini_remote_p.add_argument("--cmd", help="Remote command for run action")
+    mini_remote_p.add_argument("--service", help="Service name for logs/restart")
+    mini_remote_p.add_argument("--lines", type=int, default=30, help="Log lines to show")
+    mini_remote_p.add_argument("--dry-run", action="store_true", help="Dry run for sync-code")
+    mini_remote_p.add_argument("--print-cmd", action="store_true", help="Print SSH command")
+    mini_remote_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "mac_mini_remote.py"),
+                "--action", args.action,
+                *(["--cmd", args.cmd] if args.cmd else []),
+                *(["--service", args.service] if args.service else []),
+                *(["--lines", str(args.lines)] if args.lines != 30 else []),
+                *(["--dry-run"] if args.dry_run else []),
+                *(["--print-cmd"] if args.print_cmd else []),
+            ]
+        )
+    )
+
+    # ── Device Control ─────────────────────────────────────────────────────
+    device_p = sub.add_parser(
+        "device",
+        help="Device control: permissions, system info, app management, grants",
+    )
+    device_p.add_argument(
+        "--action",
+        choices=["status", "services", "install", "grant", "revoke", "revoke-all", "notify"],
+        default="status",
+        help="Device control action",
+    )
+    device_p.add_argument("--device", default="mac_mini", help="Device ID (mac_mini, macbook, dell)")
+    device_p.add_argument("--app", help="App name for install action")
+    device_p.add_argument("--formula", action="store_true", help="Install as formula (not cask)")
+    device_p.add_argument("--scope", help="Comma-separated action categories for grant")
+    device_p.add_argument("--duration", type=int, default=60, help="Grant duration in minutes")
+    device_p.add_argument("--max-actions", type=int, help="Max actions for grant")
+    device_p.add_argument("--grant-id", help="Grant ID for revoke action")
+    device_p.add_argument("--title", help="Notification title")
+    device_p.add_argument("--message", help="Notification message")
+    device_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "mac_control.py"),
+                args.action,
+                *(["--device", args.device] if args.device else []),
+                *([args.app] if args.app and args.action == "install" else []),
+                *(["--formula"] if args.formula else []),
+                *(["--scope", args.scope] if args.scope else []),
+                *(["--duration", str(args.duration)] if args.duration != 60 else []),
+                *(["--max-actions", str(args.max_actions)] if args.max_actions else []),
+                *([args.grant_id] if args.grant_id and args.action == "revoke" else []),
+                *([args.title, args.message] if args.title and args.action == "notify" else []),
+            ]
+        )
+    )
+
+    # ── Agent GitHub Operations ───────────────────────────────────────────
+    github_ops_p = sub.add_parser(
+        "github-ops",
+        help="Governed GitHub operations for agents (push, PR, cleanup)",
+    )
+    github_ops_p.add_argument(
+        "--action",
+        choices=["list-branches", "push", "create-pr", "cleanup", "write-count"],
+        required=True,
+    )
+    github_ops_p.add_argument("--agent", help="Agent ID")
+    github_ops_p.add_argument("--branch", help="Branch name")
+    github_ops_p.add_argument("--message", help="Commit message")
+    github_ops_p.add_argument("--title", help="PR title")
+    github_ops_p.add_argument("--body", default="", help="PR body")
+    github_ops_p.add_argument("--base", default="main", help="Base branch for PR")
+    github_ops_p.add_argument("--days", type=int, default=30, help="Days threshold for cleanup")
+    github_ops_p.add_argument("--execute", action="store_true", help="Actually delete stale branches")
+    github_ops_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "agent_github_ops.py"),
+                "--action", args.action,
+                *(["--agent", args.agent] if args.agent else []),
+                *(["--branch", args.branch] if args.branch else []),
+                *(["--message", args.message] if args.message else []),
+                *(["--title", args.title] if args.title else []),
+                *(["--body", args.body] if args.body else []),
+                *(["--base", args.base] if args.base != "main" else []),
+                *(["--days", str(args.days)] if args.days != 30 else []),
+                *(["--execute"] if args.execute else []),
+            ]
+        )
+    )
+
+    # ── Social Draft Queue ────────────────────────────────────────────────
+    social_q_p = sub.add_parser(
+        "social-queue",
+        help="Social media draft queue management",
+    )
+    social_q_p.add_argument(
+        "--action",
+        choices=["list", "submit", "approve", "reject", "publish", "stats", "get"],
+        required=True,
+    )
+    social_q_p.add_argument("--platform", help="Platform filter")
+    social_q_p.add_argument("--content", help="Draft content")
+    social_q_p.add_argument("--content-type", default="post", help="Content type")
+    social_q_p.add_argument("--status", help="Status filter")
+    social_q_p.add_argument("--id", type=int, help="Draft ID")
+    social_q_p.add_argument("--notes", default="", help="Reviewer notes")
+    social_q_p.add_argument("--agent-id", default="", help="Agent ID")
+    social_q_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "social_draft_queue.py"),
+                "--action", args.action,
+                *(["--platform", args.platform] if args.platform else []),
+                *(["--content", args.content] if args.content else []),
+                *(["--content-type", args.content_type] if args.content_type != "post" else []),
+                *(["--status", args.status] if args.status else []),
+                *(["--id", str(args.id)] if args.id else []),
+                *(["--notes", args.notes] if args.notes else []),
+                *(["--agent-id", args.agent_id] if args.agent_id else []),
+            ]
+        )
+    )
+
+    # ── Ghost-OS Bridge ──────────────────────────────────────────────────
+    ghost_p = sub.add_parser(
+        "ghost",
+        help="Ghost-OS MCP bridge: list tools, check permissions, execute, status",
+    )
+    ghost_p.add_argument(
+        "--action",
+        choices=["list-tools", "check", "execute", "status"],
+        required=True,
+    )
+    ghost_p.add_argument("--tool", help="Ghost-OS tool name")
+    ghost_p.add_argument("--params", default="{}", help="Tool params as JSON")
+    ghost_p.add_argument("--agent", default="cli", help="Agent ID")
+    ghost_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ghost_os_bridge.py"),
+                "--action", args.action,
+                *(["--tool", args.tool] if args.tool else []),
+                *(["--params", args.params] if args.params != "{}" else []),
+                *(["--agent", args.agent] if args.agent != "cli" else []),
+            ]
+        )
+    )
+
+    # ── Spending Gate ─────────────────────────────────────────────────────
+    spending_p = sub.add_parser(
+        "spending",
+        help="Spending gate: approve/block/status/timed/steps/task/cap for paid API calls",
+    )
+    spending_p.add_argument(
+        "--action",
+        choices=[
+            "status", "approve", "block", "auto", "gate", "reset", "requests",
+            "timed", "eod", "steps", "task", "complete-task",
+            "set-cap", "plan", "set-priority", "revoke-all",
+        ],
+        required=True,
+        help="Action to perform",
+    )
+    spending_p.add_argument("--provider", help="Provider (anthropic/openai/xai)")
+    spending_p.add_argument("--amount", type=float, help="Amount in USD to approve")
+    spending_p.add_argument("--duration", type=int, help="Duration in minutes (for timed approval)")
+    spending_p.add_argument("--steps", type=int, help="Number of steps (for step approval)")
+    spending_p.add_argument("--task-id", help="Task ID (for task approval)")
+    spending_p.add_argument("--task-type", dest="spending_task_type", help="Task type (for priority)")
+    spending_p.add_argument("--priority", help="Priority: critical/high/normal/low")
+    spending_p.add_argument("--cap", type=float, help="Daily cap in USD")
+    def _spending_cmd(args):
+        from core.spending_gate import SpendingGate
+        gate = SpendingGate()
+        if args.action == "status":
+            print(json.dumps(gate.status(), indent=2))
+        elif args.action == "approve":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for approve")
+                return
+            result = gate.approve_spending(args.provider, args.amount)
+            print(json.dumps(result, indent=2))
+        elif args.action == "timed":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for timed approval")
+                return
+            duration = args.duration or 60
+            result = gate.approve_timed(args.provider, args.amount, duration_minutes=duration)
+            print(json.dumps(result, indent=2))
+        elif args.action == "eod":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for eod approval")
+                return
+            result = gate.approve_timed_eod(args.provider, args.amount)
+            print(json.dumps(result, indent=2))
+        elif args.action == "steps":
+            if not args.provider or not args.amount:
+                print("--provider and --amount required for step approval")
+                return
+            max_steps = args.steps or 10
+            result = gate.approve_steps(args.provider, args.amount, max_steps=max_steps)
+            print(json.dumps(result, indent=2))
+        elif args.action == "task":
+            if not args.provider or not args.amount or not args.task_id:
+                print("--provider, --amount, and --task-id required for task approval")
+                return
+            result = gate.approve_task(args.provider, args.amount, task_id=args.task_id)
+            print(json.dumps(result, indent=2))
+        elif args.action == "complete-task":
+            if not args.task_id:
+                print("--task-id required for complete-task")
+                return
+            result = gate.complete_task(args.task_id)
+            print(json.dumps(result, indent=2))
+        elif args.action == "set-cap":
+            cap = args.cap if args.cap is not None else (args.amount or 0.0)
+            result = gate.set_daily_cap(cap)
+            print(json.dumps(result, indent=2))
+        elif args.action == "plan":
+            task_types = [args.spending_task_type] if args.spending_task_type else None
+            result = gate.get_budget_plan(task_types=task_types)
+            print(json.dumps(result, indent=2))
+        elif args.action == "set-priority":
+            if not args.spending_task_type or not args.priority:
+                print("--task-type and --priority required for set-priority")
+                return
+            result = gate.set_task_priority(args.spending_task_type, args.priority)
+            print(json.dumps(result, indent=2))
+        elif args.action == "revoke-all":
+            result = gate.revoke_all_approvals()
+            print(json.dumps(result, indent=2))
+        elif args.action in ("block", "auto", "gate"):
+            result = gate.set_mode(args.action)
+            print(json.dumps(result, indent=2))
+        elif args.action == "reset":
+            result = gate.reset_credits()
+            print(json.dumps(result, indent=2))
+        elif args.action == "requests":
+            requests = gate.get_approval_requests()
+            if not requests:
+                print("No pending approval requests.")
+            else:
+                for r in requests:
+                    print(f"  {r.get('timestamp', '?')} | {r.get('provider', '?')} | ${r.get('estimated_cost', 0):.4f} | {r.get('message', '')}")
+    spending_p.set_defaults(func=_spending_cmd)
+
+    # ── Model Judge ──────────────────────────────────────────────────────
+    judge_p = sub.add_parser(
+        "judge",
+        help="Model judge: performance reports and model rankings",
+    )
+    judge_p.add_argument(
+        "--action",
+        choices=["report", "ranking", "recommend"],
+        required=True,
+    )
+    judge_p.add_argument("--task-type", help="Task type for recommendations")
+    judge_p.add_argument("--days", type=int, default=30, help="Lookback period in days")
+    def _judge_cmd(args):
+        from core.model_judge import ModelJudge
+        judge = ModelJudge()
+        if args.action == "report":
+            report = judge.get_performance_report(days=args.days)
+            print(json.dumps(report, indent=2))
+        elif args.action == "ranking":
+            rankings = judge.get_model_ranking(days=args.days)
+            if not rankings:
+                print("No evaluation data yet.")
+            else:
+                print("Model Rankings (quality per dollar):")
+                for i, r in enumerate(rankings, 1):
+                    qpd = r["quality_per_dollar"]
+                    qpd_str = "FREE" if qpd >= 999999 else f"{qpd:.0f}"
+                    print(f"  {i}. {r['model']} — score: {r['avg_score']:.1f}, QPD: {qpd_str}, evals: {r['evaluations']}")
+        elif args.action == "recommend":
+            if not args.task_type:
+                print("--task-type required for recommend")
+                return
+            rec = judge.recommend_model(task_type=args.task_type, days=args.days)
+            print(json.dumps(rec, indent=2))
+    judge_p.set_defaults(func=_judge_cmd)
+
+    # ── Task Planner ────────────────────────────────────────────────────
+    planner_p = sub.add_parser(
+        "planner",
+        help="Task planner: schedule agent work with budgets and priorities",
+    )
+    planner_p.add_argument(
+        "--action",
+        choices=[
+            "agenda", "create", "start", "complete", "cancel", "fail",
+            "plan", "stats", "cleanup", "show",
+        ],
+        required=True,
+        help="Action to perform",
+    )
+    planner_p.add_argument("--title", help="Task title (for create)")
+    planner_p.add_argument("--task-type", dest="planner_task_type", help="Task type")
+    planner_p.add_argument("--agent-id", help="Agent to assign")
+    planner_p.add_argument("--priority", dest="planner_priority", help="Priority: critical/high/normal/low")
+    planner_p.add_argument("--budget", type=float, help="Budget in USD")
+    planner_p.add_argument("--provider", dest="planner_provider", help="LLM provider")
+    planner_p.add_argument("--scheduled-for", help="ISO datetime for scheduling")
+    planner_p.add_argument("--task-id", dest="planner_task_id", help="Task ID")
+    planner_p.add_argument("--date", help="Date filter (YYYY-MM-DD)")
+    planner_p.add_argument("--status", dest="planner_status", help="Status filter")
+    planner_p.add_argument("--daily-budget", type=float, default=0, help="Daily budget for plan")
+    def _planner_cmd(args):
+        from core.task_planner import TaskPlanner
+        planner = TaskPlanner()
+        if args.action == "agenda":
+            tasks = planner.get_agenda(
+                date=args.date,
+                status=args.planner_status,
+                priority=args.planner_priority,
+                agent_id=args.agent_id,
+            )
+            if not tasks:
+                print("No tasks in agenda.")
+            else:
+                for t in tasks:
+                    sched = t.get("scheduled_for", "")
+                    date_str = sched[:10] if sched else "unscheduled"
+                    print(f"  [{t['priority'][:4].upper()}] {t['title']} | {t['status']} | {date_str} | ${t['budget_usd']:.2f} | {t['agent_id'] or 'unassigned'}")
+        elif args.action == "create":
+            if not args.title:
+                print("--title required for create")
+                return
+            task = planner.create_task(
+                title=args.title,
+                task_type=args.planner_task_type or "general",
+                agent_id=args.agent_id or "",
+                priority=args.planner_priority or "normal",
+                budget_usd=args.budget or 0.0,
+                provider=args.planner_provider or "anthropic",
+                scheduled_for=args.scheduled_for,
+            )
+            print(json.dumps(task, indent=2))
+        elif args.action == "start":
+            if not args.planner_task_id:
+                print("--task-id required for start")
+                return
+            print(json.dumps(planner.start_task(args.planner_task_id), indent=2))
+        elif args.action == "complete":
+            if not args.planner_task_id:
+                print("--task-id required for complete")
+                return
+            print(json.dumps(planner.complete_task(args.planner_task_id), indent=2))
+        elif args.action == "cancel":
+            if not args.planner_task_id:
+                print("--task-id required for cancel")
+                return
+            print(json.dumps(planner.cancel_task(args.planner_task_id), indent=2))
+        elif args.action == "fail":
+            if not args.planner_task_id:
+                print("--task-id required for fail")
+                return
+            print(json.dumps(planner.fail_task(args.planner_task_id), indent=2))
+        elif args.action == "plan":
+            plan = planner.get_execution_plan(daily_budget_usd=args.daily_budget)
+            print(json.dumps(plan, indent=2))
+        elif args.action == "stats":
+            print(json.dumps(planner.get_stats(), indent=2))
+        elif args.action == "cleanup":
+            print(json.dumps(planner.cleanup_old_tasks(), indent=2))
+        elif args.action == "show":
+            if not args.planner_task_id:
+                print("--task-id required for show")
+                return
+            task = planner.get_task(args.planner_task_id)
+            if task:
+                print(json.dumps(task, indent=2))
+            else:
+                print(f"Task not found: {args.planner_task_id}")
+    planner_p.set_defaults(func=_planner_cmd)
 
     remote_ready_p = sub.add_parser(
         "remote-ready",
@@ -2300,12 +2708,15 @@ def main() -> int:
             "discord-alert-webhook",
             "discord-bot-token",
             "telegram-bot-token",
+            "openai-api-key",
             "xai-api-key",
             "alpha-vantage",
             "finnhub",
             "polygon",
             "coinmarketcap",
             "glassnode",
+            "notion-api-key",
+            "brave-api-key",
         ],
         help="Connector target",
     )
@@ -2345,6 +2756,27 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "secret_scan.py"),
                 *(["--all-files"] if args.all_files else []),
                 *(["--staged"] if args.staged else []),
+            ]
+        )
+    )
+
+    ledger_p = sub.add_parser(
+        "ledger",
+        help="THE LEDGER — Notion-backed project intelligence (check/sync/list/create-db)",
+    )
+    ledger_p.add_argument("--check", action="store_true", help="Verify Notion connection")
+    ledger_p.add_argument("--sync", action="store_true", help="Push current ops state to THE LEDGER")
+    ledger_p.add_argument("--list", action="store_true", help="List LEDGER pages")
+    ledger_p.add_argument("--create-db", metavar="PAGE_ID", help="Scaffold LEDGER database on given Notion page")
+    ledger_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ledger_sync.py"),
+                *(["--check"] if args.check else []),
+                *(["--sync"] if args.sync else []),
+                *(["--list"] if args.list else []),
+                *(["--create-db", args.create_db] if args.create_db else []),
             ]
         )
     )
