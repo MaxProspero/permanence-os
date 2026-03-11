@@ -828,8 +828,34 @@ var CMD_BASE = __RT.apiBase || __RT.commandCenterUrl || "http://127.0.0.1:8000";
 /* ═══════════════════════════════════════════════════════
    STATE
    ═══════════════════════════════════════════════════════ */
+var SESSION_TOKEN_KEY = "ophtxn_session_token";
+function readSessionToken() {
+  try {
+    var token = sessionStorage.getItem(SESSION_TOKEN_KEY) || "";
+    if (token) return token;
+  } catch (_) {}
+  try {
+    var legacy = localStorage.getItem(SESSION_TOKEN_KEY) || "";
+    if (legacy) {
+      try { sessionStorage.setItem(SESSION_TOKEN_KEY, legacy); } catch (_) {}
+      try { localStorage.removeItem(SESSION_TOKEN_KEY); } catch (_) {}
+      return legacy;
+    }
+  } catch (_) {}
+  return "";
+}
+function writeSessionToken(token) {
+  var value = String(token || "");
+  try {
+    if (value) sessionStorage.setItem(SESSION_TOKEN_KEY, value);
+    else sessionStorage.removeItem(SESSION_TOKEN_KEY);
+  } catch (_) {}
+  try {
+    localStorage.removeItem(SESSION_TOKEN_KEY);
+  } catch (_) {}
+}
 var state = {
-  token: localStorage.getItem("ophtxn_session_token") || "",
+  token: readSessionToken(),
   messages: [],
   isStreaming: false,
   atBottom: true,
@@ -1016,7 +1042,7 @@ async function doAuth() {
       return;
     }
     state.token = String(data.token || "");
-    localStorage.setItem("ophtxn_session_token", state.token);
+    writeSessionToken(state.token);
     setConn(true);
     showWelcome(userId);
     refreshMetrics();
@@ -1499,7 +1525,7 @@ async function init() {
     } catch (_) {}
     // Token expired
     state.token = "";
-    localStorage.removeItem("ophtxn_session_token");
+    writeSessionToken("");
   }
   showAuthCard();
 }

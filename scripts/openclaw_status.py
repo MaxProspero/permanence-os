@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -16,6 +17,32 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(BASE_DIR)
 
 from agents.utils import log  # noqa: E402
+
+
+SAFE_OPENCLAW_ENV_KEYS = (
+    "HOME",
+    "PATH",
+    "USER",
+    "LOGNAME",
+    "SHELL",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "TMPDIR",
+    "XDG_CONFIG_HOME",
+    "XDG_DATA_HOME",
+    "XDG_STATE_HOME",
+    "OPENCLAW_HOME",
+    "OPENCLAW_CONFIG",
+    "OPENCLAW_CLI",
+)
+
+AUTH_HEADER_RE = re.compile(r"(?im)(authorization\s*:\s*bearer\s+)([^\s]+)")
+SECRET_ASSIGNMENT_RE = re.compile(
+    r"(?im)\b(api[_ -]?key|access[_ -]?token|refresh[_ -]?token|token|secret|password)\b(\s*[:=]\s*)(\"[^\"]*\"|'[^']*'|[^\s,;]+)"
+)
+SECRET_QUERY_RE = re.compile(r"(?i)([?&](?:api[_-]?key|access_token|token|secret|password)=)[^&\s]+")
+LONG_SECRET_RE = re.compile(r"\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{12,}|xai-[A-Za-z0-9_-]{12,})\b")
 
 
 def _default_output_path(kind: str) -> str:
@@ -43,6 +70,28 @@ def _parse_gateway(output: str) -> str:
     return ""
 
 
+def _openclaw_env() -> dict[str, str]:
+    env: dict[str, str] = {}
+    for key in SAFE_OPENCLAW_ENV_KEYS:
+        value = os.getenv(key)
+        if value:
+            env[key] = value
+    env.setdefault("PATH", os.getenv("PATH", os.defpath))
+    env.setdefault("HOME", os.path.expanduser("~"))
+    return env
+
+
+def _redact_openclaw_output(text: str) -> str:
+    payload = str(text or "")
+    if not payload:
+        return ""
+    scrubbed = AUTH_HEADER_RE.sub(r"\1[REDACTED]", payload)
+    scrubbed = SECRET_QUERY_RE.sub(r"\1[REDACTED]", scrubbed)
+    scrubbed = SECRET_ASSIGNMENT_RE.sub(lambda match: f"{match.group(1)}{match.group(2)}[REDACTED]", scrubbed)
+    scrubbed = LONG_SECRET_RE.sub("[REDACTED_SECRET]", scrubbed)
+    return scrubbed
+
+
 def capture_openclaw_status(health: bool = False, output: str | None = None) -> dict:
     openclaw_cli = os.getenv("OPENCLAW_CLI", os.path.expanduser("~/.openclaw/bin/openclaw"))
     cmd = [openclaw_cli, "health" if health else "status"]
@@ -58,7 +107,13 @@ def capture_openclaw_status(health: bool = False, output: str | None = None) -> 
         }
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+            env=_openclaw_env(),
+        )
     except OSError as exc:
         return {
             "status": "error",
@@ -75,6 +130,7 @@ def capture_openclaw_status(health: bool = False, output: str | None = None) -> 
     payload = result.stdout
     if result.stderr:
         payload += "\n--- STDERR ---\n" + result.stderr
+    payload = _redact_openclaw_output(payload)
 
     with open(output_path, "w") as f:
         f.write(payload)

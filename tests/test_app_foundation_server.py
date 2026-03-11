@@ -156,8 +156,31 @@ def test_foundation_ophtxn_shell_and_ops_summary() -> None:
         assert int(metrics.get("approved_execution_tasks") or 0) == 12
 
 
+def test_foundation_auth_requires_passcode_for_non_local_access() -> None:
+    snapshot_passcode = os.environ.get("PERMANENCE_FOUNDATION_PASSCODE")
+    try:
+        os.environ.pop("PERMANENCE_FOUNDATION_PASSCODE", None)
+        with tempfile.TemporaryDirectory() as tmp:
+            app = create_app(storage_root=Path(tmp))
+            client = app.test_client()
+            resp = client.post(
+                "/auth/session",
+                json={"user_id": "payton"},
+                environ_base={"REMOTE_ADDR": "10.0.0.8"},
+            )
+            assert resp.status_code == 403
+            payload = resp.get_json() or {}
+            assert payload.get("error") == "passcode required for non-local access"
+    finally:
+        if snapshot_passcode is None:
+            os.environ.pop("PERMANENCE_FOUNDATION_PASSCODE", None)
+        else:
+            os.environ["PERMANENCE_FOUNDATION_PASSCODE"] = snapshot_passcode
+
+
 if __name__ == "__main__":
     test_foundation_health_endpoint()
     test_foundation_auth_onboarding_and_memory_flow()
     test_foundation_ophtxn_shell_and_ops_summary()
+    test_foundation_auth_requires_passcode_for_non_local_access()
     print("✓ Foundation API scaffold tests passed")

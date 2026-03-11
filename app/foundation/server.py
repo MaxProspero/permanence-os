@@ -52,6 +52,23 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _cors_origins() -> list[str]:
+    defaults = [
+        "http://127.0.0.1:8787",
+        "http://localhost:8787",
+        "http://127.0.0.1:8797",
+        "http://localhost:8797",
+    ]
+    extras = _split_csv(os.getenv("PERMANENCE_FOUNDATION_CORS_ORIGINS", ""))
+    out: list[str] = []
+    seen: set[str] = set()
+    for origin in [*defaults, *extras]:
+        if origin and origin not in seen:
+            seen.add(origin)
+            out.append(origin)
+    return out
+
+
 def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
     base_dir = Path(__file__).resolve().parents[2]
     site_root = base_dir / "site" / "foundation"
@@ -78,17 +95,9 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     if CORS is not None:
         CORS(
             app,
-            origins=[
-                "http://127.0.0.1:8787",
-                "http://localhost:8787",
-                "http://127.0.0.1:8797",
-                "http://localhost:8797",
-                "https://ophtxn.com",
-                "https://www.ophtxn.com",
-                "https://permanencesystems.com",
-                "https://app.permanencesystems.com",
-                "https://ophtxn-official.pages.dev",
-            ],
+            origins=_cors_origins(),
+            allow_headers=["Content-Type", "X-Session-Token"],
+            methods=["GET", "POST", "OPTIONS"],
         )
 
     def _sessions() -> dict[str, dict[str, Any]]:
@@ -125,6 +134,10 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         if expires <= datetime.now(timezone.utc):
             return None, None
         return token, session
+
+    def _request_is_loopback() -> bool:
+        remote = str(request.remote_addr or "").strip().lower()
+        return remote in {"127.0.0.1", "::1", "localhost"} or remote.startswith("::ffff:127.0.0.1")
 
     def _serve_html(path: Path, error_label: str) -> Any:
         try:
@@ -191,8 +204,11 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
 
         configured_passcode = str(os.getenv("PERMANENCE_FOUNDATION_PASSCODE", "")).strip()
         provided_passcode = str(payload.get("passcode") or "").strip()
-        if configured_passcode and configured_passcode != provided_passcode:
-            return jsonify({"ok": False, "error": "invalid passcode"}), 403
+        if configured_passcode:
+            if not secrets.compare_digest(provided_passcode, configured_passcode):
+                return jsonify({"ok": False, "error": "invalid passcode"}), 403
+        elif not _request_is_loopback():
+            return jsonify({"ok": False, "error": "passcode required for non-local access"}), 403
 
         ttl_minutes = max(5, min(1440, int(float(payload.get("ttl_minutes") or 720))))
         token = secrets.token_urlsafe(24)
@@ -205,7 +221,10 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             "expires_at": expires_at,
         }
         _write_sessions(sessions)
-        return jsonify({"ok": True, "token": token, "expires_at": expires_at, "user_id": user_id})
+        response = jsonify({"ok": True, "token": token, "expires_at": expires_at, "user_id": user_id})
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Pragma"] = "no-cache"
+        return response
 
     @app.post("/onboarding/start")
     def onboarding_start() -> Any:
