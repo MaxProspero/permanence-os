@@ -111,7 +111,6 @@ def _candidate_log_dirs() -> List[str]:
         LOG_DIR,
         status_parent,
         os.path.join(os.path.expanduser(storage_root), "logs"),
-        os.path.join(BASE_DIR, "permanence_storage", "logs"),
     ]
     deduped: List[str] = []
     seen: set[str] = set()

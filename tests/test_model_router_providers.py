@@ -129,6 +129,8 @@ def test_model_router_provider_cap_failover_to_openai():
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         os.environ["PERMANENCE_MODEL_PROVIDER_FALLBACKS"] = "anthropic,openai,xai"
         os.environ["PERMANENCE_MODEL_PROVIDER_CAPS_USD"] = "anthropic=5,openai=30,xai=10"
+        os.environ.pop("PERMANENCE_NO_SPEND_MODE", None)
+        os.environ.pop("PERMANENCE_LOW_COST_MODE", None)
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 10.0, "ratio": 0.2}  # type: ignore[assignment]
@@ -148,6 +150,8 @@ def test_model_router_provider_cap_failover_to_openai():
 def test_model_router_provider_cap_exhausted_stays_primary():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     try:
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         os.environ["PERMANENCE_MODEL_PROVIDER_FALLBACKS"] = "anthropic,openai,xai"
         os.environ["PERMANENCE_MODEL_PROVIDER_CAPS_USD"] = "anthropic=5,openai=2,xai=1,ollama=1"
