@@ -1,4 +1,4 @@
-var CACHE_NAME = "ophtxn-v5";
+var CACHE_NAME = "ophtxn-v7";
 var PRECACHE_URLS = [
   "/",
   "/index.html",
@@ -9,6 +9,8 @@ var PRECACHE_URLS = [
   "/command_center.html",
   "/ai_school.html",
   "/press_kit.html",
+  "/trading_room.html",
+  "/daily_planner.html",
   "/runtime.config.js",
   "/manifest.json",
   "/assets/ophtxn_mark.svg",

@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <title>Ophtxn Library | Multi-Course AI Learning Platform</title>
-  <meta name="description" content="Practical AI skills for builders, operators, and founders who ship with AI. Agentic OS, AI Workflows, Python, Finance, Marketing, Trading, and more.">
+  <title>Ophtxn Research Library | Permanence Intelligence Feed</title>
+  <meta name="description" content="Your knowledge, continuously organized. Research agents scan Twitter bookmarks, school documents, and Notebook LM to synthesize courses, articles, and research briefs.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -29,6 +29,9 @@
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
       --sidebar-w: 260px;
+      --sans: "Instrument Sans", system-ui, sans-serif;
+      --mono: "DM Mono", monospace;
+      --dim: rgba(255,255,255,0.2);
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -889,7 +892,7 @@
     /* -- LIBRARY LAYOUT -- */
     .library-app {
       display: flex;
-      min-height: calc(100vh - 42px);
+      min-height: calc(100vh - 28px);
     }
 
     /* -- SIDEBAR -- */
@@ -901,7 +904,7 @@
       display: flex;
       flex-direction: column;
       position: fixed;
-      top: 42px;
+      top: 28px;
       left: 0;
       bottom: 0;
       z-index: 100;
@@ -1156,30 +1159,9 @@
     }
 
     .sb-signin:hover { background: rgba(var(--f-rgb),0.14); border-color: rgba(var(--f-rgb),0.35); }
-    .gs-theme-section{padding-top:12px}
-    .gs-theme-row{display:flex;align-items:center;padding:0 16px;margin-bottom:8px;gap:8px}
-    .gs-theme-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
-    .gs-color-track{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px 0;scroll-behavior:smooth;flex:1}
-    .gs-color-track::-webkit-scrollbar{display:none}
-    .gs-color-dot{width:20px;height:20px;min-width:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all 0.15s;flex-shrink:0;padding:0;outline:none}
-    .gs-color-dot:hover{transform:scale(1.15);border-color:rgba(255,255,255,0.3)}
-    .gs-color-dot.active{border-color:var(--ink);box-shadow:0 0 8px rgba(var(--f-rgb),0.4)}
-    .gs-color-custom{background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)!important;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-    .gs-color-input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:none}
-    .gs-bright-btns{display:flex;gap:4px}
-    .gs-bright-btn{width:28px;height:28px;border-radius:8px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all 0.15s;padding:0}
-    .gs-bright-btn:hover{border-color:var(--border-hi);color:var(--ink)}
-    .gs-bright-btn.active{border-color:var(--c-teal);background:rgba(var(--f-rgb),0.1);color:var(--ink)}
+    /* (theme UI now lives in View dropdown) */
 
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 99;
-      background: rgba(0,0,0,0.5);
-    }
-
-    .sidebar-overlay.show { display: block; }
+    /* sidebar-overlay removed — using menubar */
 
     .library-main {
       flex: 1;
@@ -1192,30 +1174,7 @@
       margin-left: var(--sidebar-w);
     }
 
-    .th-toggle {
-      display: block;
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 16px;
-      cursor: pointer;
-      padding: 4px 12px 4px 0;
-      flex-shrink: 0;
-    }
-
-    .th-signin {
-      font-family: "DM Mono", monospace;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      color: rgba(90,200,250,0.45);
-      text-decoration: none;
-      transition: color 0.2s;
-      border: 1px solid rgba(90,200,250,0.15);
-      border-radius: 999px;
-      padding: 4px 12px;
-    }
-
-    .th-signin:hover { color: rgb(90,200,250); border-color: rgba(90,200,250,0.35); }
+    /* .th-toggle/.th-signin removed — using menubar */
 
     /* -- MOTION GRAPHIC HERO -- */
     .motion-hero {
@@ -1550,6 +1509,214 @@
 
     .req-submit:hover { opacity: 0.88; transform: translateY(-1px); }
 
+    /* -- RESEARCH FEED -- */
+    .research-feed {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: rgba(13,21,32,0.6);
+      backdrop-filter: blur(8px);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .rf-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .rf-title {
+      margin: 0;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rf-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--c-teal);
+    }
+    .rf-live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--c-teal);
+      animation: rf-pulse 2s ease-in-out infinite;
+    }
+    @keyframes rf-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,229,196,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(0,229,196,0); }
+    }
+    .rf-live-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--c-teal);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .rf-scroller {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+    }
+    .rf-scroller::-webkit-scrollbar { height: 4px; }
+    .rf-scroller::-webkit-scrollbar-track { background: transparent; }
+    .rf-scroller::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .rf-card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s, transform 0.15s;
+      animation: rise 500ms both;
+    }
+    .rf-card:nth-child(1) { animation-delay: 60ms; }
+    .rf-card:nth-child(2) { animation-delay: 120ms; }
+    .rf-card:nth-child(3) { animation-delay: 180ms; }
+    .rf-card:nth-child(4) { animation-delay: 240ms; }
+    .rf-card:nth-child(5) { animation-delay: 300ms; }
+    .rf-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+    }
+    .rf-card-title {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--ink);
+      margin: 0;
+    }
+    .rf-card-source {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .rf-card-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--dim);
+    }
+    .rf-card-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      width: fit-content;
+    }
+    .rf-tag-signal { background: rgba(0,229,196,0.15); color: var(--c-teal); }
+    .rf-tag-brief { background: rgba(123,111,255,0.15); color: var(--c-violet); }
+    .rf-tag-course { background: rgba(248,200,66,0.15); color: var(--c-gold); }
+    .rf-tag-alert { background: rgba(255,92,138,0.15); color: var(--c-rose); }
+
+    /* -- DATA SOURCES PANEL -- */
+    .data-sources-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: rgba(13,21,32,0.5);
+      backdrop-filter: blur(8px);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .ds-title {
+      margin: 0 0 6px;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--ink);
+    }
+    .ds-sub {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .ds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .ds-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.25s, transform 0.15s;
+      animation: rise 500ms both;
+    }
+    .ds-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+    }
+    .ds-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ds-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .ds-name {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--ink);
+      flex: 1;
+    }
+    .ds-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ds-connected {
+      background: var(--c-teal);
+      box-shadow: 0 0 6px rgba(0,229,196,0.4);
+    }
+    .ds-stat {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .ds-tag {
+      display: inline-block;
+      width: fit-content;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(0,229,196,0.12);
+      color: var(--c-teal);
+    }
+
+    /* -- NEW SOURCE-BASED BADGES -- */
+    .badge-twitter { background: rgba(0,229,196,0.12); color: var(--c-teal); }
+    .badge-school { background: rgba(123,111,255,0.12); color: var(--c-violet); }
+    .badge-notebook { background: rgba(248,200,66,0.12); color: var(--c-gold); }
+    .badge-agent { background: rgba(255,92,138,0.12); color: var(--c-rose); }
+    .badge-course { background: rgba(0,229,196,0.12); color: var(--c-teal); }
+
     /* Suggestion bar */
     .suggest-bar {
       border: 1px solid var(--border);
@@ -1842,18 +2009,122 @@
       color: var(--c-gold); opacity: .4;
       margin-bottom: 10px;
     }
-  /* -- TOWER HUD -- */
+  /* ═══════════════ OS MENUBAR ═══════════════ */
   :root { --f-rgb: 90,200,250; --f: rgb(var(--f-rgb)); }
-  body { padding-top: 42px; }
-  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
-  .th-l { display:flex;align-items:center; }
-  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
-  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
-  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
-  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
-  .th-r { display:flex;align-items:center;gap:16px; }
-  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.45);text-decoration:none;transition:color .2s; }
-  .th-back:hover { color:var(--f); }
+  body { padding-top: 28px; }
+  .os-menubar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
+    background: rgba(4,6,10,.92);
+    border-bottom: 1px solid rgba(var(--f-rgb),.1);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px;
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    font-family: var(--sans); font-size: 12px; color: var(--ink);
+    user-select: none;
+  }
+  .mb-left { display: flex; align-items: center; gap: 0; }
+  .mb-logo {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; text-decoration: none; color: var(--c-teal);
+    transition: color .2s;
+  }
+  .mb-logo:hover { color: var(--ink); }
+  .mb-logo svg { width: 16px; height: 16px; }
+  .mb-appname {
+    font-weight: 700; font-size: 12px; letter-spacing: .02em;
+    color: var(--ink); margin-right: 14px;
+  }
+  .mb-mi {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: var(--sans);
+    font-size: 12px; font-weight: 500; padding: 3px 10px;
+    border-radius: 4px; transition: background .15s, color .15s;
+  }
+  .mb-mi:hover, .mb-mi.open { background: rgba(var(--f-rgb),.12); color: var(--ink); }
+  .mb-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+  .mb-tagline {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .14em; color: var(--dim); text-transform: uppercase;
+  }
+  .mb-right { display: flex; align-items: center; gap: 10px; }
+  .mb-ext {
+    color: var(--muted); cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; transition: color .2s;
+  }
+  .mb-ext:hover { color: var(--ink); }
+  .mb-clock {
+    font-family: var(--mono); font-size: 11px;
+    font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: .03em;
+  }
+  .mb-date {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+  .mb-powered {
+    position: fixed; bottom: 6px; right: 12px;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .1em; color: rgba(var(--f-rgb),.18);
+    text-transform: uppercase; z-index: 100; pointer-events: none;
+  }
+  /* ── Menubar Dropdowns ── */
+  .mb-dropdown {
+    display: none; position: fixed; top: 28px;
+    min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
+    background: rgba(8,14,22,.97); border: 1px solid rgba(var(--f-rgb),.12);
+    border-radius: 8px; padding: 4px 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    z-index: 9100; font-family: var(--sans); font-size: 12px;
+  }
+  .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
+  @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .mb-dropdown a, .mb-dropdown button {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 6px 14px; border: none; background: none;
+    color: var(--muted); text-decoration: none; font: inherit; cursor: pointer;
+    transition: background .1s, color .1s; text-align: left;
+  }
+  .mb-dropdown a:hover, .mb-dropdown button:hover {
+    background: rgba(var(--f-rgb),.1); color: var(--ink);
+  }
+  .mb-dropdown .dd-sep {
+    height: 1px; background: rgba(var(--f-rgb),.08); margin: 4px 10px;
+  }
+  .mb-dropdown .dd-label {
+    padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+  }
+  .mb-dropdown .dd-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; opacity: .6; }
+  /* ── View dropdown theme section ── */
+  .dd-theme-row { display: flex; align-items: center; padding: 6px 14px; gap: 6px; }
+  .dd-theme-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; width: 40px; }
+  .dd-color-track { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .dd-color-dot {
+    width: 16px; height: 16px; min-width: 16px; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer;
+    transition: all .15s; padding: 0; outline: none;
+  }
+  .dd-color-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
+  .dd-color-dot.active { border-color: var(--ink); box-shadow: 0 0 6px rgba(var(--f-rgb),.4); }
+  .dd-color-custom { background: conic-gradient(red,yellow,lime,aqua,blue,magenta,red) !important; position: relative; overflow: hidden; }
+  .dd-color-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; }
+  .dd-bright-btns { display: flex; gap: 3px; }
+  .dd-bright-btn {
+    width: 24px; height: 24px; border-radius: 6px; background: none;
+    border: 1px solid var(--border); display: flex; align-items: center;
+    justify-content: center; cursor: pointer; color: var(--muted);
+    transition: all .15s; padding: 0; font-size: 12px;
+  }
+  .dd-bright-btn:hover { border-color: var(--border-hi); color: var(--ink); }
+  .dd-bright-btn.active { border-color: var(--c-teal); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+  /* -- MENUBAR RESPONSIVE -- */
+  @media(max-width:768px){
+    .mb-center{display:none}
+    .mb-mi{display:none}
+    .mb-date{display:none}
+    .mb-hamburger{display:flex!important}
+  }
+  .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
     /* ── THEME: COPPER ─── */
     [data-theme="copper"]{--bg:#0c0906;--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--c-teal:#ffb347;--c-gold:#ffd700;--c-violet:#e8a87c;--c-rose:#ff6b6b;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
@@ -1885,9 +2156,10 @@
     [data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--surface:#fff;--lift:#faf0f0;--ink:#3a0a0a;--muted:#a05050}
     [data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--surface:#fff;--lift:#f0f8fa;--ink:#0a2a3a;--muted:#508888}
     @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a}}
-    [data-brightness="light"] .tower-hud{background:rgba(246,244,240,0.97);border-bottom-color:rgba(var(--f-rgb),0.15)}
-    [data-brightness="light"] .global-sidebar,[data-brightness="light"] .library-sidebar{background:rgba(246,244,240,0.97);border-right-color:rgba(0,0,0,0.08)}
-    [data-brightness="light"] .gs-nav a:hover,[data-brightness="light"] .gs-nav a.active{background:rgba(0,0,0,0.06)}
+    [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
+    [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
+    [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
+    [data-brightness="light"] .library-sidebar{background:rgba(246,244,240,0.97);border-right-color:rgba(0,0,0,0.08)}
   </style>
 </head>
 <body data-theme="aurora" data-brightness="dark">
@@ -1906,24 +2178,83 @@
 
   <main class="page">
 
-    <!-- TOWER HUD -->
-    <div class="tower-hud">
-      <div class="th-l">
-        <button class="th-toggle" id="sidebarToggle" aria-label="Toggle sidebar">&#9776;</button>
-        <a href="rooms.html" class="th-brand">OPHTXN</a>
-        <span class="th-sep">//</span>
-        <span class="th-num">02</span>
-        <span class="th-name">THE LIBRARY</span>
+    <!-- OS MENUBAR -->
+    <div class="os-menubar">
+      <div class="mb-left">
+        <a href="index.html" class="mb-logo" title="Ophtxn Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+        </a>
+        <span class="mb-appname">Ophtxn</span>
+        <button class="mb-mi" id="mbFile">File</button>
+        <button class="mb-mi" id="mbView">View</button>
+        <button class="mb-mi" id="mbGo">Go</button>
+        <button class="mb-mi" id="mbLibSidebar">Library</button>
+        <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
       </div>
-      <div class="th-r">
-        <a href="ophtxn_shell.html" class="th-signin">SIGN IN</a>
-        <a href="rooms.html" class="th-back">&uarr; TOWER</a>
+      <div class="mb-center"><span class="mb-tagline">AI SKILLS LIBRARY</span></div>
+      <div class="mb-right">
+        <span class="mb-ext" id="mbTheme" title="Toggle dark/light">&#9790;</span>
+        <span class="mb-clock" id="mbClock"></span>
+        <span class="mb-date" id="mbDate"></span>
       </div>
     </div>
-    <div class="scanlines" aria-hidden="true"></div>
 
-    <!-- SIDEBAR OVERLAY (mobile) -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- MENUBAR DROPDOWNS -->
+    <div class="mb-dropdown" id="ddFile" style="left:72px">
+      <div class="dd-label">Ophtxn OS</div>
+      <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
+      <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
+      <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
+      <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
+      <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
+      <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
+      <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
+      <div class="dd-sep"></div>
+      <div class="dd-label">Permanence Platform</div>
+      <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
+      <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
+    </div>
+
+    <div class="mb-dropdown" id="ddView" style="left:112px">
+      <div class="dd-label">Theme</div>
+      <div class="dd-theme-row">
+        <span class="dd-theme-label">Color</span>
+        <div class="dd-color-track" id="ddThemeColor">
+          <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
+          <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
+          <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
+          <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
+          <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
+          <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
+          <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
+          <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
+          <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
+          <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
+          <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
+        </div>
+      </div>
+      <div class="dd-theme-row">
+        <span class="dd-theme-label">Mode</span>
+        <div class="dd-bright-btns" id="ddThemeBright">
+          <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
+          <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
+          <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-dropdown" id="ddGo" style="left:150px">
+      <div class="dd-label">Quick Nav</div>
+      <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
+      <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
+      <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
+      <div class="dd-sep"></div>
+      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
+    </div>
+
+    <div class="mb-powered">Powered by Permanence Systems</div>
+
+    <div class="scanlines" aria-hidden="true"></div>
 
     <!-- SIDEBAR -->
     <aside class="library-sidebar" id="librarySidebar">
@@ -1987,11 +2318,6 @@
           Sign In
         </a>
       </div>
-    <div class="gs-section gs-theme-section">
-  <p class="gs-label">Appearance</p>
-  <div class="gs-theme-row"><span class="gs-theme-label">Color</span><div class="gs-color-track" id="gsThemeColor"><button class="gs-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button><button class="gs-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button><button class="gs-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button><button class="gs-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button><button class="gs-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button><button class="gs-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button><button class="gs-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button><button class="gs-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button><button class="gs-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button><button class="gs-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button><button class="gs-color-dot gs-color-custom" data-color="custom" title="Custom"><input type="color" class="gs-color-input" id="gsCustomColor" value="#00e5c4"></button></div></div>
-  <div class="gs-theme-row"><span class="gs-theme-label">Mode</span><div class="gs-bright-btns" id="gsThemeBright"><button class="gs-bright-btn" data-bright="dark" title="Dark"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button><button class="gs-bright-btn" data-bright="light" title="Light"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button><button class="gs-bright-btn" data-bright="system" title="System"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button></div></div>
-</div>
     </aside>
 
     <!-- LIBRARY MAIN -->
@@ -1999,23 +2325,40 @@
 
     <!-- HERO -->
     <section class="hero">
-      <span class="arc-eyebrow">A-KWJ-0368 // AI SCHOOL // 26.03.07</span>
-      <p class="eyebrow">AI Skills Library</p>
-      <h1>Learn AI like a craftsman.</h1>
-      <p class="hero-sub">Practical skills for builders, operators, and founders who ship with AI. Seven courses from agentic OS to trading.</p>
+      <span class="arc-eyebrow">PERM-LIB-001 // RESEARCH FEED</span>
+      <p class="eyebrow">PERMANENCE RESEARCH LIBRARY</p>
+      <h1>Your knowledge, continuously organized.</h1>
+      <p class="hero-sub">Research agents scan your Twitter bookmarks, school documents, and Notebook LM &mdash; then synthesize courses, articles, and research briefs automatically.</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="#start-here">Start Here &rarr;</a>
-        <a class="btn btn-secondary" href="#skills">View All Skills</a>
+        <a class="btn btn-primary" href="#research-feed">Browse Feed &rarr;</a>
+        <a class="btn btn-secondary" href="#data-sources">View Sources</a>
+      </div>
+    </section>
+
+    <!-- RESEARCH FEED -->
+    <section class="research-feed" id="research-feed">
+      <div class="rf-header">
+        <h3 class="rf-title">
+          <svg class="rf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          Research Feed
+        </h3>
+        <span class="rf-live-dot"></span>
+        <span class="rf-live-label">Live</span>
+      </div>
+      <div class="rf-scroller" id="rfScroller">
+        <!-- Rendered dynamically from localStorage ophtxn_research_feed -->
       </div>
     </section>
 
     <!-- FILTER BAR -->
     <div class="filter-bar" id="filter-bar">
-      <div class="filter-toggles" role="group" aria-label="Filter by level">
+      <div class="filter-toggles" role="group" aria-label="Filter by source">
         <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="beginner">Beginner</button>
-        <button class="filter-btn" data-filter="intermediate">Intermediate</button>
-        <button class="filter-btn" data-filter="advanced">Advanced</button>
+        <button class="filter-btn" data-filter="twitter">Twitter Bookmarks</button>
+        <button class="filter-btn" data-filter="school">School Docs</button>
+        <button class="filter-btn" data-filter="notebook">Notebook LM</button>
+        <button class="filter-btn" data-filter="agent">Agent Research</button>
+        <button class="filter-btn" data-filter="course">Courses</button>
       </div>
     </div>
 
@@ -2043,37 +2386,81 @@
         </svg>
       </div>
       <div class="motion-quote">
-        <blockquote>&ldquo;The best way to predict the future is to invent it.&rdquo;</blockquote>
-        <cite>&mdash; Alan Kay</cite>
+        <blockquote>&ldquo;Knowledge is not a collection of facts but a web of connections.&rdquo;</blockquote>
+        <cite>&mdash; Permanence Research Network</cite>
       </div>
     </div>
 
-    <!-- ROUTE MAP (dynamic) -->
+    <!-- RESEARCH PIPELINE -->
     <div class="route-map" id="start-here">
-      <h3 class="route-map-title">Recommended Route</h3>
+      <h3 class="route-map-title">Research Pipeline</h3>
       <div class="route-path" id="routePath"></div>
     </div>
 
-    <!-- COURSE HEADER (dynamic) -->
+    <!-- RESEARCH CATEGORY HEADER (dynamic) -->
     <div class="course-header" id="courseHeader"></div>
 
-    <!-- SKILL CARDS (dynamic) -->
-    <section id="skills" aria-label="Skill cards"></section>
+    <!-- RESEARCH DOCUMENTS (dynamic) -->
+    <section id="skills" aria-label="Research documents"></section>
 
-    <!-- CREATE A COURSE FORM -->
+    <!-- CONNECTED DATA SOURCES -->
+    <div class="data-sources-panel" id="data-sources">
+      <h3 class="ds-title">Connected Sources</h3>
+      <p class="ds-sub">Live connections feeding the research pipeline.</p>
+      <div class="ds-grid">
+        <div class="ds-card" style="animation-delay:60ms">
+          <div class="ds-card-header">
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-teal)" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+            <span class="ds-name">Twitter Bookmarks</span>
+            <span class="ds-status-dot ds-connected"></span>
+          </div>
+          <p class="ds-stat">1,247 bookmarks indexed</p>
+          <span class="ds-tag">Connected</span>
+        </div>
+        <div class="ds-card" style="animation-delay:120ms">
+          <div class="ds-card-header">
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span class="ds-name">School Documents</span>
+            <span class="ds-status-dot ds-connected"></span>
+          </div>
+          <p class="ds-stat">86 documents processed</p>
+          <span class="ds-tag">Connected</span>
+        </div>
+        <div class="ds-card" style="animation-delay:180ms">
+          <div class="ds-card-header">
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-gold)" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            <span class="ds-name">Notebook LM</span>
+            <span class="ds-status-dot ds-connected"></span>
+          </div>
+          <p class="ds-stat">12 notebooks synced</p>
+          <span class="ds-tag">Connected</span>
+        </div>
+        <div class="ds-card" style="animation-delay:240ms">
+          <div class="ds-card-header">
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-rose)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            <span class="ds-name">Research Agents</span>
+            <span class="ds-status-dot ds-connected"></span>
+          </div>
+          <p class="ds-stat">4 agents active</p>
+          <span class="ds-tag">Running</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST RESEARCH -->
     <div class="request-section" id="create-course">
-      <h3>Create a Course</h3>
-      <p class="req-sub">Design your own learning path. It will appear in the sidebar and persist locally.</p>
+      <h3>Request Research</h3>
+      <p class="req-sub">Submit a topic and Permanence agents will gather, analyze, and publish a research brief.</p>
 
-      <!-- Subject selector (swipeable pills) -->
+      <!-- Source selector (swipeable pills) -->
       <div class="cc-subject-wrap">
-        <p class="cc-subject-label">Subject</p>
+        <p class="cc-subject-label">Priority Source</p>
         <div class="cc-subject-scroller" id="ccSubjectScroller">
-          <button class="cc-subject-pill active" data-cat="ai-core">AI Core</button>
-          <button class="cc-subject-pill" data-cat="automation">Automation</button>
-          <button class="cc-subject-pill" data-cat="engineering">Engineering</button>
-          <button class="cc-subject-pill" data-cat="finance">Finance</button>
-          <button class="cc-subject-pill" data-cat="marketing">Marketing</button>
+          <button class="cc-subject-pill active" data-cat="all-sources">All Sources</button>
+          <button class="cc-subject-pill" data-cat="twitter">Twitter</button>
+          <button class="cc-subject-pill" data-cat="school">School Docs</button>
+          <button class="cc-subject-pill" data-cat="notebook">Notebook LM</button>
+          <button class="cc-subject-pill" data-cat="agent">Agent Research</button>
           <button class="cc-subject-pill" data-cat="custom">Custom</button>
         </div>
       </div>
@@ -2081,29 +2468,28 @@
       <!-- Title + Description expandable boxes -->
       <div class="cc-fields">
         <div class="cc-field-box" id="ccTitleBox">
-          <span class="cc-field-label">Title</span>
-          <input class="cc-field-input" type="text" id="ccTitle" placeholder="Course title&hellip;">
+          <span class="cc-field-label">Research Topic</span>
+          <input class="cc-field-input" type="text" id="ccTitle" placeholder="What should agents research&hellip;">
         </div>
         <div class="cc-field-box" id="ccDescBox">
-          <span class="cc-field-label">Description</span>
-          <textarea class="cc-field-input" id="ccDesc" placeholder="Brief description&hellip;" rows="2"></textarea>
+          <span class="cc-field-label">Context</span>
+          <textarea class="cc-field-input" id="ccDesc" placeholder="Any specific angle, keywords, or constraints&hellip;" rows="2"></textarea>
         </div>
       </div>
 
-      <button class="req-submit" id="ccSubmit">Create &rarr;</button>
+      <button class="req-submit" id="ccSubmit">Submit to Agents &rarr;</button>
     </div>
 
-    <!-- SUGGESTED SKILLS -->
+    <!-- EXPLORE RESEARCH CATEGORIES -->
     <div class="suggest-bar" id="suggestBar">
-      <p class="suggest-bar-label">Explore More Skills</p>
+      <p class="suggest-bar-label">Explore Research Categories</p>
       <div class="suggest-bar-items" id="suggestItems">
-        <span class="suggest-pill" data-course="agentic-os">Agentic OS</span>
-        <span class="suggest-pill" data-course="ai-workflows">AI Workflows</span>
-        <span class="suggest-pill" data-course="python-ai">Python + AI</span>
-        <span class="suggest-pill" data-course="personal-finance">Personal Finance</span>
-        <span class="suggest-pill" data-course="business-finance">Business Finance</span>
-        <span class="suggest-pill" data-course="marketing-ai">Marketing</span>
-        <span class="suggest-pill" data-course="trading-ai">Trading</span>
+        <span class="suggest-pill" data-course="market-intel">Market Intelligence</span>
+        <span class="suggest-pill" data-course="ai-tech">AI &amp; Technology</span>
+        <span class="suggest-pill" data-course="academic">Academic Research</span>
+        <span class="suggest-pill" data-course="agent-ops">Agent Operations</span>
+        <span class="suggest-pill" data-course="trading-strats">Trading Strategies</span>
+        <span class="suggest-pill" data-course="knowledge-synth">Knowledge Synthesis</span>
       </div>
     </div>
 
@@ -2111,41 +2497,42 @@
     <div class="sources-overlay" id="sources-overlay">
       <div class="sources-modal">
         <button class="sources-close" id="sources-close" aria-label="Close">&times;</button>
-        <h2>Sources &amp; References</h2>
-        <p class="sources-sub">Research and documentation that informed the skill content on this page.</p>
+        <h2>Data Sources &amp; Pipeline</h2>
+        <p class="sources-sub">Connected inputs feeding the Permanence Research Library.</p>
 
         <div class="source-section">
-          <h4>Claude Code &amp; Agent SDK</h4>
+          <h4>Twitter Bookmarks</h4>
           <ul>
-            <li><a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Claude Code documentation</a></li>
-            <li><a href="https://docs.anthropic.com/en/docs/claude-code/settings" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Settings, hooks &amp; MCP config</a></li>
-            <li><a href="https://docs.anthropic.com/en/docs/claude-code/memory" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Memory &amp; CLAUDE.md reference</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Finance &amp; trading threads</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>AI/ML research papers &amp; threads</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Startup &amp; operator insights</a></li>
           </ul>
         </div>
 
         <div class="source-section">
-          <h4>Model Context Protocol</h4>
+          <h4>School Documents</h4>
           <ul>
-            <li><a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>MCP introduction &amp; spec</a></li>
-            <li><a href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Official MCP server registry</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Finance coursework &amp; thesis papers</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Quantitative analysis assignments</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Research methodology notes</a></li>
           </ul>
         </div>
 
         <div class="source-section">
-          <h4>Prompt Engineering</h4>
+          <h4>Notebook LM</h4>
           <ul>
-            <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Anthropic prompt engineering guide</a></li>
-            <li><a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Anthropic cookbook examples</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Agentic workflow notebooks</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Market analysis notebooks</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Knowledge synthesis sessions</a></li>
           </ul>
         </div>
 
         <div class="source-section">
-          <h4>Design System &amp; Typography</h4>
+          <h4>Agent Infrastructure</h4>
           <ul>
-            <li><a href="https://fonts.google.com/specimen/Instrument+Serif" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Instrument Serif &mdash; Google Fonts</a></li>
-            <li><a href="https://fonts.google.com/specimen/Instrument+Sans" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Instrument Sans &mdash; Google Fonts</a></li>
-            <li><a href="https://fonts.google.com/specimen/DM+Mono" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>DM Mono &mdash; Google Fonts</a></li>
-            <li><a href="https://fonts.google.com/specimen/Orbitron" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Orbitron &mdash; Google Fonts</a></li>
+            <li><a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Claude Code &amp; Agent SDK</a></li>
+            <li><a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener noreferrer"><span class="resource-icon">&#9654;</span>Model Context Protocol</a></li>
+            <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Permanence OS agent registry</a></li>
           </ul>
         </div>
 
@@ -2182,520 +2569,348 @@
       'use strict';
 
       /* ================================================================
-         COURSE REGISTRY
+         RESEARCH CATEGORY REGISTRY
          ================================================================ */
       var COURSE_REGISTRY = {
 
-        /* ── COURSE 01: Agentic OS ── */
-        'agentic-os': {
-          id: 'agentic-os',
+        /* ── CATEGORY 01: Market Intelligence ── */
+        'market-intel': {
+          id: 'market-intel',
           num: '01',
-          title: 'Agentic OS',
-          category: 'ai-core',
-          desc: 'Build a personal AI operating system &mdash; from CLAUDE.md to sub-agent orchestration.',
+          title: 'Market Intelligence',
+          category: 'twitter',
+          desc: 'Financial signals, market trends, and trading insights extracted from Twitter bookmarks and agent analysis.',
+          color: '--c-teal',
+          icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+          skills: [
+            {
+              title: 'Equity Momentum Scanner',
+              level: 'twitter',
+              desc: 'Real-time momentum signals from bookmarked finance accounts.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">Agents continuously scan your <strong>Twitter bookmarks</strong> tagged with finance/trading content, extracting momentum signals, price targets, and sentiment shifts from trusted accounts.</p><div class="code-block"><span class="code-lang">agent output</span><code><span class="ck">Signal:</span>  <span class="cs">NVDA momentum breakout</span>\n<span class="ck">Source:</span>  Twitter bookmark @MacroAlf\n<span class="ck">Date:</span>    2026-03-10\n<span class="ck">Type:</span>    <span class="cv">Technical + Sentiment</span>\n<span class="ck">Conf:</span>    <span class="cs">0.82</span>\n\n<span class="cm">Key findings:</span>\n<span class="cs">- RSI divergence on 4H chart</span>\n<span class="cs">- Volume 2.3x above 20d avg</span>\n<span class="cs">- 3 bookmarked accounts bullish</span></code></div><p class="skill-tip"><strong>Source:</strong> Extracted from 47 bookmarked trading threads this week.</p>',
+              tip: 'Extracted from bookmarked trading threads.'
+            },
+            {
+              title: 'Sector Rotation Tracker',
+              level: 'twitter',
+              desc: 'Weekly sector flow analysis from bookmarked macro accounts.',
+              icon: 'M18 20V10 M12 20V4 M6 20v-6',
+              detail: '<p class="skill-detail-text">Agents track <strong>sector rotation patterns</strong> by analyzing bookmarked macro and institutional flow accounts on Twitter. Published as weekly sector heat maps.</p><div class="code-block"><span class="code-lang">research brief</span><code><span class="ck">Period:</span>  Week of 2026-03-03\n<span class="ck">Source:</span>  34 bookmarked macro accounts\n\n<span class="cv">Rotating INTO:</span>\n  <span class="cs">Tech (+2.8%)</span>  Energy (+1.4%)\n<span class="cr">Rotating OUT:</span>\n  <span class="cr">Utilities (-1.9%)</span>  REITs (-0.7%)\n\n<span class="cm">Key signal: institutional money</span>\n<span class="cm">favoring growth over defensives</span></code></div><p class="skill-tip"><strong>Source:</strong> Aggregated from 34 macro-focused bookmark threads.</p>',
+              tip: 'Aggregated from macro-focused bookmark threads.'
+            },
+            {
+              title: 'Earnings Signal Digest',
+              level: 'twitter',
+              desc: 'Pre- and post-earnings sentiment from bookmarked analysts.',
+              icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8',
+              detail: '<p class="skill-detail-text">Before each earnings season, agents compile <strong>sentiment and expectations</strong> from bookmarked analyst accounts, creating pre-earnings briefs and post-earnings reaction summaries.</p><div class="code-block"><span class="code-lang">earnings brief</span><code><span class="ck">Company:</span>  AAPL Q1 2026\n<span class="ck">Sources:</span>  12 bookmarked analyst threads\n\n<span class="cv">Pre-Earnings Consensus:</span>\n  <span class="cs">Revenue: $124.2B (est.)</span>\n  <span class="cs">EPS: $2.38 (est.)</span>\n  <span class="cs">Sentiment: Cautiously bullish</span>\n\n<span class="cm">Key themes from bookmarks:</span>\n<span class="cs">- Services growth acceleration</span>\n<span class="cs">- China demand recovery</span></code></div><p class="skill-tip"><strong>Source:</strong> Compiled from 12 analyst bookmark threads.</p>',
+              tip: 'Compiled from analyst bookmark threads.'
+            },
+            {
+              title: 'Macro Regime Monitor',
+              level: 'agent',
+              desc: 'Cross-source macro environment classification.',
+              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text">Research agents combine <strong>Twitter bookmarks, school finance notes, and Notebook LM</strong> analyses to classify the current macro regime: risk-on, risk-off, or transitional.</p><div class="code-block"><span class="code-lang">regime report</span><code><span class="ck">Current Regime:</span> <span class="cs">Risk-On Transition</span>\n<span class="ck">Confidence:</span>    <span class="cs">0.74</span>\n<span class="ck">Sources used:</span>  <span class="cv">3 (Twitter, School, NLM)</span>\n\n<span class="cm">Indicators:</span>\n  <span class="cs">VIX: 14.2 (low)</span>\n  <span class="cs">Yield curve: normalizing</span>\n  <span class="cs">Credit spreads: tightening</span>\n  <span class="cs">Bookmark sentiment: 68% bullish</span></code></div><p class="skill-tip"><strong>Source:</strong> Multi-source synthesis across all connected data.</p>',
+              tip: 'Multi-source synthesis across all connected data.'
+            }
+          ],
+          route: {
+            twitter: [
+              { label: 'Scan', skill: 'Equity Momentum Scanner', desc: 'Momentum signals from bookmarks' },
+              { label: 'Track', skill: 'Sector Rotation Tracker', desc: 'Sector flow analysis' },
+              { label: 'Digest', skill: 'Earnings Signal Digest', desc: 'Analyst sentiment compilation' }
+            ],
+            agent: [
+              { label: 'Classify', skill: 'Macro Regime Monitor', desc: 'Cross-source regime analysis' }
+            ]
+          }
+        },
+
+        /* -- CATEGORY 02: AI & Technology -- */
+        'ai-tech': {
+          id: 'ai-tech',
+          num: '02',
+          title: 'AI &amp; Technology',
+          category: 'twitter',
+          desc: 'Cutting-edge AI research, model releases, and technology trends from bookmarked sources.',
+          color: '--c-violet',
+          icon: 'M12 12m-3 0a3 3 0 106 0 3 3 0 10-6 0z M12 1v4 M12 19v4 M4.22 4.22l2.83 2.83 M16.95 16.95l2.83 2.83 M1 12h4 M19 12h4 M4.22 19.78l2.83-2.83 M16.95 7.05l2.83-2.83',
+          skills: [
+            {
+              title: 'LLM Context Window Optimization',
+              level: 'school',
+              desc: 'Research brief on maximizing context window efficiency.',
+              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
+              detail: '<p class="skill-detail-text">Synthesized from <strong>school ML coursework</strong> and recent Twitter threads on context window management. Covers chunking strategies, retrieval-augmented generation, and attention optimization.</p><div class="code-block"><span class="code-lang">research brief</span><code><span class="ck">Topic:</span>   Context Window Optimization\n<span class="ck">Sources:</span> School ML notes + 23 tweets\n\n<span class="cv">Key Strategies:</span>\n  <span class="cs">1. Hierarchical summarization</span>\n  <span class="cs">2. Semantic chunking (vs fixed)</span>\n  <span class="cs">3. RAG with re-ranking</span>\n  <span class="cs">4. Sliding window attention</span>\n\n<span class="cm">Practical finding: semantic chunking</span>\n<span class="cm">outperforms fixed by 34% on recall</span></code></div><p class="skill-tip"><strong>Source:</strong> School ML coursework + 23 bookmarked threads.</p>',
+              tip: 'School ML coursework + bookmarked threads.'
+            },
+            {
+              title: 'Agent Architecture Patterns',
+              level: 'notebook',
+              desc: 'Comprehensive analysis of multi-agent system designs.',
+              icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 7a4 4 0 100-8 4 4 0 000 8z M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75',
+              detail: '<p class="skill-detail-text">From <strong>Notebook LM sessions</strong> on agentic systems. Covers dispatcher-worker, pipeline, debate, and swarm architectures with tradeoff analysis.</p><div class="code-block"><span class="code-lang">notebook synthesis</span><code><span class="ck">Notebook:</span>  Agentic Architecture Review\n<span class="ck">Sessions:</span>  4 analysis rounds\n\n<span class="cv">Patterns Compared:</span>\n  <span class="cs">Dispatcher-Worker</span>  &mdash; best for task routing\n  <span class="cs">Pipeline</span>           &mdash; best for sequential\n  <span class="cs">Debate/Critique</span>   &mdash; best for quality\n  <span class="cs">Swarm</span>             &mdash; best for exploration\n\n<span class="cm">Recommendation: Pipeline + Critique</span>\n<span class="cm">hybrid for production systems</span></code></div><p class="skill-tip"><strong>Source:</strong> Notebook LM agentic architecture sessions.</p>',
+              tip: 'Notebook LM agentic architecture sessions.'
+            },
+            {
+              title: 'Model Benchmark Tracker',
+              level: 'twitter',
+              desc: 'Live comparison of frontier model capabilities.',
+              icon: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18',
+              detail: '<p class="skill-detail-text">Agents track <strong>model releases and benchmarks</strong> from bookmarked AI researchers. Updated weekly with capability comparisons and cost analysis.</p><div class="code-block"><span class="code-lang">benchmark update</span><code><span class="ck">Week of:</span>  2026-03-10\n<span class="ck">Sources:</span>  41 bookmarked AI researchers\n\n<span class="cv">Frontier Rankings (coding):</span>\n  <span class="cs">1. Claude Opus 4  &mdash; 92.1%</span>\n  <span class="cs">2. GPT-5          &mdash; 89.7%</span>\n  <span class="cs">3. Gemini Ultra 2  &mdash; 88.3%</span>\n\n<span class="cm">Notable: Claude Opus 4 leads on</span>\n<span class="cm">agentic tasks by widest margin</span></code></div><p class="skill-tip"><strong>Source:</strong> 41 bookmarked AI researcher accounts.</p>',
+              tip: '41 bookmarked AI researcher accounts.'
+            },
+            {
+              title: 'MCP Protocol Deep-Dive',
+              level: 'agent',
+              desc: 'Agent-generated analysis of Model Context Protocol patterns.',
+              icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+              detail: '<p class="skill-detail-text">Permanence research agents analyzed the <strong>MCP specification</strong>, community servers, and real-world usage patterns to produce an implementation guide.</p><div class="code-block"><span class="code-lang">agent research</span><code><span class="ck">Agent:</span>    Research-03 (Tech Specialist)\n<span class="ck">Scope:</span>    MCP protocol analysis\n\n<span class="cv">Key Findings:</span>\n  <span class="cs">- 127 community MCP servers</span>\n  <span class="cs">- Top use: GitHub, Notion, DB</span>\n  <span class="cs">- Avg latency: 340ms per call</span>\n  <span class="cs">- Security: stdin/stdout safe</span>\n\n<span class="cm">Recommendation: prioritize</span>\n<span class="cm">GitHub + Brave MCP for research</span></code></div><p class="skill-tip"><strong>Source:</strong> Agent-generated from MCP spec and community analysis.</p>',
+              tip: 'Agent-generated from MCP spec analysis.'
+            }
+          ],
+          route: {
+            school: [
+              { label: 'Research', skill: 'LLM Context Window Optimization', desc: 'Context window strategies' }
+            ],
+            notebook: [
+              { label: 'Analyze', skill: 'Agent Architecture Patterns', desc: 'Multi-agent design patterns' }
+            ],
+            twitter: [
+              { label: 'Track', skill: 'Model Benchmark Tracker', desc: 'Frontier model comparisons' }
+            ],
+            agent: [
+              { label: 'Deep-Dive', skill: 'MCP Protocol Deep-Dive', desc: 'Protocol implementation guide' }
+            ]
+          }
+        },
+
+        /* -- CATEGORY 03: Academic Research -- */
+        'academic': {
+          id: 'academic',
+          num: '03',
+          title: 'Academic Research',
+          category: 'school',
+          desc: 'Coursework, thesis papers, and quantitative research from school documents and academic sources.',
+          color: '--c-gold',
+          icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z',
+          skills: [
+            {
+              title: 'Quantitative Risk Modeling',
+              level: 'school',
+              desc: 'Finance thesis research on portfolio risk frameworks.',
+              icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+              detail: '<p class="skill-detail-text">Extracted from <strong>MS Finance thesis work</strong> on quantitative risk models. Covers VaR, CVaR, Monte Carlo methods, and stress testing frameworks.</p><div class="code-block"><span class="code-lang">thesis extract</span><code><span class="ck">Course:</span>   Advanced Risk Management\n<span class="ck">Source:</span>   Thesis Chapter 3\n\n<span class="cv">Models Covered:</span>\n  <span class="cs">Value-at-Risk (VaR)</span>\n    Historical, Parametric, Monte Carlo\n  <span class="cs">Conditional VaR (CVaR)</span>\n    Expected Shortfall methodology\n  <span class="cs">Stress Testing</span>\n    Scenario-based, Reverse stress\n\n<span class="cm">Key finding: Monte Carlo VaR with</span>\n<span class="cm">t-distribution outperforms Gaussian</span></code></div><p class="skill-tip"><strong>Source:</strong> MS Finance thesis, Chapter 3 on risk models.</p>',
+              tip: 'MS Finance thesis, Chapter 3.'
+            },
+            {
+              title: 'Corporate Valuation Methods',
+              level: 'school',
+              desc: 'Comparative analysis of DCF, multiples, and real options.',
+              icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+              detail: '<p class="skill-detail-text">Synthesized from <strong>investment banking coursework</strong>. Comprehensive comparison of discounted cash flow, trading comparables, and real options valuation.</p><div class="code-block"><span class="code-lang">course synthesis</span><code><span class="ck">Course:</span>   Corporate Finance II\n<span class="ck">Docs:</span>     8 assignments + final project\n\n<span class="cv">Valuation Framework:</span>\n  <span class="cs">DCF</span>         Intrinsic, forward-looking\n  <span class="cs">Comps</span>       Market-relative, fast\n  <span class="cs">Precedents</span>  M&A context, control premium\n  <span class="cs">Real Opts</span>   Flexibility value, strategic\n\n<span class="cm">Best practice: triangulate with</span>\n<span class="cm">at least 2 methods, weight by context</span></code></div><p class="skill-tip"><strong>Source:</strong> Corporate Finance II coursework, 8 assignments.</p>',
+              tip: 'Corporate Finance II coursework.'
+            },
+            {
+              title: 'Econometric Time Series',
+              level: 'school',
+              desc: 'ARIMA, GARCH, and cointegration from econometrics coursework.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">From <strong>econometrics coursework</strong>: time series modeling techniques including ARIMA, GARCH volatility models, and Engle-Granger cointegration testing.</p><div class="code-block"><span class="code-lang">course notes</span><code><span class="ck">Course:</span>   Financial Econometrics\n<span class="ck">Docs:</span>     Lab notebooks + problem sets\n\n<span class="cv">Time Series Toolkit:</span>\n  <span class="cs">ARIMA(p,d,q)</span>    Trend + seasonality\n  <span class="cs">GARCH(1,1)</span>      Volatility clustering\n  <span class="cs">VAR</span>             Multi-variate dynamics\n  <span class="cs">Cointegration</span>   Long-run equilibrium\n\n<span class="cm">Lab result: GARCH(1,1) captured 89%</span>\n<span class="cm">of S&P 500 volatility clustering</span></code></div><p class="skill-tip"><strong>Source:</strong> Financial Econometrics lab notebooks.</p>',
+              tip: 'Financial Econometrics lab notebooks.'
+            },
+            {
+              title: 'Behavioral Finance Insights',
+              level: 'notebook',
+              desc: 'Notebook LM synthesis of behavioral biases in markets.',
+              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
+              detail: '<p class="skill-detail-text">From <strong>Notebook LM sessions</strong> combining school behavioral finance notes with Twitter bookmark observations of bias-driven market moves.</p><div class="code-block"><span class="code-lang">notebook synthesis</span><code><span class="ck">Notebook:</span>  Behavioral Finance Review\n<span class="ck">Inputs:</span>   School notes + 18 tweet threads\n\n<span class="cv">Top Biases Observed in Markets:</span>\n  <span class="cs">Anchoring</span>       Price targets as anchors\n  <span class="cs">Herding</span>         Meme stock cascades\n  <span class="cs">Loss Aversion</span>   Holding losers too long\n  <span class="cs">Recency</span>         Overweighting recent data\n\n<span class="cm">Practical edge: fade consensus</span>\n<span class="cm">at extreme sentiment readings</span></code></div><p class="skill-tip"><strong>Source:</strong> Notebook LM + school behavioral finance notes.</p>',
+              tip: 'Notebook LM + school behavioral finance notes.'
+            }
+          ],
+          route: {
+            school: [
+              { label: 'Risk', skill: 'Quantitative Risk Modeling', desc: 'VaR, CVaR, Monte Carlo' },
+              { label: 'Value', skill: 'Corporate Valuation Methods', desc: 'DCF, comps, real options' },
+              { label: 'Model', skill: 'Econometric Time Series', desc: 'ARIMA, GARCH, cointegration' }
+            ],
+            notebook: [
+              { label: 'Synthesize', skill: 'Behavioral Finance Insights', desc: 'Bias-driven market analysis' }
+            ]
+          }
+        },
+
+        /* -- CATEGORY 04: Agent Operations -- */
+        'agent-ops': {
+          id: 'agent-ops',
+          num: '04',
+          title: 'Agent Operations',
+          category: 'agent',
+          desc: 'Operational guides for running Permanence research agents, from Notebook LM integration to agent logs.',
+          color: '--c-rose',
+          icon: 'M12 12m-10 0a10 10 0 1020 0 10 10 0 10-20 0z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z',
+          skills: [
+            {
+              title: 'Agent Health Dashboard',
+              level: 'agent',
+              desc: 'Real-time monitoring of all Permanence research agents.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">Live operational status of all <strong>Permanence research agents</strong>. Tracks uptime, task completion rates, token usage, and error rates across the fleet.</p><div class="code-block"><span class="code-lang">agent status</span><code><span class="ck">Fleet Status:</span>  <span class="cs">4/4 agents active</span>\n\n<span class="cv">Research-01 (Market)</span>   <span class="cs">OK</span>  47 tasks/day\n<span class="cv">Research-02 (Academic)</span> <span class="cs">OK</span>  23 tasks/day\n<span class="cv">Research-03 (Tech)</span>     <span class="cs">OK</span>  31 tasks/day\n<span class="cv">Research-04 (Synth)</span>    <span class="cs">OK</span>  15 tasks/day\n\n<span class="cm">Total tokens (24h): 847K</span>\n<span class="cm">Error rate: 0.3%</span></code></div><p class="skill-tip"><strong>Source:</strong> Live agent telemetry from Permanence OS.</p>',
+              tip: 'Live agent telemetry from Permanence OS.'
+            },
+            {
+              title: 'Notebook LM Integration Guide',
+              level: 'notebook',
+              desc: 'How research agents ingest and process Notebook LM data.',
+              icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z',
+              detail: '<p class="skill-detail-text">Technical guide on how Permanence agents <strong>connect to Notebook LM</strong>, extract session content, and transform notebook insights into publishable research briefs.</p><div class="code-block"><span class="code-lang">integration guide</span><code><span class="ck">Pipeline:</span>  Notebook LM &rarr; Agents &rarr; Library\n\n<span class="cv">Steps:</span>\n  <span class="cs">1. Sync notebooks (12 active)</span>\n  <span class="cs">2. Extract key insights per session</span>\n  <span class="cs">3. Cross-reference with other sources</span>\n  <span class="cs">4. Generate structured brief</span>\n  <span class="cs">5. Publish to Research Library</span>\n\n<span class="cm">Avg processing time: 4.2 minutes</span>\n<span class="cm">per notebook session</span></code></div><p class="skill-tip"><strong>Source:</strong> Permanence OS agent integration docs.</p>',
+              tip: 'Permanence OS agent integration docs.'
+            },
+            {
+              title: 'Twitter Bookmark Pipeline',
+              level: 'twitter',
+              desc: 'Automated ingestion and classification of Twitter bookmarks.',
+              icon: 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z',
+              detail: '<p class="skill-detail-text">How the <strong>Twitter bookmark pipeline</strong> works: agents fetch bookmarks, classify by topic, extract key claims, and route to the appropriate research category.</p><div class="code-block"><span class="code-lang">pipeline overview</span><code><span class="ck">Source:</span>     Twitter Bookmarks API\n<span class="ck">Indexed:</span>    1,247 bookmarks\n\n<span class="cv">Classification Distribution:</span>\n  <span class="cs">Finance/Trading</span>    412 (33%)\n  <span class="cs">AI/Technology</span>      389 (31%)\n  <span class="cs">Startup/Ops</span>        226 (18%)\n  <span class="cs">Other</span>              220 (18%)\n\n<span class="cm">Processing: new bookmarks scanned</span>\n<span class="cm">every 6 hours, classified in &lt;2s</span></code></div><p class="skill-tip"><strong>Source:</strong> Agent pipeline telemetry.</p>',
+              tip: 'Agent pipeline telemetry.'
+            },
+            {
+              title: 'Research Quality Scoring',
+              level: 'agent',
+              desc: 'How agents evaluate and score research output quality.',
+              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text">Agents use a <strong>multi-factor quality score</strong> before publishing research to the library. Covers source reliability, claim verification, and synthesis coherence.</p><div class="code-block"><span class="code-lang">quality framework</span><code><span class="ck">Quality Score Components:</span>\n\n<span class="cv">Source Reliability</span>   (0.30 weight)\n  <span class="cs">Verified accounts, citation count</span>\n<span class="cv">Claim Verification</span>  (0.25 weight)\n  <span class="cs">Cross-source confirmation</span>\n<span class="cv">Synthesis Coherence</span> (0.25 weight)\n  <span class="cs">Logical flow, no contradictions</span>\n<span class="cv">Actionability</span>       (0.20 weight)\n  <span class="cs">Clear takeaways, next steps</span>\n\n<span class="cm">Min publish threshold: 0.65</span></code></div><p class="skill-tip"><strong>Source:</strong> Permanence agent governance policy.</p>',
+              tip: 'Permanence agent governance policy.'
+            }
+          ],
+          route: {
+            agent: [
+              { label: 'Monitor', skill: 'Agent Health Dashboard', desc: 'Fleet status and telemetry' },
+              { label: 'Score', skill: 'Research Quality Scoring', desc: 'Quality gates for publishing' }
+            ],
+            notebook: [
+              { label: 'Connect', skill: 'Notebook LM Integration Guide', desc: 'Notebook sync pipeline' }
+            ],
+            twitter: [
+              { label: 'Ingest', skill: 'Twitter Bookmark Pipeline', desc: 'Bookmark classification' }
+            ]
+          }
+        },
+
+        /* -- CATEGORY 05: Trading Strategies -- */
+        'trading-strats': {
+          id: 'trading-strats',
+          num: '05',
+          title: 'Trading Strategies',
+          category: 'course',
+          desc: 'Synthesized trading frameworks combining school finance, Twitter signals, and agent backtesting.',
+          color: '--c-gold',
+          icon: 'M18 20V10 M12 20V4 M6 20v-6',
+          skills: [
+            {
+              title: 'Momentum + Mean Reversion Hybrid',
+              level: 'course',
+              desc: 'Course generated from thesis research and bookmark signals.',
+              icon: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0114.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0020.49 15',
+              detail: '<p class="skill-detail-text">A <strong>generated course</strong> combining thesis quantitative methods with real-world momentum signals from Twitter bookmarks. Covers entry/exit rules, position sizing, and risk management.</p><div class="code-block"><span class="code-lang">strategy brief</span><code><span class="ck">Strategy:</span>  Momentum + Mean Reversion\n<span class="ck">Sources:</span>   Thesis Ch.4 + 89 tweet signals\n\n<span class="cv">Rules:</span>\n  <span class="cs">Entry:</span>  RSI(14) crosses above 50\n          AND price > 20 SMA\n  <span class="cs">Exit:</span>   RSI(14) > 75 OR 2% stop-loss\n  <span class="cs">Size:</span>   Max 5% per position\n\n<span class="cm">Backtest (2024-2026): +31.2% CAGR</span>\n<span class="cm">Sharpe: 1.47, Max DD: -8.3%</span></code></div><p class="skill-tip"><strong>Source:</strong> Thesis Chapter 4 + 89 bookmarked trading signals.</p>',
+              tip: 'Thesis Chapter 4 + bookmarked trading signals.'
+            },
+            {
+              title: 'Options Flow Interpretation',
+              level: 'twitter',
+              desc: 'Decoding unusual options activity from bookmarked flow accounts.',
+              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
+              detail: '<p class="skill-detail-text">Agents analyze <strong>unusual options activity</strong> shared by bookmarked flow accounts. Covers sweep detection, put/call ratios, and smart money positioning.</p><div class="code-block"><span class="code-lang">flow analysis</span><code><span class="ck">Period:</span>    2026-03-10\n<span class="ck">Sources:</span>   8 bookmarked flow accounts\n\n<span class="cv">Notable Activity:</span>\n  <span class="cs">TSLA Apr 300C</span>  $4.2M sweep\n  <span class="cs">AMZN Mar 220P</span>  $1.8M block\n  <span class="cs">SPY Apr 560C</span>   $7.1M sweep\n\n<span class="cm">Aggregate signal: moderately bullish</span>\n<span class="cm">Put/Call ratio: 0.67 (below avg)</span></code></div><p class="skill-tip"><strong>Source:</strong> 8 bookmarked options flow accounts.</p>',
+              tip: '8 bookmarked options flow accounts.'
+            },
+            {
+              title: 'Volatility Surface Analysis',
+              level: 'school',
+              desc: 'Academic framework for trading implied volatility.',
+              icon: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18',
+              detail: '<p class="skill-detail-text">From <strong>derivatives coursework</strong>: understanding the volatility surface, skew dynamics, and term structure for systematic vol trading strategies.</p><div class="code-block"><span class="code-lang">academic brief</span><code><span class="ck">Course:</span>   Derivatives &amp; Risk Mgmt\n<span class="ck">Source:</span>   Final project + 3 problem sets\n\n<span class="cv">Vol Surface Framework:</span>\n  <span class="cs">Skew:</span>      OTM puts trade rich (fear)\n  <span class="cs">Term:</span>      Contango is normal state\n  <span class="cs">Smile:</span>     Tail hedging drives wings\n\n<span class="cv">Trading Implications:</span>\n  <span class="cs">Sell rich skew, buy cheap wings</span>\n  <span class="cs">Trade term structure mean reversion</span></code></div><p class="skill-tip"><strong>Source:</strong> Derivatives &amp; Risk Management final project.</p>',
+              tip: 'Derivatives & Risk Management final project.'
+            },
+            {
+              title: 'Crypto-Equity Correlation Map',
+              level: 'agent',
+              desc: 'Agent-generated cross-asset correlation research.',
+              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+              detail: '<p class="skill-detail-text">Research agents generated a <strong>rolling correlation analysis</strong> between crypto assets and equity indices, identifying regime-dependent relationships.</p><div class="code-block"><span class="code-lang">agent research</span><code><span class="ck">Agent:</span>    Research-01 (Market)\n<span class="ck">Period:</span>   Rolling 90-day correlations\n\n<span class="cv">BTC Correlations (current):</span>\n  <span class="cs">SPX:  0.62</span>  (up from 0.41 in Jan)\n  <span class="cs">QQQ:  0.71</span>  (up from 0.53 in Jan)\n  <span class="cs">Gold: 0.18</span>  (down from 0.34)\n  <span class="cs">DXY: -0.44</span>  (stable)\n\n<span class="cm">Regime: BTC acting as risk-on</span>\n<span class="cm">tech proxy, not digital gold</span></code></div><p class="skill-tip"><strong>Source:</strong> Agent-generated rolling correlation analysis.</p>',
+              tip: 'Agent-generated rolling correlation analysis.'
+            }
+          ],
+          route: {
+            course: [
+              { label: 'Strategy', skill: 'Momentum + Mean Reversion Hybrid', desc: 'Hybrid trading framework' }
+            ],
+            twitter: [
+              { label: 'Flow', skill: 'Options Flow Interpretation', desc: 'Unusual options activity' }
+            ],
+            school: [
+              { label: 'Vol', skill: 'Volatility Surface Analysis', desc: 'Vol surface trading' }
+            ],
+            agent: [
+              { label: 'Correlate', skill: 'Crypto-Equity Correlation Map', desc: 'Cross-asset analysis' }
+            ]
+          }
+        },
+
+        /* -- CATEGORY 06: Knowledge Synthesis -- */
+        'knowledge-synth': {
+          id: 'knowledge-synth',
+          num: '06',
+          title: 'Knowledge Synthesis',
+          category: 'course',
+          desc: 'Cross-source research briefs that connect dots across Twitter, school documents, Notebook LM, and agent outputs.',
           color: '--c-teal',
           icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
           skills: [
             {
-              title: 'CLAUDE.md Setup',
-              level: 'beginner',
-              desc: 'Tell your agent how your world works.',
-              icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
-              detail: '<p class="skill-detail-text">A <strong>CLAUDE.md</strong> file at your project root gives the agent persistent context &mdash; identity, file locations, coding standards, and guardrails. It&rsquo;s read automatically at session start.</p><div class="code-block"><span class="code-lang">markdown</span><code><span class="cm"># MY-PROJECT &mdash; CLAUDE.md</span>\n\n<span class="cm">## Identity</span>\n<span class="ck">Owner:</span> Your Name\n<span class="ck">Repo:</span>  github.com/you/my-project\n\n<span class="cm">## Code Standards</span>\n<span class="cs">- Python:</span> type hints on all public functions\n<span class="cs">- Tests:</span>  pytest, 80%+ coverage target\n<span class="cs">- Commits:</span> feat(scope): description\n\n<span class="cm">## Guardrails</span>\n<span class="cr">- Never commit secrets or .env files</span>\n<span class="cr">- Run linter before every push</span></code></div><p class="skill-tip"><strong>Tip:</strong> Keep it under 200 lines. Link to detailed docs instead of inlining everything.</p>',
-              tip: 'Keep it under 200 lines. Link to detailed docs instead of inlining everything.'
-            },
-            {
-              title: 'Prompt Engineering',
-              level: 'beginner',
-              desc: 'Get better outputs with better inputs.',
-              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
-              detail: '<p class="skill-detail-text">Structure beats length. Give the agent <strong>role</strong>, <strong>context</strong>, <strong>constraints</strong>, and a <strong>concrete example</strong> of the output you want.</p><div class="code-block"><span class="code-lang">prompt</span><code><span class="cr">&#10008; Vague:</span>\n<span class="cm">"Write me a good commit message"</span>\n\n<span class="ck">&#10004; Structured:</span>\n<span class="cs">"Write a commit message for this diff.</span>\n<span class="cs"> Format: feat(scope): 1-line summary</span>\n<span class="cs"> Rules:</span>\n<span class="cs">  - Under 72 chars</span>\n<span class="cs">  - Imperative mood</span>\n<span class="cs">  - No period at end</span>\n<span class="cs"> Example: feat(auth): add JWT refresh"</span></code></div><p class="skill-tip"><strong>Tip:</strong> One concrete example is worth 100 words of description. Show, don&rsquo;t tell.</p>',
-              tip: 'One concrete example is worth 100 words of description.'
-            },
-            {
-              title: 'Skill Files',
-              level: 'beginner',
-              desc: 'Extend capabilities without writing code.',
-              icon: 'M12 2l-10 5 10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
-              detail: '<p class="skill-detail-text">A <strong>SKILL.md</strong> file teaches an agent a reusable workflow &mdash; no code required. Drop it in <code style="color:var(--c-teal);font-family:\'DM Mono\',monospace;font-size:12px">.claude/skills/</code> and invoke it by name.</p><div class="code-block"><span class="code-lang">markdown</span><code><span class="cm">---</span>\n<span class="ck">name:</span> <span class="cs">code-review</span>\n<span class="ck">description:</span> Review a PR for quality\n<span class="cm">---</span>\n\n<span class="cv">## Steps</span>\n1. Read the diff with <span class="cs">`gh pr diff`</span>\n2. Check for:\n   - Missing error handling\n   - Untested code paths\n   - Security concerns\n3. Post review via <span class="cs">`gh pr review`</span>\n\n<span class="cv">## Constraints</span>\n<span class="cr">- Never approve without reading tests</span>\n<span class="cr">- Flag any secrets in the diff</span></code></div><p class="skill-tip"><strong>Tip:</strong> Invoke with <code style="color:var(--c-teal);font-family:\'DM Mono\',monospace;font-size:12px">/code-review</code> in the chat. Skills compose &mdash; one skill can call another.</p>',
-              tip: 'Skills compose &mdash; one skill can call another.'
-            },
-            {
-              title: 'Open Source Stack',
-              level: 'beginner',
-              desc: 'Curated fonts and libraries powering the system.',
-              icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12',
-              detail: '<p class="skill-detail-text">Every layer of Ophtxn is built on <strong>open source</strong>. Here&rsquo;s the curated type stack and core libraries &mdash; free to inspect, fork, and learn from.</p><div class="code-block"><span class="code-lang">type stack</span><code><span class="ck">Display</span>     <span class="cs">Instrument Serif</span>  <span class="cm">italic, editorial</span>\n<span class="ck">Body</span>        <span class="cs">Instrument Sans</span>   <span class="cm">400 / 600</span>\n<span class="ck">Mono</span>        <span class="cs">DM Mono</span>           <span class="cm">code blocks, data</span>\n<span class="ck">System</span>      <span class="cs">Orbitron</span>          <span class="cm">700 / 900, HUD labels</span></code></div><div class="code-block"><span class="code-lang">core libs</span><code><span class="ck">Runtime</span>     <span class="cs">Python 3.12</span>   <span class="cm">+ Flask + SQLite</span>\n<span class="ck">Agent SDK</span>   <span class="cs">Claude Code</span>   <span class="cm">+ MCP protocol</span>\n<span class="ck">Network</span>     <span class="cs">Tailscale</span>     <span class="cm">mesh VPN, zero-config</span>\n<span class="ck">Services</span>    <span class="cs">launchd</span>       <span class="cm">macOS process manager</span>\n<span class="ck">Frontend</span>    <span class="cs">Vanilla JS</span>    <span class="cm">no framework, no build</span></code></div><p class="skill-tip"><strong>Fonts:</strong> All available free on Google Fonts. Search by name to preview and download.</p>',
-              tip: 'All fonts available free on Google Fonts.'
-            },
-            {
-              title: 'MCP Integration',
-              level: 'intermediate',
-              desc: 'Connect Claude to external tools via protocol.',
-              icon: 'M12 12m-3 0a3 3 0 106 0 3 3 0 10-6 0z M12 1v4 M12 19v4 M4.22 4.22l2.83 2.83 M16.95 16.95l2.83 2.83 M1 12h4 M19 12h4 M4.22 19.78l2.83-2.83 M16.95 7.05l2.83-2.83',
-              detail: '<p class="skill-detail-text">The <strong>Model Context Protocol</strong> lets Claude call external tools &mdash; databases, APIs, browsers. Define servers in your project&rsquo;s <strong>.claude/settings.json</strong>.</p><div class="code-block"><span class="code-lang">json</span><code>{\n  <span class="cs">"mcpServers"</span>: {\n    <span class="ck">"github"</span>: {\n      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,\n      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,\n        <span class="cs">"@modelcontextprotocol/server-github"</span>]\n    },\n    <span class="ck">"notion"</span>: {\n      <span class="cv">"command"</span>: <span class="cs">"npx"</span>,\n      <span class="cv">"args"</span>: [<span class="cs">"-y"</span>,\n        <span class="cs">"notion-mcp-server"</span>]\n    }\n  }\n}</code></div><p class="skill-tip"><strong>Tip:</strong> Each server exposes tools Claude can call. Run <code style="color:var(--c-teal);font-family:\'DM Mono\',monospace;font-size:12px">/mcp</code> to see active connections.</p>',
-              tip: 'Run /mcp to see active connections.'
-            },
-            {
-              title: 'Hook System',
-              level: 'intermediate',
-              desc: 'Trigger automated workflows from agent events.',
-              icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
-              detail: '<p class="skill-detail-text"><strong>Hooks</strong> run shell commands before or after agent actions &mdash; linting on save, tests on commit, notifications on task complete. Defined in <strong>.claude/settings.json</strong>.</p><div class="code-block"><span class="code-lang">json</span><code>{\n  <span class="cs">"hooks"</span>: {\n    <span class="ck">"PreToolUse"</span>: [{\n      <span class="cv">"matcher"</span>: <span class="cs">"Bash"</span>,\n      <span class="cv">"hooks"</span>: [{\n        <span class="cv">"type"</span>: <span class="cs">"command"</span>,\n        <span class="cv">"command"</span>: <span class="cs">"echo \'Reviewing&hellip;\'"</span>\n      }]\n    }],\n    <span class="ck">"PostToolUse"</span>: [{\n      <span class="cv">"matcher"</span>: <span class="cs">"Write"</span>,\n      <span class="cv">"hooks"</span>: [{\n        <span class="cv">"type"</span>: <span class="cs">"command"</span>,\n        <span class="cv">"command"</span>: <span class="cs">"ruff check $CLAUDE_FILE"</span>\n      }]\n    }]\n  }\n}</code></div><p class="skill-tip"><strong>Tip:</strong> Hook exit code 2 blocks the action. Use PreToolUse to enforce policy before writes.</p>',
-              tip: 'Hook exit code 2 blocks the action.'
-            },
-            {
-              title: 'Memory Persistence',
-              level: 'intermediate',
-              desc: 'Retain context and knowledge across sessions.',
-              icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z',
-              detail: '<p class="skill-detail-text">Give your agent <strong>durable memory</strong> by persisting structured context to files that get loaded at session start. Think of it as the agent&rsquo;s notebook.</p><div class="code-block"><span class="code-lang">file tree</span><code><span class="ck">memory/</span>\n  <span class="cv">canon/</span>\n    identity.md       <span class="cm"># who you are</span>\n    principles.md     <span class="cm"># operating rules</span>\n  <span class="cv">working/</span>\n    decisions.jsonl   <span class="cm"># logged choices</span>\n    session_state.json <span class="cm"># resumable</span>\n  <span class="cv">reflections/</span>\n    weekly_review.md  <span class="cm"># agent self-eval</span></code></div><p class="skill-tip"><strong>Tip:</strong> Use JSONL for append-only logs, Markdown for human-readable context. Load in CLAUDE.md bootstrap.</p>',
-              tip: 'Use JSONL for append-only logs, Markdown for human-readable context.'
-            },
-            {
-              title: 'Agent Governance',
-              level: 'advanced',
-              desc: 'Policy enforcement + human approval gates.',
-              icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
-              detail: '<p class="skill-detail-text">Define <strong>risk tiers</strong> and <strong>approval gates</strong> so agents can act autonomously on safe tasks while escalating anything dangerous to a human.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">RISK_TIERS</span> = {\n  <span class="cs">"low"</span>:  {<span class="cv">"auto"</span>: True},\n  <span class="cs">"med"</span>:  {<span class="cv">"auto"</span>: True,\n           <span class="cv">"log"</span>: True},\n  <span class="cs">"high"</span>: {<span class="cv">"auto"</span>: False,\n           <span class="cv">"require"</span>: <span class="cs">"human_approval"</span>},\n}\n\n<span class="ck">def</span> <span class="cv">gate</span>(action, tier):\n    rule = RISK_TIERS[tier]\n    <span class="ck">if not</span> rule[<span class="cs">"auto"</span>]:\n        <span class="ck">return</span> <span class="cr">request_approval</span>(action)\n    <span class="ck">return</span> <span class="cs">execute</span>(action)</code></div><p class="skill-tip"><strong>Tip:</strong> Default to no-spend, no-delete. Let the human unlock higher tiers explicitly.</p>',
-              tip: 'Default to no-spend, no-delete.'
-            },
-            {
-              title: 'Sub-agent Orchestration',
-              level: 'advanced',
-              desc: 'Spawn specialized agents for complex tasks.',
-              icon: 'M12 12m-10 0a10 10 0 1020 0 10 10 0 10-20 0z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z',
-              detail: '<p class="skill-detail-text">Break complex tasks into smaller pieces and <strong>dispatch specialized sub-agents</strong> for each. A dispatcher routes by risk tier and capability, then merges the results.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">async def</span> <span class="cv">dispatch</span>(task):\n    plan  = <span class="ck">await</span> planner.decompose(task)\n    <span class="cm"># Route sub-tasks to specialists</span>\n    jobs = []\n    <span class="ck">for</span> step <span class="ck">in</span> plan.steps:\n        agent = <span class="cv">pick_agent</span>(step.domain)\n        jobs.append(agent.run(step))\n    results = <span class="ck">await</span> asyncio.gather(*jobs)\n    <span class="cm"># Merge &amp; validate</span>\n    <span class="ck">return</span> <span class="cv">merge_outputs</span>(results)</code></div><p class="skill-tip"><strong>Tip:</strong> Keep each sub-agent focused on one domain. The dispatcher handles coordination and conflict resolution.</p>',
-              tip: 'Keep each sub-agent focused on one domain.'
-            }
-          ],
-          route: {
-            beginner: [
-              { label: 'Learn', skill: 'CLAUDE.md Setup', desc: 'Define your agent&rsquo;s identity and rules' },
-              { label: 'Practice', skill: 'Prompt Engineering', desc: 'Structure inputs for better outputs' },
-              { label: 'Ship', skill: 'Skill Files', desc: 'Create reusable agent workflows' }
-            ],
-            intermediate: [
-              { label: 'Connect', skill: 'MCP Integration', desc: 'Wire Claude to external tools' },
-              { label: 'Automate', skill: 'Hook System', desc: 'Trigger workflows on agent events' },
-              { label: 'Remember', skill: 'Memory Persistence', desc: 'Persist context across sessions' }
-            ],
-            advanced: [
-              { label: 'Govern', skill: 'Agent Governance', desc: 'Policy enforcement and approval gates' },
-              { label: 'Scale', skill: 'Sub-agent Orchestration', desc: 'Dispatch specialized agent teams' }
-            ]
-          }
-        },
-
-        /* ── COURSE 02: AI Workflows ── */
-        'ai-workflows': {
-          id: 'ai-workflows',
-          num: '02',
-          title: 'AI Workflows',
-          category: 'automation',
-          desc: 'Automate everything &mdash; from simple triggers to multi-agent pipelines.',
-          color: '--c-violet',
-          icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
-          skills: [
-            {
-              title: 'Workflow Basics',
-              level: 'beginner',
-              desc: 'Triggers, actions, and data flow fundamentals.',
-              icon: 'M22 11.08V12a10 10 0 11-5.93-9.14',
-              detail: '<p class="skill-detail-text">Every automation has three parts: a <strong>trigger</strong> (what starts it), <strong>actions</strong> (what happens), and <strong>data flow</strong> (how information moves between steps). Master these and you can automate anything.</p><div class="code-block"><span class="code-lang">yaml</span><code><span class="ck">trigger:</span> <span class="cs">new_email</span>\n<span class="ck">filter:</span>  <span class="cs">subject contains "invoice"</span>\n<span class="ck">actions:</span>\n  - <span class="cv">extract_amount</span>(email.body)\n  - <span class="cv">log_to_sheet</span>(amount, date)\n  - <span class="cv">send_slack</span>(<span class="cs">"New invoice: ${{amount}}"</span>)</code></div><p class="skill-tip"><strong>Tip:</strong> Start with the simplest trigger-action pair. Add complexity only when the basic flow works.</p>',
-              tip: 'Start with the simplest trigger-action pair.'
-            },
-            {
-              title: 'n8n First Flow',
-              level: 'beginner',
-              desc: 'Build your first n8n automation end to end.',
-              icon: 'M4 4h16v16H4z M9 9h6v6H9z',
-              detail: '<p class="skill-detail-text"><strong>n8n</strong> is an open-source workflow automation tool. Build visual pipelines that connect APIs, databases, and AI models with a drag-and-drop interface.</p><div class="code-block"><span class="code-lang">n8n flow</span><code><span class="ck">Webhook</span> &rarr; <span class="cv">Set Fields</span> &rarr; <span class="cs">HTTP Request</span> &rarr; <span class="cv">IF</span>\n  &rarr; <span class="cs">Success:</span> Slack notification\n  &rarr; <span class="cr">Failure:</span> Email alert\n\n<span class="cm"># Install: docker run -p 5678:5678 n8nio/n8n</span>\n<span class="cm"># Open: http://localhost:5678</span></code></div><p class="skill-tip"><strong>Tip:</strong> Use the webhook trigger for instant testing. Pin sample data to avoid re-triggering while building.</p>',
-              tip: 'Use the webhook trigger for instant testing.'
-            },
-            {
-              title: 'Template Library',
-              level: 'beginner',
-              desc: 'Save, share, and reuse workflow templates.',
-              icon: 'M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z',
-              detail: '<p class="skill-detail-text">Don&rsquo;t rebuild flows from scratch. Export working workflows as <strong>JSON templates</strong>, version them in Git, and share across your team or community.</p><div class="code-block"><span class="code-lang">bash</span><code><span class="cm"># Export a workflow</span>\n<span class="ck">n8n</span> export:workflow --id=12 \\\n  --output=<span class="cs">templates/invoice-processor.json</span>\n\n<span class="cm"># Import on another machine</span>\n<span class="ck">n8n</span> import:workflow \\\n  --input=<span class="cs">templates/invoice-processor.json</span></code></div><p class="skill-tip"><strong>Tip:</strong> Strip credentials from templates before sharing. Use environment variables for sensitive values.</p>',
-              tip: 'Strip credentials from templates before sharing.'
-            },
-            {
-              title: 'LangGraph Pipelines',
-              level: 'intermediate',
-              desc: 'Stateful agent workflows with decision graphs.',
-              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
-              detail: '<p class="skill-detail-text"><strong>LangGraph</strong> lets you build stateful, multi-step agent workflows as directed graphs. Each node is a function, edges define control flow, and state persists across steps.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">from</span> langgraph.graph <span class="ck">import</span> StateGraph\n\n<span class="cv">graph</span> = StateGraph(AgentState)\ngraph.add_node(<span class="cs">"research"</span>, research_fn)\ngraph.add_node(<span class="cs">"draft"</span>, draft_fn)\ngraph.add_node(<span class="cs">"review"</span>, review_fn)\n\ngraph.add_edge(<span class="cs">"research"</span>, <span class="cs">"draft"</span>)\ngraph.add_conditional_edges(\n    <span class="cs">"review"</span>,\n    should_revise,\n    {<span class="cs">"revise"</span>: <span class="cs">"draft"</span>, <span class="cs">"done"</span>: END}\n)\n<span class="cv">app</span> = graph.compile()</code></div><p class="skill-tip"><strong>Tip:</strong> Use conditional edges for branching logic. The graph automatically handles retries and state persistence.</p>',
-              tip: 'Use conditional edges for branching logic.'
-            },
-            {
-              title: 'API Orchestration',
-              level: 'intermediate',
-              desc: 'Chain multiple APIs with error handling.',
-              icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Real workflows chain multiple APIs together. Handle <strong>rate limits</strong>, <strong>retries</strong>, and <strong>cascading failures</strong> gracefully to build reliable multi-service pipelines.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> httpx\n<span class="ck">from</span> tenacity <span class="ck">import</span> retry, stop_after_attempt\n\n<span class="ck">@retry</span>(stop=stop_after_attempt(3))\n<span class="ck">async def</span> <span class="cv">enrich_lead</span>(email):\n    <span class="cm"># Step 1: Lookup company</span>\n    co = <span class="ck">await</span> client.get(\n        <span class="cs">f"https://api.clearbit.com/v1/{email}"</span>)\n    <span class="cm"># Step 2: Score lead</span>\n    score = <span class="ck">await</span> client.post(\n        <span class="cs">"https://api.openai.com/v1/chat"</span>,\n        json={<span class="cs">"prompt"</span>: <span class="cs">f"Score: {co.json()}"</span>})\n    <span class="ck">return</span> {<span class="cs">"company"</span>: co, <span class="cs">"score"</span>: score}</code></div><p class="skill-tip"><strong>Tip:</strong> Always set timeouts on HTTP calls. Use circuit breakers for third-party APIs that go down frequently.</p>',
-              tip: 'Always set timeouts on HTTP calls.'
-            },
-            {
-              title: 'Multi-Agent Pipelines',
-              level: 'advanced',
-              desc: 'Coordinate agent teams across workflow stages.',
-              icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 7a4 4 0 100-8 4 4 0 000 8z M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75',
-              detail: '<p class="skill-detail-text">For complex tasks, deploy <strong>multiple specialized agents</strong> in a pipeline. A coordinator routes tasks, agents execute in parallel, and a merger validates outputs.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">Pipeline</span>:\n    agents = {\n        <span class="cs">"researcher"</span>: ResearchAgent(),\n        <span class="cs">"writer"</span>: WriterAgent(),\n        <span class="cs">"reviewer"</span>: ReviewAgent(),\n    }\n\n    <span class="ck">async def</span> <span class="cv">run</span>(self, task):\n        research = <span class="ck">await</span> self.agents[<span class="cs">"researcher"</span>].run(task)\n        draft = <span class="ck">await</span> self.agents[<span class="cs">"writer"</span>].run(research)\n        review = <span class="ck">await</span> self.agents[<span class="cs">"reviewer"</span>].run(draft)\n        <span class="ck">if</span> review.needs_revision:\n            <span class="ck">return await</span> self.<span class="cv">run</span>(review.feedback)\n        <span class="ck">return</span> review.final</code></div><p class="skill-tip"><strong>Tip:</strong> Give each agent a single responsibility. Let the pipeline handle coordination and error recovery.</p>',
-              tip: 'Give each agent a single responsibility.'
-            }
-          ],
-          route: {
-            beginner: [
-              { label: 'Learn', skill: 'Workflow Basics', desc: 'Triggers, actions, data flow' },
-              { label: 'Build', skill: 'n8n First Flow', desc: 'Your first visual automation' },
-              { label: 'Save', skill: 'Template Library', desc: 'Reuse and share workflows' }
-            ],
-            intermediate: [
-              { label: 'Graph', skill: 'LangGraph Pipelines', desc: 'Stateful agent decision graphs' },
-              { label: 'Chain', skill: 'API Orchestration', desc: 'Multi-API error handling' }
-            ],
-            advanced: [
-              { label: 'Scale', skill: 'Multi-Agent Pipelines', desc: 'Coordinate agent teams' }
-            ]
-          }
-        },
-
-        /* ── COURSE 03: Python + AI ── */
-        'python-ai': {
-          id: 'python-ai',
-          num: '03',
-          title: 'Python + AI',
-          category: 'engineering',
-          desc: 'From scripts to production agents &mdash; Python as the AI engineering language.',
-          color: '--c-gold',
-          icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z M2 12h20',
-          skills: [
-            {
-              title: 'Python for Automation',
-              level: 'beginner',
-              desc: 'Scripts, APIs, and file operations.',
-              icon: 'M4 17l6-6-6-6 M12 19h8',
-              detail: '<p class="skill-detail-text">Python is the backbone of AI automation. Master <strong>file I/O</strong>, <strong>API calls</strong>, and <strong>scripting patterns</strong> to build the glue that holds your agent stack together.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> pathlib, json, httpx\n\n<span class="cm"># Read config</span>\n<span class="cv">config</span> = json.loads(\n    pathlib.Path(<span class="cs">"config.json"</span>).read_text())\n\n<span class="cm"># Call an API</span>\n<span class="cv">resp</span> = httpx.get(\n    config[<span class="cs">"api_url"</span>],\n    headers={<span class="cs">"Authorization"</span>: <span class="cs">f"Bearer {config[\'key\']}"</span>})\n\n<span class="cm"># Write results</span>\npathlib.Path(<span class="cs">"output.json"</span>).write_text(\n    json.dumps(resp.json(), indent=2))</code></div><p class="skill-tip"><strong>Tip:</strong> Use pathlib over os.path. Use httpx over requests for async support.</p>',
-              tip: 'Use pathlib over os.path. Use httpx over requests.'
-            },
-            {
-              title: 'Data Wrangling',
-              level: 'beginner',
-              desc: 'Pandas, cleaning, and transformation.',
-              icon: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18',
-              detail: '<p class="skill-detail-text">Before any AI model can help, the data needs to be clean. Learn <strong>pandas</strong> for tabular data, <strong>cleaning patterns</strong>, and <strong>transformation pipelines</strong>.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> pandas <span class="ck">as</span> pd\n\n<span class="cv">df</span> = pd.read_csv(<span class="cs">"transactions.csv"</span>)\n\n<span class="cm"># Clean</span>\ndf[<span class="cs">"amount"</span>] = df[<span class="cs">"amount"</span>].str.replace(<span class="cs">"$"</span>, <span class="cs">""</span>).astype(float)\ndf[<span class="cs">"date"</span>] = pd.to_datetime(df[<span class="cs">"date"</span>])\ndf = df.dropna(subset=[<span class="cs">"category"</span>])\n\n<span class="cm"># Transform</span>\n<span class="cv">monthly</span> = df.groupby(\n    df[<span class="cs">"date"</span>].dt.to_period(<span class="cs">"M"</span>)\n)[<span class="cs">"amount"</span>].sum()</code></div><p class="skill-tip"><strong>Tip:</strong> Always check df.info() and df.describe() before transforming. Missing data hides everywhere.</p>',
-              tip: 'Always check df.info() and df.describe() first.'
-            },
-            {
-              title: 'API Integration',
-              level: 'beginner',
-              desc: 'REST, authentication, and rate limiting.',
-              icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Most AI tools are accessed through <strong>REST APIs</strong>. Understand <strong>authentication</strong> (API keys, OAuth), <strong>rate limits</strong>, and <strong>pagination</strong> to integrate any service.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> httpx, time\n\n<span class="ck">class</span> <span class="cv">APIClient</span>:\n    <span class="ck">def</span> __init__(self, base, key):\n        self.client = httpx.Client(\n            base_url=base,\n            headers={<span class="cs">"Authorization"</span>: <span class="cs">f"Bearer {key}"</span>},\n            timeout=30)\n\n    <span class="ck">def</span> <span class="cv">get_paginated</span>(self, endpoint):\n        results, page = [], 1\n        <span class="ck">while True</span>:\n            r = self.client.get(endpoint,\n                params={<span class="cs">"page"</span>: page})\n            data = r.json()\n            results.extend(data[<span class="cs">"items"</span>])\n            <span class="ck">if not</span> data.get(<span class="cs">"next"</span>): <span class="ck">break</span>\n            page += 1\n            time.sleep(0.5)  <span class="cm"># rate limit</span>\n        <span class="ck">return</span> results</code></div><p class="skill-tip"><strong>Tip:</strong> Always respect rate limits. A 429 response means slow down, not retry harder.</p>',
-              tip: 'A 429 response means slow down, not retry harder.'
-            },
-            {
-              title: 'LLM Integration',
-              level: 'intermediate',
-              desc: 'OpenAI/Anthropic SDKs, streaming, tool use.',
-              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
-              detail: '<p class="skill-detail-text">Connect your Python code to <strong>LLM APIs</strong> directly. Learn <strong>streaming responses</strong>, <strong>tool/function calling</strong>, and <strong>structured outputs</strong> for reliable AI integration.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> anthropic\n\n<span class="cv">client</span> = anthropic.Anthropic()\n\n<span class="cm"># Streaming response</span>\n<span class="ck">with</span> client.messages.stream(\n    model=<span class="cs">"claude-sonnet-4-20250514"</span>,\n    max_tokens=1024,\n    messages=[{<span class="cs">"role"</span>: <span class="cs">"user"</span>,\n               <span class="cs">"content"</span>: <span class="cs">"Analyze this CSV"</span>}]\n) <span class="ck">as</span> stream:\n    <span class="ck">for</span> text <span class="ck">in</span> stream.text_stream:\n        print(text, end=<span class="cs">""</span>, flush=True)</code></div><p class="skill-tip"><strong>Tip:</strong> Use streaming for long responses &mdash; it feels 10x faster to the user even though total time is similar.</p>',
-              tip: 'Use streaming for long responses.'
-            },
-            {
-              title: 'Agent Loops',
-              level: 'intermediate',
-              desc: 'ReAct pattern, tool calling, and memory.',
-              icon: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0114.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0020.49 15',
-              detail: '<p class="skill-detail-text">The <strong>ReAct pattern</strong> (Reason + Act) is the foundation of useful agents. The agent thinks, picks a tool, observes the result, and loops until the task is done.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">agent_loop</span>(task, tools, max_steps=10):\n    messages = [{<span class="cs">"role"</span>: <span class="cs">"user"</span>, <span class="cs">"content"</span>: task}]\n    <span class="ck">for</span> _ <span class="ck">in</span> range(max_steps):\n        resp = llm.chat(messages, tools=tools)\n        <span class="ck">if</span> resp.stop_reason == <span class="cs">"end_turn"</span>:\n            <span class="ck">return</span> resp.content\n        <span class="cm"># Execute tool calls</span>\n        <span class="ck">for</span> call <span class="ck">in</span> resp.tool_calls:\n            result = tools[call.name](call.args)\n            messages.append(\n                {<span class="cs">"role"</span>: <span class="cs">"tool"</span>,\n                 <span class="cs">"content"</span>: str(result)})\n    <span class="ck">return</span> <span class="cr">"Max steps reached"</span></code></div><p class="skill-tip"><strong>Tip:</strong> Always set a max_steps limit. Agents without bounds will loop forever on edge cases.</p>',
-              tip: 'Always set a max_steps limit.'
-            },
-            {
-              title: 'Production Agents',
-              level: 'advanced',
-              desc: 'Deployment, monitoring, error recovery, scaling.',
-              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
-              detail: '<p class="skill-detail-text">Moving agents from notebooks to <strong>production</strong> requires observability, graceful error handling, structured logging, and deployment strategies.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> structlog, sentry_sdk\n\n<span class="cv">log</span> = structlog.get_logger()\n\n<span class="ck">class</span> <span class="cv">ProductionAgent</span>:\n    <span class="ck">def</span> <span class="cv">run</span>(self, task):\n        <span class="ck">with</span> sentry_sdk.start_transaction(\n            name=<span class="cs">"agent.run"</span>):\n            <span class="ck">try</span>:\n                result = self._execute(task)\n                log.info(<span class="cs">"task.complete"</span>,\n                    task=task, tokens=result.usage)\n                <span class="ck">return</span> result\n            <span class="ck">except</span> Exception <span class="ck">as</span> e:\n                log.error(<span class="cs">"task.failed"</span>, error=str(e))\n                <span class="ck">return</span> self._fallback(task, e)</code></div><p class="skill-tip"><strong>Tip:</strong> Log token usage and latency for every call. Cost surprises kill AI projects.</p>',
-              tip: 'Log token usage and latency for every call.'
-            }
-          ],
-          route: {
-            beginner: [
-              { label: 'Script', skill: 'Python for Automation', desc: 'Files, APIs, scripting' },
-              { label: 'Clean', skill: 'Data Wrangling', desc: 'Pandas and transformation' },
-              { label: 'Connect', skill: 'API Integration', desc: 'REST, auth, rate limits' }
-            ],
-            intermediate: [
-              { label: 'Chat', skill: 'LLM Integration', desc: 'SDKs and streaming' },
-              { label: 'Loop', skill: 'Agent Loops', desc: 'ReAct and tool calling' }
-            ],
-            advanced: [
-              { label: 'Deploy', skill: 'Production Agents', desc: 'Monitoring and scaling' }
-            ]
-          }
-        },
-        /* ── COURSE 04: Personal Finance & Accounting ── */
-        'personal-finance': {
-          id: 'personal-finance',
-          num: '04',
-          title: 'Personal Finance &amp; Accounting',
-          category: 'finance',
-          desc: 'AI agents that manage your money &mdash; budgets, taxes, investments, and planning.',
-          color: '--c-gold',
-          icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
-          skills: [
-            {
-              title: 'Budget Automation',
-              level: 'beginner',
-              desc: 'AI agents that categorize transactions and track spending.',
-              icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
-              detail: '<p class="skill-detail-text">Build an agent that <strong>automatically categorizes</strong> bank transactions, tracks spending against budgets, and sends weekly summaries &mdash; no spreadsheet required.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">categorize_transaction</span>(txn):\n    prompt = <span class="cs">f"""Categorize this transaction:\n    {txn[\'description\']} - ${txn[\'amount\']}\n    Categories: groceries, dining, transport,\n    utilities, entertainment, other"""</span>\n    category = llm.complete(prompt).strip()\n    <span class="ck">return</span> {\n        <span class="cs">"date"</span>: txn[<span class="cs">"date"</span>],\n        <span class="cs">"amount"</span>: txn[<span class="cs">"amount"</span>],\n        <span class="cs">"category"</span>: category,\n        <span class="cs">"budget_remaining"</span>: get_budget(category)\n    }</code></div><p class="skill-tip"><strong>Tip:</strong> Train on your own transactions first. Generic categories miss your actual spending patterns.</p>',
-              tip: 'Train on your own transactions first.'
-            },
-            {
-              title: 'Tax Prep Assistant',
-              level: 'beginner',
-              desc: 'Organize receipts and estimate deductions with agents.',
+              title: 'Weekly Intelligence Brief',
+              level: 'agent',
+              desc: 'Comprehensive weekly synthesis across all data sources.',
               icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8',
-              detail: '<p class="skill-detail-text">An agent that <strong>scans receipts</strong>, extracts amounts, matches to tax categories, and estimates your deductions throughout the year &mdash; not just at tax time.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">process_receipt</span>(image_path):\n    <span class="cm"># Extract with vision model</span>\n    data = vision_model.extract(\n        image_path,\n        schema={<span class="cs">"vendor"</span>: str,\n                <span class="cs">"amount"</span>: float,\n                <span class="cs">"date"</span>: str,\n                <span class="cs">"items"</span>: list})\n    <span class="cm"># Match to tax category</span>\n    data[<span class="cs">"deduction_type"</span>] = classify_deduction(\n        data[<span class="cs">"vendor"</span>], data[<span class="cs">"items"</span>])\n    db.receipts.insert(data)\n    <span class="ck">return</span> data</code></div><p class="skill-tip"><strong>Tip:</strong> Process receipts the same day. Waiting until April means lost deductions and missing context.</p>',
-              tip: 'Process receipts the same day you get them.'
+              detail: '<p class="skill-detail-text">Every Monday, agents compile a <strong>weekly intelligence brief</strong> synthesizing the most important findings from all connected sources into a single actionable document.</p><div class="code-block"><span class="code-lang">weekly brief</span><code><span class="ck">Week:</span>      2026-03-03 to 2026-03-10\n<span class="ck">Sources:</span>   All (Twitter, School, NLM, Agents)\n\n<span class="cv">Top 3 Findings:</span>\n  <span class="cs">1. Tech sector momentum accelerating</span>\n     <span class="cm">(Twitter bookmarks + agent analysis)</span>\n  <span class="cs">2. Vol surface signals mean reversion</span>\n     <span class="cm">(School derivatives + market data)</span>\n  <span class="cs">3. LLM context optimization breakthrough</span>\n     <span class="cm">(Notebook LM + AI researcher tweets)</span>\n\n<span class="cv">Action Items:</span> 4 flagged for review</code></div><p class="skill-tip"><strong>Source:</strong> All connected sources, synthesized weekly.</p>',
+              tip: 'All connected sources, synthesized weekly.'
             },
             {
-              title: 'Expense Intelligence',
-              level: 'intermediate',
-              desc: 'Pattern detection, anomaly flagging, spending forecasts.',
-              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
-              detail: '<p class="skill-detail-text">Go beyond categorization. Build agents that <strong>detect spending patterns</strong>, flag anomalies (unexpected charges, subscription creep), and forecast next month&rsquo;s expenses.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">detect_anomalies</span>(transactions):\n    <span class="cm"># Group by category, compute stats</span>\n    stats = transactions.groupby(<span class="cs">"category"</span>).agg(\n        mean=(<span class="cs">"amount"</span>, <span class="cs">"mean"</span>),\n        std=(<span class="cs">"amount"</span>, <span class="cs">"std"</span>))\n    alerts = []\n    <span class="ck">for</span> txn <span class="ck">in</span> transactions.itertuples():\n        z = (txn.amount - stats.loc[txn.category, <span class="cs">"mean"</span>]\n             ) / stats.loc[txn.category, <span class="cs">"std"</span>]\n        <span class="ck">if</span> abs(z) > 2:\n            alerts.append({\n                <span class="cs">"txn"</span>: txn, <span class="cs">"z_score"</span>: z,\n                <span class="cs">"flag"</span>: <span class="cr">"anomaly"</span>})\n    <span class="ck">return</span> alerts</code></div><p class="skill-tip"><strong>Tip:</strong> A simple z-score catches 80% of anomalies. Don&rsquo;t over-engineer the detection model.</p>',
-              tip: 'A simple z-score catches 80% of anomalies.'
+              title: 'Concept Connection Graph',
+              level: 'notebook',
+              desc: 'Visual map of how ideas connect across all your sources.',
+              icon: 'M12 12m-10 0a10 10 0 1020 0 10 10 0 10-20 0z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z',
+              detail: '<p class="skill-detail-text">Agents build a <strong>knowledge graph</strong> connecting concepts across all sources. Shows how a Twitter thread on momentum connects to your thesis on risk, to a Notebook LM session on agent design.</p><div class="code-block"><span class="code-lang">knowledge graph</span><code><span class="ck">Nodes:</span>     847 concepts identified\n<span class="ck">Edges:</span>     2,341 connections mapped\n\n<span class="cv">Strongest Clusters:</span>\n  <span class="cs">Risk Management</span>\n    VaR &harr; Monte Carlo &harr; Backtesting\n  <span class="cs">Agent Systems</span>\n    MCP &harr; Pipeline &harr; Governance\n  <span class="cs">Market Structure</span>\n    Momentum &harr; Vol &harr; Correlation\n\n<span class="cm">Cross-cluster insight: risk models</span>\n<span class="cm">from thesis apply to agent governance</span></code></div><p class="skill-tip"><strong>Source:</strong> Cross-source knowledge graph analysis.</p>',
+              tip: 'Cross-source knowledge graph analysis.'
             },
             {
-              title: 'Investment Tracking',
-              level: 'intermediate',
-              desc: 'Portfolio monitoring and rebalancing alerts.',
-              icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Build an agent that <strong>monitors your portfolio</strong> allocations, tracks drift from target weights, and sends rebalancing alerts when thresholds are crossed.</p><div class="code-block"><span class="code-lang">python</span><code><span class="cv">TARGET</span> = {<span class="cs">"stocks"</span>: 0.60,\n          <span class="cs">"bonds"</span>: 0.30,\n          <span class="cs">"cash"</span>: 0.10}\n\n<span class="ck">def</span> <span class="cv">check_drift</span>(portfolio, threshold=0.05):\n    total = sum(portfolio.values())\n    alerts = []\n    <span class="ck">for</span> asset, target <span class="ck">in</span> TARGET.items():\n        actual = portfolio[asset] / total\n        drift = abs(actual - target)\n        <span class="ck">if</span> drift > threshold:\n            alerts.append({\n                <span class="cs">"asset"</span>: asset,\n                <span class="cs">"target"</span>: <span class="cs">f"{target:.0%}"</span>,\n                <span class="cs">"actual"</span>: <span class="cs">f"{actual:.0%}"</span>,\n                <span class="cs">"action"</span>: <span class="cs">"rebalance"</span>})\n    <span class="ck">return</span> alerts</code></div><p class="skill-tip"><strong>Tip:</strong> Check drift monthly, not daily. Frequent rebalancing creates tax events and trading costs.</p>',
-              tip: 'Check drift monthly, not daily.'
-            },
-            {
-              title: 'Financial Planning Agent',
-              level: 'advanced',
-              desc: 'Multi-goal optimization, retirement projections, scenario analysis.',
-              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
-              detail: '<p class="skill-detail-text">An autonomous agent that <strong>models multiple financial goals</strong> simultaneously &mdash; retirement, home purchase, education &mdash; with Monte Carlo simulations and scenario analysis.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> numpy <span class="ck">as</span> np\n\n<span class="ck">def</span> <span class="cv">monte_carlo_retirement</span>(\n    savings, monthly_add, years, n_sims=10000):\n    <span class="cv">results</span> = []\n    <span class="ck">for</span> _ <span class="ck">in</span> range(n_sims):\n        balance = savings\n        <span class="ck">for</span> y <span class="ck">in</span> range(years * 12):\n            ret = np.random.normal(0.07/12, 0.15/12)\n            balance = balance * (1 + ret) + monthly_add\n        results.append(balance)\n    <span class="ck">return</span> {\n        <span class="cs">"median"</span>: np.median(results),\n        <span class="cs">"p10"</span>: np.percentile(results, 10),\n        <span class="cs">"p90"</span>: np.percentile(results, 90)}</code></div><p class="skill-tip"><strong>Tip:</strong> Always show the range, not just the median. Financial plans should prepare for bad scenarios too.</p>',
-              tip: 'Always show the range, not just the median.'
-            }
-          ],
-          route: {
-            beginner: [
-              { label: 'Track', skill: 'Budget Automation', desc: 'Auto-categorize spending' },
-              { label: 'Prep', skill: 'Tax Prep Assistant', desc: 'Receipts and deductions' }
-            ],
-            intermediate: [
-              { label: 'Analyze', skill: 'Expense Intelligence', desc: 'Patterns and anomalies' },
-              { label: 'Monitor', skill: 'Investment Tracking', desc: 'Portfolio drift alerts' }
-            ],
-            advanced: [
-              { label: 'Plan', skill: 'Financial Planning Agent', desc: 'Multi-goal optimization' }
-            ]
-          }
-        },
-
-        /* ── COURSE 05: Business Finance & Accounting ── */
-        'business-finance': {
-          id: 'business-finance',
-          num: '05',
-          title: 'Business Finance &amp; Accounting',
-          category: 'finance',
-          desc: 'AI-powered financial statements, audit automation, and CFO-grade dashboards.',
-          color: '--c-gold',
-          icon: 'M3 3h18v18H3z M3 9h18 M9 3v18',
-          skills: [
-            {
-              title: 'Financial Statements 101',
-              level: 'beginner',
-              desc: 'Agents that read and generate P&amp;L, balance sheets, cash flow.',
-              icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6',
-              detail: '<p class="skill-detail-text">Build agents that can <strong>parse, generate, and explain</strong> the three core financial statements &mdash; income statement, balance sheet, and cash flow statement.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">generate_pnl</span>(transactions, period):\n    revenue = sum(t[<span class="cs">"amount"</span>]\n        <span class="ck">for</span> t <span class="ck">in</span> transactions\n        <span class="ck">if</span> t[<span class="cs">"type"</span>] == <span class="cs">"revenue"</span>)\n    cogs = sum(t[<span class="cs">"amount"</span>]\n        <span class="ck">for</span> t <span class="ck">in</span> transactions\n        <span class="ck">if</span> t[<span class="cs">"type"</span>] == <span class="cs">"cogs"</span>)\n    opex = sum(t[<span class="cs">"amount"</span>]\n        <span class="ck">for</span> t <span class="ck">in</span> transactions\n        <span class="ck">if</span> t[<span class="cs">"type"</span>] == <span class="cs">"opex"</span>)\n    <span class="ck">return</span> {\n        <span class="cs">"revenue"</span>: revenue,\n        <span class="cs">"gross_profit"</span>: revenue - cogs,\n        <span class="cs">"net_income"</span>: revenue - cogs - opex}</code></div><p class="skill-tip"><strong>Tip:</strong> Start with the income statement. It&rsquo;s the most intuitive of the three and feeds into the others.</p>',
-              tip: 'Start with the income statement.'
-            },
-            {
-              title: 'Bookkeeping Automation',
-              level: 'beginner',
-              desc: 'Journal entries, reconciliation, and classification.',
-              icon: 'M4 4h16v16H4z M4 10h16 M10 4v16',
-              detail: '<p class="skill-detail-text">Automate the tedious parts of bookkeeping: <strong>journal entry creation</strong>, <strong>bank reconciliation</strong>, and <strong>account classification</strong> using AI to match and categorize.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">auto_reconcile</span>(bank_txns, book_txns):\n    matched, unmatched = [], []\n    <span class="ck">for</span> bt <span class="ck">in</span> bank_txns:\n        match = find_closest(\n            bt, book_txns,\n            keys=[<span class="cs">"amount"</span>, <span class="cs">"date"</span>],\n            tolerance={<span class="cs">"amount"</span>: 0.01,\n                       <span class="cs">"date"</span>: 3})  <span class="cm"># 3 day window</span>\n        <span class="ck">if</span> match:\n            matched.append((bt, match))\n        <span class="ck">else</span>:\n            unmatched.append(bt)\n    <span class="ck">return</span> {<span class="cs">"matched"</span>: matched,\n            <span class="cs">"unmatched"</span>: unmatched}</code></div><p class="skill-tip"><strong>Tip:</strong> Reconcile weekly, not monthly. Small mismatches are easier to find when they&rsquo;re fresh.</p>',
-              tip: 'Reconcile weekly, not monthly.'
-            },
-            {
-              title: 'Audit &amp; Compliance',
-              level: 'intermediate',
-              desc: 'Automated audit trails, regulatory checks, SOX compliance.',
-              icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
-              detail: '<p class="skill-detail-text">Build agents that maintain <strong>audit trails</strong>, run <strong>compliance checks</strong> against regulatory requirements, and flag potential issues before auditors find them.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">AuditAgent</span>:\n    <span class="ck">def</span> <span class="cv">check_sox_controls</span>(self, entries):\n        findings = []\n        <span class="ck">for</span> entry <span class="ck">in</span> entries:\n            <span class="cm"># Segregation of duties</span>\n            <span class="ck">if</span> entry.creator == entry.approver:\n                findings.append({\n                    <span class="cs">"type"</span>: <span class="cr">"SOD_VIOLATION"</span>,\n                    <span class="cs">"entry"</span>: entry.id})\n            <span class="cm"># Amount thresholds</span>\n            <span class="ck">if</span> entry.amount > 10000 \\\n               <span class="ck">and not</span> entry.dual_approved:\n                findings.append({\n                    <span class="cs">"type"</span>: <span class="cr">"APPROVAL_MISSING"</span>,\n                    <span class="cs">"entry"</span>: entry.id})\n        <span class="ck">return</span> findings</code></div><p class="skill-tip"><strong>Tip:</strong> Automate the obvious checks. Auditors appreciate when you catch the easy stuff so they can focus on judgment calls.</p>',
-              tip: 'Automate the obvious checks first.'
-            },
-            {
-              title: 'FP&amp;A with Agents',
-              level: 'intermediate',
-              desc: 'Forecasting, variance analysis, budget vs actual.',
-              icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Financial Planning &amp; Analysis powered by agents: <strong>forecast revenue</strong>, analyze <strong>budget variances</strong>, and generate <strong>monthly reports</strong> automatically.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">variance_analysis</span>(budget, actual):\n    report = []\n    <span class="ck">for</span> line <span class="ck">in</span> budget.keys():\n        var_amt = actual[line] - budget[line]\n        var_pct = var_amt / budget[line] * 100\n        flag = <span class="cr">"OVER"</span> <span class="ck">if</span> var_pct > 10 \\\n               <span class="ck">else</span> <span class="cs">"OK"</span>\n        report.append({\n            <span class="cs">"line"</span>: line,\n            <span class="cs">"budget"</span>: budget[line],\n            <span class="cs">"actual"</span>: actual[line],\n            <span class="cs">"variance"</span>: <span class="cs">f"{var_pct:+.1f}%"</span>,\n            <span class="cs">"flag"</span>: flag})\n    <span class="ck">return</span> report</code></div><p class="skill-tip"><strong>Tip:</strong> Focus on variances over 10%. Explaining every 2% fluctuation wastes everyone&rsquo;s time.</p>',
-              tip: 'Focus on variances over 10%.'
-            },
-            {
-              title: 'CFO Dashboard Agent',
-              level: 'advanced',
-              desc: 'Real-time KPIs, board-ready reports, multi-entity consolidation.',
-              icon: 'M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18 M15 3v18',
-              detail: '<p class="skill-detail-text">An autonomous agent that builds <strong>real-time CFO dashboards</strong>, generates board-ready financial reports, and consolidates data across multiple entities.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">CFODashboard</span>:\n    <span class="cv">kpis</span> = [\n        <span class="cs">"revenue_growth"</span>, <span class="cs">"burn_rate"</span>,\n        <span class="cs">"runway_months"</span>, <span class="cs">"gross_margin"</span>,\n        <span class="cs">"arr"</span>, <span class="cs">"ltv_cac_ratio"</span>]\n\n    <span class="ck">def</span> <span class="cv">generate_board_report</span>(self):\n        data = self.consolidate_entities()\n        kpis = self.compute_kpis(data)\n        narrative = llm.generate(\n            <span class="cs">f"Write a CFO summary for:\\n"</span>\n            <span class="cs">f"{json.dumps(kpis, indent=2)}\\n"</span>\n            <span class="cs">f"Tone: professional, concise"</span>)\n        <span class="ck">return</span> {<span class="cs">"kpis"</span>: kpis,\n                <span class="cs">"narrative"</span>: narrative}</code></div><p class="skill-tip"><strong>Tip:</strong> Board reports should tell a story. Lead with the 3 most important metrics, then provide detail for those who want it.</p>',
-              tip: 'Lead with the 3 most important metrics.'
-            }
-          ],
-          route: {
-            beginner: [
-              { label: 'Read', skill: 'Financial Statements 101', desc: 'P&L, balance sheet, cash flow' },
-              { label: 'Automate', skill: 'Bookkeeping Automation', desc: 'Journal entries and reconciliation' }
-            ],
-            intermediate: [
-              { label: 'Audit', skill: 'Audit &amp; Compliance', desc: 'SOX controls and trails' },
-              { label: 'Plan', skill: 'FP&amp;A with Agents', desc: 'Forecasting and variance' }
-            ],
-            advanced: [
-              { label: 'Command', skill: 'CFO Dashboard Agent', desc: 'Board-ready KPI dashboards' }
-            ]
-          }
-        },
-
-        /* ── COURSE 06: Marketing with AI ── */
-        'marketing-ai': {
-          id: 'marketing-ai',
-          num: '06',
-          title: 'Marketing with AI',
-          category: 'marketing',
-          desc: 'Content generation, SEO, campaigns, and autonomous growth engines.',
-          color: '--c-violet',
-          icon: 'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0',
-          skills: [
-            {
-              title: 'Content Generation',
-              level: 'beginner',
-              desc: 'Blog posts, social captions, email copy with agents.',
-              icon: 'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z',
-              detail: '<p class="skill-detail-text">Use agents to draft <strong>blog posts</strong>, <strong>social media captions</strong>, and <strong>email copy</strong> &mdash; then refine with your brand voice and publish.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">generate_blog_post</span>(topic, brand_voice):\n    outline = llm.complete(\n        <span class="cs">f"Create a blog outline for: {topic}\\n"</span>\n        <span class="cs">f"Voice: {brand_voice}\\n"</span>\n        <span class="cs">f"Sections: intro, 3 main points, CTA"</span>)\n    draft = llm.complete(\n        <span class="cs">f"Write the full post from:\\n{outline}\\n"</span>\n        <span class="cs">f"Length: 800-1200 words\\n"</span>\n        <span class="cs">f"Include: examples, data points"</span>)\n    <span class="ck">return</span> {<span class="cs">"outline"</span>: outline,\n            <span class="cs">"draft"</span>: draft}</code></div><p class="skill-tip"><strong>Tip:</strong> Always generate an outline first. Direct-to-draft produces unfocused content that needs more editing.</p>',
-              tip: 'Always generate an outline first.'
-            },
-            {
-              title: 'SEO Fundamentals',
-              level: 'beginner',
-              desc: 'Keyword research, meta optimization, content scoring.',
+              title: 'Research Gap Detector',
+              level: 'agent',
+              desc: 'Identifies topics where your sources have conflicting or missing data.',
               icon: 'M11 19a8 8 0 100-16 8 8 0 000 16z M21 21l-4.35-4.35',
-              detail: '<p class="skill-detail-text">Build agents that do <strong>keyword research</strong>, optimize <strong>meta tags</strong>, and <strong>score content</strong> for SEO before publishing &mdash; automated quality gates for organic traffic.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">seo_score</span>(content, target_keyword):\n    checks = {\n        <span class="cs">"keyword_in_title"</span>: target_keyword.lower()\n            <span class="ck">in</span> content[<span class="cs">"title"</span>].lower(),\n        <span class="cs">"keyword_in_h1"</span>: target_keyword.lower()\n            <span class="ck">in</span> content[<span class="cs">"h1"</span>].lower(),\n        <span class="cs">"meta_length"</span>: 120 < len(\n            content[<span class="cs">"meta_desc"</span>]) < 160,\n        <span class="cs">"word_count"</span>: len(\n            content[<span class="cs">"body"</span>].split()) > 800,\n        <span class="cs">"has_internal_links"</span>: <span class="cs">"href="</span>\n            <span class="ck">in</span> content[<span class="cs">"body"</span>],\n    }\n    score = sum(checks.values()) / len(checks)\n    <span class="ck">return</span> {<span class="cs">"score"</span>: score, <span class="cs">"checks"</span>: checks}</code></div><p class="skill-tip"><strong>Tip:</strong> Write for humans first, optimize for search engines second. Google rewards genuinely useful content.</p>',
-              tip: 'Write for humans first, optimize for search second.'
+              detail: '<p class="skill-detail-text">Agents analyze your <strong>knowledge graph for gaps</strong>: topics with thin coverage, conflicting claims across sources, or areas where deeper research would connect isolated clusters.</p><div class="code-block"><span class="code-lang">gap analysis</span><code><span class="ck">Scan:</span>      Complete library analysis\n<span class="ck">Gaps:</span>      7 identified\n\n<span class="cv">Top Research Gaps:</span>\n  <span class="cr">1. Crypto regulation impact</span>\n     <span class="cm">0 school docs, 3 tweets only</span>\n  <span class="cr">2. Agent cost optimization</span>\n     <span class="cm">NLM session exists, no Twitter data</span>\n  <span class="cr">3. Macro &harr; micro factor bridge</span>\n     <span class="cm">Thesis covers macro, tweets micro</span>\n\n<span class="cv">Suggested: request agent research</span>\n<span class="cv">on gap #3 for portfolio integration</span></code></div><p class="skill-tip"><strong>Source:</strong> Automated gap detection across all sources.</p>',
+              tip: 'Automated gap detection across all sources.'
             },
             {
-              title: 'Campaign Orchestration',
-              level: 'intermediate',
-              desc: 'Multi-channel scheduling, A/B testing, performance tracking.',
-              icon: 'M22 11.08V12a10 10 0 11-5.93-9.14 M22 4L12 14.01l-3-3',
-              detail: '<p class="skill-detail-text">Coordinate campaigns across <strong>email, social, ads, and content</strong> channels. Agents handle scheduling, A/B test setup, and performance monitoring.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">CampaignAgent</span>:\n    <span class="ck">def</span> <span class="cv">launch_ab_test</span>(self, campaign):\n        variant_a = campaign.copy()\n        variant_b = campaign.copy()\n        variant_b[<span class="cs">"subject"</span>] = llm.rewrite(\n            campaign[<span class="cs">"subject"</span>],\n            style=<span class="cs">"more urgent"</span>)\n        <span class="cm"># Split audience 50/50</span>\n        audience = self.segment_audience(\n            campaign[<span class="cs">"list_id"</span>])\n        self.send(variant_a, audience[:len(audience)//2])\n        self.send(variant_b, audience[len(audience)//2:])\n        <span class="ck">return</span> self.track([variant_a, variant_b])</code></div><p class="skill-tip"><strong>Tip:</strong> Test one variable at a time. Changing subject AND body makes it impossible to know what worked.</p>',
-              tip: 'Test one variable at a time.'
-            },
-            {
-              title: 'Analytics Automation',
-              level: 'intermediate',
-              desc: 'Dashboards, attribution modeling, funnel analysis.',
-              icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Automate your marketing analytics: <strong>build dashboards</strong>, set up <strong>attribution models</strong>, and run <strong>funnel analysis</strong> to understand what&rsquo;s actually driving conversions.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">funnel_analysis</span>(events):\n    stages = [<span class="cs">"visit"</span>, <span class="cs">"signup"</span>,\n              <span class="cs">"activate"</span>, <span class="cs">"purchase"</span>]\n    counts = {}\n    <span class="ck">for</span> stage <span class="ck">in</span> stages:\n        counts[stage] = len([\n            e <span class="ck">for</span> e <span class="ck">in</span> events\n            <span class="ck">if</span> e[<span class="cs">"event"</span>] == stage])\n    <span class="cm"># Compute drop-off rates</span>\n    <span class="ck">for</span> i <span class="ck">in</span> range(1, len(stages)):\n        prev = counts[stages[i-1]]\n        curr = counts[stages[i]]\n        rate = curr / prev * 100 <span class="ck">if</span> prev <span class="ck">else</span> 0\n        counts[stages[i] + <span class="cs">"_rate"</span>] = \\\n            <span class="cs">f"{rate:.1f}%"</span>\n    <span class="ck">return</span> counts</code></div><p class="skill-tip"><strong>Tip:</strong> The biggest conversion gains are at the widest part of the funnel. Fix the top before optimizing the bottom.</p>',
-              tip: 'Fix the top of the funnel first.'
-            },
-            {
-              title: 'Growth Engine Agent',
-              level: 'advanced',
-              desc: 'Autonomous pipeline from research to publish to optimize.',
+              title: 'Agentic Workflow Patterns',
+              level: 'course',
+              desc: 'Generated course on building research automation workflows.',
               icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
-              detail: '<p class="skill-detail-text">The end goal: an <strong>autonomous content pipeline</strong> that researches topics, generates content, publishes across channels, monitors performance, and optimizes &mdash; all with minimal human oversight.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">GrowthEngine</span>:\n    <span class="ck">async def</span> <span class="cv">weekly_cycle</span>(self):\n        <span class="cm"># 1. Research trending topics</span>\n        topics = <span class="ck">await</span> self.researcher.find_topics()\n        <span class="cm"># 2. Generate content</span>\n        posts = <span class="ck">await</span> self.writer.batch_create(\n            topics, count=5)\n        <span class="cm"># 3. SEO optimize</span>\n        optimized = <span class="ck">await</span> self.seo.optimize(posts)\n        <span class="cm"># 4. Schedule publication</span>\n        <span class="ck">await</span> self.publisher.schedule(optimized)\n        <span class="cm"># 5. Monitor and learn</span>\n        <span class="ck">await</span> self.analytics.track_and_adapt()</code></div><p class="skill-tip"><strong>Tip:</strong> Start fully supervised. Remove human checkpoints one at a time as you build confidence in each stage.</p>',
-              tip: 'Remove human checkpoints one at a time.'
+              detail: '<p class="skill-detail-text">A <strong>generated course</strong> combining Notebook LM sessions on agentic design with practical patterns observed in the Permanence research pipeline itself.</p><div class="code-block"><span class="code-lang">course outline</span><code><span class="ck">Course:</span>   Agentic Workflow Patterns\n<span class="ck">Source:</span>   NLM sessions + agent logs\n<span class="ck">Articles:</span> 6 generated\n\n<span class="cv">Module 1:</span> Pipeline Architecture\n<span class="cv">Module 2:</span> Source Integration Patterns\n<span class="cv">Module 3:</span> Quality Gates &amp; Scoring\n<span class="cv">Module 4:</span> Cross-Source Synthesis\n<span class="cv">Module 5:</span> Feedback Loops\n<span class="cv">Module 6:</span> Scaling Research Agents\n\n<span class="cm">Auto-generated from 4 NLM sessions</span>\n<span class="cm">and 312 agent task logs</span></code></div><p class="skill-tip"><strong>Source:</strong> Notebook LM sessions + agent pipeline logs.</p>',
+              tip: 'Notebook LM sessions + agent pipeline logs.'
             }
           ],
           route: {
-            beginner: [
-              { label: 'Write', skill: 'Content Generation', desc: 'Blog, social, email copy' },
-              { label: 'Rank', skill: 'SEO Fundamentals', desc: 'Keywords and optimization' }
+            agent: [
+              { label: 'Brief', skill: 'Weekly Intelligence Brief', desc: 'Weekly synthesis across all sources' },
+              { label: 'Detect', skill: 'Research Gap Detector', desc: 'Find knowledge gaps' }
             ],
-            intermediate: [
-              { label: 'Launch', skill: 'Campaign Orchestration', desc: 'Multi-channel A/B testing' },
-              { label: 'Measure', skill: 'Analytics Automation', desc: 'Funnels and attribution' }
+            notebook: [
+              { label: 'Map', skill: 'Concept Connection Graph', desc: 'Cross-source knowledge graph' }
             ],
-            advanced: [
-              { label: 'Automate', skill: 'Growth Engine Agent', desc: 'Autonomous content pipeline' }
-            ]
-          }
-        },
-
-        /* ── COURSE 07: Trading with AI ── */
-        'trading-ai': {
-          id: 'trading-ai',
-          num: '07',
-          title: 'Trading with AI',
-          category: 'finance',
-          desc: 'Market data, technical analysis, backtesting, and autonomous trading systems.',
-          color: '--c-rose',
-          icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
-          skills: [
-            {
-              title: 'Market Data Pipelines',
-              level: 'beginner',
-              desc: 'Real-time feeds, historical data, API connections.',
-              icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
-              detail: '<p class="skill-detail-text">Every trading system starts with data. Build <strong>reliable data pipelines</strong> that fetch real-time prices, store historical data, and handle API rate limits gracefully.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> yfinance <span class="ck">as</span> yf\n<span class="ck">import</span> sqlite3\n\n<span class="ck">def</span> <span class="cv">ingest_daily</span>(symbols):\n    conn = sqlite3.connect(<span class="cs">"market.db"</span>)\n    <span class="ck">for</span> sym <span class="ck">in</span> symbols:\n        df = yf.download(sym, period=<span class="cs">"1d"</span>,\n                         interval=<span class="cs">"1m"</span>)\n        df[<span class="cs">"symbol"</span>] = sym\n        df.to_sql(<span class="cs">"prices"</span>, conn,\n                  if_exists=<span class="cs">"append"</span>)\n    conn.close()\n    <span class="ck">return</span> <span class="cs">f"Ingested {len(symbols)} symbols"</span></code></div><p class="skill-tip"><strong>Tip:</strong> Store raw data separately from derived data. You&rsquo;ll want to recompute indicators without re-fetching.</p>',
-              tip: 'Store raw data separately from derived data.'
-            },
-            {
-              title: 'Technical Analysis Agent',
-              level: 'beginner',
-              desc: 'Chart patterns, indicators, signal generation.',
-              icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Build an agent that computes <strong>technical indicators</strong> (RSI, MACD, Bollinger Bands), identifies <strong>chart patterns</strong>, and generates buy/sell signals.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">import</span> pandas_ta <span class="ck">as</span> ta\n\n<span class="ck">def</span> <span class="cv">generate_signals</span>(df):\n    <span class="cm"># Compute indicators</span>\n    df[<span class="cs">"rsi"</span>] = ta.rsi(df[<span class="cs">"close"</span>], length=14)\n    macd = ta.macd(df[<span class="cs">"close"</span>])\n    df = df.join(macd)\n    <span class="cm"># Generate signals</span>\n    df[<span class="cs">"signal"</span>] = <span class="cs">"hold"</span>\n    df.loc[df[<span class="cs">"rsi"</span>] < 30, <span class="cs">"signal"</span>] = <span class="cs">"buy"</span>\n    df.loc[df[<span class="cs">"rsi"</span>] > 70, <span class="cs">"signal"</span>] = <span class="cs">"sell"</span>\n    <span class="ck">return</span> df[[<span class="cs">"close"</span>, <span class="cs">"rsi"</span>, <span class="cs">"signal"</span>]]</code></div><p class="skill-tip"><strong>Tip:</strong> No single indicator is reliable alone. Combine 2&ndash;3 indicators and require confirmation before acting.</p>',
-              tip: 'Combine 2-3 indicators and require confirmation.'
-            },
-            {
-              title: 'Strategy Backtesting',
-              level: 'intermediate',
-              desc: 'Historical simulation, performance metrics, risk-adjusted returns.',
-              icon: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0114.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0020.49 15',
-              detail: '<p class="skill-detail-text">Before risking real money, <strong>backtest every strategy</strong> against historical data. Measure Sharpe ratio, max drawdown, and win rate to separate luck from edge.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">backtest</span>(strategy, data, capital=10000):\n    positions, equity = [], [capital]\n    <span class="ck">for</span> i, row <span class="ck">in</span> data.iterrows():\n        signal = strategy.evaluate(row)\n        <span class="ck">if</span> signal == <span class="cs">"buy"</span>:\n            positions.append(row[<span class="cs">"close"</span>])\n        <span class="ck">elif</span> signal == <span class="cs">"sell"</span> <span class="ck">and</span> positions:\n            pnl = row[<span class="cs">"close"</span>] - positions.pop(0)\n            equity.append(equity[-1] + pnl)\n    <span class="ck">return</span> {\n        <span class="cs">"total_return"</span>: (equity[-1]/capital - 1),\n        <span class="cs">"max_drawdown"</span>: max_drawdown(equity),\n        <span class="cs">"sharpe"</span>: sharpe_ratio(equity)}</code></div><p class="skill-tip"><strong>Tip:</strong> If your backtest looks too good, it probably is. Check for look-ahead bias and survivorship bias.</p>',
-              tip: 'If your backtest looks too good, it probably is.'
-            },
-            {
-              title: 'Sentiment Analysis',
-              level: 'intermediate',
-              desc: 'News, social media, and earnings call parsing.',
-              icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
-              detail: '<p class="skill-detail-text">Markets move on sentiment. Build agents that parse <strong>news headlines</strong>, <strong>social media buzz</strong>, and <strong>earnings call transcripts</strong> to gauge market mood in real time.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">def</span> <span class="cv">analyze_sentiment</span>(headlines):\n    results = []\n    <span class="ck">for</span> h <span class="ck">in</span> headlines:\n        score = llm.complete(\n            <span class="cs">f"Rate sentiment -1 to 1:\\n{h}"</span>)\n        results.append({\n            <span class="cs">"headline"</span>: h,\n            <span class="cs">"score"</span>: float(score.strip()),\n        })\n    avg = sum(r[<span class="cs">"score"</span>] <span class="ck">for</span> r <span class="ck">in</span> results) \\\n          / len(results)\n    <span class="ck">return</span> {\n        <span class="cs">"avg_sentiment"</span>: avg,\n        <span class="cs">"bullish"</span>: avg > 0.2,\n        <span class="cs">"bearish"</span>: avg < -0.2,\n        <span class="cs">"details"</span>: results}</code></div><p class="skill-tip"><strong>Tip:</strong> Sentiment is a leading indicator but a terrible sole signal. Always combine with price action and volume.</p>',
-              tip: 'Always combine sentiment with price action.'
-            },
-            {
-              title: 'Autonomous Trading System',
-              level: 'advanced',
-              desc: 'Multi-agent trading desk with risk manager, analyst, executor.',
-              icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
-              detail: '<p class="skill-detail-text">The full system: a <strong>multi-agent trading desk</strong> where specialized agents handle analysis, risk management, execution, and portfolio oversight &mdash; each with clear boundaries.</p><div class="code-block"><span class="code-lang">python</span><code><span class="ck">class</span> <span class="cv">TradingDesk</span>:\n    agents = {\n        <span class="cs">"analyst"</span>: MarketAnalyst(),\n        <span class="cs">"risk_mgr"</span>: RiskManager(),\n        <span class="cs">"executor"</span>: OrderExecutor(),\n    }\n\n    <span class="ck">async def</span> <span class="cv">trade_cycle</span>(self):\n        signals = <span class="ck">await</span> self.agents[\n            <span class="cs">"analyst"</span>].scan_markets()\n        <span class="ck">for</span> signal <span class="ck">in</span> signals:\n            approved = <span class="ck">await</span> self.agents[\n                <span class="cs">"risk_mgr"</span>].evaluate(signal)\n            <span class="ck">if</span> approved:\n                <span class="ck">await</span> self.agents[\n                    <span class="cs">"executor"</span>].place_order(\n                    signal, approved.size)</code></div><p class="skill-tip"><strong>Tip:</strong> The risk manager must have veto power over everything. Never let the analyst or executor bypass risk checks.</p>',
-              tip: 'The risk manager must have veto power.'
-            }
-          ],
-          route: {
-            beginner: [
-              { label: 'Ingest', skill: 'Market Data Pipelines', desc: 'Real-time and historical feeds' },
-              { label: 'Analyze', skill: 'Technical Analysis Agent', desc: 'Indicators and signals' }
-            ],
-            intermediate: [
-              { label: 'Test', skill: 'Strategy Backtesting', desc: 'Simulate before risking capital' },
-              { label: 'Read', skill: 'Sentiment Analysis', desc: 'News and social sentiment' }
-            ],
-            advanced: [
-              { label: 'Deploy', skill: 'Autonomous Trading System', desc: 'Multi-agent trading desk' }
+            course: [
+              { label: 'Learn', skill: 'Agentic Workflow Patterns', desc: 'Research automation course' }
             ]
           }
         }
@@ -2713,8 +2928,8 @@
       (function migrateProgress() {
         try {
           var old = localStorage.getItem(OLD_PROGRESS_KEY);
-          if (old && !localStorage.getItem(progressKey('agentic-os'))) {
-            localStorage.setItem(progressKey('agentic-os'), old);
+          if (old && !localStorage.getItem(progressKey('market-intel'))) {
+            localStorage.setItem(progressKey('market-intel'), old);
           }
         } catch (_e) {}
       })();
@@ -2733,9 +2948,9 @@
 
       function getActiveCourse() {
         try {
-          var id = localStorage.getItem(ACTIVE_KEY) || 'agentic-os';
-          return COURSE_REGISTRY[id] ? id : 'agentic-os';
-        } catch (_e) { return 'agentic-os'; }
+          var id = localStorage.getItem(ACTIVE_KEY) || 'market-intel';
+          return COURSE_REGISTRY[id] ? id : 'market-intel';
+        } catch (_e) { return 'market-intel'; }
       }
 
       function setActiveCourse(id) {
@@ -2767,9 +2982,9 @@
          SIDEBAR
          ================================================================ */
       var sidebar = document.getElementById('librarySidebar');
-      var sidebarToggle = document.getElementById('sidebarToggle');
+      var sidebarToggle = document.getElementById('mbLibSidebar');
       var sidebarCloseBtn = document.getElementById('sidebarClose');
-      var sidebarOverlay = document.getElementById('sidebarOverlay');
+      var sidebarOverlay = null; // overlay removed, using menubar
       var sidebarOpen = false;
 
       function openSidebar() {
@@ -2944,7 +3159,7 @@
 
         courseHeaderEl.innerHTML =
           '<div class="course-meta">'
-          + '<p class="course-eyebrow">Course ' + course.num + '</p>'
+          + '<p class="course-eyebrow">Research Category ' + course.num + '</p>'
           + '<h2 class="course-title">' + course.title + '</h2>'
           + '<p class="course-desc">' + course.desc + '</p>'
           + '</div>'
@@ -2959,16 +3174,21 @@
          ================================================================ */
       function renderRouteMap(course) {
         if (!routePathEl) return;
-        /* Pick the first non-empty route level based on filter, or default to beginner */
-        var level = activeFilter !== 'all' ? activeFilter : 'beginner';
-        var nodes = (course.route && course.route[level]) ? course.route[level] : [];
-        if (nodes.length === 0 && course.route) {
-          var levels = ['beginner', 'intermediate', 'advanced'];
-          for (var i = 0; i < levels.length; i++) {
-            if (course.route[levels[i]] && course.route[levels[i]].length > 0) {
-              nodes = course.route[levels[i]];
-              break;
+        /* Collect all route nodes across source types, filtered if needed */
+        var nodes = [];
+        if (course.route) {
+          if (activeFilter !== 'all' && course.route[activeFilter]) {
+            nodes = course.route[activeFilter];
+          } else {
+            /* Gather from all route sources */
+            var sourceOrder = ['twitter', 'school', 'notebook', 'agent', 'course'];
+            for (var i = 0; i < sourceOrder.length; i++) {
+              if (course.route[sourceOrder[i]] && course.route[sourceOrder[i]].length > 0) {
+                nodes = nodes.concat(course.route[sourceOrder[i]]);
+              }
             }
+            /* Limit to 4 for visual balance */
+            if (nodes.length > 4) nodes = nodes.slice(0, 4);
           }
         }
 
@@ -3017,33 +3237,52 @@
       /* ================================================================
          RENDER: SKILL CARDS
          ================================================================ */
+      var SOURCE_LABELS = {
+        twitter: 'Twitter Bookmarks',
+        school: 'School Docs',
+        notebook: 'Notebook LM',
+        agent: 'Agent Research',
+        course: 'Generated Course'
+      };
+
+      var SOURCE_ICONS = {
+        twitter: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>',
+        school: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+        notebook: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>',
+        agent: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>',
+        course: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5"/></svg>'
+      };
+
       function renderSkillCards(course) {
         if (!skillsSection) return;
-        var levels = ['beginner', 'intermediate', 'advanced'];
-        var levelIcons = {
-          beginner: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-          intermediate: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>',
-          advanced: '<svg class="lsh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
-        };
+        /* Collect unique source types from skills */
+        var sourceOrder = ['twitter', 'school', 'notebook', 'agent', 'course'];
+        var usedSources = [];
+        sourceOrder.forEach(function (src) {
+          var has = course.skills.some(function (s) { return s.level === src; });
+          if (has) usedSources.push(src);
+        });
 
         var html = '';
-        levels.forEach(function (level) {
-          var skills = course.skills.filter(function (s) { return s.level === level; });
+        usedSources.forEach(function (source, idx) {
+          var skills = course.skills.filter(function (s) { return s.level === source; });
           if (skills.length === 0) return;
 
-          var isOpen = level === 'beginner' ? ' open' : '';
-          html += '<div class="level-section' + isOpen + '" data-level="' + level + '">';
+          var isOpen = idx === 0 ? ' open' : '';
+          var label = SOURCE_LABELS[source] || source;
+          var icon = SOURCE_ICONS[source] || '';
+          html += '<div class="level-section' + isOpen + '" data-level="' + source + '">';
           html += '<div class="level-section-header">';
-          html += levelIcons[level];
-          html += '<span class="lsh-label">' + level.charAt(0).toUpperCase() + level.slice(1) + '</span>';
-          html += '<span class="lsh-count">' + skills.length + ' skill' + (skills.length !== 1 ? 's' : '') + '</span>';
+          html += icon;
+          html += '<span class="lsh-label">' + label + '</span>';
+          html += '<span class="lsh-count">' + skills.length + ' article' + (skills.length !== 1 ? 's' : '') + '</span>';
           html += '<svg class="lsh-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
           html += '</div>';
           html += '<div class="level-cards">';
 
           skills.forEach(function (skill) {
             html += '<article class="skill-card" data-level="' + skill.level + '" data-title="' + skill.title + '" data-desc="' + skill.desc + '">';
-            html += '<span class="badge badge-' + skill.level + '">' + skill.level.charAt(0).toUpperCase() + skill.level.slice(1) + '</span>';
+            html += '<span class="badge badge-' + skill.level + '">' + (SOURCE_LABELS[skill.level] || skill.level) + '</span>';
             html += '<h3><svg class="skill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="' + skill.icon + '"/></svg>' + skill.title + '</h3>';
             html += '<p class="skill-desc">' + skill.desc + '</p>';
             html += '<a class="skill-link" href="javascript:void(0)">&rarr; Explore</a>';
@@ -3154,13 +3393,11 @@
           }
         });
 
-        /* Show/hide entire level sections based on filter */
+        /* Show/hide entire source sections based on filter */
         levelSections.forEach(function (sec) {
           var secLevel = sec.getAttribute('data-level');
           if (activeFilter === 'all') {
             sec.style.display = '';
-            /* Open intermediate by default, collapse others */
-            if (secLevel === 'intermediate') { sec.classList.add('open'); }
           } else {
             if (secLevel === activeFilter) {
               sec.style.display = '';
@@ -3237,7 +3474,7 @@
          ================================================================ */
       /* Subject pill selection */
       var ccSubjectScroller = document.getElementById('ccSubjectScroller');
-      var ccSelectedCategory = 'ai-core';
+      var ccSelectedCategory = 'all-sources';
       if (ccSubjectScroller) {
         var pills = ccSubjectScroller.querySelectorAll('.cc-subject-pill');
         for (var pi = 0; pi < pills.length; pi++) {
@@ -3283,11 +3520,11 @@
             num: num,
             title: title,
             category: category,
-            desc: desc || 'A custom course.',
+            desc: desc || 'Research topic submitted to agents.',
             color: '--c-teal',
             icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
             skills: [],
-            route: { beginner: [], intermediate: [], advanced: [] },
+            route: {},
             custom: true
           };
 
@@ -3309,10 +3546,10 @@
             var allPills = ccSubjectScroller.querySelectorAll('.cc-subject-pill');
             for (var rp = 0; rp < allPills.length; rp++) allPills[rp].classList.remove('active');
             if (allPills[0]) allPills[0].classList.add('active');
-            ccSelectedCategory = 'ai-core';
+            ccSelectedCategory = 'all-sources';
           }
           switchCourse(id);
-          showToast('Course "' + title + '" created!');
+          showToast('Research request "' + title + '" submitted to agents!');
         });
       }
 
@@ -3451,8 +3688,48 @@
       }
 
       /* ================================================================
+         RESEARCH FEED
+         ================================================================ */
+      var RF_KEY = 'ophtxn_research_feed';
+      var DEMO_FEED = [
+        { title: 'Trading Signal: NVDA momentum breakout detected', source: 'Twitter Bookmarks', time: '2 hours ago', tag: 'signal', tagClass: 'rf-tag-signal' },
+        { title: 'Research Brief: LLM Context Window Optimization', source: 'School Docs', time: '5 hours ago', tag: 'brief', tagClass: 'rf-tag-brief' },
+        { title: 'Course Generated: Agentic Workflow Patterns', source: 'Notebook LM', time: '1 day ago', tag: 'course', tagClass: 'rf-tag-course' },
+        { title: 'Sector Alert: Tech rotation accelerating', source: 'Agent Research', time: '1 day ago', tag: 'alert', tagClass: 'rf-tag-alert' },
+        { title: 'Earnings Preview: AAPL Q1 sentiment compilation', source: 'Twitter Bookmarks', time: '2 days ago', tag: 'brief', tagClass: 'rf-tag-brief' },
+        { title: 'Knowledge Gap: Crypto regulation coverage needed', source: 'Agent Research', time: '3 days ago', tag: 'alert', tagClass: 'rf-tag-alert' }
+      ];
+
+      function loadResearchFeed() {
+        try {
+          var stored = JSON.parse(localStorage.getItem(RF_KEY));
+          if (stored && stored.length > 0) return stored;
+        } catch (_e) {}
+        /* Seed demo data */
+        try { localStorage.setItem(RF_KEY, JSON.stringify(DEMO_FEED)); } catch (_e) {}
+        return DEMO_FEED;
+      }
+
+      function renderResearchFeed() {
+        var scroller = document.getElementById('rfScroller');
+        if (!scroller) return;
+        var items = loadResearchFeed();
+        var html = '';
+        items.forEach(function (item) {
+          html += '<div class="rf-card">';
+          html += '<span class="rf-card-tag ' + item.tagClass + '">' + item.tag + '</span>';
+          html += '<p class="rf-card-title">' + item.title + '</p>';
+          html += '<span class="rf-card-source">Source: ' + item.source + '</span>';
+          html += '<span class="rf-card-time">' + item.time + '</span>';
+          html += '</div>';
+        });
+        scroller.innerHTML = html;
+      }
+
+      /* ================================================================
          INIT
          ================================================================ */
+      renderResearchFeed();
       var activeCourseId = getActiveCourse();
       var activeCourse = COURSE_REGISTRY[activeCourseId];
       renderSidebarCourses();
@@ -3464,7 +3741,73 @@
 
     })();
 
-  /* SHARED: SITE THEME */
+  /* ═══ MENUBAR: CLOCK ═══ */
+  (function(){
+    var ck=document.getElementById('mbClock'),dt=document.getElementById('mbDate');
+    if(!ck)return;
+    var hidden=false;
+    function tick(){
+      if(hidden)return;
+      var n=new Date();
+      ck.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      dt.textContent=n.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    tick();setInterval(tick,1000);
+    document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
+  })();
+
+  /* ═══ MENUBAR: DROPDOWNS ═══ */
+  (function(){
+    var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
+    var openDD=null;
+    function closeAll(){
+      document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
+      document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
+      openDD=null;
+    }
+    Object.keys(menus).forEach(function(btnId){
+      var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
+      if(!btn||!dd)return;
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(openDD===dd){closeAll();return;}
+        closeAll();
+        dd.classList.add('open');btn.classList.add('open');openDD=dd;
+      });
+      btn.addEventListener('mouseenter',function(){
+        if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
+      });
+    });
+    document.addEventListener('click',function(){closeAll();});
+    document.querySelectorAll('.mb-dropdown').forEach(function(dd){
+      dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
+    });
+    /* Hamburger for mobile */
+    var hb=document.getElementById('mbHamburger');
+    if(hb)hb.addEventListener('click',function(e){
+      e.stopPropagation();var dd=document.getElementById('ddFile');
+      if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
+    });
+    /* Quick theme toggle via moon icon */
+    var tg=document.getElementById('mbTheme');
+    if(tg)tg.addEventListener('click',function(){
+      var cur=document.body.dataset.brightness||'dark';
+      var next=cur==='dark'?'light':'dark';
+      try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
+      document.body.dataset.brightness=next;
+      tg.textContent=next==='dark'?'\u263E':'\u2600';
+      applyTheme();
+    });
+    /* Library sidebar toggle from menubar */
+    var libBtn=document.getElementById('mbLibSidebar');
+    if(libBtn)libBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(typeof toggleSidebar==='function')toggleSidebar();
+    });
+  })();
+
+  /* ═══ SITE THEME (View dropdown) ═══ */
+  var applyTheme;
   (function(){
     var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
     function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
@@ -3483,22 +3826,32 @@
       var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
       el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--surface:rgb('+sR+','+sG+','+sB+');--lift:rgb('+lR+','+lG+','+lB+');--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--c-teal:'+hex+';--c-gold:'+hex+';--c-violet:'+hex+';--c-rose:#ff5c8a;--f-rgb:'+rgb+'}'+
       '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--surface:#fff;--lift:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
-      var ci=document.getElementById('gsCustomColor');if(ci)ci.value=hex;
-      var cd=document.querySelector('.gs-color-custom');if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
+      var ci=document.getElementById('ddCustomColor');if(ci)ci.value=hex;
+      var cd=document.querySelector('.dd-color-custom');if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
     }
     function apply(){
       var t=gt(),b=gb();
       document.body.dataset.theme=t;document.body.dataset.brightness=b;
       if(t==='custom')applyCustom(gc());
-      document.querySelectorAll('.gs-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
-      document.querySelectorAll('.gs-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+      document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
+      document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+      var tgEl=document.getElementById('mbTheme');
+      if(tgEl)tgEl.textContent=b==='light'?'\u2600':'\u263E';
     }
+    applyTheme=apply;
     apply();
-    var cE=document.getElementById('gsThemeColor'),bE=document.getElementById('gsThemeBright');
-    if(cE)cE.addEventListener('click',function(e){var btn=e.target.closest('.gs-color-dot');if(!btn||!btn.dataset.color)return;if(btn.dataset.color==='custom')return;try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();});
-    var ci=document.getElementById('gsCustomColor');
-    if(ci)ci.addEventListener('input',function(e){try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();});
-    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.gs-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
+    var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
+    if(cE)cE.addEventListener('click',function(e){
+      var btn=e.target.closest('.dd-color-dot');
+      if(!btn||!btn.dataset.color)return;
+      if(btn.dataset.color==='custom')return;
+      try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
+    });
+    var ci=document.getElementById('ddCustomColor');
+    if(ci)ci.addEventListener('input',function(e){
+      try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
+    });
+    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
     window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
   })();
   </script>
