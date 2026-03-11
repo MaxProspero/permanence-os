@@ -21,6 +21,7 @@ try:
     from flask_cors import CORS
 except ModuleNotFoundError:
     CORS = None
+import fcntl
 import json
 import os
 import datetime
@@ -264,7 +265,7 @@ def approve_item(approval_id: str):
 
     log_api_call("POST", f"/api/approvals/{approval_id}/approve", payload)
 
-    result = _update_approval_status(approval_id, "APPROVED", notes)
+    result = _update_approval_status(approval_id, "APPROVED", notes, decision_source="dashboard_api")
     if not result:
         log_api_call("POST", f"/api/approvals/{approval_id}/approve", payload, "NOT_FOUND")
         abort(404, description="Approval not found")
@@ -294,7 +295,7 @@ def reject_item(approval_id: str):
 
     log_api_call("POST", f"/api/approvals/{approval_id}/reject", payload)
 
-    result = _update_approval_status(approval_id, "REJECTED", reason)
+    result = _update_approval_status(approval_id, "REJECTED", reason, decision_source="dashboard_api")
     if not result:
         log_api_call("POST", f"/api/approvals/{approval_id}/reject", payload, "NOT_FOUND")
         abort(404, description="Approval not found")
@@ -324,25 +325,31 @@ def approve_all():
     approvals = _load_approvals()
     approved_ids = []
     skipped_high = []
+    skipped_no_priority = []
 
     for item in approvals:
         if item.get("status") != "PENDING_HUMAN_REVIEW":
             continue
-        priority = str(item.get("priority", "")).upper()
-        if priority == "HIGH":
-            skipped_high.append(item.get("id") or item.get("approval_id", ""))
+        priority = str(item.get("priority") or "").strip().upper()
+        item_id = item.get("id") or item.get("approval_id", "")
+        if priority in ("HIGH", "CRITICAL"):
+            skipped_high.append(item_id)
             continue
-        approval_id = item.get("id") or item.get("approval_id", "")
-        _update_approval_status(approval_id, "APPROVED", notes)
-        approved_ids.append(approval_id)
+        if not priority:
+            skipped_no_priority.append(item_id)
+            continue
+        _update_approval_status(item_id, "APPROVED", notes, decision_source="dashboard_api_bulk")
+        approved_ids.append(item_id)
 
     return jsonify({
         "approved": len(approved_ids),
         "skipped_high_risk": len(skipped_high),
+        "skipped_no_priority": len(skipped_no_priority),
         "approved_ids": approved_ids,
         "skipped_ids": skipped_high,
+        "skipped_no_priority_ids": skipped_no_priority,
         "decided_at": utc_iso(),
-        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH-risk items kept for individual review.",
+        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH/CRITICAL-risk items kept for individual review. {len(skipped_no_priority)} items skipped (missing priority).",
     })
 
 
@@ -3849,24 +3856,36 @@ def _load_approvals() -> list:
             return []
 
 
-def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
-    approvals = _load_approvals()
-    found = False
-    for a in approvals:
-        if a.get("id") == approval_id or a.get("approval_id") == approval_id or a.get("proposal_id") == approval_id:
-            a["status"] = status
-            a["decided_at"] = utc_iso()
-            a["decision_notes"] = notes
-            a["decision_hash"] = hashlib.sha256(
-                f"{approval_id}{status}{notes}{utc_iso()}".encode()
-            ).hexdigest()[:16]
-            found = True
-            break
+def _update_approval_status(approval_id: str, status: str, notes: str, decision_source: str = "") -> bool:
+    """Update approval status with advisory file lock to prevent concurrent corruption."""
+    approvals_path = PATHS["approvals"]
+    lock_path = approvals_path + ".lock"
+    os.makedirs(os.path.dirname(approvals_path), exist_ok=True)
 
-    if found:
-        os.makedirs(os.path.dirname(PATHS["approvals"]), exist_ok=True)
-        with open(PATHS["approvals"], "w") as f:
-            json.dump(approvals, f, indent=2)
+    with open(lock_path, "a") as lock_fh:
+        fcntl.flock(lock_fh, fcntl.LOCK_EX)
+        try:
+            approvals = _load_approvals()
+            found = False
+            decided_at = utc_iso()
+            for a in approvals:
+                if a.get("id") == approval_id or a.get("approval_id") == approval_id or a.get("proposal_id") == approval_id:
+                    a["status"] = status
+                    a["decided_at"] = decided_at
+                    a["decision_notes"] = notes
+                    if decision_source:
+                        a["decision_source"] = decision_source
+                    a["decision_hash"] = hashlib.sha256(
+                        f"{approval_id}{status}{notes}{decided_at}".encode()
+                    ).hexdigest()[:16]
+                    found = True
+                    break
+
+            if found:
+                with open(approvals_path, "w") as f:
+                    json.dump(approvals, f, indent=2)
+        finally:
+            fcntl.flock(lock_fh, fcntl.LOCK_UN)
 
     return found
 
