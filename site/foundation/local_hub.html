@@ -10,7 +10,8 @@
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <title>Ophtxn · Local Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@700;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   /* ── TOKENS ─────────────────────────────────────────────── */
   :root {
@@ -23,14 +24,15 @@
     --muted:     #5a6a8a;
     --dim:       #2e3d5c;
 
-    --c-a: #00e5c4;   /* teal   */
-    --c-b: #ff5c8a;   /* rose   */
-    --c-c: #7b6fff;   /* violet */
-    --c-d: #f8c842;   /* gold   */
+    --c1: #00e5c4;   /* teal   */
+    --rose: #ff5c8a;   /* rose   */
+    --violet: #7b6fff;   /* violet */
+    --c2: #f8c842;   /* gold   */
 
     --r: 14px;
-    --mono: "DM Mono", monospace;
-    --sans: "Syne", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "DM Mono", monospace;
+    --sans: "Sora", system-ui, sans-serif;
+    --game: "Orbitron", monospace;
     --ease: cubic-bezier(.22,.68,0,1.2);
   }
 
@@ -244,7 +246,7 @@
     color: var(--c-a); overflow-x: auto; white-space: nowrap;
     display: flex; align-items: center; gap: 12px;
   }
-  .cmd-bar::before { content: "❯"; color: var(--muted); flex-shrink: 0; }
+  .cmd-bar::before { content: ">"; color: var(--muted); flex-shrink: 0; }
 
   /* ── SERVICE CARDS ───────────────────────────────────────── */
   .services {
@@ -716,16 +718,20 @@
   <div class="mb-dropdown" id="ddFile" style="left:72px">
     <div class="dd-label">Ophtxn OS</div>
     <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
+    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
     <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
+    <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
     <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
     <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
-    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
     <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
     <div class="dd-sep"></div>
     <div class="dd-label">Permanence Platform</div>
     <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
     <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
   </div>
 
   <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -794,7 +800,7 @@
       <div class="svc-status" id="st-8000" data-s="checking">
         <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <a class="svc-open" id="svc-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Open</a>
+      <a class="svc-open" id="svc-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">&gt; Open</a>
     </article>
 
     <article class="svc" style="--accent: var(--c-c)">
@@ -804,7 +810,7 @@
       <div class="svc-status" id="st-8787" data-s="checking">
         <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <a class="svc-open" id="svc-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">→ Open</a>
+      <a class="svc-open" id="svc-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">&gt; Open</a>
     </article>
 
     <article class="svc" style="--accent: var(--c-b)">
@@ -814,7 +820,7 @@
       <div class="svc-status" id="st-8797" data-s="checking">
         <span class="dot"></span><span class="label">checking…</span>
       </div>
-      <a class="svc-open" id="svc-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
+      <a class="svc-open" id="svc-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">&gt; Open</a>
     </article>
   </section>
 
@@ -829,8 +835,8 @@
       </div>
     </div>
     <div class="aq-right">
-      <a class="aq-btn-view" id="aq-link-review" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Review</a>
-      <button class="aq-btn-approve" id="aq-approve-btn" type="button">▸ Approve All</button>
+      <a class="aq-btn-view" id="aq-link-review" href="http://127.0.0.1:8000" target="_blank" rel="noopener">&gt; Review</a>
+      <button class="aq-btn-approve" id="aq-approve-btn" type="button"> Approve All</button>
     </div>
     <div class="aq-msg" id="aq-msg"></div>
   </div>
@@ -863,19 +869,19 @@
 
     <div class="quick-actions">
       <a class="qa-btn" id="qa-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">
-        <span class="qa-icon">▹</span> Open Command Center
+        <span class="qa-icon"></span> Open Command Center
       </a>
       <a class="qa-btn" id="qa-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">
-        <span class="qa-icon">⌨</span> Open App Shell
+        <span class="qa-icon"></span> Open App Shell
       </a>
       <a class="qa-btn" href="rooms.html">
-        <span class="qa-icon">🏛</span> Tower Navigation
+        <span class="qa-icon"></span> Tower Navigation
       </a>
       <a class="qa-btn" href="ai_school.html">
-        <span class="qa-icon">◈</span> AI School
+        <span class="qa-icon"></span> AI School
       </a>
       <a class="qa-btn" href="press_kit.html">
-        <span class="qa-icon">◆</span> Mind Map
+        <span class="qa-icon"></span> Mind Map
       </a>
     </div>
   </section>
@@ -931,7 +937,7 @@
 
   <div class="matrix-grid">
     <article class="mx">
-      <span class="mx-badge rec">✓ Recommended</span>
+      <span class="mx-badge rec"> Recommended</span>
       <h3>Ophtxn Core + OpenClaw + Orgo Workers</h3>
       <ul>
         <li>Own memory, approvals, UX in Ophtxn.</li>
@@ -942,7 +948,7 @@
     </article>
 
     <article class="mx">
-      <span class="mx-badge sel">◎ Selective</span>
+      <span class="mx-badge sel"> Selective</span>
       <h3>Ophtxn + Perplexity Computer</h3>
       <ul>
         <li>Use for deep browsing + connector tasks.</li>
@@ -953,7 +959,7 @@
     </article>
 
     <article class="mx">
-      <span class="mx-badge no">✗ Not Ideal</span>
+      <span class="mx-badge no"> Not Ideal</span>
       <h3>Perplexity-only Control Plane</h3>
       <ul>
         <li>No ownership of memory or governance.</li>
@@ -975,7 +981,7 @@
 
   <div class="lanes-grid">
     <article class="lane" style="--lane-glow: rgba(0,229,196,.06)">
-      <div class="lane-icon">⌨</div>
+      <div class="lane-icon"></div>
       <h3>Codex Lane</h3>
       <ul>
         <li>playwright — browser automation + UI validation</li>
@@ -987,19 +993,19 @@
     </article>
 
     <article class="lane" style="--lane-glow: rgba(123,111,255,.06)">
-      <div class="lane-icon">🦅</div>
+      <div class="lane-icon"></div>
       <h3>OpenClaw Lane</h3>
       <ul>
         <li>Channel configs + group policies for gated actions</li>
         <li>Skills for repeatable social/research workflows</li>
         <li>Runtime = worker layer, not canonical memory</li>
-        <li>Channels guide → docs.openclaw.ai/guides/channels</li>
-        <li>Skills guide → docs.openclaw.ai/guides/skills</li>
+        <li>Channels guide &gt; docs.openclaw.ai/guides/channels</li>
+        <li>Skills guide &gt; docs.openclaw.ai/guides/skills</li>
       </ul>
     </article>
 
     <article class="lane" style="--lane-glow: rgba(255,92,138,.05)">
-      <div class="lane-icon">🌐</div>
+      <div class="lane-icon"></div>
       <h3>Chrome Lane</h3>
       <ul>
         <li>Dedicated "agent ops" profile — minimal extensions</li>
@@ -1059,7 +1065,7 @@ const modeBtn   = document.getElementById('modeBtn');
 function applyMode(m) {
   document.body.dataset.mode = m;
   if (modeBtn) {
-    modeBtn.textContent = m === 'dev' ? '← Personal' : 'Dev Mode';
+    modeBtn.textContent = m === 'dev' ? '&lt; Personal' : 'Dev Mode';
     modeBtn.classList.toggle('mode-active', m === 'dev');
   }
   try { localStorage.setItem(MODE_KEY, m); } catch(_) {}
@@ -1211,15 +1217,15 @@ document.getElementById("aq-approve-btn").addEventListener("click", async () => 
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    msg.textContent = `✓ ${data.approved} approved · ${data.skipped_high_risk} HIGH held for review`;
+    msg.textContent = ` ${data.approved} approved · ${data.skipped_high_risk} HIGH held for review`;
     msg.className = "aq-msg ok";
     await aqFetch();
   } catch (e) {
-    msg.textContent = `✗ ${e.message}`;
+    msg.textContent = ` ${e.message}`;
     msg.className = "aq-msg err";
     btn.disabled = false;
   }
-  btn.textContent = "▸ Approve All";
+  btn.textContent = " Approve All";
 });
 
 aqFetch();

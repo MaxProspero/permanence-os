@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a1118">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Night Capital</title>
+  <meta name="description" content="Night Capital — venture intelligence, deal flow pipeline, portfolio tracking, and overnight market monitoring.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════ TOKENS ═══════════════ */
+    :root {
+      --bg:      #060a10;
+      --bg-card: rgba(10, 18, 30, 0.72);
+      --glass:   rgba(12, 22, 38, 0.58);
+      --line:    rgba(146, 188, 214, 0.14);
+      --line-hi: rgba(0, 229, 196, 0.25);
+      --ink:     #e7f4ff;
+      --muted:   #7b96af;
+      --dim:     #3a5068;
+      --c1:      #00e5c4;
+      --c2:      #efbb5f;
+      --c3:      #73b8ff;
+      --rose:    #ff5c8a;
+      --violet:  #7b6fff;
+      --radius:  16px;
+      --mono:    "DM Mono", "IBM Plex Mono", monospace;
+      --sans:    "Sora", system-ui, sans-serif;
+      --game:    "Orbitron", monospace;
+      --f-rgb:   160,150,140;
+      --f:       rgb(var(--f-rgb));
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-top: 28px;
+    }
+
+    /* ═══════════════ ATMOSPHERIC LAYERS ═══════════════ */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(var(--f-rgb),.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--f-rgb),.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+      pointer-events: none;
+    }
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(var(--f-rgb),.06), transparent 60%),
+        radial-gradient(700px 500px at 85% 10%, rgba(239,187,95,.04), transparent 55%),
+        radial-gradient(800px 500px at 50% 110%, rgba(115,184,255,.04), transparent 50%);
+      pointer-events: none;
+    }
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .04; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%   { transform: translate(0,0) }
+      10%  { transform: translate(-2%,-3%) }
+      20%  { transform: translate(3%,1%) }
+      30%  { transform: translate(-1%,4%) }
+      40%  { transform: translate(4%,-1%) }
+      50%  { transform: translate(-3%,2%) }
+      60%  { transform: translate(1%,-4%) }
+      70%  { transform: translate(-4%,3%) }
+      80%  { transform: translate(2%,2%) }
+      90%  { transform: translate(-2%,-1%) }
+      100% { transform: translate(0,0) }
+    }
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
+    }
+
+    /* ═══════════════ OS MENUBAR ═══════════════ */
+    .os-menubar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
+      background: rgba(4,6,10,.92);
+      border-bottom: 1px solid rgba(var(--f-rgb),.1);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px;
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      font-family: var(--sans); font-size: 12px; color: var(--ink);
+      user-select: none;
+    }
+    .mb-left { display: flex; align-items: center; gap: 0; }
+    .mb-logo {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; text-decoration: none; color: var(--c1);
+      transition: color .2s;
+    }
+    .mb-logo:hover { color: var(--ink); }
+    .mb-logo svg { width: 16px; height: 16px; }
+    .mb-appname {
+      font-weight: 700; font-size: 12px; letter-spacing: .02em;
+      color: var(--ink); margin-right: 14px;
+    }
+    .mb-mi {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--sans);
+      font-size: 12px; font-weight: 500; padding: 3px 10px;
+      border-radius: 4px; transition: background .15s, color .15s;
+    }
+    .mb-mi:hover, .mb-mi.open { background: rgba(var(--f-rgb),.12); color: var(--ink); }
+    .mb-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .mb-tagline {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: .14em; color: var(--dim); text-transform: uppercase;
+    }
+    .mb-right { display: flex; align-items: center; gap: 10px; }
+    .mb-ext {
+      color: var(--muted); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .mb-ext:hover { color: var(--ink); }
+    .mb-clock {
+      font-family: var(--mono); font-size: 11px;
+      font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: .03em;
+    }
+    .mb-date {
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .mb-powered {
+      position: fixed; bottom: 6px; right: 12px;
+      font-family: var(--mono); font-size: 8px;
+      letter-spacing: .1em; color: rgba(var(--f-rgb),.18);
+      text-transform: uppercase; z-index: 100; pointer-events: none;
+    }
+    /* ── Menubar Dropdowns ── */
+    .mb-dropdown {
+      display: none; position: fixed; top: 28px;
+      min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: rgba(8,14,22,.97); border: 1px solid rgba(var(--f-rgb),.12);
+      border-radius: 8px; padding: 4px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 9100; font-family: var(--sans); font-size: 12px;
+    }
+    .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
+    @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .mb-dropdown a, .mb-dropdown button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 6px 14px; border: none; background: none;
+      color: var(--muted); text-decoration: none; font: inherit; cursor: pointer;
+      transition: background .1s, color .1s; text-align: left;
+    }
+    .mb-dropdown a:hover, .mb-dropdown button:hover {
+      background: rgba(var(--f-rgb),.1); color: var(--ink);
+    }
+    .mb-dropdown .dd-sep {
+      height: 1px; background: rgba(var(--f-rgb),.08); margin: 4px 10px;
+    }
+    .mb-dropdown .dd-label {
+      padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+    }
+    .mb-dropdown .dd-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; opacity: .6; }
+    /* ── View dropdown theme section ── */
+    .dd-theme-row { display: flex; align-items: center; padding: 6px 14px; gap: 6px; }
+    .dd-theme-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; width: 40px; }
+    .dd-color-track { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+    .dd-color-dot {
+      width: 16px; height: 16px; min-width: 16px; border-radius: 50%;
+      border: 2px solid transparent; cursor: pointer;
+      transition: all .15s; padding: 0; outline: none;
+    }
+    .dd-color-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
+    .dd-color-dot.active { border-color: var(--ink); box-shadow: 0 0 6px rgba(var(--f-rgb),.4); }
+    .dd-color-custom { background: conic-gradient(red,yellow,lime,aqua,blue,magenta,red) !important; position: relative; overflow: hidden; }
+    .dd-color-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; }
+    .dd-bright-btns { display: flex; gap: 3px; }
+    .dd-bright-btn {
+      width: 24px; height: 24px; border-radius: 6px; background: none;
+      border: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: var(--muted);
+      transition: all .15s; padding: 0; font-size: 12px;
+    }
+    .dd-bright-btn:hover { border-color: var(--line-hi); color: var(--ink); }
+    .dd-bright-btn.active { border-color: var(--c1); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+
+    /* ═══════════════ TOAST ═══════════════ */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: rgba(10,18,30,.95); border: 1px solid var(--rose);
+      border-radius: 10px; padding: 10px 18px;
+      font-family: var(--mono); font-size: 12px; color: var(--rose);
+      z-index: 10000; pointer-events: none;
+      opacity: 0; transition: transform .35s ease, opacity .35s ease;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── MENUBAR RESPONSIVE ── */
+    @media(max-width:768px){
+      .mb-center{display:none}
+      .mb-mi{display:none}
+      .mb-date{display:none}
+      .mb-hamburger{display:flex!important}
+    }
+    .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
+
+    /* ── THEME VARIANTS ── */
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--c3:#e8a87c;--rose:#ff6b6b;--violet:#e8a87c;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c1:#d0d0d0;--c2:#bbb;--c3:#999;--rose:#888;--violet:#999;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--c3:#6eb8ff;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:74,158,255;--f:rgb(var(--f-rgb))}
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--c3:#ffb6c9;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,92,138;--f:rgb(var(--f-rgb))}
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--c3:#b088ff;--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:155,109,255;--f:rgb(var(--f-rgb))}
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--c3:#72efb2;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:61,220,132;--f:rgb(var(--f-rgb))}
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c1:#ffd700;--c2:#ffb347;--c3:#ffe066;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,215,0;--f:rgb(var(--f-rgb))}
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--c3:#ff8888;--rose:#ff4444;--violet:#d06fff;--f-rgb:255,68,68;--f:rgb(var(--f-rgb))}
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--c3:#a0e0f8;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:136,216,245;--f:rgb(var(--f-rgb))}
+    [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
+    [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--ink:#2a1e10;--muted:#8a7a60}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--ink:#111;--muted:#888;--c1:#333;--violet:#666}
+    [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}
+    [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}
+    [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}
+    [data-brightness="light"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}
+    [data-brightness="light"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}
+    [data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}
+    [data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}
+    @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}}
+    [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
+    [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
+    [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
+
+    /* ═══════════════ LAYOUT SHELL ═══════════════ */
+    .shell {
+      position: relative; z-index: 1;
+      width: min(1400px, 94vw);
+      margin: 0 auto;
+      padding: 20px 0 60px;
+    }
+
+    /* ═══════════════ PAGE HEADER ═══════════════ */
+    .page-header {
+      padding: 30px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .page-title {
+      font-family: var(--game);
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 900;
+      letter-spacing: .06em;
+      background: linear-gradient(135deg, var(--ink), rgba(var(--f-rgb),.6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-subtitle {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .page-meta {
+      display: flex; gap: 16px; align-items: center;
+    }
+    .page-meta-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .page-meta-val {
+      color: var(--c1);
+      font-weight: 600;
+    }
+
+    /* ═══════════════ BENTO GRID ═══════════════ */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+    }
+
+    /* ═══════════════ GLASS PANEL BASE ═══════════════ */
+    .panel {
+      position: relative;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .panel:hover {
+      border-color: var(--line-hi);
+      box-shadow: 0 0 30px rgba(var(--f-rgb),.04);
+    }
+    .panel::before, .panel::after {
+      content: ''; position: absolute;
+      width: 10px; height: 10px;
+      border-color: rgba(var(--f-rgb),.2); border-style: solid;
+      pointer-events: none; z-index: 2;
+    }
+    .panel::before { top: -1px; left: -1px;  border-width: 1px 0 0 1px; }
+    .panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+    .panel > .halftone {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(239,187,95,.03) 1px, transparent 1px);
+      background-size: 16px 16px;
+      pointer-events: none; z-index: 0;
+    }
+    .panel > *:not(.halftone) { position: relative; z-index: 1; }
+
+    /* ═══════════════ SECTION LABEL ═══════════════ */
+    .sec-label {
+      font-family: var(--game); font-size: 8px; font-weight: 700;
+      letter-spacing: .25em; color: var(--dim);
+      text-transform: uppercase;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sec-label .dot {
+      display: inline-block; width: 5px; height: 5px;
+      border-radius: 50%; margin-right: 6px; vertical-align: middle;
+    }
+
+    /* ═══════════════ PORTFOLIO OVERVIEW ═══════════════ */
+    .portfolio-cell {
+      grid-column: 1 / 13;
+      padding: 0;
+    }
+    .port-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0;
+    }
+    .port-stat {
+      padding: 16px 20px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .port-stat:last-child { border-right: none; }
+    .port-stat-label {
+      font-family: var(--game); font-size: 7px; font-weight: 700;
+      letter-spacing: .2em; color: var(--dim);
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .port-stat-val {
+      font-size: 22px; font-weight: 800; letter-spacing: -.02em;
+      line-height: 1.1;
+    }
+    .port-stat-sub {
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .alloc-bar {
+      display: flex; height: 6px; border-radius: 3px; overflow: hidden;
+      margin: 10px 20px 14px;
+    }
+    .alloc-seg {
+      transition: width .4s ease;
+    }
+    .alloc-legend {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      padding: 0 20px 14px;
+    }
+    .alloc-legend-item {
+      display: flex; align-items: center; gap: 5px;
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+    }
+    .alloc-legend-dot {
+      width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+    }
+
+    /* ═══════════════ DEAL FLOW PIPELINE ═══════════════ */
+    .pipeline-cell {
+      grid-column: 1 / 13;
+      padding: 0;
+    }
+    .pipeline-cols {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      min-height: 200px;
+    }
+    .pipeline-col {
+      border-right: 1px solid var(--line);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pipeline-col:last-child { border-right: none; }
+    .pipeline-col-header {
+      font-family: var(--game); font-size: 8px; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 4px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pipeline-count {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--muted); font-weight: 400;
+    }
+    .deal-card {
+      background: rgba(var(--f-rgb),.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      transition: border-color .2s, background .2s;
+      cursor: default;
+    }
+    .deal-card:hover {
+      border-color: var(--line-hi);
+      background: rgba(var(--f-rgb),.08);
+    }
+    .deal-name {
+      font-size: 12px; font-weight: 700; color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .deal-sector {
+      font-family: var(--mono); font-size: 9px;
+      color: var(--muted); letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .deal-amount {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--c2); margin-top: 4px;
+    }
+
+    /* ═══════════════ THESIS BOARD ═══════════════ */
+    .thesis-cell {
+      grid-column: 1 / 7;
+      padding: 0;
+    }
+    .thesis-list {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .thesis-card {
+      background: rgba(var(--f-rgb),.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: border-color .2s, background .2s;
+      cursor: default;
+    }
+    .thesis-card:hover {
+      border-color: var(--line-hi);
+      background: rgba(var(--f-rgb),.08);
+    }
+    .thesis-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .thesis-title {
+      font-size: 13px; font-weight: 700; color: var(--ink);
+    }
+    .thesis-conviction {
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+    }
+    .thesis-body {
+      font-size: 12px; color: var(--muted); line-height: 1.5;
+    }
+    .conviction-bar {
+      height: 4px; border-radius: 2px; margin-top: 8px;
+      background: rgba(var(--f-rgb),.08); overflow: hidden;
+    }
+    .conviction-fill {
+      height: 100%; border-radius: 2px;
+      transition: width .4s ease;
+    }
+
+    /* ═══════════════ NIGHT WATCH ═══════════════ */
+    .watch-cell {
+      grid-column: 7 / 13;
+      padding: 0;
+    }
+    .watch-list {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .watch-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(var(--f-rgb),.03);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      transition: border-color .2s;
+    }
+    .watch-item:hover {
+      border-color: var(--line-hi);
+    }
+    .watch-severity {
+      width: 8px; height: 8px; border-radius: 50%;
+      margin-top: 4px; flex-shrink: 0;
+    }
+    .watch-severity.critical { background: var(--rose); box-shadow: 0 0 8px var(--rose); }
+    .watch-severity.warning { background: var(--c2); box-shadow: 0 0 6px rgba(239,187,95,.4); }
+    .watch-severity.info { background: var(--c3); }
+    .watch-severity.clear { background: var(--c1); }
+    .watch-body { flex: 1; min-width: 0; }
+    .watch-title {
+      font-size: 12px; font-weight: 600; color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .watch-desc {
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      line-height: 1.5;
+    }
+    .watch-time {
+      font-family: var(--mono); font-size: 9px; color: var(--dim);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════ CAPITAL DEPLOYMENT LOG ═══════════════ */
+    .deploy-cell {
+      grid-column: 1 / 13;
+      padding: 0;
+    }
+    .deploy-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .deploy-table th {
+      font-family: var(--game); font-size: 7px; font-weight: 700;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--dim); text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .deploy-table td {
+      font-family: var(--mono); font-size: 12px;
+      color: var(--muted); padding: 10px 14px;
+      border-bottom: 1px solid rgba(var(--f-rgb),.05);
+    }
+    .deploy-table tr:hover td {
+      background: rgba(var(--f-rgb),.03);
+      color: var(--ink);
+    }
+    .deploy-type {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .deploy-type.deploy { background: rgba(0,229,196,.12); color: var(--c1); }
+    .deploy-type.exit { background: rgba(255,92,138,.12); color: var(--rose); }
+    .deploy-type.rebalance { background: rgba(239,187,95,.12); color: var(--c2); }
+    .deploy-type.add { background: rgba(115,184,255,.12); color: var(--c3); }
+
+    .deploy-hash {
+      font-size: 9px; color: var(--dim);
+      font-family: var(--mono);
+    }
+
+    /* ═══════════════ ANIMATIONS ═══════════════ */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .bento > * {
+      opacity: 0;
+      animation: rise 550ms ease forwards;
+    }
+    .bento > *:nth-child(1) { animation-delay: 60ms; }
+    .bento > *:nth-child(2) { animation-delay: 140ms; }
+    .bento > *:nth-child(3) { animation-delay: 220ms; }
+    .bento > *:nth-child(4) { animation-delay: 300ms; }
+    .bento > *:nth-child(5) { animation-delay: 380ms; }
+
+    /* ═══════════════ RESPONSIVE ═══════════════ */
+    @media (max-width: 960px) {
+      .pipeline-cols { grid-template-columns: repeat(2, 1fr); }
+      .thesis-cell { grid-column: 1 / 13; }
+      .watch-cell  { grid-column: 1 / 13; }
+    }
+    @media (max-width: 600px) {
+      .pipeline-cols { grid-template-columns: 1fr; }
+      .port-stats { grid-template-columns: repeat(2, 1fr); }
+      .port-stat { border-right: none; }
+      .port-stat:nth-child(odd) { border-right: 1px solid var(--line); }
+      .deploy-table { font-size: 10px; }
+      .deploy-table th, .deploy-table td { padding: 8px 10px; }
+      .page-header { padding: 20px 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- GRAIN OVERLAY -->
+  <svg id="grain" aria-hidden="true"><filter id="gf" x="0%" y="0%" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch"><animate attributeName="seed" values="0;7;14;3;11;5;0" dur="0.6s" repeatCount="indefinite"/></feTurbulence><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#gf)"/></svg>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-mi" id="mbGo">Go</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
+    </div>
+    <div class="mb-center"><span class="mb-tagline">NIGHT CAPITAL &middot; VENTURE INTELLIGENCE</span></div>
+    <div class="mb-right">
+      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">&#9790;</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <!-- MENUBAR DROPDOWNS -->
+  <div class="mb-dropdown" id="ddFile" style="left:72px">
+    <div class="dd-label">Ophtxn OS</div>
+    <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
+    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
+    <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
+    <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
+    <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
+    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
+    <div class="dd-sep"></div>
+    <div class="dd-label">Permanence Platform</div>
+    <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
+    <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
+  </div>
+
+  <div class="mb-dropdown" id="ddView" style="left:112px">
+    <div class="dd-label">Theme</div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Color</span>
+      <div class="dd-color-track" id="ddThemeColor">
+        <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
+        <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
+        <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
+        <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
+        <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
+        <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
+        <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
+        <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
+        <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
+        <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
+        <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
+      </div>
+    </div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Mode</span>
+      <div class="dd-bright-btns" id="ddThemeBright">
+        <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
+        <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
+        <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-dropdown" id="ddGo" style="left:150px">
+    <div class="dd-label">Quick Nav</div>
+    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
+    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
+    <div class="dd-sep"></div>
+    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
+  </div>
+
+  <div class="mb-powered">Powered by Permanence Systems</div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══════════════ NIGHT CAPITAL CONTENT ═══════════════ -->
+  <div class="shell">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <div class="page-subtitle">Venture Intelligence</div>
+        <h1 class="page-title">Night Capital</h1>
+      </div>
+      <div class="page-meta">
+        <div class="page-meta-item">Fund Vintage: <span class="page-meta-val">2025</span></div>
+        <div class="page-meta-item">Last Sync: <span class="page-meta-val" id="lastSync">--</span></div>
+      </div>
+    </div>
+
+    <div class="bento">
+
+      <!-- ═══ 1. PORTFOLIO OVERVIEW ═══ -->
+      <div class="panel portfolio-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c1)"></span>PORTFOLIO OVERVIEW</div>
+        <div class="port-stats">
+          <div class="port-stat">
+            <div class="port-stat-label">Total Value</div>
+            <div class="port-stat-val" style="color:var(--c1)" id="totalValue">$2,480,000</div>
+            <div class="port-stat-sub">Across 8 positions</div>
+          </div>
+          <div class="port-stat">
+            <div class="port-stat-label">Deployed Capital</div>
+            <div class="port-stat-val" style="color:var(--c2)" id="deployedCap">$1,850,000</div>
+            <div class="port-stat-sub">74.6% of fund</div>
+          </div>
+          <div class="port-stat">
+            <div class="port-stat-label">Dry Powder</div>
+            <div class="port-stat-val" style="color:var(--c3)" id="dryPowder">$630,000</div>
+            <div class="port-stat-sub">25.4% reserves</div>
+          </div>
+          <div class="port-stat">
+            <div class="port-stat-label">MOIC</div>
+            <div class="port-stat-val" style="color:var(--c1)" id="moicVal">1.34x</div>
+            <div class="port-stat-sub">Since inception</div>
+          </div>
+          <div class="port-stat">
+            <div class="port-stat-label">IRR</div>
+            <div class="port-stat-val" style="color:var(--c2)" id="irrVal">28.4%</div>
+            <div class="port-stat-sub">Net to LP</div>
+          </div>
+          <div class="port-stat">
+            <div class="port-stat-label">Unrealized Gain</div>
+            <div class="port-stat-val" style="color:var(--c1)" id="unrealGain">+$630,000</div>
+            <div class="port-stat-sub">34.1% mark-up</div>
+          </div>
+        </div>
+        <div class="alloc-bar">
+          <div class="alloc-seg" style="width:32%;background:var(--c1)" title="AI/ML"></div>
+          <div class="alloc-seg" style="width:22%;background:var(--c2)" title="Fintech"></div>
+          <div class="alloc-seg" style="width:18%;background:var(--c3)" title="Infrastructure"></div>
+          <div class="alloc-seg" style="width:14%;background:var(--violet)" title="Climate"></div>
+          <div class="alloc-seg" style="width:14%;background:var(--rose)" title="Consumer"></div>
+        </div>
+        <div class="alloc-legend">
+          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--c1)"></div>AI/ML 32%</div>
+          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--c2)"></div>Fintech 22%</div>
+          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--c3)"></div>Infra 18%</div>
+          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--violet)"></div>Climate 14%</div>
+          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--rose)"></div>Consumer 14%</div>
+        </div>
+      </div>
+
+      <!-- ═══ 2. DEAL FLOW PIPELINE ═══ -->
+      <div class="panel pipeline-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c2)"></span>DEAL FLOW PIPELINE</div>
+        <div class="pipeline-cols">
+          <!-- Prospects -->
+          <div class="pipeline-col">
+            <div class="pipeline-col-header">Prospects <span class="pipeline-count">4</span></div>
+            <div class="deal-card">
+              <div class="deal-name">Helix Robotics</div>
+              <div class="deal-sector">AI / Robotics</div>
+              <div class="deal-amount">Seed &mdash; $500K ask</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">Drift Protocol</div>
+              <div class="deal-sector">DeFi / Infrastructure</div>
+              <div class="deal-amount">Pre-seed &mdash; $250K ask</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">Verde Carbon</div>
+              <div class="deal-sector">Climate / Carbon</div>
+              <div class="deal-amount">Seed &mdash; $750K ask</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">Luma Health</div>
+              <div class="deal-sector">Health Tech</div>
+              <div class="deal-amount">Series A &mdash; $2M ask</div>
+            </div>
+          </div>
+          <!-- Due Diligence -->
+          <div class="pipeline-col">
+            <div class="pipeline-col-header">Due Diligence <span class="pipeline-count">3</span></div>
+            <div class="deal-card">
+              <div class="deal-name">NovaPay</div>
+              <div class="deal-sector">Fintech / Payments</div>
+              <div class="deal-amount">Seed &mdash; $400K target</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">ArcticAI</div>
+              <div class="deal-sector">AI / Enterprise</div>
+              <div class="deal-amount">Series A &mdash; $1.5M target</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">Mesh Networks</div>
+              <div class="deal-sector">Infrastructure / IoT</div>
+              <div class="deal-amount">Seed &mdash; $300K target</div>
+            </div>
+          </div>
+          <!-- Committed -->
+          <div class="pipeline-col">
+            <div class="pipeline-col-header">Committed <span class="pipeline-count">2</span></div>
+            <div class="deal-card">
+              <div class="deal-name">Cipher Labs</div>
+              <div class="deal-sector">AI / Security</div>
+              <div class="deal-amount">$350K &mdash; Closing Q1</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">Solara Energy</div>
+              <div class="deal-sector">Climate / Solar</div>
+              <div class="deal-amount">$200K &mdash; Closing Q1</div>
+            </div>
+          </div>
+          <!-- Deployed -->
+          <div class="pipeline-col">
+            <div class="pipeline-col-header">Deployed <span class="pipeline-count">3</span></div>
+            <div class="deal-card">
+              <div class="deal-name">Axiom Intelligence</div>
+              <div class="deal-sector">AI / Agents</div>
+              <div class="deal-amount">$500K &mdash; 2.1x MOIC</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">RailPay</div>
+              <div class="deal-sector">Fintech / Rails</div>
+              <div class="deal-amount">$300K &mdash; 1.8x MOIC</div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">TerraGrid</div>
+              <div class="deal-sector">Infrastructure</div>
+              <div class="deal-amount">$250K &mdash; 1.2x MOIC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 3. THESIS BOARD ═══ -->
+      <div class="panel thesis-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--violet)"></span>THESIS BOARD</div>
+        <div class="thesis-list">
+          <div class="thesis-card">
+            <div class="thesis-header">
+              <div class="thesis-title">Agent Infrastructure Will Unbundle SaaS</div>
+              <div class="thesis-conviction" style="color:var(--c1)">94%</div>
+            </div>
+            <div class="thesis-body">Autonomous AI agents will replace point-solution SaaS by orchestrating workflows directly. Companies building the infrastructure layer (runtime, memory, governance) will capture the most value.</div>
+            <div class="conviction-bar"><div class="conviction-fill" style="width:94%;background:var(--c1)"></div></div>
+          </div>
+          <div class="thesis-card">
+            <div class="thesis-header">
+              <div class="thesis-title">Embedded Finance Eats the Payment Stack</div>
+              <div class="thesis-conviction" style="color:var(--c2)">82%</div>
+            </div>
+            <div class="thesis-body">Every vertical software company becomes a fintech company. API-first payment rails and banking-as-a-service will power the next generation of commerce.</div>
+            <div class="conviction-bar"><div class="conviction-fill" style="width:82%;background:var(--c2)"></div></div>
+          </div>
+          <div class="thesis-card">
+            <div class="thesis-header">
+              <div class="thesis-title">Carbon Markets Become Liquid + Programmable</div>
+              <div class="thesis-conviction" style="color:var(--c3)">71%</div>
+            </div>
+            <div class="thesis-body">Voluntary carbon markets will be tokenized and traded with the same sophistication as financial derivatives. MRV (Measurement, Reporting, Verification) tech is the unlock.</div>
+            <div class="conviction-bar"><div class="conviction-fill" style="width:71%;background:var(--c3)"></div></div>
+          </div>
+          <div class="thesis-card">
+            <div class="thesis-header">
+              <div class="thesis-title">Personal Intelligence Replaces Apps</div>
+              <div class="thesis-conviction" style="color:var(--violet)">88%</div>
+            </div>
+            <div class="thesis-body">Users will shift from app-switching to governed personal OS systems that consolidate memory, context, and action across all domains. The interface becomes conversational and ambient.</div>
+            <div class="conviction-bar"><div class="conviction-fill" style="width:88%;background:var(--violet)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 4. NIGHT WATCH ═══ -->
+      <div class="panel watch-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--rose)"></span>NIGHT WATCH</div>
+        <div class="watch-list" id="watchList">
+          <div class="watch-item">
+            <div class="watch-severity critical"></div>
+            <div class="watch-body">
+              <div class="watch-title">Axiom Intelligence &mdash; Runway Alert</div>
+              <div class="watch-desc">Burn rate increased 22% M/M. Runway dropped to 9 months. Founder call scheduled for Thursday.</div>
+              <div class="watch-time" id="watchTime1">--</div>
+            </div>
+          </div>
+          <div class="watch-item">
+            <div class="watch-severity warning"></div>
+            <div class="watch-body">
+              <div class="watch-title">Fed Rate Decision &mdash; FOMC Tomorrow</div>
+              <div class="watch-desc">Markets pricing 72% chance of hold. VC sentiment may shift if hawkish guidance. Monitor pre-market futures.</div>
+              <div class="watch-time" id="watchTime2">--</div>
+            </div>
+          </div>
+          <div class="watch-item">
+            <div class="watch-severity warning"></div>
+            <div class="watch-body">
+              <div class="watch-title">NovaPay DD &mdash; Reference Check Pending</div>
+              <div class="watch-desc">3 of 5 references completed. Outstanding: ex-CTO at Stripe, angel lead from seed round.</div>
+              <div class="watch-time" id="watchTime3">--</div>
+            </div>
+          </div>
+          <div class="watch-item">
+            <div class="watch-severity info"></div>
+            <div class="watch-body">
+              <div class="watch-title">RailPay &mdash; Series B Rumor</div>
+              <div class="watch-desc">Heard from LP network that Sequoia is circling. If confirmed, potential 3-4x markup on our seed position.</div>
+              <div class="watch-time" id="watchTime4">--</div>
+            </div>
+          </div>
+          <div class="watch-item">
+            <div class="watch-severity clear"></div>
+            <div class="watch-body">
+              <div class="watch-title">Portfolio Company Board Meetings</div>
+              <div class="watch-desc">All Q4 board decks received. Axiom and TerraGrid boards scheduled next week.</div>
+              <div class="watch-time" id="watchTime5">--</div>
+            </div>
+          </div>
+          <div class="watch-item">
+            <div class="watch-severity info"></div>
+            <div class="watch-body">
+              <div class="watch-title">Asia Markets &mdash; Nikkei Up 1.8%</div>
+              <div class="watch-desc">Strong open in Tokyo driven by tech rally. Watch for correlation to US tech futures. Positive signal for growth multiples.</div>
+              <div class="watch-time" id="watchTime6">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 5. CAPITAL DEPLOYMENT LOG ═══ -->
+      <div class="panel deploy-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>CAPITAL DEPLOYMENT LOG</div>
+        <table class="deploy-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Action</th>
+              <th>Entity</th>
+              <th>Amount</th>
+              <th>Instrument</th>
+              <th>Notes</th>
+              <th>Hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-03-10</td>
+              <td><span class="deploy-type deploy">Deploy</span></td>
+              <td style="color:var(--ink)">Cipher Labs</td>
+              <td style="color:var(--c1)">$350,000</td>
+              <td>SAFE &mdash; $8M cap</td>
+              <td>AI security, post-revenue</td>
+              <td><span class="deploy-hash">0xa3f7...e291</span></td>
+            </tr>
+            <tr>
+              <td>2026-02-22</td>
+              <td><span class="deploy-type add">Add-on</span></td>
+              <td style="color:var(--ink)">Axiom Intelligence</td>
+              <td style="color:var(--c3)">$150,000</td>
+              <td>Pro-rata follow-on</td>
+              <td>Maintained ownership at Series A</td>
+              <td><span class="deploy-hash">0x1b92...d4c8</span></td>
+            </tr>
+            <tr>
+              <td>2026-02-01</td>
+              <td><span class="deploy-type deploy">Deploy</span></td>
+              <td style="color:var(--ink)">Solara Energy</td>
+              <td style="color:var(--c1)">$200,000</td>
+              <td>SAFE &mdash; $6M cap</td>
+              <td>Climate tech, first check</td>
+              <td><span class="deploy-hash">0xd4e1...8f37</span></td>
+            </tr>
+            <tr>
+              <td>2026-01-15</td>
+              <td><span class="deploy-type rebalance">Rebalance</span></td>
+              <td style="color:var(--ink)">Treasury</td>
+              <td style="color:var(--c2)">$80,000</td>
+              <td>T-Bills rollover</td>
+              <td>Dry powder yield optimization</td>
+              <td><span class="deploy-hash">0x7c30...a1b5</span></td>
+            </tr>
+            <tr>
+              <td>2025-12-08</td>
+              <td><span class="deploy-type exit">Exit</span></td>
+              <td style="color:var(--ink)">Onyx Data</td>
+              <td style="color:var(--rose)">$420,000</td>
+              <td>Secondary sale</td>
+              <td>2.8x MOIC, sold to growth fund</td>
+              <td><span class="deploy-hash">0xe5a2...cc09</span></td>
+            </tr>
+            <tr>
+              <td>2025-11-20</td>
+              <td><span class="deploy-type deploy">Deploy</span></td>
+              <td style="color:var(--ink)">TerraGrid</td>
+              <td style="color:var(--c1)">$250,000</td>
+              <td>Priced equity &mdash; $12M pre</td>
+              <td>Infrastructure, co-invest with Lux</td>
+              <td><span class="deploy-hash">0x9f18...7d44</span></td>
+            </tr>
+            <tr>
+              <td>2025-10-05</td>
+              <td><span class="deploy-type deploy">Deploy</span></td>
+              <td style="color:var(--ink)">RailPay</td>
+              <td style="color:var(--c1)">$300,000</td>
+              <td>SAFE &mdash; $10M cap</td>
+              <td>Fintech rails, YC W25 batch</td>
+              <td><span class="deploy-hash">0x2d47...b6e3</span></td>
+            </tr>
+            <tr>
+              <td>2025-08-18</td>
+              <td><span class="deploy-type deploy">Deploy</span></td>
+              <td style="color:var(--ink)">Axiom Intelligence</td>
+              <td style="color:var(--c1)">$500,000</td>
+              <td>SAFE &mdash; $15M cap</td>
+              <td>AI agent runtime, lead investor</td>
+              <td><span class="deploy-hash">0x8b63...f1a2</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /bento -->
+  </div><!-- /shell -->
+
+  <script>
+  /* ═══ MENUBAR: CLOCK ═══ */
+  (function(){
+    var ck=document.getElementById('mbClock'),dt=document.getElementById('mbDate');
+    if(!ck)return;
+    var hidden=false;
+    function tick(){
+      if(hidden)return;
+      var n=new Date();
+      ck.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      dt.textContent=n.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    tick();setInterval(tick,1000);
+    document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
+  })();
+
+  /* ═══ MENUBAR: DROPDOWNS ═══ */
+  (function(){
+    var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
+    var openDD=null;
+    function closeAll(){
+      document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
+      document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
+      openDD=null;
+    }
+    Object.keys(menus).forEach(function(btnId){
+      var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
+      if(!btn||!dd)return;
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(openDD===dd){closeAll();return;}
+        closeAll();
+        dd.classList.add('open');btn.classList.add('open');openDD=dd;
+      });
+      btn.addEventListener('mouseenter',function(){
+        if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
+      });
+    });
+    document.addEventListener('click',function(){closeAll();});
+    document.querySelectorAll('.mb-dropdown').forEach(function(dd){
+      dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
+    });
+    /* Hamburger for mobile */
+    var hb=document.getElementById('mbHamburger');
+    if(hb)hb.addEventListener('click',function(e){
+      e.stopPropagation();var dd=document.getElementById('ddFile');
+      if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
+    });
+    /* Quick theme toggle via moon icon */
+    var tg=document.getElementById('mbTheme');
+    if(tg)tg.addEventListener('click',function(){
+      var cur=document.body.dataset.brightness||'dark';
+      var next=cur==='dark'?'light':'dark';
+      try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
+      document.body.dataset.brightness=next;
+      tg.textContent=next==='dark'?'\u263E':'\u2600';
+      applyTheme();
+    });
+  })();
+
+  /* ═══ SITE THEME (View dropdown) ═══ */
+  var applyTheme;
+  (function(){
+    var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
+    function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
+    function gb(){try{return localStorage.getItem(BK)||'dark';}catch(e){return 'dark';}}
+    function gc(){try{return localStorage.getItem(CK)||'#00e5c4';}catch(e){return '#00e5c4';}}
+    function hexToRgb(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
+    function applyCustom(hex){
+      var el=document.getElementById('customThemeStyle');
+      if(!el){el=document.createElement('style');el.id='customThemeStyle';document.head.appendChild(el);}
+      var rgb=hexToRgb(hex);
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var bgR=Math.round(r*0.025),bgG=Math.round(g*0.025),bgB=Math.round(b*0.025);
+      var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
+      var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
+      var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
+      '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--bg-card:rgba(255,255,255,0.72);--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
+      var ci=document.getElementById('ddCustomColor');
+      if(ci)ci.value=hex;
+      var cd=document.querySelector('.dd-color-custom');
+      if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
+    }
+    function apply(){
+      var t=gt(),b=gb();
+      document.body.dataset.theme=t;document.body.dataset.brightness=b;
+      if(t==='custom')applyCustom(gc());
+      document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
+      document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+      var tgEl=document.getElementById('mbTheme');
+      if(tgEl)tgEl.textContent=b==='light'?'\u2600':'\u263E';
+    }
+    applyTheme=apply;
+    apply();
+    var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
+    if(cE)cE.addEventListener('click',function(e){
+      var btn=e.target.closest('.dd-color-dot');
+      if(!btn||!btn.dataset.color)return;
+      if(btn.dataset.color==='custom')return;
+      try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
+    });
+    var ci=document.getElementById('ddCustomColor');
+    if(ci)ci.addEventListener('input',function(e){
+      try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
+    });
+    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
+    window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
+  })();
+
+  /* ═══ NIGHT WATCH: TIMESTAMPS ═══ */
+  (function(){
+    var now=Date.now();
+    var offsets=[12,45,120,180,360,480]; /* minutes ago */
+    for(var i=0;i<offsets.length;i++){
+      var el=document.getElementById('watchTime'+(i+1));
+      if(!el)continue;
+      var t=new Date(now-offsets[i]*60000);
+      el.textContent=t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+' today';
+    }
+  })();
+
+  /* ═══ LAST SYNC ═══ */
+  (function(){
+    var el=document.getElementById('lastSync');
+    if(el){
+      var n=new Date();
+      el.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    }
+  })();
+  </script>
+
+  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+</body>
+</html>

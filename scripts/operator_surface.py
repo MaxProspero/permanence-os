@@ -13,6 +13,7 @@ Optionally runs a money-loop refresh before boot.
 from __future__ import annotations
 
 import argparse
+import atexit
 import os
 import signal
 import subprocess
@@ -79,20 +80,52 @@ def _build_foundation_api_cmd(args: argparse.Namespace, python_bin: str) -> list
     ]
 
 
+_shutdown_in_progress = False
+
+
 def _shutdown_processes(processes: list[tuple[str, subprocess.Popen]]) -> None:
-    for _name, proc in processes:
+    global _shutdown_in_progress
+    if _shutdown_in_progress:
+        return
+    _shutdown_in_progress = True
+
+    for name, proc in processes:
         if proc.poll() is None:
-            proc.terminate()
+            print(f"[operator-surface] Sending SIGTERM to {name} (pid {proc.pid})")
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            except (OSError, ProcessLookupError):
+                try:
+                    proc.terminate()
+                except OSError:
+                    pass
 
     deadline = time.time() + 5
     while time.time() < deadline:
         if all(proc.poll() is not None for _, proc in processes):
+            _shutdown_in_progress = False
             return
         time.sleep(0.1)
 
-    for _name, proc in processes:
+    for name, proc in processes:
         if proc.poll() is None:
-            proc.kill()
+            print(f"[operator-surface] Force-killing {name} (pid {proc.pid})")
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except (OSError, ProcessLookupError):
+                try:
+                    proc.kill()
+                except OSError:
+                    pass
+
+    # Final wait to reap zombies
+    for _name, proc in processes:
+        try:
+            proc.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            pass
+
+    _shutdown_in_progress = False
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -150,12 +183,18 @@ def main(argv: Optional[list[str]] = None) -> int:
     processes: list[tuple[str, subprocess.Popen]] = []
     env = os.environ.copy()
     env["PERMANENCE_BASE_DIR"] = str(BASE_DIR)
-    dashboard_proc = subprocess.Popen(command_center_cmd, cwd=str(BASE_DIR), env=env)
+    dashboard_proc = subprocess.Popen(
+        command_center_cmd, cwd=str(BASE_DIR), env=env, start_new_session=True,
+    )
     processes.append(("command-center", dashboard_proc))
-    foundation_proc = subprocess.Popen(foundation_cmd, cwd=str(BASE_DIR), env=env)
+    foundation_proc = subprocess.Popen(
+        foundation_cmd, cwd=str(BASE_DIR), env=env, start_new_session=True,
+    )
     processes.append(("foundation-site", foundation_proc))
     if not args.no_foundation_api:
-        foundation_api_proc = subprocess.Popen(foundation_api_cmd, cwd=str(BASE_DIR), env=env)
+        foundation_api_proc = subprocess.Popen(
+            foundation_api_cmd, cwd=str(BASE_DIR), env=env, start_new_session=True,
+        )
         processes.append(("foundation-api", foundation_api_proc))
 
     def _signal_handler(_sig: int, _frame: object) -> None:
@@ -164,6 +203,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     signal.signal(signal.SIGINT, _signal_handler)
     signal.signal(signal.SIGTERM, _signal_handler)
+    atexit.register(_shutdown_processes, processes)
 
     if not args.no_open:
         urls = [foundation_hub_url, dashboard_url, foundation_url]

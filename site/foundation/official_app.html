@@ -12,7 +12,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@700;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -32,12 +32,15 @@
       --border-hi: rgba(0,229,196,0.25);
       --ink: #e8f0ff;
       --muted: #6a7fa0;
-      --c-teal: #00e5c4;
-      --c-gold: #f8c842;
-      --c-violet: #7b6fff;
-      --c-rose: #ff5c8a;
+      --c1: #00e5c4;
+      --c2: #f8c842;
+      --violet: #7b6fff;
+      --rose: #ff5c8a;
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
+      --sans: "Sora", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", "DM Mono", monospace;
+      --game: "Orbitron", monospace;
     }
 
     html {
@@ -47,7 +50,7 @@
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: 'Syne', sans-serif;
+      font-family: var(--sans);
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
@@ -106,11 +109,11 @@
     }
 
     .nav-brand {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--sans);
       font-weight: 800;
       font-size: 13px;
       letter-spacing: 0.14em;
-      color: var(--c-teal);
+      color: var(--c1);
       text-decoration: none;
       white-space: nowrap;
       text-transform: uppercase;
@@ -124,7 +127,7 @@
     }
 
     .nav-pill {
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 11.5px;
       font-weight: 500;
       letter-spacing: 0.06em;
@@ -155,12 +158,12 @@
     }
 
     .eyebrow {
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--c-teal);
+      color: var(--c1);
       margin-bottom: 16px;
       display: flex;
       align-items: center;
@@ -172,12 +175,12 @@
       display: block;
       width: 24px;
       height: 1px;
-      background: var(--c-teal);
+      background: var(--c1);
       opacity: 0.6;
     }
 
     .hero-h1 {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--sans);
       font-size: clamp(32px, 5vw, 56px);
       font-weight: 800;
       line-height: 1.1;
@@ -188,7 +191,7 @@
     }
 
     .hero-sub {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--sans);
       font-size: 17px;
       font-weight: 400;
       color: var(--muted);
@@ -208,11 +211,11 @@
     }
 
     .glass-card.teal-accent {
-      border-left: 3px solid var(--c-teal);
+      border-left: 3px solid var(--c1);
     }
 
     .card-title {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--sans);
       font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -230,8 +233,8 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--c-teal);
-      box-shadow: 0 0 8px var(--c-teal);
+      background: var(--c1);
+      box-shadow: 0 0 8px var(--c1);
     }
 
     /* ── Main grid ── */
@@ -257,7 +260,7 @@
 
     label {
       display: block;
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.12em;
@@ -275,7 +278,7 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       color: var(--ink);
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 13px;
       padding: 10px 14px;
       outline: none;
@@ -320,7 +323,7 @@
     }
 
     .btn {
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.08em;
@@ -344,7 +347,7 @@
     }
 
     .btn-primary {
-      background: var(--c-teal);
+      background: var(--c1);
       color: #080d13;
     }
 
@@ -360,7 +363,7 @@
     }
 
     .btn-violet {
-      background: var(--c-violet);
+      background: var(--violet);
       color: #fff;
     }
 
@@ -398,15 +401,15 @@
     }
 
     #outputBlock {
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 12.5px;
       background: rgba(0, 0, 0, 0.35);
-      border-left: 3px solid var(--c-teal);
+      border-left: 3px solid var(--c1);
       padding: 16px;
       border-radius: 8px;
       min-height: 120px;
       overflow-x: auto;
-      color: var(--c-teal);
+      color: var(--c1);
       line-height: 1.7;
       white-space: pre;
       tab-size: 2;
@@ -417,7 +420,7 @@
       background: rgba(0,0,0,0.35);
       padding: 16px;
       border-radius: 0;
-      color: var(--c-teal);
+      color: var(--c1);
     }
 
     /* ── Quick links ── */
@@ -430,7 +433,7 @@
     }
 
     .section-label {
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 10.5px;
       font-weight: 500;
       letter-spacing: 0.18em;
@@ -446,7 +449,7 @@
     }
 
     .quick-link {
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 12px;
       font-weight: 500;
       color: var(--muted);
@@ -459,7 +462,7 @@
     }
 
     .quick-link:hover {
-      color: var(--c-teal);
+      color: var(--c1);
       border-color: var(--border-hi);
       background: rgba(var(--f-rgb),0.06);
     }
@@ -474,9 +477,9 @@
       border: 1px solid var(--border-hi);
       border-radius: 10px;
       padding: 12px 20px;
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 12px;
-      color: var(--c-teal);
+      color: var(--c1);
       box-shadow: var(--shadow);
       opacity: 0;
       transform: translateY(10px);
@@ -531,7 +534,7 @@
     .modal-backdrop.open .modal-box { transform: translateY(0); }
 
     .modal-title {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--sans);
       font-size: 15px; font-weight: 700;
       margin-bottom: 20px; color: var(--ink);
       display: flex; align-items: center; gap: 8px;
@@ -547,16 +550,16 @@
     .modal-close:hover { color: var(--ink); }
 
     .modal-label {
-      font-family: 'DM Mono', monospace; font-size: 10px;
+      font-family: var(--mono); font-size: 10px;
       letter-spacing: .14em; text-transform: uppercase;
       color: var(--muted); margin-bottom: 8px;
     }
 
     .modal-json {
-      font-family: 'DM Mono', monospace; font-size: 11.5px;
+      font-family: var(--mono); font-size: 11.5px;
       background: rgba(0,0,0,.4);
       border: 1px solid var(--border); border-radius: 10px;
-      padding: 14px; color: var(--c-teal);
+      padding: 14px; color: var(--c1);
       max-height: 200px; overflow-y: auto;
       white-space: pre-wrap; word-break: break-all;
       line-height: 1.6; margin-bottom: 16px;
@@ -570,7 +573,7 @@
       flex: 1;
       background: rgba(0,0,0,.3); border: 1px solid var(--border);
       border-radius: 10px; color: var(--muted);
-      font-family: 'DM Mono', monospace; font-size: 11px;
+      font-family: var(--mono); font-size: 11px;
       padding: 9px 12px; outline: none;
       overflow: hidden; white-space: nowrap;
     }
@@ -662,18 +665,18 @@
     }
     .brand-reticle {
       width: 26px; height: 26px; flex-shrink: 0;
-      color: var(--c-gold);
+      color: var(--c2);
     }
     .arc-eyebrow {
       display: block;
-      font-family: 'DM Mono', monospace;
+      font-family: var(--mono);
       font-size: 10px; letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--c-gold); opacity: .4;
+      color: var(--c2); opacity: .4;
       margin-bottom: 10px;
     }
   /* ═══════════════ OS MENUBAR ═══════════════ */
-  :root { --f-rgb: 191,90,242; --f: rgb(var(--f-rgb)); --sans: 'Syne', sans-serif; --mono: 'DM Mono', monospace; }
+  :root { --f-rgb: 191,90,242; --f: rgb(var(--f-rgb)); }
   body { padding-top: 28px; }
   .os-menubar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
@@ -689,7 +692,7 @@
   .mb-left { display: flex; align-items: center; gap: 0; }
   .mb-logo {
     display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; text-decoration: none; color: var(--c1, var(--c-teal));
+    width: 28px; height: 28px; text-decoration: none; color: var(--c1, var(--c1));
     transition: color .2s;
   }
   .mb-logo:hover { color: var(--ink); }
@@ -779,7 +782,7 @@
     transition: all .15s; padding: 0; font-size: 12px;
   }
   .dd-bright-btn:hover { border-color: var(--border-hi); color: var(--ink); }
-  .dd-bright-btn.active { border-color: var(--c1, var(--c-teal)); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+  .dd-bright-btn.active { border-color: var(--c1, var(--c1)); background: rgba(var(--f-rgb),.1); color: var(--ink); }
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
   /* -- MENUBAR RESPONSIVE -- */
   @media(max-width:768px){
@@ -793,36 +796,36 @@
 /* -- FAB BOT -- */
 .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
 .fab-bot:hover{box-shadow:0 0 36px rgba(var(--f-rgb),0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
-.fab-bot svg{color:var(--c-teal);pointer-events:none}
+.fab-bot svg{color:var(--c1);pointer-events:none}
 .fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid rgba(var(--f-rgb),0.25);border-radius:14px;padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(var(--f-rgb),0.08)}
 .fab-popup.open{display:block;animation:fabIn 200ms both}
 @keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(146,188,214,0.14);border-radius:8px;color:#e7f4ff;font-family:"DM Mono",monospace;font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
-.fab-popup input:focus{border-color:var(--c-teal)}
+.fab-popup input:focus{border-color:var(--c1)}
 .fab-popup input::placeholder{color:#7b96af}
 .fab-popup-label{font-size:11px;color:#7b96af;margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
     /* ── THEME: COPPER ─── */
-    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c-teal:#ffb347;--c-gold:#ffd700;--c-violet:#e8a87c;--c-rose:#ff6b6b;--c1:#ffb347;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--violet:#e8a87c;--rose:#ff6b6b;--c1:#ffb347;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
     /* ── THEME: VOID ───── */
-    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c-teal:#d0d0d0;--c-gold:#bbb;--c-violet:#999;--c-rose:#888;--c1:#d0d0d0;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c1:#d0d0d0;--c2:#bbb;--violet:#999;--rose:#888;--c1:#d0d0d0;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
     /* ── THEME: OCEAN ───── */
-    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c-teal:#4a9eff;--c-gold:#00d4ff;--c-violet:#6eb8ff;--c-rose:#ff5c8a;--c1:#4a9eff;--f-rgb:74,158,255}
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--violet:#6eb8ff;--rose:#ff5c8a;--c1:#4a9eff;--f-rgb:74,158,255}
     /* ── THEME: ROSE ────── */
-    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c-teal:#ff5c8a;--c-gold:#ff8fab;--c-violet:#d06fff;--c-rose:#ff5c8a;--c1:#ff5c8a;--f-rgb:255,92,138}
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--violet:#d06fff;--rose:#ff5c8a;--c1:#ff5c8a;--f-rgb:255,92,138}
     /* ── THEME: VIOLET ──── */
-    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c-teal:#9b6dff;--c-gold:#d06fff;--c-violet:#9b6dff;--c-rose:#ff5c8a;--c1:#9b6dff;--f-rgb:155,109,255}
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--violet:#9b6dff;--rose:#ff5c8a;--c1:#9b6dff;--f-rgb:155,109,255}
     /* ── THEME: FOREST ──── */
-    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c-teal:#3ddc84;--c-gold:#00bfa5;--c-violet:#72efb2;--c-rose:#ff5c8a;--c1:#3ddc84;--f-rgb:61,220,132}
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--violet:#72efb2;--rose:#ff5c8a;--c1:#3ddc84;--f-rgb:61,220,132}
     /* ── THEME: SOLAR ───── */
-    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c-teal:#ffd700;--c-gold:#ffb347;--c-violet:#ffe066;--c-rose:#ff5c8a;--c1:#ffd700;--f-rgb:255,215,0}
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c1:#ffd700;--c2:#ffb347;--violet:#ffe066;--rose:#ff5c8a;--c1:#ffd700;--f-rgb:255,215,0}
     /* ── THEME: CRIMSON ─── */
-    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c-teal:#ff4444;--c-gold:#ff6b3d;--c-violet:#d06fff;--c-rose:#ff4444;--c1:#ff4444;--f-rgb:255,68,68}
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--violet:#d06fff;--rose:#ff4444;--c1:#ff4444;--f-rgb:255,68,68}
     /* ── THEME: FROST ───── */
-    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c-teal:#88d8f5;--c-gold:#b8e8ff;--c-violet:#a0e0f8;--c-rose:#ff5c8a;--c1:#88d8f5;--f-rgb:136,216,245}
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--violet:#a0e0f8;--rose:#ff5c8a;--c1:#88d8f5;--f-rgb:136,216,245}
     /* ── BRIGHTNESS: LIGHT ── */
     [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
     [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--surface:#fffaf4;--lift:#f8f0e4;--ink:#2a1e10;--muted:#8a7a60}
-    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--surface:#fff;--lift:#f5f5f5;--ink:#111;--muted:#888;--c-teal:#333;--c1:#333;--c-violet:#666}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--surface:#fff;--lift:#f5f5f5;--ink:#111;--muted:#888;--c1:#333;--c1:#333;--violet:#666}
     [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--surface:#fff;--lift:#f0f4fa;--ink:#0a1e3a;--muted:#5070a0}
     [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--surface:#fff;--lift:#faf0f4;--ink:#3a0a1e;--muted:#a05070}
     [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--surface:#fff;--lift:#f4f0fa;--ink:#1e0a3a;--muted:#7050a0}
@@ -882,16 +885,20 @@
   <div class="mb-dropdown" id="ddFile" style="left:72px">
     <div class="dd-label">Ophtxn OS</div>
     <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
+    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
     <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
+    <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
     <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
     <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
-    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
     <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
     <div class="dd-sep"></div>
     <div class="dd-label">Permanence Platform</div>
     <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
     <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
   </div>
 
   <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -1035,9 +1042,9 @@
 
         <pre id="outputBlock">$ python cli.py operator-surface --run-horizon
 [ops] Starting operator surface...
-[runtime] Command Center: http://127.0.0.1:8000 ✓
-[runtime] Foundation Site: http://127.0.0.1:8787 ✓
-[runtime] Ophtxn Shell: http://127.0.0.1:8797 ✓
+[runtime] Command Center: http://127.0.0.1:8000 
+[runtime] Foundation Site: http://127.0.0.1:8787 
+[runtime] Ophtxn Shell: http://127.0.0.1:8797 
 [horizon] Starting Horizon agent...
 [horizon] Observation cycle complete. 3 signals collected.
 [ops] All runtimes live. Governance active.</pre>

@@ -336,11 +336,11 @@
         <button class="mb-mi" id="mbFile">File</button>
         <button class="mb-mi" id="mbView">View</button>
         <button class="mb-mi" id="mbGo">Go</button>
-        <button class="mb-hamburger" id="mbHamburger">☰</button>
+        <button class="mb-hamburger" id="mbHamburger">Menu</button>
       </div>
       <div class="mb-center"><span class="mb-tagline">A-KWJ-0368 // MIND MAP</span></div>
       <div class="mb-right">
-        <span class="mb-ext" id="mbTheme" title="Toggle dark/light">☾</span>
+        <span class="mb-ext" id="mbTheme" title="Toggle dark/light">Dark</span>
         <span class="mb-clock" id="mbClock"></span>
         <span class="mb-date" id="mbDate"></span>
       </div>
@@ -349,17 +349,21 @@
     <!-- MENUBAR DROPDOWNS -->
     <div class="mb-dropdown" id="ddFile" style="left:72px">
       <div class="dd-label">Ophtxn OS</div>
-      <a href="index.html"><span class="dd-icon">⌂</span> Lobby</a>
-      <a href="press_kit.html"><span class="dd-icon">◆</span> Mind Map</a>
-      <a href="trading_room.html"><span class="dd-icon">△</span> Trading Room</a>
-      <a href="daily_planner.html"><span class="dd-icon">▣</span> Daily Planner</a>
-      <a href="ophtxn_shell.html"><span class="dd-icon">▸</span> Terminal</a>
-      <a href="local_hub.html"><span class="dd-icon">◉</span> Control Room</a>
-      <a href="rooms.html"><span class="dd-icon">▲</span> Tower</a>
+      <a href="index.html"><span class="dd-icon"></span> Lobby</a>
+      <a href="local_hub.html"><span class="dd-icon"></span> Control Room</a>
+      <a href="command_center.html"><span class="dd-icon"></span> Command Center</a>
+      <a href="trading_room.html"><span class="dd-icon"></span> Trading Room</a>
+      <a href="night_capital.html"><span class="dd-icon"></span> Night Capital</a>
+      <a href="daily_planner.html"><span class="dd-icon"></span> Daily Planner</a>
+      <a href="ophtxn_shell.html"><span class="dd-icon"></span> Terminal</a>
+      <a href="rooms.html"><span class="dd-icon"></span> Tower</a>
       <div class="dd-sep"></div>
       <div class="dd-label">Permanence Platform</div>
-      <a href="ai_school.html"><span class="dd-icon">◈</span> AI School</a>
-      <a href="official_app.html"><span class="dd-icon">⬡</span> App Studio</a>
+      <a href="ai_school.html"><span class="dd-icon"></span> AI School</a>
+      <a href="official_app.html"><span class="dd-icon"></span> App Studio</a>
+      <a href="agent_view.html"><span class="dd-icon"></span> Agent View</a>
+      <a href="comms_hub.html"><span class="dd-icon"></span> Comms Hub</a>
+      <a href="press_kit.html"><span class="dd-icon"></span> Mind Map</a>
     </div>
 
     <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -383,20 +387,20 @@
       <div class="dd-theme-row">
         <span class="dd-theme-label">Mode</span>
         <div class="dd-bright-btns" id="ddThemeBright">
-          <button class="dd-bright-btn" data-bright="dark" title="Dark">☾</button>
-          <button class="dd-bright-btn" data-bright="light" title="Light">☀</button>
-          <button class="dd-bright-btn" data-bright="system" title="System">⊡</button>
+          <button class="dd-bright-btn" data-bright="dark" title="Dark">Dark</button>
+          <button class="dd-bright-btn" data-bright="light" title="Light">Light</button>
+          <button class="dd-bright-btn" data-bright="system" title="System"></button>
         </div>
       </div>
     </div>
 
     <div class="mb-dropdown" id="ddGo" style="left:150px">
       <div class="dd-label">Quick Nav</div>
-      <a href="rooms.html"><span class="dd-icon">▲</span> Tower Overview</a>
-      <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">⚙</span> Command Center</a>
-      <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">▸</span> Live Shell</a>
+      <a href="rooms.html"><span class="dd-icon"></span> Tower Overview</a>
+      <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon"></span> Command Center</a>
+      <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon"></span> Live Shell</a>
       <div class="dd-sep"></div>
-      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">⌘</span> GitHub</a>
+      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon"></span> GitHub</a>
     </div>
 
     <div class="mb-powered">Permanence OS</div>
@@ -651,7 +655,7 @@
     }
   });
 
-  /* Double click → edit */
+  /* Double click &gt; edit */
   wrap.addEventListener('dblclick',function(e){
     var nodeEl=e.target.closest('.mm-node');
     if(nodeEl){openEdit(nodeEl.dataset.id);return;}
@@ -800,7 +804,7 @@
       var next=cur==='dark'?'light':'dark';
       try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
       document.body.dataset.brightness=next;
-      tg.textContent=next==='dark'?'☾':'☀';
+      tg.textContent=next==='dark'?'Dark':'Light';
       applyTheme();
     });
   })();
@@ -836,7 +840,7 @@
       document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
       document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
       var tgEl=document.getElementById('mbTheme');
-      if(tgEl)tgEl.textContent=b==='light'?'☀':'☾';
+      if(tgEl)tgEl.textContent=b==='light'?'Light':'Dark';
     }
     applyTheme=apply;
     apply();
