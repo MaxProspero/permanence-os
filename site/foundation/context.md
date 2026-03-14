@@ -1,7 +1,7 @@
 # Foundation Site Context
 
 ## Goal
-13 HTML pages forming the visual surface of Permanence OS.
+14 HTML pages forming the visual surface of Permanence OS.
 
 ## Pages
 | File | Purpose |
@@ -13,6 +13,7 @@
 | rooms.html | Rooms -- collaborative workspace panels |
 | ophtxn_shell.html | Ophtxn Shell -- terminal-style AI interaction interface |
 | trading_room.html | Trading Room -- market data, backtests, trading signals |
+| markets_terminal.html | Markets Terminal -- live market terminal, quotes, data feeds |
 | daily_planner.html | Daily Planner -- task management, schedule, priorities |
 | night_capital.html | Night Capital -- after-hours operations, overnight automation |
 | local_hub.html | Local Hub -- local service health, system status dashboard |

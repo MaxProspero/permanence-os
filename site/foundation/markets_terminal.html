@@ -1,0 +1,1582 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a1118">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Markets Terminal</title>
+  <meta name="description" content="Markets Terminal — multi-market trading terminal with polymarket, stocks, forex, crypto, and commodities views.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════ TOKENS ═══════════════ */
+    :root {
+      --bg:      #060a10;
+      --bg-card: rgba(10, 18, 30, 0.72);
+      --glass:   rgba(12, 22, 38, 0.58);
+      --line:    rgba(146, 188, 214, 0.14);
+      --line-hi: rgba(0, 229, 196, 0.25);
+      --ink:     #e7f4ff;
+      --muted:   #7b96af;
+      --dim:     #3a5068;
+      --c1:      #00e5c4;
+      --c2:      #efbb5f;
+      --c3:      #73b8ff;
+      --rose:    #ff5c8a;
+      --violet:  #7b6fff;
+      --radius:  16px;
+      --mono:    "DM Mono", "IBM Plex Mono", monospace;
+      --sans:    "Sora", system-ui, sans-serif;
+      --game:    "Orbitron", monospace;
+      --f-rgb:   160,150,140;
+      --f:       rgb(var(--f-rgb));
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-top: 28px;
+    }
+
+    /* ═══════════════ ATMOSPHERIC LAYERS ═══════════════ */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(var(--f-rgb),.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--f-rgb),.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+      pointer-events: none;
+    }
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(var(--f-rgb),.06), transparent 60%),
+        radial-gradient(700px 500px at 85% 10%, rgba(239,187,95,.04), transparent 55%),
+        radial-gradient(800px 500px at 50% 110%, rgba(115,184,255,.04), transparent 50%);
+      pointer-events: none;
+    }
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .04; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%   { transform: translate(0,0) }
+      10%  { transform: translate(-2%,-3%) }
+      20%  { transform: translate(3%,1%) }
+      30%  { transform: translate(-1%,4%) }
+      40%  { transform: translate(4%,-1%) }
+      50%  { transform: translate(-3%,2%) }
+      60%  { transform: translate(1%,-4%) }
+      70%  { transform: translate(-4%,3%) }
+      80%  { transform: translate(2%,2%) }
+      90%  { transform: translate(-2%,-1%) }
+      100% { transform: translate(0,0) }
+    }
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
+    }
+
+    /* ═══════════════ OS MENUBAR ═══════════════ */
+    .os-menubar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
+      background: rgba(4,6,10,.92);
+      border-bottom: 1px solid rgba(var(--f-rgb),.1);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px;
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      font-family: var(--sans); font-size: 12px; color: var(--ink);
+      user-select: none;
+    }
+    .mb-left { display: flex; align-items: center; gap: 0; }
+    .mb-logo {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; text-decoration: none; color: var(--c1);
+      transition: color .2s;
+    }
+    .mb-logo:hover { color: var(--ink); }
+    .mb-logo svg { width: 16px; height: 16px; }
+    .mb-appname {
+      font-weight: 700; font-size: 12px; letter-spacing: .02em;
+      color: var(--ink); margin-right: 14px;
+    }
+    .mb-mi {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--sans);
+      font-size: 12px; font-weight: 500; padding: 3px 10px;
+      border-radius: 4px; transition: background .15s, color .15s;
+    }
+    .mb-mi:hover, .mb-mi.open { background: rgba(var(--f-rgb),.12); color: var(--ink); }
+    .mb-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .mb-tagline {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: .14em; color: var(--dim); text-transform: uppercase;
+    }
+    .mb-right { display: flex; align-items: center; gap: 10px; }
+    .mb-ext {
+      color: var(--muted); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .mb-ext:hover { color: var(--ink); }
+    .mb-clock {
+      font-family: var(--mono); font-size: 11px;
+      font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: .03em;
+    }
+    .mb-date {
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .mb-powered {
+      position: fixed; bottom: 6px; right: 12px;
+      font-family: var(--mono); font-size: 8px;
+      letter-spacing: .1em; color: rgba(var(--f-rgb),.18);
+      text-transform: uppercase; z-index: 100; pointer-events: none;
+    }
+    /* ── Menubar Dropdowns ── */
+    .mb-dropdown {
+      display: none; position: fixed; top: 28px;
+      min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: rgba(8,14,22,.97); border: 1px solid rgba(var(--f-rgb),.12);
+      border-radius: 8px; padding: 4px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 9100; font-family: var(--sans); font-size: 12px;
+    }
+    .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
+    @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .mb-dropdown a, .mb-dropdown button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 6px 14px; border: none; background: none;
+      color: var(--muted); text-decoration: none; font: inherit; cursor: pointer;
+      transition: background .1s, color .1s; text-align: left;
+    }
+    .mb-dropdown a:hover, .mb-dropdown button:hover {
+      background: rgba(var(--f-rgb),.1); color: var(--ink);
+    }
+    .mb-dropdown .dd-sep {
+      height: 1px; background: rgba(var(--f-rgb),.08); margin: 4px 10px;
+    }
+    .mb-dropdown .dd-label {
+      padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+    }
+    .mb-dropdown .dd-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; opacity: .6; }
+    /* ── View dropdown theme section ── */
+    .dd-theme-row { display: flex; align-items: center; padding: 6px 14px; gap: 6px; }
+    .dd-theme-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; width: 40px; }
+    .dd-color-track { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+    .dd-color-dot {
+      width: 16px; height: 16px; min-width: 16px; border-radius: 50%;
+      border: 2px solid transparent; cursor: pointer;
+      transition: all .15s; padding: 0; outline: none;
+    }
+    .dd-color-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
+    .dd-color-dot.active { border-color: var(--ink); box-shadow: 0 0 6px rgba(var(--f-rgb),.4); }
+    .dd-color-custom { background: conic-gradient(red,yellow,lime,aqua,blue,magenta,red) !important; position: relative; overflow: hidden; }
+    .dd-color-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; }
+    .dd-bright-btns { display: flex; gap: 3px; }
+    .dd-bright-btn {
+      width: 24px; height: 24px; border-radius: 6px; background: none;
+      border: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: var(--muted);
+      transition: all .15s; padding: 0; font-size: 12px;
+    }
+    .dd-bright-btn:hover { border-color: var(--line-hi); color: var(--ink); }
+    .dd-bright-btn.active { border-color: var(--c1); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+
+    /* ═══════════════ TOAST ═══════════════ */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: rgba(10,18,30,.95); border: 1px solid var(--rose);
+      border-radius: 10px; padding: 10px 18px;
+      font-family: var(--mono); font-size: 12px; color: var(--rose);
+      z-index: 10000; pointer-events: none;
+      opacity: 0; transition: transform .35s ease, opacity .35s ease;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── MENUBAR RESPONSIVE ── */
+    @media(max-width:768px){
+      .mb-center{display:none}
+      .mb-mi{display:none}
+      .mb-date{display:none}
+      .mb-hamburger{display:flex!important}
+    }
+    .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
+
+    /* ── THEME VARIANTS ── */
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--c3:#e8a87c;--rose:#ff6b6b;--violet:#e8a87c;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c1:#d0d0d0;--c2:#bbb;--c3:#999;--rose:#888;--violet:#999;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--c3:#6eb8ff;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:74,158,255;--f:rgb(var(--f-rgb))}
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--c3:#ffb6c9;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,92,138;--f:rgb(var(--f-rgb))}
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--c3:#b088ff;--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:155,109,255;--f:rgb(var(--f-rgb))}
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--c3:#72efb2;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:61,220,132;--f:rgb(var(--f-rgb))}
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c1:#ffd700;--c2:#ffb347;--c3:#ffe066;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,215,0;--f:rgb(var(--f-rgb))}
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--c3:#ff8888;--rose:#ff4444;--violet:#d06fff;--f-rgb:255,68,68;--f:rgb(var(--f-rgb))}
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--c3:#a0e0f8;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:136,216,245;--f:rgb(var(--f-rgb))}
+    [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
+    [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--ink:#2a1e10;--muted:#8a7a60}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--ink:#111;--muted:#888;--c1:#333;--violet:#666}
+    [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}
+    [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}
+    [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}
+    [data-brightness="light"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}
+    [data-brightness="light"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}
+    [data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}
+    [data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}
+    @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}}
+    [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
+    [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
+    [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
+
+    /* ═══════════════ LAYOUT SHELL ═══════════════ */
+    .shell {
+      position: relative; z-index: 1;
+      width: min(1400px, 94vw);
+      margin: 0 auto;
+      padding: 20px 0 60px;
+    }
+
+    /* ═══════════════ PAGE HEADER ═══════════════ */
+    .page-header {
+      padding: 30px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .page-title {
+      font-family: var(--game);
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 900;
+      letter-spacing: .06em;
+      background: linear-gradient(135deg, var(--ink), rgba(var(--f-rgb),.6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-subtitle {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .page-meta {
+      display: flex; gap: 16px; align-items: center;
+    }
+    .page-meta-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .page-meta-val {
+      color: var(--c1);
+      font-weight: 600;
+    }
+
+    /* ═══════════════ GLASS PANEL ═══════════════ */
+    .panel {
+      position: relative;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .panel:hover {
+      border-color: var(--line-hi);
+      box-shadow: 0 0 30px rgba(var(--f-rgb),.04);
+    }
+    .panel::before, .panel::after {
+      content: ''; position: absolute;
+      width: 10px; height: 10px;
+      border-color: rgba(var(--f-rgb),.2); border-style: solid;
+      pointer-events: none; z-index: 2;
+    }
+    .panel::before { top: -1px; left: -1px;  border-width: 1px 0 0 1px; }
+    .panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+    .panel > .halftone {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(239,187,95,.03) 1px, transparent 1px);
+      background-size: 16px 16px;
+      pointer-events: none; z-index: 0;
+    }
+    .panel > *:not(.halftone) { position: relative; z-index: 1; }
+
+    /* ═══════════════ SECTION LABEL ═══════════════ */
+    .sec-label {
+      font-family: var(--game); font-size: 8px; font-weight: 700;
+      letter-spacing: .25em; color: var(--dim);
+      text-transform: uppercase;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sec-label .dot {
+      display: inline-block; width: 5px; height: 5px;
+      border-radius: 50%; margin-right: 6px; vertical-align: middle;
+    }
+
+    /* ═══════════════ MARKET TAB BAR ═══════════════ */
+    .market-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0 8px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+    }
+    .market-tab {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--game); font-size: 10px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); padding: 12px 18px;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    .market-tab:hover { color: var(--ink); }
+    .market-tab.active {
+      color: var(--c1);
+      border-bottom-color: var(--c1);
+    }
+    .tab-spacer { flex: 1; }
+    .tab-action {
+      background: none; border: 1px solid var(--line); cursor: pointer;
+      font-family: var(--mono); font-size: 10px;
+      color: var(--muted); padding: 5px 12px;
+      border-radius: 6px; transition: all .2s;
+      white-space: nowrap; margin: 4px 2px;
+    }
+    .tab-action:hover { border-color: var(--line-hi); color: var(--ink); }
+    .tab-action.active { border-color: var(--c1); color: var(--c1); }
+
+    /* ═══════════════ TERMINAL LAYOUT ═══════════════ */
+    .terminal-layout {
+      display: flex;
+      gap: 10px;
+      min-height: calc(100vh - 200px);
+    }
+    .terminal-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .terminal-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════ MARKET VIEW ═══════════════ */
+    .market-view {
+      display: none;
+    }
+    .market-view.active {
+      display: block;
+      animation: fadeUp .4s ease forwards;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════ SPLIT VIEW ═══════════════ */
+    .split-grid {
+      display: none;
+    }
+    .split-grid.active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      animation: fadeUp .4s ease forwards;
+    }
+    .split-quadrant {
+      min-height: 300px;
+    }
+    .split-quadrant .mini-tab-bar {
+      display: flex; gap: 0; border-bottom: 1px solid var(--line);
+    }
+    .mini-tab {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--mono); font-size: 9px;
+      color: var(--muted); padding: 6px 10px;
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+    }
+    .mini-tab:hover { color: var(--ink); }
+    .mini-tab.active { color: var(--c1); border-bottom-color: var(--c1); }
+    .split-content {
+      padding: 0;
+      overflow-y: auto;
+      max-height: calc(50vh - 120px);
+    }
+
+    /* ═══════════════ DATA TABLES ═══════════════ */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .data-table th {
+      font-family: var(--game);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: var(--glass);
+    }
+    .data-table th:last-child,
+    .data-table td:last-child { text-align: right; }
+    .data-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(var(--f-rgb),.04);
+      color: var(--ink);
+      transition: background .15s;
+    }
+    .data-table tr:hover td {
+      background: rgba(var(--f-rgb),.04);
+    }
+    .data-table .ticker {
+      font-weight: 600;
+      color: var(--c1);
+    }
+    .data-table .up { color: var(--c1); }
+    .data-table .down { color: var(--rose); }
+    .data-table .question {
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 12px;
+      max-width: 320px;
+    }
+
+    /* ═══════════════ SPARKLINE BARS ═══════════════ */
+    .sparkline {
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      height: 20px;
+    }
+    .sparkline .bar {
+      width: 3px;
+      border-radius: 1px;
+      background: var(--c1);
+      opacity: .6;
+      animation: sparkPulse 2s ease-in-out infinite;
+    }
+    .sparkline .bar:nth-child(odd) { animation-delay: -.3s; }
+    .sparkline .bar:nth-child(3n) { animation-delay: -.7s; }
+    .sparkline .bar:nth-child(4n+1) { animation-delay: -1.2s; }
+    .sparkline.down-trend .bar { background: var(--rose); }
+    @keyframes sparkPulse {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.5); }
+    }
+
+    /* ═══════════════ SESSION INDICATORS ═══════════════ */
+    .session-bar {
+      display: flex; gap: 16px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+    .session-item {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .session-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+    .session-dot.open { background: var(--c1); box-shadow: 0 0 6px var(--c1); }
+    .session-dot.closed { background: var(--dim); }
+
+    /* ═══════════════ SECTOR BAR ═══════════════ */
+    .sector-bar {
+      display: flex; height: 6px; border-radius: 3px; overflow: hidden;
+      margin: 12px 16px 0;
+    }
+    .sector-seg { transition: width .4s ease; }
+    .sector-legend {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      padding: 8px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sector-legend-item {
+      display: flex; align-items: center; gap: 4px;
+      font-family: var(--mono); font-size: 9px; color: var(--muted);
+    }
+    .sector-legend-dot {
+      width: 6px; height: 6px; border-radius: 2px; flex-shrink: 0;
+    }
+
+    /* ═══════════════ INFO CARDS ═══════════════ */
+    .info-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 12px;
+    }
+    .info-card {
+      background: rgba(var(--f-rgb),.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .info-card-label {
+      font-family: var(--game); font-size: 7px; font-weight: 700;
+      letter-spacing: .2em; color: var(--dim);
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .info-card-val {
+      font-family: var(--mono); font-size: 18px; font-weight: 600;
+      color: var(--c1);
+    }
+    .info-card-sub {
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════ WATCHLIST SIDEBAR ═══════════════ */
+    .watchlist-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .watchlist-title {
+      font-family: var(--game); font-size: 8px; font-weight: 700;
+      letter-spacing: .25em; color: var(--dim);
+      text-transform: uppercase;
+    }
+    .watchlist-collapse {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 12px; padding: 2px 4px;
+      transition: color .2s;
+    }
+    .watchlist-collapse:hover { color: var(--ink); }
+    .watchlist-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(var(--f-rgb),.04);
+      transition: background .15s;
+      cursor: default;
+    }
+    .watchlist-item:hover { background: rgba(var(--f-rgb),.04); }
+    .wl-name {
+      font-family: var(--mono); font-size: 12px; font-weight: 600;
+      color: var(--ink);
+    }
+    .wl-market {
+      font-family: var(--mono); font-size: 9px; color: var(--dim);
+      text-transform: uppercase; letter-spacing: .1em;
+    }
+    .wl-price {
+      font-family: var(--mono); font-size: 12px; font-weight: 600;
+      text-align: right;
+    }
+    .wl-change {
+      font-family: var(--mono); font-size: 10px;
+      text-align: right;
+    }
+    .watchlist-add {
+      display: block; width: 100%;
+      background: none; border: none; cursor: pointer;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--dim); padding: 12px 16px;
+      text-align: center; transition: color .2s;
+    }
+    .watchlist-add:hover { color: var(--c1); }
+
+    /* ═══════════════ POP-OUT PANEL ═══════════════ */
+    .popout-panel {
+      position: fixed;
+      width: 520px;
+      max-height: 70vh;
+      background: var(--glass);
+      border: 1px solid var(--line-hi);
+      border-radius: var(--radius);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 16px 64px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+      z-index: 8000;
+      overflow: hidden;
+      animation: popIn .25s ease-out;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .popout-titlebar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(var(--f-rgb),.06);
+      border-bottom: 1px solid var(--line);
+      cursor: default;
+    }
+    .popout-title {
+      font-family: var(--game); font-size: 9px; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--ink);
+    }
+    .popout-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--sans);
+      font-size: 14px; padding: 2px 6px; border-radius: 4px;
+      transition: all .15s; line-height: 1;
+    }
+    .popout-close:hover { color: var(--rose); background: rgba(255,92,138,.1); }
+    .popout-body {
+      overflow-y: auto;
+      max-height: calc(70vh - 50px);
+    }
+
+    /* ═══════════════ MARKET STATUS BAR ═══════════════ */
+    .status-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 24px; z-index: 8500;
+      background: rgba(4,6,10,.92);
+      border-top: 1px solid rgba(var(--f-rgb),.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px;
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+    }
+    .status-left, .status-right {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .status-item {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .status-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+    }
+    .status-dot.green { background: var(--c1); box-shadow: 0 0 4px var(--c1); }
+    .status-dot.yellow { background: var(--c2); box-shadow: 0 0 4px var(--c2); }
+    .status-dot.red { background: var(--rose); box-shadow: 0 0 4px var(--rose); }
+    [data-brightness="light"] .status-bar { background: rgba(246,244,240,.92); border-top-color: rgba(0,0,0,.08); }
+
+    /* ═══════════════ STAGGERED ANIMATIONS ═══════════════ */
+    .animate { opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s forwards; }
+    .animate:nth-child(1) { animation-delay: 0.1s; }
+    .animate:nth-child(2) { animation-delay: 0.2s; }
+    .animate:nth-child(3) { animation-delay: 0.3s; }
+    .animate:nth-child(4) { animation-delay: 0.4s; }
+    .animate:nth-child(5) { animation-delay: 0.5s; }
+
+    /* ═══════════════ RESPONSIVE ═══════════════ */
+    @media(max-width:900px){
+      .terminal-layout { flex-direction: column; }
+      .terminal-sidebar { width: 100%; }
+      .split-grid.active { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .data-table { font-size: 11px; }
+      .data-table th, .data-table td { padding: 6px 8px; }
+      .info-cards { grid-template-columns: 1fr; }
+    }
+    @media(max-width:600px){
+      .market-tab { padding: 10px 10px; font-size: 8px; letter-spacing: .06em; }
+      .tab-action { display: none; }
+      .split-grid.active { display: none; }
+      .popout-panel { width: calc(100vw - 24px); left: 12px !important; }
+      .page-header { padding: 20px 0 16px; }
+      .shell { padding: 12px 0 40px; }
+      .status-bar { font-size: 9px; padding: 0 8px; }
+      .status-right { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- GRAIN OVERLAY -->
+  <svg id="grain" aria-hidden="true"><filter id="gf" x="0%" y="0%" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch"><animate attributeName="seed" values="0;7;14;3;11;5;0" dur="0.6s" repeatCount="indefinite"/></feTurbulence><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#gf)"/></svg>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-mi" id="mbGo">Go</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
+    </div>
+    <div class="mb-center"><span class="mb-tagline">MARKETS TERMINAL &middot; MULTI-MARKET INTELLIGENCE</span></div>
+    <div class="mb-right">
+      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">&#9790;</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <!-- MENUBAR DROPDOWNS -->
+  <div class="mb-dropdown" id="ddFile" style="left:72px">
+    <div class="dd-label">Ophtxn OS</div>
+    <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
+    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
+    <a href="markets_terminal.html"><span class="dd-icon">&#9638;</span> Markets Terminal</a>
+    <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
+    <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
+    <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
+    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
+    <div class="dd-sep"></div>
+    <div class="dd-label">Permanence Platform</div>
+    <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
+    <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
+  </div>
+
+  <div class="mb-dropdown" id="ddView" style="left:112px">
+    <div class="dd-label">Theme</div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Color</span>
+      <div class="dd-color-track" id="ddThemeColor">
+        <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
+        <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
+        <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
+        <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
+        <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
+        <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
+        <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
+        <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
+        <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
+        <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
+        <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
+      </div>
+    </div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Mode</span>
+      <div class="dd-bright-btns" id="ddThemeBright">
+        <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
+        <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
+        <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-dropdown" id="ddGo" style="left:150px">
+    <div class="dd-label">Quick Nav</div>
+    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
+    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
+    <div class="dd-sep"></div>
+    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
+  </div>
+
+  <div class="mb-powered">Powered by Permanence Systems</div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══════════════ MARKETS TERMINAL CONTENT ═══════════════ -->
+  <div class="shell">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header animate">
+      <div>
+        <div class="page-subtitle">Multi-Market Intelligence</div>
+        <h1 class="page-title">Markets Terminal</h1>
+      </div>
+      <div class="page-meta">
+        <div class="page-meta-item">Session: <span class="page-meta-val" id="sessionType">--</span></div>
+        <div class="page-meta-item">Last Refresh: <span class="page-meta-val" id="lastRefresh">--</span></div>
+      </div>
+    </div>
+
+    <!-- MARKET TAB BAR -->
+    <div class="market-tabs animate">
+      <button class="market-tab active" data-tab="polymarket">Polymarket</button>
+      <button class="market-tab" data-tab="stocks">Stocks</button>
+      <button class="market-tab" data-tab="forex">Forex</button>
+      <button class="market-tab" data-tab="crypto">Crypto</button>
+      <button class="market-tab" data-tab="commodities">Commodities</button>
+      <div class="tab-spacer"></div>
+      <button class="tab-action" id="btnSplitView">Split View</button>
+      <button class="tab-action" id="btnPopOut">Pop Out</button>
+    </div>
+
+    <!-- TERMINAL LAYOUT -->
+    <div class="terminal-layout animate">
+
+      <!-- MAIN CONTENT -->
+      <div class="terminal-main">
+
+        <!-- SINGLE VIEWS -->
+        <div id="singleView">
+
+          <!-- POLYMARKET -->
+          <div class="market-view active" data-market="polymarket">
+            <div class="panel">
+              <div class="halftone"></div>
+              <div class="sec-label"><span class="dot" style="background:var(--violet)"></span>PREDICTION MARKETS</div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Market</th>
+                    <th>Yes</th>
+                    <th>No</th>
+                    <th>Volume</th>
+                    <th>Expires</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="question">Will the US pass stablecoin legislation by Q3 2026?</td>
+                    <td class="up">$0.72</td><td class="down">$0.28</td>
+                    <td>$4.2M</td><td>Sep 30, 2026</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:8px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:15px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will Bitcoin reach $150K before July 2026?</td>
+                    <td class="up">$0.45</td><td class="down">$0.55</td>
+                    <td>$8.7M</td><td>Jun 30, 2026</td>
+                    <td><div class="sparkline"><span class="bar" style="height:14px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="bar" style="height:10px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will OpenAI launch GPT-5 before June 2026?</td>
+                    <td class="up">$0.68</td><td class="down">$0.32</td>
+                    <td>$3.1M</td><td>May 31, 2026</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:19px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will the Fed cut rates in March 2026?</td>
+                    <td class="up">$0.58</td><td class="down">$0.42</td>
+                    <td>$5.9M</td><td>Mar 31, 2026</td>
+                    <td><div class="sparkline"><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:14px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will an NBA team go undefeated in a month this season?</td>
+                    <td class="down">$0.12</td><td class="up">$0.88</td>
+                    <td>$1.4M</td><td>Apr 15, 2026</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:18px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span><span class="bar" style="height:6px"></span><span class="bar" style="height:5px"></span><span class="bar" style="height:4px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will Ethereum ETF inflows exceed $10B cumulative?</td>
+                    <td class="up">$0.61</td><td class="down">$0.39</td>
+                    <td>$2.8M</td><td>Dec 31, 2026</td>
+                    <td><div class="sparkline"><span class="bar" style="height:8px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will Apple announce AR glasses in 2026?</td>
+                    <td class="up">$0.34</td><td class="down">$0.66</td>
+                    <td>$2.1M</td><td>Dec 31, 2026</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:9px"></span><span class="bar" style="height:11px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="question">Will a major country adopt Bitcoin as legal tender in 2026?</td>
+                    <td class="up">$0.22</td><td class="down">$0.78</td>
+                    <td>$1.8M</td><td>Dec 31, 2026</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:7px"></span><span class="bar" style="height:6px"></span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- STOCKS -->
+          <div class="market-view" data-market="stocks">
+            <div class="panel">
+              <div class="halftone"></div>
+              <div class="sec-label"><span class="dot" style="background:var(--c1)"></span>EQUITY WATCHLIST</div>
+              <div class="sector-bar">
+                <div class="sector-seg" style="width:30%;background:var(--c1)"></div>
+                <div class="sector-seg" style="width:25%;background:var(--c3)"></div>
+                <div class="sector-seg" style="width:20%;background:var(--c2)"></div>
+                <div class="sector-seg" style="width:15%;background:var(--violet)"></div>
+                <div class="sector-seg" style="width:10%;background:var(--rose)"></div>
+              </div>
+              <div class="sector-legend">
+                <div class="sector-legend-item"><div class="sector-legend-dot" style="background:var(--c1)"></div> Tech 30%</div>
+                <div class="sector-legend-item"><div class="sector-legend-dot" style="background:var(--c3)"></div> Consumer 25%</div>
+                <div class="sector-legend-item"><div class="sector-legend-dot" style="background:var(--c2)"></div> Finance 20%</div>
+                <div class="sector-legend-item"><div class="sector-legend-dot" style="background:var(--violet)"></div> Healthcare 15%</div>
+                <div class="sector-legend-item"><div class="sector-legend-dot" style="background:var(--rose)"></div> Industrial 10%</div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Ticker</th>
+                    <th>Last</th>
+                    <th>Change</th>
+                    <th>Change%</th>
+                    <th>Volume</th>
+                    <th>Mkt Cap</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ticker">AAPL</td><td>$198.45</td><td class="up">+2.31</td><td class="up">+1.18%</td><td>52.4M</td><td>$3.08T</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:18px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">MSFT</td><td>$445.20</td><td class="up">+5.80</td><td class="up">+1.32%</td><td>28.1M</td><td>$3.31T</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:17px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">NVDA</td><td>$924.80</td><td class="up">+18.40</td><td class="up">+2.03%</td><td>41.7M</td><td>$2.28T</td>
+                    <td><div class="sparkline"><span class="bar" style="height:8px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:20px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">TSLA</td><td>$248.60</td><td class="down">-4.20</td><td class="down">-1.66%</td><td>85.3M</td><td>$790B</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">AMZN</td><td>$192.30</td><td class="up">+1.85</td><td class="up">+0.97%</td><td>38.9M</td><td>$2.00T</td>
+                    <td><div class="sparkline"><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:16px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">GOOGL</td><td>$175.40</td><td class="up">+2.10</td><td class="up">+1.21%</td><td>22.6M</td><td>$2.16T</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">META</td><td>$528.90</td><td class="up">+7.60</td><td class="up">+1.46%</td><td>16.8M</td><td>$1.35T</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:17px"></span><span class="bar" style="height:19px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">JPM</td><td>$208.15</td><td class="down">-1.40</td><td class="down">-0.67%</td><td>9.4M</td><td>$598B</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:11px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">V</td><td>$285.70</td><td class="up">+1.20</td><td class="up">+0.42%</td><td>6.1M</td><td>$582B</td>
+                    <td><div class="sparkline"><span class="bar" style="height:14px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">BRK.B</td><td>$432.50</td><td class="up">+3.10</td><td class="up">+0.72%</td><td>3.2M</td><td>$934B</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:14px"></span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- FOREX -->
+          <div class="market-view" data-market="forex">
+            <div class="panel">
+              <div class="halftone"></div>
+              <div class="sec-label"><span class="dot" style="background:var(--c2)"></span>FOREIGN EXCHANGE</div>
+              <div class="session-bar">
+                <div class="session-item"><span class="session-dot open"></span> London - Open</div>
+                <div class="session-item"><span class="session-dot open"></span> New York - Open</div>
+                <div class="session-item"><span class="session-dot closed"></span> Tokyo - Closed</div>
+                <div class="session-item"><span class="session-dot closed"></span> Sydney - Closed</div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Pair</th>
+                    <th>Bid</th>
+                    <th>Ask</th>
+                    <th>Spread</th>
+                    <th>Change%</th>
+                    <th>Direction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ticker">EUR/USD</td><td>1.0842</td><td>1.0844</td><td>0.2</td><td class="up">+0.14%</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">GBP/USD</td><td>1.2718</td><td>1.2721</td><td>0.3</td><td class="up">+0.08%</td>
+                    <td><div class="sparkline"><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:15px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">USD/JPY</td><td>154.82</td><td>154.85</td><td>0.3</td><td class="down">-0.22%</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:11px"></span><span class="bar" style="height:10px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">AUD/USD</td><td>0.6548</td><td>0.6551</td><td>0.3</td><td class="up">+0.12%</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:11px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:14px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">USD/CAD</td><td>1.3642</td><td>1.3645</td><td>0.3</td><td class="down">-0.06%</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:11px"></span><span class="bar" style="height:12px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">EUR/GBP</td><td>0.8524</td><td>0.8526</td><td>0.2</td><td class="up">+0.05%</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:13px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">USD/CHF</td><td>0.8812</td><td>0.8815</td><td>0.3</td><td class="down">-0.18%</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">NZD/USD</td><td>0.6124</td><td>0.6127</td><td>0.3</td><td class="up">+0.09%</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- CRYPTO -->
+          <div class="market-view" data-market="crypto">
+            <div class="panel">
+              <div class="halftone"></div>
+              <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>DIGITAL ASSETS</div>
+              <div class="info-cards">
+                <div class="info-card">
+                  <div class="info-card-label">DeFi TVL</div>
+                  <div class="info-card-val">$89.4B</div>
+                  <div class="info-card-sub">+2.1% (24h)</div>
+                </div>
+                <div class="info-card">
+                  <div class="info-card-label">ETH Gas</div>
+                  <div class="info-card-val" style="color:var(--c2)">24 gwei</div>
+                  <div class="info-card-sub">Low: 18 | High: 42</div>
+                </div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>24h%</th>
+                    <th>7d%</th>
+                    <th>Mkt Cap</th>
+                    <th>Volume</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ticker">BTC</td><td>$104,280</td><td class="up">+2.4%</td><td class="up">+5.1%</td><td>$2.04T</td><td>$38.2B</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:20px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">ETH</td><td>$3,842</td><td class="up">+1.8%</td><td class="up">+3.2%</td><td>$462B</td><td>$18.4B</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:13px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:17px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">SOL</td><td>$186.50</td><td class="up">+4.2%</td><td class="up">+8.7%</td><td>$82B</td><td>$4.8B</td>
+                    <td><div class="sparkline"><span class="bar" style="height:8px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:20px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">AVAX</td><td>$42.80</td><td class="down">-1.2%</td><td class="up">+2.4%</td><td>$16.2B</td><td>$820M</td>
+                    <td><div class="sparkline"><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">LINK</td><td>$18.90</td><td class="up">+3.1%</td><td class="up">+6.8%</td><td>$11.4B</td><td>$680M</td>
+                    <td><div class="sparkline"><span class="bar" style="height:8px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:17px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">MATIC</td><td>$0.92</td><td class="down">-0.8%</td><td class="down">-2.1%</td><td>$9.2B</td><td>$420M</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">DOT</td><td>$8.45</td><td class="up">+1.5%</td><td class="up">+4.2%</td><td>$11.8B</td><td>$340M</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">ADA</td><td>$0.58</td><td class="up">+0.6%</td><td class="down">-1.4%</td><td>$20.5B</td><td>$510M</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">XRP</td><td>$0.64</td><td class="up">+1.2%</td><td class="up">+3.8%</td><td>$34.8B</td><td>$1.2B</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">DOGE</td><td>$0.142</td><td class="down">-2.8%</td><td class="down">-5.4%</td><td>$20.1B</td><td>$1.8B</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:8px"></span><span class="bar" style="height:6px"></span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- COMMODITIES -->
+          <div class="market-view" data-market="commodities">
+            <div class="panel">
+              <div class="halftone"></div>
+              <div class="sec-label"><span class="dot" style="background:var(--c2)"></span>COMMODITY FUTURES</div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Change</th>
+                    <th>Change%</th>
+                    <th>Contract</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ticker">Gold</td><td>$2,348.60</td><td class="up">+18.40</td><td class="up">+0.79%</td><td>GCM26</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:17px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Silver</td><td>$28.42</td><td class="up">+0.38</td><td class="up">+1.35%</td><td>SIM26</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Crude Oil</td><td>$78.45</td><td class="down">-0.82</td><td class="down">-1.03%</td><td>CLM26</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Natural Gas</td><td>$2.84</td><td class="up">+0.06</td><td class="up">+2.16%</td><td>NGM26</td>
+                    <td><div class="sparkline"><span class="bar" style="height:8px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:20px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Corn</td><td>$458.25</td><td class="down">-3.50</td><td class="down">-0.76%</td><td>ZCM26</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Wheat</td><td>$612.80</td><td class="up">+4.20</td><td class="up">+0.69%</td><td>ZWM26</td>
+                    <td><div class="sparkline"><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Copper</td><td>$4.28</td><td class="up">+0.04</td><td class="up">+0.94%</td><td>HGM26</td>
+                    <td><div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:15px"></span><span class="bar" style="height:16px"></span></div></td>
+                  </tr>
+                  <tr>
+                    <td class="ticker">Platinum</td><td>$1,024.50</td><td class="down">-8.20</td><td class="down">-0.79%</td><td>PLM26</td>
+                    <td><div class="sparkline down-trend"><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:12px"></span><span class="bar" style="height:10px"></span><span class="bar" style="height:12px"></span></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /singleView -->
+
+        <!-- SPLIT VIEW GRID -->
+        <div class="split-grid" id="splitGrid">
+          <div class="panel split-quadrant" data-quadrant="0">
+            <div class="halftone"></div>
+            <div class="mini-tab-bar">
+              <button class="mini-tab active" data-qtab="polymarket">POLY</button>
+              <button class="mini-tab" data-qtab="stocks">STK</button>
+              <button class="mini-tab" data-qtab="forex">FX</button>
+              <button class="mini-tab" data-qtab="crypto">CRY</button>
+              <button class="mini-tab" data-qtab="commodities">CMD</button>
+            </div>
+            <div class="split-content"></div>
+          </div>
+          <div class="panel split-quadrant" data-quadrant="1">
+            <div class="halftone"></div>
+            <div class="mini-tab-bar">
+              <button class="mini-tab" data-qtab="polymarket">POLY</button>
+              <button class="mini-tab active" data-qtab="stocks">STK</button>
+              <button class="mini-tab" data-qtab="forex">FX</button>
+              <button class="mini-tab" data-qtab="crypto">CRY</button>
+              <button class="mini-tab" data-qtab="commodities">CMD</button>
+            </div>
+            <div class="split-content"></div>
+          </div>
+          <div class="panel split-quadrant" data-quadrant="2">
+            <div class="halftone"></div>
+            <div class="mini-tab-bar">
+              <button class="mini-tab" data-qtab="polymarket">POLY</button>
+              <button class="mini-tab" data-qtab="stocks">STK</button>
+              <button class="mini-tab active" data-qtab="forex">FX</button>
+              <button class="mini-tab" data-qtab="crypto">CRY</button>
+              <button class="mini-tab" data-qtab="commodities">CMD</button>
+            </div>
+            <div class="split-content"></div>
+          </div>
+          <div class="panel split-quadrant" data-quadrant="3">
+            <div class="halftone"></div>
+            <div class="mini-tab-bar">
+              <button class="mini-tab" data-qtab="polymarket">POLY</button>
+              <button class="mini-tab" data-qtab="stocks">STK</button>
+              <button class="mini-tab" data-qtab="forex">FX</button>
+              <button class="mini-tab" data-qtab="crypto">CRY</button>
+              <button class="mini-tab active" data-qtab="commodities">CMD</button>
+            </div>
+            <div class="split-content"></div>
+          </div>
+        </div>
+
+      </div><!-- /terminal-main -->
+
+      <!-- WATCHLIST SIDEBAR -->
+      <div class="terminal-sidebar" id="watchlistSidebar">
+        <div class="panel" style="height:100%">
+          <div class="halftone"></div>
+          <div class="watchlist-header">
+            <span class="watchlist-title">WATCHLIST</span>
+            <button class="watchlist-collapse" id="btnCollapseWL" title="Collapse">&laquo;</button>
+          </div>
+          <div id="watchlistBody">
+            <div class="watchlist-item">
+              <div><div class="wl-name">BTC</div><div class="wl-market">Crypto</div></div>
+              <div><div class="wl-price" style="color:var(--c1)">$104,280</div><div class="wl-change up">+2.4%</div></div>
+            </div>
+            <div class="watchlist-item">
+              <div><div class="wl-name">NVDA</div><div class="wl-market">Stocks</div></div>
+              <div><div class="wl-price" style="color:var(--c1)">$924.80</div><div class="wl-change up">+2.03%</div></div>
+            </div>
+            <div class="watchlist-item">
+              <div><div class="wl-name">EUR/USD</div><div class="wl-market">Forex</div></div>
+              <div><div class="wl-price" style="color:var(--c1)">1.0842</div><div class="wl-change up">+0.14%</div></div>
+            </div>
+            <div class="watchlist-item">
+              <div><div class="wl-name">Gold</div><div class="wl-market">Commodities</div></div>
+              <div><div class="wl-price" style="color:var(--c1)">$2,348.60</div><div class="wl-change up">+0.79%</div></div>
+            </div>
+            <div class="watchlist-item">
+              <div><div class="wl-name">SOL</div><div class="wl-market">Crypto</div></div>
+              <div><div class="wl-price" style="color:var(--c1)">$186.50</div><div class="wl-change up">+4.2%</div></div>
+            </div>
+            <div class="watchlist-item">
+              <div><div class="wl-name">BTC $150K?</div><div class="wl-market">Polymarket</div></div>
+              <div><div class="wl-price" style="color:var(--c1)">$0.45</div><div class="wl-change down">Yes</div></div>
+            </div>
+          </div>
+          <button class="watchlist-add" id="btnAddWatchlist">+ Add to Watchlist</button>
+        </div>
+      </div>
+
+    </div><!-- /terminal-layout -->
+
+  </div><!-- /shell -->
+
+  <!-- MARKET STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="status-item"><span class="status-dot green"></span> NYSE Open</div>
+      <div class="status-item"><span class="status-dot green"></span> NASDAQ Open</div>
+      <div class="status-item"><span class="status-dot yellow"></span> LSE Pre-Market</div>
+      <div class="status-item"><span class="status-dot red"></span> TSE Closed</div>
+    </div>
+    <div class="status-right">
+      <div class="status-item"><span class="status-dot green"></span> Connected</div>
+      <div class="status-item">Refresh: <span id="statusRefresh">--</span></div>
+      <div class="status-item">Source: Simulated</div>
+    </div>
+  </div>
+
+  <script>
+  /* ═══ MENUBAR: CLOCK ═══ */
+  (function(){
+    var ck=document.getElementById('mbClock'),dt=document.getElementById('mbDate');
+    if(!ck)return;
+    var hidden=false;
+    function tick(){
+      if(hidden)return;
+      var n=new Date();
+      ck.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      dt.textContent=n.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    tick();setInterval(tick,1000);
+    document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
+  })();
+
+  /* ═══ MENUBAR: DROPDOWNS ═══ */
+  (function(){
+    var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
+    var openDD=null;
+    function closeAll(){
+      document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
+      document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
+      openDD=null;
+    }
+    Object.keys(menus).forEach(function(btnId){
+      var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
+      if(!btn||!dd)return;
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(openDD===dd){closeAll();return;}
+        closeAll();
+        dd.classList.add('open');btn.classList.add('open');openDD=dd;
+      });
+      btn.addEventListener('mouseenter',function(){
+        if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
+      });
+    });
+    document.addEventListener('click',function(){closeAll();});
+    document.querySelectorAll('.mb-dropdown').forEach(function(dd){
+      dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
+    });
+    var hb=document.getElementById('mbHamburger');
+    if(hb)hb.addEventListener('click',function(e){
+      e.stopPropagation();var dd=document.getElementById('ddFile');
+      if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
+    });
+    var tg=document.getElementById('mbTheme');
+    if(tg)tg.addEventListener('click',function(){
+      var cur=document.body.dataset.brightness||'dark';
+      var next=cur==='dark'?'light':'dark';
+      try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
+      document.body.dataset.brightness=next;
+      tg.textContent=next==='dark'?'\u263E':'\u2600';
+      applyTheme();
+    });
+  })();
+
+  /* ═══ SITE THEME (View dropdown) ═══ */
+  var applyTheme;
+  (function(){
+    var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
+    function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
+    function gb(){try{return localStorage.getItem(BK)||'dark';}catch(e){return 'dark';}}
+    function gc(){try{return localStorage.getItem(CK)||'#00e5c4';}catch(e){return '#00e5c4';}}
+    function hexToRgb(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
+    function applyCustom(hex){
+      var el=document.getElementById('customThemeStyle');
+      if(!el){el=document.createElement('style');el.id='customThemeStyle';document.head.appendChild(el);}
+      var rgb=hexToRgb(hex);
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var bgR=Math.round(r*0.025),bgG=Math.round(g*0.025),bgB=Math.round(b*0.025);
+      var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
+      var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
+      var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
+      '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--bg-card:rgba(255,255,255,0.72);--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
+      var ci=document.getElementById('ddCustomColor');
+      if(ci)ci.value=hex;
+      var cd=document.querySelector('.dd-color-custom');
+      if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
+    }
+    function apply(){
+      var t=gt(),b=gb();
+      document.body.dataset.theme=t;document.body.dataset.brightness=b;
+      if(t==='custom')applyCustom(gc());
+      document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
+      document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+      var tgEl=document.getElementById('mbTheme');
+      if(tgEl)tgEl.textContent=b==='light'?'\u2600':'\u263E';
+    }
+    applyTheme=apply;
+    apply();
+    var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
+    if(cE)cE.addEventListener('click',function(e){
+      var btn=e.target.closest('.dd-color-dot');
+      if(!btn||!btn.dataset.color)return;
+      if(btn.dataset.color==='custom')return;
+      try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
+    });
+    var ci=document.getElementById('ddCustomColor');
+    if(ci)ci.addEventListener('input',function(e){
+      try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
+    });
+    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
+    window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
+  })();
+
+  /* ═══ SESSION & REFRESH TIMESTAMPS ═══ */
+  (function(){
+    var h=new Date().getHours();
+    var session=h>=9&&h<16?'Regular':'Pre/After-Hours';
+    var el=document.getElementById('sessionType');
+    if(el)el.textContent=session;
+    function updateRefresh(){
+      var n=new Date();
+      var t=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      var lr=document.getElementById('lastRefresh');
+      var sr=document.getElementById('statusRefresh');
+      if(lr)lr.textContent=t;
+      if(sr)sr.textContent=t;
+    }
+    updateRefresh();
+    setInterval(updateRefresh,30000);
+  })();
+
+  /* ═══ MARKET TAB SWITCHING ═══ */
+  (function(){
+    var tabs=document.querySelectorAll('.market-tab');
+    var views=document.querySelectorAll('.market-view');
+    var activeTab='polymarket';
+
+    tabs.forEach(function(tab){
+      tab.addEventListener('click',function(){
+        var target=tab.dataset.tab;
+        if(!target)return;
+        activeTab=target;
+        tabs.forEach(function(t){t.classList.toggle('active',t.dataset.tab===target);});
+        views.forEach(function(v){v.classList.toggle('active',v.dataset.market===target);});
+      });
+    });
+
+    window._getActiveTab=function(){return activeTab;};
+  })();
+
+  /* ═══ SPLIT VIEW ═══ */
+  (function(){
+    var btn=document.getElementById('btnSplitView');
+    var singleView=document.getElementById('singleView');
+    var splitGrid=document.getElementById('splitGrid');
+    var isSplit=false;
+    var quadrantMarkets=['polymarket','stocks','forex','commodities'];
+
+    function getTableClone(market){
+      var view=document.querySelector('.market-view[data-market="'+market+'"]');
+      if(!view)return null;
+      var table=view.querySelector('.data-table');
+      if(!table)return null;
+      var clone=table.cloneNode(true);
+      clone.style.fontSize='10px';
+      return clone;
+    }
+
+    function renderSplitContent(){
+      document.querySelectorAll('.split-quadrant').forEach(function(q,i){
+        var content=q.querySelector('.split-content');
+        if(!content)return;
+        content.innerHTML='';
+        var market=quadrantMarkets[i]||'polymarket';
+        var table=getTableClone(market);
+        if(table)content.appendChild(table);
+        q.querySelectorAll('.mini-tab').forEach(function(mt){
+          mt.classList.toggle('active',mt.dataset.qtab===market);
+        });
+      });
+    }
+
+    if(btn)btn.addEventListener('click',function(){
+      isSplit=!isSplit;
+      btn.classList.toggle('active',isSplit);
+      if(isSplit){
+        singleView.style.display='none';
+        splitGrid.classList.add('active');
+        renderSplitContent();
+      } else {
+        splitGrid.classList.remove('active');
+        singleView.style.display='';
+      }
+    });
+
+    /* Mini tab switching within quadrants */
+    document.querySelectorAll('.split-quadrant').forEach(function(q,idx){
+      q.addEventListener('click',function(e){
+        var mt=e.target.closest('.mini-tab');
+        if(!mt)return;
+        var market=mt.dataset.qtab;
+        quadrantMarkets[idx]=market;
+        q.querySelectorAll('.mini-tab').forEach(function(t){
+          t.classList.toggle('active',t.dataset.qtab===market);
+        });
+        var content=q.querySelector('.split-content');
+        if(content){
+          content.innerHTML='';
+          var table=getTableClone(market);
+          if(table)content.appendChild(table);
+        }
+      });
+    });
+  })();
+
+  /* ═══ POP-OUT PANELS ═══ */
+  (function(){
+    var btn=document.getElementById('btnPopOut');
+    var popouts=[];
+    var maxPopouts=3;
+    var baseOffset=80;
+
+    function createPopout(market){
+      if(popouts.length>=maxPopouts)return;
+      var view=document.querySelector('.market-view[data-market="'+market+'"]');
+      if(!view)return;
+      var table=view.querySelector('.data-table');
+      if(!table)return;
+
+      var panel=document.createElement('div');
+      panel.className='popout-panel';
+      var offset=baseOffset+(popouts.length*40);
+      panel.style.top=offset+'px';
+      panel.style.right=(30+popouts.length*30)+'px';
+
+      var names={polymarket:'Prediction Markets',stocks:'Equity Watchlist',forex:'Foreign Exchange',crypto:'Digital Assets',commodities:'Commodity Futures'};
+      var titlebar=document.createElement('div');
+      titlebar.className='popout-titlebar';
+      titlebar.innerHTML='<span class="popout-title">'+(names[market]||market)+'</span><button class="popout-close">X</button>';
+
+      var body=document.createElement('div');
+      body.className='popout-body';
+      body.appendChild(table.cloneNode(true));
+
+      panel.appendChild(titlebar);
+      panel.appendChild(body);
+      document.body.appendChild(panel);
+      popouts.push(panel);
+
+      titlebar.querySelector('.popout-close').addEventListener('click',function(){
+        panel.remove();
+        var idx=popouts.indexOf(panel);
+        if(idx>-1)popouts.splice(idx,1);
+      });
+    }
+
+    if(btn)btn.addEventListener('click',function(){
+      var activeTab=window._getActiveTab?window._getActiveTab():'polymarket';
+      createPopout(activeTab);
+    });
+  })();
+
+  /* ═══ WATCHLIST SIDEBAR COLLAPSE ═══ */
+  (function(){
+    var btn=document.getElementById('btnCollapseWL');
+    var sidebar=document.getElementById('watchlistSidebar');
+    var body=document.getElementById('watchlistBody');
+    var addBtn=document.getElementById('btnAddWatchlist');
+    var collapsed=false;
+
+    if(btn)btn.addEventListener('click',function(){
+      collapsed=!collapsed;
+      if(collapsed){
+        sidebar.style.width='40px';
+        body.style.display='none';
+        if(addBtn)addBtn.style.display='none';
+        btn.textContent='\u00BB';
+      } else {
+        sidebar.style.width='260px';
+        body.style.display='';
+        if(addBtn)addBtn.style.display='';
+        btn.textContent='\u00AB';
+      }
+    });
+  })();
+  </script>
+
+  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+</body>
+</html>

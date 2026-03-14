@@ -36,7 +36,7 @@ Every top-level path, what it holds, and when to look there.
 | /outputs | Generated artifacts and briefings | Reviewing generated content or briefing output |
 | /permanence_storage | Data storage layer: permanence.db, archives, logs, memory, outputs | Working with the persistence database or archived data |
 | /scripts | 151 implementation modules (main execution layer) | Building or modifying any feature -- this is where most logic lives |
-| /site/foundation | 13 HTML pages (Foundation Site served at :8787) | Editing UI pages, styling, or front-end behavior |
+| /site/foundation | 14 HTML pages (Foundation Site served at :8787) | Editing UI pages, styling, or front-end behavior |
 | /special | Specialized agents: arcana engine, chimera builder, digital twin, muse, practice squad, arch evolution | Working on experimental or specialized agent capabilities |
 | /tests | 163 test files, 772+ tests | Writing tests, verifying changes, or debugging failures |
 | /tunnel | Cloudflare tunnel config | Configuring remote access or tunnel routing |
@@ -61,7 +61,7 @@ Every top-level path, what it holds, and when to look there.
 | Foundation Site | http://127.0.0.1:8787 | site/foundation/ (static) |
 | Ophtxn Shell | http://127.0.0.1:8797/app/ophtxn | Interactive shell |
 
-## 4. Site Pages (13 total)
+## 4. Site Pages (14 total)
 
 | Page | File | Purpose |
 |------|------|---------|
@@ -69,6 +69,7 @@ Every top-level path, what it holds, and when to look there.
 | Control Room | local_hub.html | Local ops hub |
 | Command Center | command_center.html | Dashboard |
 | Trading Room | trading_room.html | Market interface |
+| Markets Terminal | markets_terminal.html | Live market terminal |
 | Night Capital | night_capital.html | Venture intelligence |
 | Daily Planner | daily_planner.html | Planning interface |
 | Terminal | ophtxn_shell.html | Shell/REPL |
