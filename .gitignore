@@ -1,7 +1,14 @@
 .env
 .env.local
+.env.bak.*
 __pycache__/
 *.pyc
+.pytest_cache/
+.claude/
+.vscode/
+venv/
+.venv/
+*.code-workspace
 logs/*.log
 logs/*.json
 logs/*.jsonl
@@ -25,6 +32,8 @@ outputs/chronicle/*.md
 outputs/chronicle/*.json
 permanence_storage/
 .wrangler/
+.cloudflared/
+tunnel/*-credentials.json
 backups/
 *.bak
 *.tmp

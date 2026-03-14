@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a1118">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <title>OPHTXN TOWER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -422,6 +427,7 @@ body::after {
   letter-spacing: .2em; color: rgba(0,229,196,.45);
 }
 </style>
+<script src="runtime.config.js"></script>
 </head>
 <body>
 
@@ -497,6 +503,12 @@ body::after {
 <script>
 'use strict';
 
+/* ── Runtime config ──────────────────────── */
+var __RT = window.__OPHTXN_RUNTIME || {};
+var API_BASE = __RT.apiBase || "http://127.0.0.1:8000";
+var APP_BASE = __RT.appBase || "http://127.0.0.1:8797";
+var SITE_BASE = __RT.siteUrl || "http://127.0.0.1:8787";
+
 /* ── Floor data ─────────────────────────── */
 const FLOORS = [
   {
@@ -533,7 +545,7 @@ const FLOORS = [
     num: '01', tag: 'CMD', name: 'THE STUDY', sub: 'COMMAND CENTER',
     desc: 'Direct operator control. Live status, approval gates, and system health.',
     feats: ['Real-time API monitoring', 'Approval queue management', 'Structured event logs'],
-    href: 'http://127.0.0.1:8000', rgb: '255,159,10', port: ':8000',
+    href: (__RT.commandCenterUrl || API_BASE), rgb: '255,159,10', port: ':8000',
   },
   {
     num: 'LB', tag: 'ENTRY', name: 'LOBBY', sub: 'ENTRY HALL',
@@ -669,7 +681,7 @@ setInterval(() => {
   const dot5   = document.getElementById('dot5');  // The Study (index 5)
   const txt5   = document.getElementById('txt5');
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/status', {
+    const res = await fetch(API_BASE + '/api/status', {
       signal: AbortSignal.timeout(3000)
     });
     if (res.ok) {
@@ -689,5 +701,6 @@ setInterval(() => {
   }
 })();
 </script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

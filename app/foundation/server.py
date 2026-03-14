@@ -9,6 +9,11 @@ from typing import Any
 
 from flask import Flask, Response, jsonify, request, send_from_directory
 
+try:
+    from flask_cors import CORS
+except ModuleNotFoundError:
+    CORS = None
+
 from app.foundation.storage import append_jsonl, ensure_root, load_json, read_jsonl, save_json
 
 
@@ -70,6 +75,21 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
 
     app = Flask(__name__)
     app.config["JSON_SORT_KEYS"] = False
+    if CORS is not None:
+        CORS(
+            app,
+            origins=[
+                "http://127.0.0.1:8787",
+                "http://localhost:8787",
+                "http://127.0.0.1:8797",
+                "http://localhost:8797",
+                "https://ophtxn.com",
+                "https://www.ophtxn.com",
+                "https://permanencesystems.com",
+                "https://app.permanencesystems.com",
+                "https://ophtxn-official.pages.dev",
+            ],
+        )
 
     def _sessions() -> dict[str, dict[str, Any]]:
         payload = load_json(sessions_path, {})

@@ -17,12 +17,6 @@ try:
 except ImportError:
     ANTHROPIC_AVAILABLE = False
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
-
 
 CALL_LOG = Path("logs/model_calls.jsonl")
 
@@ -97,8 +91,8 @@ class ClaudeModel(BaseModel):
         
         with open(CALL_LOG, "a") as f:
             f.write(json.dumps(log_entry) + "\n")
-        
-        return ModelResponse(
+
+        resp = ModelResponse(
             text=text,
             metadata={
                 "model": self.model_id,
@@ -109,6 +103,15 @@ class ClaudeModel(BaseModel):
                 "elapsed_ms": elapsed_ms
             }
         )
+
+        # Cost tracking (non-blocking — never break inference)
+        try:
+            from core.cost_tracker import _ensure_tracker
+            _ensure_tracker().record(resp.metadata)
+        except Exception:
+            pass
+
+        return resp
     
     def is_available(self) -> bool:
         """Check API connectivity."""

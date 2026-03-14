@@ -35,7 +35,7 @@ def _run_horizon(demo: bool) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the Permanence OS live command center.")
     parser.add_argument("--host", default="127.0.0.1", help="Dashboard API bind host")
-    parser.add_argument("--port", type=int, default=8000, help="Dashboard API bind port")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8000")), help="Dashboard API bind port")
     parser.add_argument("--no-open", action="store_true", help="Do not auto-open browser")
     parser.add_argument(
         "--run-horizon",

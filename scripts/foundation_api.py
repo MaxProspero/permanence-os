@@ -6,6 +6,7 @@ Run the FOUNDATION app API scaffold (auth + onboarding + memory schema/entries).
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -20,7 +21,7 @@ from app.foundation.server import create_app
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run FOUNDATION API scaffold.")
     parser.add_argument("--host", default="127.0.0.1", help="Bind host")
-    parser.add_argument("--port", type=int, default=8797, help="Bind port")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8797")), help="Bind port")
     parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
     args = parser.parse_args()
 

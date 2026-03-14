@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a1118">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <title>Ophtxn | Governed Personal Intelligence Operating System</title>
   <meta name="description" content="Ophtxn is a governed personal intelligence operating system. It combines persistent memory, multi-agent coordination, research automation, and human approval gates in a single runtime.">
 
@@ -733,9 +738,9 @@
       <div class="hero-cta">
         <a class="btn primary" href="./local_hub.html" data-cta="open_local_hub">Open Local Hub</a>
         <a class="btn primary" href="./official_app.html" data-cta="open_app_studio">Open App Studio</a>
-        <a class="btn" href="http://127.0.0.1:8000" data-cta="open_command_center">Open Command Center</a>
+        <a class="btn" href="http://127.0.0.1:8000" id="link-command-center" data-cta="open_command_center">Open Command Center</a>
         <a class="btn" href="./ai_school.html" data-cta="open_ai_school">Open AI School</a>
-        <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" data-cta="open_live_shell">Open Live Ops Shell</a>
+        <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" id="link-live-shell" data-cta="open_live_shell">Open Live Ops Shell</a>
         <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Get Brand Assets</a>
       </div>
     </section>
@@ -879,6 +884,7 @@
     </p>
   </main>
   <script src="./runtime.config.js"></script>
+  <script>(function(){var rt=window.__OPHTXN_RUNTIME||{};var el;el=document.getElementById("link-command-center");if(el&&rt.commandCenterUrl)el.href=rt.commandCenterUrl;el=document.getElementById("link-live-shell");if(el&&rt.shellUrl)el.href=rt.shellUrl;})();</script>
   <script>
     (function () {
       const runtime = window.__OPHTXN_RUNTIME || {};
@@ -1073,5 +1079,6 @@
       });
     })();
   </script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

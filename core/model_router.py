@@ -16,9 +16,60 @@ from typing import Any, Dict, Optional
 
 PROVIDERS = ("anthropic", "openai", "xai", "ollama")
 
-TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review")
-TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation")
+BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
+    "free": {
+        "description": "Local models only — zero cost",
+        "provider": "ollama",
+        "fallbacks": "ollama",
+        "budget_usd": 0.0,
+        "provider_caps": "anthropic=0,openai=0,xai=0,ollama=0",
+        "no_spend": True,
+    },
+    "light": {
+        "description": "Haiku + local — minimal cost",
+        "provider": "anthropic",
+        "fallbacks": "anthropic,ollama",
+        "budget_usd": 5.0,
+        "provider_caps": "anthropic=5,openai=0,xai=0,ollama=0",
+        "no_spend": False,
+    },
+    "standard": {
+        "description": "Sonnet + Haiku + local — balanced",
+        "provider": "anthropic",
+        "fallbacks": "anthropic,openai,ollama",
+        "budget_usd": 25.0,
+        "provider_caps": "anthropic=15,openai=8,xai=2,ollama=0",
+        "no_spend": False,
+    },
+    "full": {
+        "description": "Opus + Sonnet + Haiku + local — full power",
+        "provider": "anthropic",
+        "fallbacks": "anthropic,openai,xai,ollama",
+        "budget_usd": 50.0,
+        "provider_caps": "anthropic=30,openai=15,xai=5,ollama=0",
+        "no_spend": False,
+    },
+}
+
+TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review", "deep_reflection")
+TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation", "social_drafting")
 TASKS_HAIKU = ("classification", "summarization", "tagging", "formatting")
+
+# ── AI Paper Insights (v0.4) ────────────────────────────────────────────
+# ParamMem: Temperature-controlled reflection for agent self-improvement.
+# Higher temperature for brainstorming/reflection tasks, lower for execution.
+DEFAULT_REFLECTION_TEMPERATURE = float(os.getenv("PERMANENCE_REFLECTION_TEMP", "0.7"))
+DEFAULT_EXECUTION_TEMPERATURE = float(os.getenv("PERMANENCE_EXECUTION_TEMP", "0.3"))
+
+# Theory of Mind: ToM reasoning only for strong models.
+# Weak/local models hallucinate social reasoning — strip ToM prompts automatically.
+TOM_CAPABLE_MODELS = {
+    "claude-opus-4-6", "claude-sonnet-4-6",
+    "gpt-4.1", "gpt-4o",
+    "grok-3-latest",
+}
+# Tasks that benefit from Theory of Mind reasoning
+TOM_TASKS = ("conciliation", "social_drafting", "strategy")
 
 DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
     "anthropic": {
@@ -70,20 +121,23 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "default": "grok-3-mini",
     },
     "ollama": {
-        "canon_interpretation": "qwen3:8b",
-        "strategy": "qwen3:8b",
-        "code_generation": "qwen3:8b",
-        "adversarial_review": "qwen3:8b",
-        "research_synthesis": "qwen3:4b",
-        "planning": "qwen3:4b",
-        "review": "qwen3:4b",
-        "execution": "qwen3:4b",
-        "conciliation": "qwen3:4b",
+        "canon_interpretation": "qwen2.5:7b",
+        "strategy": "qwen2.5:7b",
+        "code_generation": "qwen2.5:7b",
+        "adversarial_review": "qwen2.5:7b",
+        "research_synthesis": "qwen2.5:7b",
+        "planning": "qwen2.5:7b",
+        "review": "qwen2.5:7b",
+        "execution": "qwen2.5:7b",
+        "conciliation": "qwen2.5:7b",
+        "social_drafting": "qwen2.5:7b",
+        "deep_reflection": "qwen2.5:7b",
         "classification": "qwen2.5:3b",
         "summarization": "qwen2.5:3b",
         "tagging": "qwen2.5:3b",
         "formatting": "qwen2.5:3b",
-        "default": "qwen3:4b",
+        "routine": "qwen2.5:3b",
+        "default": "qwen2.5:7b",
     },
 }
 DEFAULT_MODEL_BY_TASK: Dict[str, str] = DEFAULT_MODEL_BY_TASK_BY_PROVIDER["anthropic"]
@@ -106,6 +160,7 @@ DEFAULT_MODEL_PRICING_PER_1M: Dict[str, Dict[str, float]] = {
     "grok-2-mini": {"input": 0.5, "output": 1.5},
     "qwen3:8b": {"input": 0.0, "output": 0.0},
     "qwen3:4b": {"input": 0.0, "output": 0.0},
+    "qwen2.5:7b": {"input": 0.0, "output": 0.0},
     "qwen2.5:3b": {"input": 0.0, "output": 0.0},
 }
 
@@ -126,6 +181,11 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return int(float(value))
     except (TypeError, ValueError):
         return int(default)
+
+
+def _bool_flag(name: str) -> bool:
+    value = str(os.getenv(name, "")).strip().lower()
+    return value in {"1", "true", "yes", "on"}
 
 
 def _provider_from_model(model_name: str) -> str:
@@ -182,6 +242,10 @@ class ModelRouter:
                 ),
             ),
         )
+        self.no_spend_mode = _bool_flag("PERMANENCE_NO_SPEND_MODE")
+        self.low_cost_mode = _bool_flag("PERMANENCE_LOW_COST_MODE")
+        self.hybrid_mode = _bool_flag("PERMANENCE_HYBRID_MODE")
+        self.budget_tier = str(os.getenv("PERMANENCE_BUDGET_TIER", "")).strip().lower() or ""
 
     @staticmethod
     def _normalize_provider(value: str) -> str:
@@ -560,7 +624,35 @@ class ModelRouter:
 
         return model, "budget_ok"
 
+    # Tasks that REQUIRE paid models for quality — everything else goes to Ollama
+    HYBRID_PAID_TASKS = frozenset(TASKS_OPUS) | {"research_synthesis", "conciliation", "social_drafting"}
+
     def route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        # Hard guardrail: no-spend mode forces all routing to local ollama.
+        if self.no_spend_mode:
+            ollama_map = self._build_model_map_for_provider("ollama")
+            model = ollama_map.get(task_type, ollama_map.get("default", "qwen2.5:7b"))
+            self.selected_provider = "ollama"
+            self._log_decision(
+                task_type=task_type,
+                model=model,
+                context={**(context or {}), "policy": "no_spend_mode"},
+                budget_policy="no_spend_mode",
+                raw_model=model,
+                provider="ollama",
+            )
+            return model
+
+        # Low-cost mode: skip opus tier, cap at sonnet.
+        if self.low_cost_mode:
+            return self._route_low_cost(task_type=task_type, context=context)
+
+        # Hybrid mode: Ollama for routine/low tasks, paid for critical/high.
+        # Like Perplexity — free local model handles most work, escalates to
+        # paid API only when quality demands it.
+        if self.hybrid_mode:
+            return self._route_hybrid(task_type=task_type, context=context)
+
         budget_snapshot = self._monthly_budget_snapshot()
         selected_provider, provider_policy = self._provider_for_task(
             task_type=task_type,
@@ -590,6 +682,219 @@ class ModelRouter:
             raw_model=raw_model,
         )
         return adjusted_model
+
+    def _route_hybrid(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """
+        Hybrid routing: local Ollama by default, paid APIs for quality-critical tasks.
+
+        Strategy:
+        1. Routine/low-priority tasks → Ollama (free)
+        2. Critical/high-quality tasks → paid provider (if budget allows)
+        3. If paid provider budget exhausted → Ollama fallback
+
+        This is the "Perplexity approach" — free for most things, premium when needed.
+        """
+        ollama_map = self._build_model_map_for_provider("ollama")
+        key = str(task_type or "").strip().lower()
+
+        # Task requires paid model quality?
+        needs_paid = key in self.HYBRID_PAID_TASKS
+
+        if not needs_paid:
+            # Route to Ollama — free
+            model = ollama_map.get(key, ollama_map.get("default", "qwen2.5:7b"))
+            self.selected_provider = "ollama"
+            self._log_decision(
+                task_type=task_type,
+                model=model,
+                context={**(context or {}), "policy": "hybrid_local"},
+                budget_policy="hybrid_local_free",
+                raw_model=model,
+                provider="ollama",
+            )
+            return model
+
+        # Task needs paid quality — check budget and route accordingly
+        budget_snapshot = self._monthly_budget_snapshot()
+        selected_provider, provider_policy = self._provider_for_task(
+            task_type=task_type,
+            budget_snapshot=budget_snapshot,
+        )
+
+        # If selected provider is exhausted/capped, fall back to Ollama
+        provider_budget = self._provider_budget_snapshot(budget_snapshot)
+        provider_row = provider_budget.get(selected_provider, {"ratio": 0.0, "capped": False})
+        if bool(provider_row.get("capped")) and float(provider_row.get("ratio", 0.0)) >= 1.0:
+            model = ollama_map.get(key, ollama_map.get("default", "qwen2.5:7b"))
+            self.selected_provider = "ollama"
+            self._log_decision(
+                task_type=task_type,
+                model=model,
+                context={**(context or {}), "policy": "hybrid_paid_exhausted_fallback"},
+                budget_policy="hybrid_paid_exhausted_to_ollama",
+                raw_model=model,
+                provider="ollama",
+            )
+            return model
+
+        # Route to paid provider
+        selected_map = (
+            self.model_by_task
+            if selected_provider == self.provider
+            else self._build_model_map_for_provider(selected_provider)
+        )
+        raw_model = selected_map.get(task_type, selected_map.get("default", self.model_by_task["default"]))
+        adjusted_model, budget_policy = self._budget_adjusted_model(
+            task_type=task_type,
+            model=raw_model,
+            snapshot=budget_snapshot,
+            model_map=selected_map,
+        )
+        self.selected_provider = selected_provider
+        self._log_decision(
+            task_type=task_type,
+            model=adjusted_model,
+            context={
+                **(context or {}),
+                "provider_policy": provider_policy,
+                "provider_selected": selected_provider,
+                "policy": "hybrid_paid",
+            },
+            budget_snapshot=budget_snapshot,
+            budget_policy=f"hybrid_paid|{provider_policy}|{budget_policy}",
+            raw_model=raw_model,
+        )
+        return adjusted_model
+
+    def get_temperature(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> float:
+        """Return appropriate temperature based on task type.
+
+        ParamMem insight: Use higher temperature for reflection/brainstorming
+        tasks to increase diversity of self-improvement ideas, lower for execution.
+        """
+        reflection_tasks = {"deep_reflection", "strategy", "canon_interpretation", "adversarial_review"}
+        if task_type in reflection_tasks:
+            return DEFAULT_REFLECTION_TEMPERATURE
+        return DEFAULT_EXECUTION_TEMPERATURE
+
+    def requires_tom(self, task_type: str, model: str) -> bool:
+        """Check if Theory of Mind reasoning should be applied.
+
+        Theory of Mind insight: ToM reasoning only for strong models.
+        Weak/local models hallucinate social reasoning — strip ToM from task context.
+        """
+        if task_type not in TOM_TASKS:
+            return False
+        return model in TOM_CAPABLE_MODELS
+
+    def _route_low_cost(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Route in low-cost mode: skip opus, prefer haiku, fall back to ollama."""
+        budget_snapshot = self._monthly_budget_snapshot()
+        selected_provider, provider_policy = self._provider_for_task(
+            task_type=task_type,
+            budget_snapshot=budget_snapshot,
+        )
+        selected_map = (
+            self.model_by_task
+            if selected_provider == self.provider
+            else self._build_model_map_for_provider(selected_provider)
+        )
+        raw_model = selected_map.get(task_type, selected_map.get("default", self.model_by_task["default"]))
+        tier = self._tier_for_model(model_name=raw_model, task_type=task_type)
+
+        # In low-cost mode, downgrade opus → sonnet, and prefer haiku for medium tasks.
+        if tier == "opus":
+            raw_model = self._model_for_tier("sonnet", model_map=selected_map)
+            tier = "sonnet"
+
+        # Apply normal budget adjustments on top of the low-cost cap.
+        adjusted_model, budget_policy = self._budget_adjusted_model(
+            task_type=task_type,
+            model=raw_model,
+            snapshot=budget_snapshot,
+            model_map=selected_map,
+        )
+        self.selected_provider = selected_provider
+        self._log_decision(
+            task_type=task_type,
+            model=adjusted_model,
+            context={
+                **(context or {}),
+                "provider_policy": provider_policy,
+                "provider_selected": selected_provider,
+                "low_cost_mode": True,
+            },
+            budget_snapshot=budget_snapshot,
+            budget_policy=f"low_cost|{provider_policy}|{budget_policy}",
+            raw_model=raw_model,
+        )
+        return adjusted_model
+
+    def get_budget_dashboard(self) -> Dict[str, Any]:
+        """Return comprehensive budget state for UI dashboard consumption."""
+        budget_snapshot = self._monthly_budget_snapshot()
+        provider_budget = self._provider_budget_snapshot(budget_snapshot)
+        spend_by_provider = self._estimate_monthly_spend_by_provider_usd()
+        total_spend = sum(spend_by_provider.values())
+
+        # Determine effective tier
+        tier = self.budget_tier
+        if not tier:
+            if self.no_spend_mode:
+                tier = "free"
+            elif self.low_cost_mode:
+                tier = "light"
+            elif float(budget_snapshot.get("budget_usd", 50.0)) >= 40.0:
+                tier = "full"
+            elif float(budget_snapshot.get("budget_usd", 50.0)) >= 15.0:
+                tier = "standard"
+            else:
+                tier = "light"
+
+        preset = BUDGET_TIER_PRESETS.get(tier, {})
+
+        # Build warnings
+        warnings: list[str] = []
+        ratio = float(budget_snapshot.get("ratio", 0.0))
+        if ratio >= self.budget_critical_ratio:
+            warnings.append(f"Budget critical: {ratio:.0%} of monthly limit used")
+        elif ratio >= self.budget_warning_ratio:
+            warnings.append(f"Budget warning: {ratio:.0%} of monthly limit used")
+
+        for p_name, p_data in provider_budget.items():
+            p_ratio = float(p_data.get("ratio", 0.0))
+            if p_data.get("capped") and p_ratio >= 1.0:
+                warnings.append(f"Provider {p_name} cap exhausted ({p_ratio:.0%})")
+
+        return {
+            "budget_usd": float(budget_snapshot.get("budget_usd", 0.0)),
+            "spend_usd": round(total_spend, 4),
+            "ratio": round(ratio, 4),
+            "remaining_usd": round(max(0.0, float(budget_snapshot.get("budget_usd", 0.0)) - total_spend), 4),
+            "tier": tier,
+            "tier_description": str(preset.get("description", "")),
+            "provider": self.provider,
+            "selected_provider": getattr(self, "selected_provider", self.provider),
+            "no_spend_mode": self.no_spend_mode,
+            "low_cost_mode": self.low_cost_mode,
+            "warning_ratio": self.budget_warning_ratio,
+            "critical_ratio": self.budget_critical_ratio,
+            "spend_by_provider": spend_by_provider,
+            "provider_budget": {
+                name: {
+                    "cap_usd": float(data.get("cap_usd", 0.0)),
+                    "spend_usd": float(data.get("spend_usd", 0.0)),
+                    "ratio": float(data.get("ratio", 0.0)),
+                }
+                for name, data in provider_budget.items()
+            },
+            "warnings": warnings,
+        }
+
+    @staticmethod
+    def get_tier_presets() -> Dict[str, Dict[str, Any]]:
+        """Return available budget tier presets for configuration UI."""
+        return dict(BUDGET_TIER_PRESETS)
 
     def route_for_stage(self, stage: str, context: Optional[Dict[str, Any]] = None) -> str:
         stage_key = (stage or "").strip().lower()

@@ -20,6 +20,13 @@ MODEL_ENV_KEYS = [
     "PERMANENCE_MODEL_SONNET",
     "PERMANENCE_MODEL_HAIKU",
     "PERMANENCE_DEFAULT_MODEL",
+    "PERMANENCE_MODEL_BUDGET_WARNING_RATIO",
+    "PERMANENCE_MODEL_BUDGET_CRITICAL_RATIO",
+    "PERMANENCE_NO_SPEND_MODE",
+    "PERMANENCE_LOW_COST_MODE",
+    "PERMANENCE_HYBRID_MODE",
+    "PERMANENCE_BUDGET_TIER",
+    "PERMANENCE_LLM_MONTHLY_BUDGET_USD",
 ]
 
 
@@ -34,10 +41,8 @@ def _restore_env(snapshot: dict[str, str | None]) -> None:
 def test_model_router_uses_provider_default_map():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     try:
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "openai"
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
@@ -57,10 +62,8 @@ def test_model_router_uses_provider_default_map():
 def test_model_router_budget_downgrade_works_for_openai_models():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     try:
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "openai"
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
@@ -98,10 +101,8 @@ def test_model_router_get_model_forwards_provider_and_model_name():
             return _DummyModel()
 
     try:
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "xai"
         registry_mod.registry = _StubRegistry()
         with tempfile.TemporaryDirectory() as tmp:
@@ -171,10 +172,8 @@ def test_model_router_provider_cap_exhausted_stays_primary():
 def test_model_router_uses_ollama_default_map():
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     try:
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "ollama"
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
@@ -185,7 +184,7 @@ def test_model_router_uses_ollama_default_map():
                 "ollama": 0.0,
             }
             assert router.provider == "ollama"
-            assert router.model_by_task.get("planning") == "qwen3:4b"
+            assert router.model_by_task.get("planning") == "qwen2.5:7b"
             assert router.model_by_task.get("summarization") == "qwen2.5:3b"
     finally:
         _restore_env(snapshot)

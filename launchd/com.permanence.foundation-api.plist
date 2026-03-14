@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Permanence OS — Foundation API (Flask app)
+  Port: 8797
+  Installed by: scripts/mac_mini_setup.sh
+  Logs: /tmp/permanence-foundation-api.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.permanence.foundation-api</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__REPO_DIR__/venv/bin/python</string>
+    <string>__REPO_DIR__/scripts/foundation_api.py</string>
+    <string>--host</string>
+    <string>0.0.0.0</string>
+    <string>--port</string>
+    <string>8797</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO_DIR__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__HOME__</string>
+    <key>PATH</key>
+    <string>__REPO_DIR__/venv/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>PERMANENCE_BASE_DIR</key>
+    <string>__REPO_DIR__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/permanence-foundation-api.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/permanence-foundation-api.log</string>
+
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>

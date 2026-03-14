@@ -12,13 +12,6 @@ from pathlib import Path
 
 from agents.utils import log, BASE_DIR
 
-try:
-    from dotenv import load_dotenv  # type: ignore
-
-    load_dotenv(os.path.join(BASE_DIR, ".env"))
-except Exception:
-    pass
-
 
 @dataclass(frozen=True)
 class StoragePaths:
@@ -32,6 +25,7 @@ class StoragePaths:
     outputs_synthesis_drafts: Path
     outputs_synthesis_final: Path
     archives_notebooklm: Path
+    database: Path  # SQLite Synthesis Ledger (permanence.db)
 
 
 class StorageManager:
@@ -108,6 +102,8 @@ class StorageManager:
                 "- outputs/synthesis\n"
             )
 
+        database = root / "permanence.db"
+
         return StoragePaths(
             root=root,
             memory_episodic=memory_episodic,
@@ -119,6 +115,7 @@ class StorageManager:
             outputs_synthesis_drafts=outputs_synthesis_drafts,
             outputs_synthesis_final=outputs_synthesis_final,
             archives_notebooklm=archives_notebooklm,
+            database=database,
         )
 
 

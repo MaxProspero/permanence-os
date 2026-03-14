@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a1118">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <title>App Studio — Ophtxn</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -681,6 +686,7 @@
   .th-back:hover { color:var(--f); }
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
   </style>
+  <script src="runtime.config.js"></script>
 </head>
 <body>
 
@@ -824,8 +830,8 @@
       <p class="section-label">Quick links</p>
       <div class="quick-links-row">
         <a href="local_hub.html" class="quick-link">Local Hub</a>
-        <a href="#" class="quick-link">App Shell</a>
-        <a href="http://127.0.0.1:8000" class="quick-link" target="_blank" rel="noopener">Command Center</a>
+        <a href="ophtxn_shell.html" class="quick-link">App Shell</a>
+        <a href="http://127.0.0.1:8000" id="ql-link-cc" class="quick-link" target="_blank" rel="noopener">Command Center</a>
         <a href="ai_school.html" class="quick-link">AI School</a>
       </div>
     </div>
@@ -857,6 +863,7 @@
     </div>
   </div>
 
+  <script>(function(){var rt=window.__OPHTXN_RUNTIME||{};var el;el=document.getElementById("ql-link-cc");if(el&&(rt.commandCenterUrl||rt.apiBase))el.href=rt.commandCenterUrl||rt.apiBase;})();</script>
   <script>
     (function () {
       'use strict';
@@ -1130,5 +1137,6 @@
 
     })();
   </script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

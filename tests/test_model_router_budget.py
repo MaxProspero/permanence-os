@@ -22,6 +22,13 @@ MODEL_ENV_KEYS = [
     "PERMANENCE_MODEL_SONNET",
     "PERMANENCE_MODEL_HAIKU",
     "PERMANENCE_DEFAULT_MODEL",
+    "PERMANENCE_MODEL_BUDGET_WARNING_RATIO",
+    "PERMANENCE_MODEL_BUDGET_CRITICAL_RATIO",
+    "PERMANENCE_NO_SPEND_MODE",
+    "PERMANENCE_LOW_COST_MODE",
+    "PERMANENCE_HYBRID_MODE",
+    "PERMANENCE_BUDGET_TIER",
+    "PERMANENCE_LLM_MONTHLY_BUDGET_USD",
 ]
 
 
@@ -37,10 +44,8 @@ def test_model_router_keeps_opus_when_budget_ok() -> None:
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = Path(tmp) / "routing.jsonl"
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=str(log_path))
@@ -49,6 +54,7 @@ def test_model_router_keeps_opus_when_budget_ok() -> None:
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             model = router.route("strategy")
             assert "opus" in model
@@ -60,10 +66,8 @@ def test_model_router_downgrades_opus_to_sonnet_on_warning() -> None:
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = Path(tmp) / "routing.jsonl"
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=str(log_path))
@@ -72,6 +76,7 @@ def test_model_router_downgrades_opus_to_sonnet_on_warning() -> None:
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             model = router.route("strategy")
             assert "sonnet" in model
@@ -88,10 +93,8 @@ def test_model_router_downgrades_medium_to_haiku_on_critical() -> None:
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
     with tempfile.TemporaryDirectory() as tmp:
         log_path = Path(tmp) / "routing.jsonl"
-        os.environ.pop("PERMANENCE_MODEL_OPUS", None)
-        os.environ.pop("PERMANENCE_MODEL_SONNET", None)
-        os.environ.pop("PERMANENCE_MODEL_HAIKU", None)
-        os.environ.pop("PERMANENCE_DEFAULT_MODEL", None)
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         try:
             router = ModelRouter(log_path=str(log_path))
@@ -100,6 +103,7 @@ def test_model_router_downgrades_medium_to_haiku_on_critical() -> None:
                 "anthropic": 0.0,
                 "openai": 0.0,
                 "xai": 0.0,
+                "ollama": 0.0,
             }
             model = router.route("planning")
             assert "haiku" in model

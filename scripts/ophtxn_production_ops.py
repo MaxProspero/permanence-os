@@ -129,26 +129,35 @@ def _runtime_config_text(config: dict[str, Any]) -> str:
     analytics = config.get("analytics") if isinstance(config.get("analytics"), dict) else {}
     lead_capture = config.get("lead_capture") if isinstance(config.get("lead_capture"), dict) else {}
 
-    site_url = str(hosting.get("primary_url") or "").strip() or "http://127.0.0.1:8787"
-    api_base = str(hosting.get("api_base_url") or "").strip() or "http://127.0.0.1:8000"
+    site_url = str(hosting.get("primary_url") or "").strip() or "https://ophtxn.com"
+    api_base = str(hosting.get("api_base_url") or "").strip() or "https://api.permanencesystems.com"
+    app_base = str(hosting.get("app_base_url") or "").strip() or "https://app.permanencesystems.com"
     source = "foundation_site"
     site_event_endpoint = str(analytics.get("site_event_endpoint") or "/api/revenue/site-event").strip()
     lead_capture_endpoint = str(lead_capture.get("endpoint") or "/api/revenue/intake").strip()
-    fallback_email = str(lead_capture.get("fallback_email") or "paybhicks7@gmail.com").strip()
+    fallback_email = str(lead_capture.get("fallback_email") or "hello@ophtxn.com").strip()
 
     lines = [
-        "window.__OPHTXN_RUNTIME = {",
-        f'  siteUrl: "{site_url}",',
-        f'  apiBase: "{api_base}",',
-        f'  source: "{source}",',
-        "  analyticsEnabled: true,",
-        "  trackPageViews: true,",
-        "  trackCtas: true,",
-        "  leadCaptureEnabled: true,",
-        f'  leadCaptureEndpoint: "{lead_capture_endpoint}",',
-        f'  siteEventEndpoint: "{site_event_endpoint}",',
-        f'  fallbackEmail: "{fallback_email}",',
-        "};",
+        "(function () {",
+        '  var host = window.location.hostname;',
+        '  var isLocal = host === "127.0.0.1" || host === "localhost";',
+        "",
+        "  window.__OPHTXN_RUNTIME = {",
+        f'    siteUrl: isLocal ? "http://127.0.0.1:8787" : "{site_url}",',
+        f'    apiBase: isLocal ? "http://127.0.0.1:8000" : "{api_base}",',
+        f'    appBase: isLocal ? "http://127.0.0.1:8797" : "{app_base}",',
+        f'    commandCenterUrl: isLocal ? "http://127.0.0.1:8000" : "{api_base}",',
+        f'    shellUrl: isLocal ? "http://127.0.0.1:8797/app/ophtxn" : "{app_base}/app/ophtxn",',
+        f'    source: "{source}",',
+        "    analyticsEnabled: true,",
+        "    trackPageViews: true,",
+        "    trackCtas: true,",
+        "    leadCaptureEnabled: true,",
+        f'    leadCaptureEndpoint: "{lead_capture_endpoint}",',
+        f'    siteEventEndpoint: "{site_event_endpoint}",',
+        f'    fallbackEmail: "{fallback_email}",',
+        "  };",
+        "})();",
         "",
     ]
     return "\n".join(lines)
@@ -394,13 +403,16 @@ def _deploy_plan(config: dict[str, Any]) -> list[str]:
         f"npx wrangler pages deploy {deploy_dir} --project-name {project}",
         f"npx wrangler pages deployment list --project-name {project}",
         f"# In Cloudflare Pages: attach custom domain {primary_domain}",
+        "# Cloudflare Tunnel (exposes local Flask backends):",
+        "bash scripts/tunnel_setup.sh",
+        "cloudflared tunnel run permanence-os",
         "python cli.py ophtxn-production --action estimate",
     ]
 
 
 def _preflight(check_wrangler: bool) -> dict[str, Any]:
     tools = []
-    for name in ("python3", "curl", "node", "npm", "npx"):
+    for name in ("python3", "curl", "node", "npm", "npx", "cloudflared"):
         path = shutil.which(name)
         tools.append({"name": name, "ok": bool(path), "path": path or ""})
 
@@ -414,6 +426,8 @@ def _preflight(check_wrangler: bool) -> dict[str, Any]:
         recommendations.append("Install Node.js (includes npm+npx): brew install node")
     if "curl" in missing:
         recommendations.append("Install curl and ensure it is available in PATH")
+    if "cloudflared" in missing:
+        recommendations.append("Install Cloudflare Tunnel CLI: brew install cloudflared")
     if bool(shutil.which("npx")) and not bool(wrangler.get("wrangler_auth")):
         recommendations.append("Authenticate Cloudflare CLI: npx wrangler login && npx wrangler whoami")
 
