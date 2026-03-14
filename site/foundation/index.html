@@ -851,11 +851,11 @@
       <button class="mb-mi" id="mbFile">File</button>
       <button class="mb-mi" id="mbView">View</button>
       <button class="mb-mi" id="mbGo">Go</button>
-      <button class="mb-hamburger" id="mbHamburger">☰</button>
+      <button class="mb-hamburger" id="mbHamburger">Menu</button>
     </div>
     <div class="mb-center"><span class="mb-tagline">GOVERNANCE OS INTELLIGENCE</span></div>
     <div class="mb-right">
-      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">☾</span>
+      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">Dark</span>
       <span class="mb-clock" id="mbClock"></span>
       <span class="mb-date" id="mbDate"></span>
     </div>
@@ -864,17 +864,22 @@
   <!-- MENUBAR DROPDOWNS -->
   <div class="mb-dropdown" id="ddFile" style="left:72px">
     <div class="dd-label">Ophtxn OS</div>
-    <a href="index.html"><span class="dd-icon">⌂</span> Lobby</a>
-    <a href="press_kit.html"><span class="dd-icon">◆</span> Mind Map</a>
-    <a href="trading_room.html"><span class="dd-icon">△</span> Trading Room</a>
-    <a href="daily_planner.html"><span class="dd-icon">▣</span> Daily Planner</a>
-    <a href="ophtxn_shell.html"><span class="dd-icon">▸</span> Terminal</a>
-    <a href="local_hub.html"><span class="dd-icon">◉</span> Control Room</a>
-    <a href="rooms.html"><span class="dd-icon">▲</span> Tower</a>
+    <a href="index.html"><span class="dd-icon"></span> Lobby</a>
+    <a href="local_hub.html"><span class="dd-icon"></span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon"></span> Command Center</a>
+    <a href="trading_room.html"><span class="dd-icon"></span> Trading Room</a>
+    <a href="markets_terminal.html"><span class="dd-icon"></span> Markets Terminal</a>
+    <a href="night_capital.html"><span class="dd-icon"></span> Night Capital</a>
+    <a href="daily_planner.html"><span class="dd-icon"></span> Daily Planner</a>
+    <a href="ophtxn_shell.html"><span class="dd-icon"></span> Terminal</a>
+    <a href="rooms.html"><span class="dd-icon"></span> Tower</a>
     <div class="dd-sep"></div>
     <div class="dd-label">Permanence Platform</div>
-    <a href="ai_school.html"><span class="dd-icon">◈</span> AI School</a>
-    <a href="official_app.html"><span class="dd-icon">⬡</span> App Studio</a>
+    <a href="ai_school.html"><span class="dd-icon"></span> AI School</a>
+    <a href="official_app.html"><span class="dd-icon"></span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon"></span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon"></span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon"></span> Mind Map</a>
   </div>
 
   <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -898,20 +903,20 @@
     <div class="dd-theme-row">
       <span class="dd-theme-label">Mode</span>
       <div class="dd-bright-btns" id="ddThemeBright">
-        <button class="dd-bright-btn" data-bright="dark" title="Dark">☾</button>
-        <button class="dd-bright-btn" data-bright="light" title="Light">☀</button>
-        <button class="dd-bright-btn" data-bright="system" title="System">⊡</button>
+        <button class="dd-bright-btn" data-bright="dark" title="Dark">Dark</button>
+        <button class="dd-bright-btn" data-bright="light" title="Light">Light</button>
+        <button class="dd-bright-btn" data-bright="system" title="System"></button>
       </div>
     </div>
   </div>
 
   <div class="mb-dropdown" id="ddGo" style="left:150px">
     <div class="dd-label">Quick Nav</div>
-    <a href="rooms.html"><span class="dd-icon">▲</span> Tower Overview</a>
-    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">⚙</span> Command Center</a>
-    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">▸</span> Live Shell</a>
+    <a href="rooms.html"><span class="dd-icon"></span> Tower Overview</a>
+    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon"></span> Command Center</a>
+    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon"></span> Live Shell</a>
     <div class="dd-sep"></div>
-    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">⌘</span> GitHub</a>
+    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon"></span> GitHub</a>
   </div>
 
   <div class="mb-powered">Powered by Permanence Systems</div>
@@ -961,6 +966,9 @@
           </a>
           <a class="btn" href="./ai_school.html" data-cta="open_ai_school">AI School</a>
           <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Mind Map</a>
+          <a class="btn" href="./night_capital.html" data-cta="open_night_capital">Night Capital</a>
+          <a class="btn" href="./agent_view.html" data-cta="open_agent_view">Agent View</a>
+          <a class="btn" href="./comms_hub.html" data-cta="open_comms_hub">Comms Hub</a>
         </div>
       </section>
 
@@ -1146,25 +1154,25 @@
         </div>
         <a href="ai_school.html" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
           <div class="halftone"></div>
-          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c1);">◈</div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c1);"></div>
           <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">AI School</h3>
           <p style="color:var(--muted);font-size:12px;line-height:1.5;">Interactive courses on AI fundamentals, agent architecture, and governed intelligence systems.</p>
         </a>
         <a href="official_app.html" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
           <div class="halftone"></div>
-          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c2);">⬡</div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c2);"></div>
           <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">App Studio</h3>
           <p style="color:var(--muted);font-size:12px;line-height:1.5;">Build, customize, and deploy Ophtxn apps with the visual studio environment.</p>
         </a>
         <a href="#faq-heading" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
           <div class="halftone"></div>
-          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c3);">◇</div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c3);"></div>
           <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Knowledge Base</h3>
           <p style="color:var(--muted);font-size:12px;line-height:1.5;">FAQs, guides, and documentation for operators building on the Permanence platform.</p>
         </a>
         <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
           <div class="halftone"></div>
-          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--violet);">⌘</div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--violet);"></div>
           <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Open Source</h3>
           <p style="color:var(--muted);font-size:12px;line-height:1.5;">Core runtime on GitHub. Contribute, fork, and build extensions for the governed OS.</p>
         </a>
@@ -1452,7 +1460,7 @@
       var next=cur==='dark'?'light':'dark';
       try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
       document.body.dataset.brightness=next;
-      tg.textContent=next==='dark'?'☾':'☀';
+      tg.textContent=next==='dark'?'Dark':'Light';
       applyTheme();
     });
   })();
@@ -1488,7 +1496,7 @@
       document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
       document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
       var tgEl=document.getElementById('mbTheme');
-      if(tgEl)tgEl.textContent=b==='light'?'☀':'☾';
+      if(tgEl)tgEl.textContent=b==='light'?'Light':'Dark';
     }
     applyTheme=apply;
     apply();

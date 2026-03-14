@@ -146,6 +146,30 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             return jsonify({"ok": False, "error": f"{error_label} not found"}), 404
         return Response(html, mimetype="text/html; charset=utf-8")
 
+    @app.get("/")
+    def root_redirect() -> Any:
+        return jsonify(
+            {
+                "ok": True,
+                "service": "foundation-api",
+                "timestamp": _now_iso(),
+                "endpoints": [
+                    "/health",
+                    "/app/ophtxn",
+                    "/app/official",
+                    "/app/studio",
+                    "/app/press",
+                    "/app/hub",
+                    "/app/ai-school",
+                    "/auth/session",
+                    "/onboarding/start",
+                    "/memory/schema",
+                    "/memory/entry",
+                    "/ops/summary",
+                ],
+            }
+        )
+
     @app.get("/health")
     def health() -> Any:
         return jsonify(

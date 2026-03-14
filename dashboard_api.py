@@ -110,9 +110,12 @@ def log_api_call(method: str, endpoint: str, payload: Optional[dict] = None, res
         "payload": payload,
         "result": result,
     }
-    os.makedirs(os.path.dirname(PATHS["api_log"]), exist_ok=True)
-    with open(PATHS["api_log"], "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        os.makedirs(os.path.dirname(PATHS["api_log"]), exist_ok=True)
+        with open(PATHS["api_log"], "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError:
+        pass
 
 
 # ─────────────────────────────────────────────
@@ -3655,11 +3658,12 @@ def _load_second_brain_snapshot() -> dict:
 
 def _read_canon_version() -> str:
     changelog = os.path.join(PATHS["canon"], "CHANGELOG.md")
-    if os.path.exists(changelog):
+    try:
         with open(changelog) as f:
             first_line = f.readline().strip()
             return first_line or "v0.1.0"
-    return "v0.1.0"
+    except OSError:
+        return "v0.1.0"
 
 
 def _count_pending_approvals() -> int:
@@ -3676,10 +3680,11 @@ def _get_last_briefing_time() -> Optional[str]:
 
 def _get_test_stats() -> dict:
     stats_path = os.path.join(BASE_DIR, "outputs", "test_stats.json")
-    if os.path.exists(stats_path):
+    try:
         with open(stats_path) as f:
             return json.load(f)
-    return {"passing": 0, "failing": 0, "last_run": None}
+    except (OSError, json.JSONDecodeError):
+        return {"passing": 0, "failing": 0, "last_run": None}
 
 
 def _count_horizon_reports() -> int:
@@ -3908,24 +3913,27 @@ def _load_latest_briefing() -> Optional[dict]:
     if not files:
         return None
     latest = files[0]
-    if latest.endswith(".json"):
-        with open(latest) as f:
-            data = json.load(f)
-        if isinstance(data, dict):
-            data.setdefault("format", "json")
-            data.setdefault("source_path", latest)
-            return data
-        return {"format": "json", "source_path": latest, "payload": data}
+    try:
+        if latest.endswith(".json"):
+            with open(latest) as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                data.setdefault("format", "json")
+                data.setdefault("source_path", latest)
+                return data
+            return {"format": "json", "source_path": latest, "payload": data}
 
-    with open(latest) as f:
-        markdown = f.read()
-    return {
-        "format": "markdown",
-        "source_path": latest,
-        "filename": os.path.basename(latest),
-        "generated_at": timestamp_to_utc_iso(os.path.getmtime(latest)),
-        "content_markdown": markdown,
-    }
+        with open(latest) as f:
+            markdown = f.read()
+        return {
+            "format": "markdown",
+            "source_path": latest,
+            "filename": os.path.basename(latest),
+            "generated_at": timestamp_to_utc_iso(os.path.getmtime(latest)),
+            "content_markdown": markdown,
+        }
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 def _list_briefing_files() -> list:
@@ -4014,8 +4022,11 @@ def _load_episodic_memory(limit: int) -> list:
     pattern = os.path.join(PATHS["episodic"], "*.json")
     files = sorted(glob.glob(pattern), reverse=True)[:limit]
     for f in files:
-        with open(f) as fp:
-            entries.append(json.load(fp))
+        try:
+            with open(f) as fp:
+                entries.append(json.load(fp))
+        except (OSError, json.JSONDecodeError):
+            continue
     return entries
 
 
