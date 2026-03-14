@@ -2,7 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [Unreleased] - 2026-03-13
+
+### Added
+- Night Capital page (venture intelligence dashboard)
+- Agent View page (FaceTime-like agent interface)
+- Comms Hub page (unified Discord/Telegram/WhatsApp chat)
+- VS Code workspace config (.vscode/)
+- Three-layer architecture (CLAUDE.md map, context.md routing, workspaces)
+- Design workspace with rules and visual philosophy
+- Workflow templates for common tasks
+
+### Changed
+- Standardized fonts across all 13 pages (Sora/IBM Plex Mono/Orbitron/DM Mono)
+- Unified CSS variable naming (--c1/c2/c3/rose/violet)
+- Complete navigation on all pages (every page links to every other)
+- Foundation API root returns JSON endpoint list instead of 404
+- Dashboard API error handling hardened (5 try/except fixes)
+- Operator Surface process cleanup (atexit, killpg, no zombies)
+
+### Removed
+- All emojis from HTML pages
+- Legacy font references (Syne, DM Sans, Instrument Sans, Playfair Display)
+- 4 inconsistent CSS variable naming conventions
+
+## [Unreleased - prior]
 - Added second-brain and multi-income agent portfolio layer:
   - `scripts/life_os_brief.py` (`python cli.py life-os-brief`)
   - `scripts/side_business_portfolio.py` (`python cli.py side-business-portfolio`)
