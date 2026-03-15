@@ -1830,6 +1830,22 @@
             }
             copy += (copy ? '\n' : '') + policyParts.join(' // ');
           }
+          if (step.context) {
+            var contextParts = [];
+            if (typeof step.context.task_output_count !== 'undefined') {
+              contextParts.push('task_outputs=' + step.context.task_output_count);
+            }
+            if (typeof step.context.latest_output !== 'undefined' && step.context.latest_output !== null && step.context.latest_output !== '') {
+              try {
+                contextParts.push('latest_output=' + JSON.stringify(step.context.latest_output));
+              } catch (err) {
+                contextParts.push('latest_output=' + String(step.context.latest_output));
+              }
+            }
+            if (contextParts.length) {
+              copy += (copy ? '\n' : '') + contextParts.join(' // ');
+            }
+          }
           return '<div class="run-step"><div class="run-step-head"><div class="run-step-title">'
             + step.label + '</div><span class="status-pill">' + (step.type || 'step')
             + '</span></div><div class="run-step-copy">' + copy + '</div></div>';

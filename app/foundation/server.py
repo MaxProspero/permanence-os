@@ -383,7 +383,10 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 "generated_task_ids": [],
                 "step_count": 0,
                 "steps": [],
+                "context": {"task_outputs": {}, "latest_output": None},
             }
+        elif not isinstance(run_record.get("context"), dict):
+            run_record["context"] = {"task_outputs": {}, "latest_output": None}
         run_id = str(run_record.get("run_id") or _slug("wfrun"))
         current_id = str(start_node_id or run_record.get("next_node_id") or (starts[0] if starts else "")).strip()
         next_outcome = str(branch_outcome or "").strip().lower() or None
@@ -505,6 +508,11 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                     "permissions": agent.get("permissions") if agent else [],
                     "model_preferences": agent.get("model_preferences") if agent else [],
                 }
+                if isinstance(run_record.get("context"), dict):
+                    step["context"] = {
+                        "latest_output": run_record["context"].get("latest_output"),
+                        "task_output_count": len(run_record["context"].get("task_outputs") or {}),
+                    }
             elif node_type == "model_route":
                 route_context = {
                     "project_id": project_id,
@@ -514,6 +522,9 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 if selected_agent:
                     route_context["preferred_models"] = selected_agent.get("model_preferences") or []
                     route_context["agent_id"] = str(selected_agent.get("id") or "")
+                if isinstance(run_record.get("context"), dict):
+                    route_context["latest_output"] = run_record["context"].get("latest_output")
+                    route_context["task_outputs"] = run_record["context"].get("task_outputs") or {}
                 decision = router.explain_route(
                     _workflow_task_type(node_type, label),
                     route_context,
@@ -529,6 +540,10 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                     "selected_agent_id": str((selected_agent or {}).get("id") or ""),
                     "selected_agent_name": str((selected_agent or {}).get("name") or ""),
                     "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
+                }
+                step["context"] = {
+                    "latest_output": route_context.get("latest_output"),
+                    "task_output_count": len(route_context.get("task_outputs") or {}),
                 }
             elif node_type == "start":
                 step["status"] = "completed"
@@ -941,6 +956,24 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                             "output": record.get("output"),
                             "updated_at": _now_iso(),
                         }
+                context = run.get("context")
+                if not isinstance(context, dict):
+                    context = {"task_outputs": {}, "latest_output": None}
+                    run["context"] = context
+                task_outputs = context.get("task_outputs")
+                if not isinstance(task_outputs, dict):
+                    task_outputs = {}
+                    context["task_outputs"] = task_outputs
+                task_payload = {
+                    "task_id": task_id,
+                    "node_id": node_id,
+                    "status": str(record.get("status") or ""),
+                    "result": str(record.get("result") or ""),
+                    "output": record.get("output"),
+                    "updated_at": _now_iso(),
+                }
+                task_outputs[node_id] = task_payload
+                context["latest_output"] = record.get("output")
                 run["updated_at"] = _now_iso()
             _rewrite_workflow_runs(workflow_id, runs)
 
