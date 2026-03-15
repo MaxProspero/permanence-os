@@ -1458,6 +1458,20 @@
             <div class="review-meta" id="selectedWorkflowMeta">No workflow selected</div>
             <div class="btn-row">
               <button class="btn btn-primary" id="runWorkflowBtn">Run Workflow</button>
+              <button class="btn btn-ghost" id="approveWorkflowBtn" style="display:none">Approve</button>
+              <button class="btn btn-ghost" id="rejectWorkflowBtn" style="display:none">Reject</button>
+              <button class="btn btn-ghost" id="successWorkflowBtn" style="display:none">Mark Success</button>
+              <button class="btn btn-ghost" id="reviewWorkflowBtn" style="display:none">Needs Review</button>
+            </div>
+            <div class="inspector-grid" style="margin-bottom:16px">
+              <div class="inspector-row">
+                <div class="inspector-label">Run State</div>
+                <div class="inspector-value" id="workflowRunState">No run selected</div>
+              </div>
+              <div class="inspector-row">
+                <div class="inspector-label">Recent Runs</div>
+                <div class="inspector-value" id="workflowRunHistory">No run history</div>
+              </div>
             </div>
             <div class="form-group">
               <label>Latest Execution</label>
@@ -1549,6 +1563,12 @@
       const routeReasons = document.getElementById('routeReasons');
       const selectedWorkflowMeta = document.getElementById('selectedWorkflowMeta');
       const workflowRunLog = document.getElementById('workflowRunLog');
+      const approveWorkflowBtn = document.getElementById('approveWorkflowBtn');
+      const rejectWorkflowBtn = document.getElementById('rejectWorkflowBtn');
+      const successWorkflowBtn = document.getElementById('successWorkflowBtn');
+      const reviewWorkflowBtn = document.getElementById('reviewWorkflowBtn');
+      const workflowRunState = document.getElementById('workflowRunState');
+      const workflowRunHistory = document.getElementById('workflowRunHistory');
       const selectedDocumentMeta = document.getElementById('selectedDocumentMeta');
       const reviewDocumentTitle = document.getElementById('reviewDocumentTitle');
       const reviewDocumentBody = document.getElementById('reviewDocumentBody');
@@ -1716,15 +1736,36 @@
         if (!detail || !detail.workflow) {
           selectedWorkflowMeta.textContent = 'No workflow selected';
           workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
+          approveWorkflowBtn.style.display = 'none';
+          rejectWorkflowBtn.style.display = 'none';
+          successWorkflowBtn.style.display = 'none';
+          reviewWorkflowBtn.style.display = 'none';
+          workflowRunState.textContent = 'No run selected';
+          workflowRunHistory.textContent = 'No run history';
           return;
         }
         selectedWorkflowMeta.textContent = (detail.workflow.id || '') + ' // ' + (detail.workflow.project_id || 'no-project') + ' // ' + String(detail.workflow.run_count || 0) + ' runs';
         const runs = detail.runs || [];
         if (!runs.length) {
           workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
+          approveWorkflowBtn.style.display = 'none';
+          rejectWorkflowBtn.style.display = 'none';
+          successWorkflowBtn.style.display = 'none';
+          reviewWorkflowBtn.style.display = 'none';
+          workflowRunState.textContent = 'No run selected';
+          workflowRunHistory.textContent = 'No run history';
           return;
         }
         const latest = runs[runs.length - 1] || {};
+        const awaitingApproval = (latest.status || '') === 'awaiting_approval';
+        approveWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
+        rejectWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
+        successWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
+        reviewWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
+        workflowRunState.textContent = (latest.status || 'unknown') + (latest.approval_outcome ? (' // outcome: ' + latest.approval_outcome) : '');
+        workflowRunHistory.textContent = runs.slice(-3).reverse().map(function (run) {
+          return (run.run_id || 'run') + ' [' + (run.status || 'unknown') + ']';
+        }).join(' | ');
         const steps = latest.steps || [];
         if (!steps.length) {
           workflowRunLog.innerHTML = '<div class="workspace-empty">No steps recorded.</div>';
@@ -1934,6 +1975,21 @@
         await loadWorkflowDetail(state.selectedWorkflowId);
       }
 
+      async function resumeWorkflow(outcome) {
+        if (!state.selectedWorkflowId) return showToast('Select a workflow first');
+        const detail = state.selectedWorkflowDetail || {};
+        const runs = detail.runs || [];
+        const latest = runs[runs.length - 1] || {};
+        if (!latest.run_id) return showToast('No workflow run selected');
+        await api('/api/workflows/' + encodeURIComponent(state.selectedWorkflowId) + '/runs/' + encodeURIComponent(latest.run_id) + '/resume', {
+          method: 'POST',
+          body: JSON.stringify({ outcome: outcome })
+        });
+        showToast('Workflow resumed: ' + outcome);
+        await loadWorkspace();
+        await loadWorkflowDetail(state.selectedWorkflowId);
+      }
+
       async function addSuggestion() {
         if (!state.selectedDocumentId) return showToast('Select a document first');
         const text = document.getElementById('suggestionText').value.trim();
@@ -1994,6 +2050,10 @@
       document.getElementById('addWorkflowEdgeBtn').addEventListener('click', addWorkflowEdge);
       document.getElementById('saveWorkflowBtn').addEventListener('click', function () { saveWorkflow().catch(function (err) { showToast(err.message); }); });
       document.getElementById('runWorkflowBtn').addEventListener('click', function () { executeWorkflow().catch(function (err) { showToast(err.message); }); });
+      approveWorkflowBtn.addEventListener('click', function () { resumeWorkflow('approved').catch(function (err) { showToast(err.message); }); });
+      rejectWorkflowBtn.addEventListener('click', function () { resumeWorkflow('rejected').catch(function (err) { showToast(err.message); }); });
+      successWorkflowBtn.addEventListener('click', function () { resumeWorkflow('success').catch(function (err) { showToast(err.message); }); });
+      reviewWorkflowBtn.addEventListener('click', function () { resumeWorkflow('needs_review').catch(function (err) { showToast(err.message); }); });
 
       bootstrapSession()
         .then(loadWorkspace)

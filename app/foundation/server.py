@@ -173,6 +173,12 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     def _workflow_runs(workflow_id: str, limit: int = 30) -> list[dict[str, Any]]:
         return read_jsonl(_workflow_run_log(workflow_id), limit=limit)
 
+    def _rewrite_workflow_runs(workflow_id: str, rows: list[dict[str, Any]]) -> None:
+        log_path = _workflow_run_log(workflow_id)
+        log_path.write_text("", encoding="utf-8")
+        for row in rows:
+            append_jsonl(log_path, row)
+
     def _workflow_task_type(node_type: str, label: str) -> str:
         token = f"{node_type} {label}".lower()
         if "code" in token or "build" in token or "app" in token:
@@ -229,54 +235,172 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 ordered.append(node)
         return ordered
 
-    def _execute_workflow(record: dict[str, Any], owner: str) -> dict[str, Any]:
+    def _workflow_graph(record: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]], list[str]]:
+        nodes = record.get("nodes") if isinstance(record.get("nodes"), list) else []
+        edges = record.get("edges") if isinstance(record.get("edges"), list) else []
+        node_map = {
+            str(node.get("id") or "").strip(): node
+            for node in nodes
+            if isinstance(node, dict) and str(node.get("id") or "").strip()
+        }
+        outgoing: dict[str, list[dict[str, Any]]] = {}
+        incoming: dict[str, int] = {node_id: 0 for node_id in node_map}
+        for edge in edges:
+            if not isinstance(edge, dict):
+                continue
+            source = str(edge.get("from") or "").strip()
+            target = str(edge.get("to") or "").strip()
+            if source in node_map and target in node_map:
+                outgoing.setdefault(source, []).append(edge)
+                incoming[target] = incoming.get(target, 0) + 1
+        starts = [
+            node_id
+            for node_id, node in node_map.items()
+            if str(node.get("type") or "").strip() == "start"
+        ] or [node_id for node_id, count in incoming.items() if count == 0]
+        return node_map, outgoing, starts
+
+    def _select_next_node_id(edges: list[dict[str, Any]], outcome: str | None = None) -> str:
+        if not edges:
+            return ""
+        wanted = str(outcome or "").strip().lower()
+        if wanted:
+            for edge in edges:
+                label = str(edge.get("label") or "").strip().lower()
+                if label == wanted or label.replace(" ", "_") == wanted:
+                    return str(edge.get("to") or "").strip()
+        for edge in edges:
+            if not str(edge.get("label") or "").strip():
+                return str(edge.get("to") or "").strip()
+        return str(edges[0].get("to") or "").strip()
+
+    def _record_workflow_run(record: dict[str, Any], run_record: dict[str, Any], *, append: bool) -> None:
+        workflow_id = str(record.get("id") or "").strip()
+        if append:
+            _append_workflow_run(workflow_id, run_record)
+            record["run_count"] = int(record.get("run_count") or 0) + 1
+        else:
+            runs = _workflow_runs(workflow_id, limit=200)
+            replaced = False
+            for index, row in enumerate(runs):
+                if str(row.get("run_id") or "").strip() == str(run_record.get("run_id") or "").strip():
+                    runs[index] = run_record
+                    replaced = True
+                    break
+            if not replaced:
+                runs.append(run_record)
+            _rewrite_workflow_runs(workflow_id, runs)
+        record["last_run_at"] = str(run_record.get("completed_at") or run_record.get("updated_at") or _now_iso())
+        record["last_run_id"] = str(run_record.get("run_id") or "")
+        record["updated_at"] = _now_iso()
+        save_object(root, "workflows", workflow_id, record)
+
+    def _execute_workflow(
+        record: dict[str, Any],
+        owner: str,
+        *,
+        run_record: dict[str, Any] | None = None,
+        start_node_id: str | None = None,
+        branch_outcome: str | None = None,
+    ) -> dict[str, Any]:
         workflow_id = str(record.get("id") or "").strip()
         project_id = str(record.get("project_id") or "").strip()
-        run_id = _slug("wfrun")
-        steps: list[dict[str, Any]] = []
-        generated_task_ids: list[str] = []
-        nodes = _ordered_workflow_nodes(record)
+        node_map, outgoing, starts = _workflow_graph(record)
         agents = {
             str(row.get("name") or "").strip().lower(): row
             for row in list_objects(root, "agents", limit=500)
             if isinstance(row, dict) and str(row.get("name") or "").strip()
         }
+        append_run = run_record is None
+        if run_record is None:
+            run_record = {
+                "run_id": _slug("wfrun"),
+                "workflow_id": workflow_id,
+                "project_id": project_id,
+                "name": str(record.get("name") or "").strip(),
+                "owner": owner,
+                "status": "running",
+                "started_at": _now_iso(),
+                "updated_at": _now_iso(),
+                "generated_task_ids": [],
+                "step_count": 0,
+                "steps": [],
+            }
+        run_id = str(run_record.get("run_id") or _slug("wfrun"))
+        current_id = str(start_node_id or run_record.get("next_node_id") or (starts[0] if starts else "")).strip()
+        next_outcome = str(branch_outcome or "").strip().lower() or None
+        visited: set[str] = set()
 
-        for index, node in enumerate(nodes, start=1):
-            node_id = str(node.get("id") or "").strip()
+        while current_id and current_id in node_map and current_id not in visited:
+            visited.add(current_id)
+            node = node_map[current_id]
             node_type = str(node.get("type") or "task").strip() or "task"
-            label = str(node.get("label") or node_id or f"step-{index}").strip()
+            label = str(node.get("label") or current_id).strip()
             step: dict[str, Any] = {
                 "step_id": _slug("wfstep"),
-                "index": index,
-                "node_id": node_id,
+                "index": len(run_record["steps"]) + 1,
+                "node_id": current_id,
                 "type": node_type,
                 "label": label,
-                "status": "completed",
                 "timestamp": _now_iso(),
             }
-            if node_type in {"task", "research", "review", "approval"}:
+            if node_type in {"task", "research", "review"}:
                 task_id = _slug("task")
-                task_status = "awaiting_approval" if node_type == "approval" else "queued"
                 task_record = _stamp_record(
                     {
                         "id": task_id,
                         "project_id": project_id,
                         "title": label,
                         "assignee": str(node.get("assignee") or node_type).strip() or node_type,
-                        "risk_tier": "high" if node_type == "approval" else "medium",
+                        "risk_tier": "medium",
                         "workflow_id": workflow_id,
                         "workflow_run_id": run_id,
-                        "node_id": node_id,
+                        "node_id": current_id,
                     },
                     owner=owner,
-                    status=task_status,
+                    status="queued",
                 )
                 save_object(root, "tasks", task_id, task_record)
-                generated_task_ids.append(task_id)
-                step["generated_task"] = {"id": task_id, "status": task_status}
+                run_record["generated_task_ids"].append(task_id)
+                step["status"] = "completed"
+                step["generated_task"] = {"id": task_id, "status": "queued"}
+            elif node_type == "approval":
+                task_id = _slug("task")
+                task_record = _stamp_record(
+                    {
+                        "id": task_id,
+                        "project_id": project_id,
+                        "title": label,
+                        "assignee": str(node.get("assignee") or "approval").strip() or "approval",
+                        "risk_tier": "high",
+                        "workflow_id": workflow_id,
+                        "workflow_run_id": run_id,
+                        "node_id": current_id,
+                    },
+                    owner=owner,
+                    status="awaiting_approval",
+                )
+                save_object(root, "tasks", task_id, task_record)
+                run_record["generated_task_ids"].append(task_id)
+                step["status"] = "awaiting_approval"
+                step["generated_task"] = {"id": task_id, "status": "awaiting_approval"}
+                step["message"] = "Execution paused pending approval."
+                run_record["steps"].append(step)
+                run_record["step_count"] = len(run_record["steps"])
+                run_record["status"] = "awaiting_approval"
+                run_record["pending_node_id"] = current_id
+                run_record["awaiting_task_id"] = task_id
+                run_record["updated_at"] = _now_iso()
+                _record_workflow_run(record, run_record, append=append_run)
+                _log_workspace_event(
+                    "workflow_paused_for_approval",
+                    owner,
+                    {"workflow_id": workflow_id, "workflow_run_id": run_id, "project_id": project_id, "task_id": task_id},
+                )
+                return run_record
             elif node_type == "agent":
                 agent = agents.get(label.lower())
+                step["status"] = "completed"
                 step["agent"] = {
                     "matched": bool(agent),
                     "agent_id": str(agent.get("id") or "") if agent else "",
@@ -287,38 +411,37 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                     _workflow_task_type(node_type, label),
                     {"project_id": project_id, "workflow_id": workflow_id, "workflow_run_id": run_id},
                 )
+                step["status"] = "completed"
                 step["route"] = {
                     "provider": decision.get("provider"),
                     "model_assigned": decision.get("model_assigned"),
                     "route_reasons": decision.get("route_reasons") or [],
                 }
             elif node_type == "start":
+                step["status"] = "completed"
                 step["message"] = "Workflow execution started."
             elif node_type == "end":
+                step["status"] = "completed"
                 step["message"] = "Workflow execution completed."
+                run_record["steps"].append(step)
+                current_id = ""
+                break
             else:
+                step["status"] = "completed"
                 step["message"] = f"Processed node type {node_type}."
-            steps.append(step)
+            run_record["steps"].append(step)
+            edges = outgoing.get(current_id, [])
+            current_id = _select_next_node_id(edges, next_outcome)
+            next_outcome = None
 
-        run_record = {
-            "run_id": run_id,
-            "workflow_id": workflow_id,
-            "project_id": project_id,
-            "name": str(record.get("name") or "").strip(),
-            "owner": owner,
-            "status": "completed",
-            "started_at": _now_iso(),
-            "completed_at": _now_iso(),
-            "generated_task_ids": generated_task_ids,
-            "step_count": len(steps),
-            "steps": steps,
-        }
-        _append_workflow_run(workflow_id, run_record)
-        record["last_run_at"] = run_record["completed_at"]
-        record["last_run_id"] = run_id
-        record["run_count"] = int(record.get("run_count") or 0) + 1
-        record["updated_at"] = _now_iso()
-        save_object(root, "workflows", workflow_id, record)
+        run_record["step_count"] = len(run_record["steps"])
+        run_record["status"] = "completed"
+        run_record["completed_at"] = _now_iso()
+        run_record["updated_at"] = _now_iso()
+        run_record.pop("pending_node_id", None)
+        run_record.pop("awaiting_task_id", None)
+        run_record.pop("next_node_id", None)
+        _record_workflow_run(record, run_record, append=append_run)
         _log_workspace_event(
             "workflow_executed",
             owner,
@@ -326,7 +449,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 "workflow_id": workflow_id,
                 "workflow_run_id": run_id,
                 "project_id": project_id,
-                "generated_task_count": len(generated_task_ids),
+                "generated_task_count": len(run_record.get("generated_task_ids") or []),
             },
         )
         return run_record
@@ -834,6 +957,52 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             return jsonify({"ok": False, "error": "workflow not found"}), 404
         owner = str(session.get("user_id") or "").strip()
         run_record = _execute_workflow(record, owner)
+        return jsonify({"ok": True, "workflow": record, "run": run_record})
+
+    @app.post("/api/workflows/<workflow_id>/runs/<run_id>/resume")
+    def workflows_resume(workflow_id: str, run_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "workflows", workflow_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "workflow not found"}), 404
+        runs = _workflow_runs(workflow_id, limit=200)
+        target_run = None
+        for row in runs:
+            if str(row.get("run_id") or "").strip() == run_id:
+                target_run = row
+                break
+        if not isinstance(target_run, dict):
+            return jsonify({"ok": False, "error": "run not found"}), 404
+        if str(target_run.get("status") or "").strip() != "awaiting_approval":
+            return jsonify({"ok": False, "error": "run is not awaiting approval"}), 400
+        payload = request.get_json(silent=True) or {}
+        outcome = str(payload.get("outcome") or "approved").strip().lower()
+        if outcome not in {"approved", "rejected", "success", "needs_review"}:
+            return jsonify({"ok": False, "error": "invalid outcome"}), 400
+        pending_node_id = str(target_run.get("pending_node_id") or "").strip()
+        if not pending_node_id:
+            return jsonify({"ok": False, "error": "pending node missing"}), 400
+        approval_task_id = str(target_run.get("awaiting_task_id") or "").strip()
+        if approval_task_id:
+            approval_task = load_object(root, "tasks", approval_task_id, {})
+            if isinstance(approval_task, dict) and approval_task.get("id"):
+                approval_task["status"] = outcome
+                approval_task["updated_at"] = _now_iso()
+                save_object(root, "tasks", approval_task_id, approval_task)
+        _node_map, outgoing, _starts = _workflow_graph(record)
+        next_node_id = _select_next_node_id(outgoing.get(pending_node_id, []), outcome)
+        owner = str(session.get("user_id") or "").strip()
+        target_run["approval_outcome"] = outcome
+        target_run["next_node_id"] = next_node_id
+        target_run["updated_at"] = _now_iso()
+        run_record = _execute_workflow(record, owner, run_record=target_run, start_node_id=next_node_id, branch_outcome=outcome)
+        _log_workspace_event(
+            "workflow_resumed",
+            owner,
+            {"workflow_id": workflow_id, "workflow_run_id": run_id, "project_id": str(record.get("project_id") or ""), "outcome": outcome},
+        )
         return jsonify({"ok": True, "workflow": record, "run": run_record})
 
     @app.get("/api/documents")
