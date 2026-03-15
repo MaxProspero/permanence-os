@@ -1326,7 +1326,7 @@
               </div>
               <div class="form-group">
                 <label for="workflowNodeInputTemplate">Node Input Template</label>
-                <textarea id="workflowNodeInputTemplate" placeholder='Optional. Example: {{latest_output|json}} or {{task_outputs.n02.output.items|get:0}} or {{latest_output.title|default:untitled}}'></textarea>
+                <textarea id="workflowNodeInputTemplate" placeholder='Optional. Example: {{latest_output|json}} or {{latest_output.title|strip}} or {{latest_output.tags|split:|}}'></textarea>
               </div>
               <div class="btn-row">
                 <button class="btn btn-primary" id="addWorkflowNodeBtn">Add Node</button>
@@ -1347,7 +1347,7 @@
               </div>
               <div class="form-group">
                 <label for="workflowEdgeCondition">Edge Condition</label>
-                <input type="text" id="workflowEdgeCondition" placeholder="Optional. Example: latest_output.score>=0.9 and latest_output.title matches launch|alpha">
+                <input type="text" id="workflowEdgeCondition" placeholder='Optional. Example: (latest_output.status in "ready","done") and (exists latest_output.owner or not empty latest_output.reviewers)'>
               </div>
               <div class="btn-row">
                 <button class="btn btn-ghost" id="addWorkflowEdgeBtn">Add Edge</button>

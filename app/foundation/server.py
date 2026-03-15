@@ -376,6 +376,8 @@ def _apply_template_transform(value: Any, transform: str) -> Any:
         return str(value or "").lower()
     if token == "upper":
         return str(value or "").upper()
+    if token == "strip":
+        return str(value or "").strip()
     if token == "len":
         if isinstance(value, (dict, list, str, tuple, set)):
             return len(value)
@@ -388,6 +390,12 @@ def _apply_template_transform(value: Any, transform: str) -> Any:
         if isinstance(value, (list, tuple)) and value:
             return value[-1]
         return None
+    if token.startswith("split"):
+        separator = ","
+        if ":" in transform:
+            separator = transform.split(":", 1)[1]
+        text = "" if value is None else str(value)
+        return text.split(separator)
     if token.startswith("get:"):
         index_raw = token.split(":", 1)[1].strip()
         if isinstance(value, (list, tuple)):
@@ -456,23 +464,132 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     condition = str(edge.get("condition") or "").strip()
     if not condition:
         return False
+
+    def unwrap_parentheses(text: str) -> str:
+        raw = str(text or "").strip()
+        while raw.startswith("(") and raw.endswith(")"):
+            depth = 0
+            in_quote: str | None = None
+            balanced = True
+            for index, char in enumerate(raw):
+                if char in {"'", '"'}:
+                    if in_quote == char:
+                        in_quote = None
+                    elif in_quote is None:
+                        in_quote = char
+                    continue
+                if in_quote is not None:
+                    continue
+                if char == "(":
+                    depth += 1
+                elif char == ")":
+                    depth -= 1
+                    if depth == 0 and index != len(raw) - 1:
+                        balanced = False
+                        break
+            if not balanced or depth != 0:
+                break
+            raw = raw[1:-1].strip()
+        return raw
+
+    def normalize_literal(text: str) -> str:
+        raw = str(text or "").strip()
+        if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"'", '"'}:
+            return raw[1:-1]
+        return raw
+
+    def parse_literal_list(text: str) -> list[str]:
+        raw = str(text or "").strip()
+        if not raw:
+            return []
+        parts = [part.strip() for part in re.split(r""",(?=(?:[^"'\\]|\\.|"[^"]*"|'[^']*')*$)""", raw) if part.strip()]
+        return [normalize_literal(part) for part in parts]
+
+    def split_top_level(text: str, keyword: str) -> list[str]:
+        parts: list[str] = []
+        buffer: list[str] = []
+        depth = 0
+        in_quote: str | None = None
+        index = 0
+        token = f" {keyword} "
+        raw = str(text or "")
+        token_length = len(token)
+        while index < len(raw):
+            char = raw[index]
+            if char in {"'", '"'}:
+                if in_quote == char:
+                    in_quote = None
+                elif in_quote is None:
+                    in_quote = char
+                buffer.append(char)
+                index += 1
+                continue
+            if in_quote is None:
+                if char == "(":
+                    depth += 1
+                elif char == ")" and depth > 0:
+                    depth -= 1
+                elif depth == 0 and raw[index:index + token_length].lower() == token:
+                    part = "".join(buffer).strip()
+                    if part:
+                        parts.append(part)
+                    buffer = []
+                    index += token_length
+                    continue
+            buffer.append(char)
+            index += 1
+        tail = "".join(buffer).strip()
+        if tail:
+            parts.append(tail)
+        return parts
+
+    condition = unwrap_parentheses(condition)
     lowered = condition.lower()
-    if " or " in lowered:
-        parts = [part.strip() for part in re.split(r"\s+or\s+", condition, flags=re.IGNORECASE) if part.strip()]
+    or_parts = split_top_level(condition, "or")
+    if len(or_parts) > 1:
+        parts = [part.strip() for part in or_parts if part.strip()]
         return any(_condition_matches({"condition": part}, context) for part in parts)
-    if " and " in lowered:
-        parts = [part.strip() for part in re.split(r"\s+and\s+", condition, flags=re.IGNORECASE) if part.strip()]
+    and_parts = split_top_level(condition, "and")
+    if len(and_parts) > 1:
+        parts = [part.strip() for part in and_parts if part.strip()]
         return all(_condition_matches({"condition": part}, context) for part in parts)
-    for operator in (" contains ", " startswith ", " endswith ", " matches "):
+    if lowered.startswith("not "):
+        return not _condition_matches({"condition": condition[4:].strip()}, context)
+    if lowered.startswith("exists "):
+        value = _template_lookup(context, condition[7:].strip())
+        return value is not None and value != ""
+    if lowered.startswith("empty "):
+        value = _template_lookup(context, condition[6:].strip())
+        if value is None:
+            return True
+        if isinstance(value, (str, bytes, list, tuple, set, dict)):
+            return len(value) == 0
+        return False
+    for operator in (" not in ", " in "):
         if operator not in lowered:
             continue
         split_index = lowered.index(operator)
         left = condition[:split_index].strip()
         right = condition[split_index + len(operator):].strip()
         value = _template_lookup(context, left)
+        options = parse_literal_list(right)
+        if isinstance(value, (list, tuple, set)):
+            actual_values = {str(item).strip().lower() for item in value}
+            matches = any(option.lower() in actual_values for option in options)
+        else:
+            actual_text = "" if value is None else str(value).strip().lower()
+            matches = actual_text in {option.lower() for option in options}
+        return (not matches) if operator.strip() == "not in" else matches
+    for operator in (" contains ", " startswith ", " endswith ", " matches "):
+        if operator not in lowered:
+            continue
+        split_index = lowered.index(operator)
+        left = condition[:split_index].strip()
+        right = normalize_literal(condition[split_index + len(operator):].strip())
+        value = _template_lookup(context, left)
         if operator.strip() == "contains":
             if isinstance(value, (list, tuple, set)):
-                return right in {str(item).strip() for item in value}
+                return right.lower() in {str(item).strip().lower() for item in value}
             actual_text = "" if value is None else str(value)
             return right.lower() in actual_text.lower()
         actual_text = "" if value is None else str(value).strip().lower()
@@ -491,6 +608,7 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         if operator not in condition:
             continue
         left, expected = condition.split(operator, 1)
+        expected = normalize_literal(expected)
         value = _template_lookup(context, left.strip())
         if operator == "=":
             if isinstance(value, (dict, list)):
