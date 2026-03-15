@@ -470,8 +470,15 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         while raw.startswith("(") and raw.endswith(")"):
             depth = 0
             in_quote: str | None = None
+            escaped = False
             balanced = True
             for index, char in enumerate(raw):
+                if escaped:
+                    escaped = False
+                    continue
+                if char == "\\":
+                    escaped = True
+                    continue
                 if char in {"'", '"'}:
                     if in_quote == char:
                         in_quote = None
@@ -495,7 +502,9 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     def normalize_literal(text: str) -> str:
         raw = str(text or "").strip()
         if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"'", '"'}:
-            return raw[1:-1]
+            raw = raw[1:-1]
+        raw = raw.replace("\\\\", "\\")
+        raw = raw.replace('\\"', '"').replace("\\'", "'")
         return raw
 
     def parse_literal_list(text: str) -> list[str]:
@@ -510,12 +519,23 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         buffer: list[str] = []
         depth = 0
         in_quote: str | None = None
+        escaped = False
         index = 0
         token = f" {keyword} "
         raw = str(text or "")
         token_length = len(token)
         while index < len(raw):
             char = raw[index]
+            if escaped:
+                buffer.append(char)
+                escaped = False
+                index += 1
+                continue
+            if char == "\\":
+                buffer.append(char)
+                escaped = True
+                index += 1
+                continue
             if char in {"'", '"'}:
                 if in_quote == char:
                     in_quote = None

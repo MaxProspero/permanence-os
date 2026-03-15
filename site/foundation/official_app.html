@@ -222,6 +222,55 @@
       border-left: 3px solid var(--c1);
     }
 
+    .liquid-panel {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .liquid-panel::before,
+    .liquid-panel::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(8px);
+      opacity: 0.55;
+    }
+
+    .liquid-panel::before {
+      top: -18%;
+      right: -10%;
+      width: 240px;
+      height: 240px;
+      border-radius: 44% 56% 61% 39% / 42% 41% 59% 58%;
+      background: radial-gradient(circle at 30% 30%, rgba(0,229,196,0.24), rgba(0,229,196,0.03) 68%, transparent 74%);
+      animation: liquidFloat 16s ease-in-out infinite;
+    }
+
+    .liquid-panel::after {
+      left: -8%;
+      bottom: -22%;
+      width: 220px;
+      height: 220px;
+      border-radius: 63% 37% 46% 54% / 53% 58% 42% 47%;
+      background: radial-gradient(circle at 60% 40%, rgba(248,200,66,0.18), rgba(123,111,255,0.06) 58%, transparent 72%);
+      animation: liquidFloat 19s ease-in-out infinite reverse;
+    }
+
+    .liquid-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes liquidFloat {
+      0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate3d(-10px, 16px, 0) scale(1.08) rotate(10deg); }
+      66% { transform: translate3d(14px, -12px, 0) scale(0.94) rotate(-8deg); }
+      100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+    }
+
     .card-title {
       font-family: var(--sans);
       font-size: 15px;
@@ -1294,7 +1343,7 @@
           </div>
         </div>
 
-        <div class="glass-card">
+        <div class="glass-card liquid-panel">
           <div class="card-title">Workflow Builder</div>
           <p class="mini-note">Start with a compact graph instead of a full no-code platform. Nodes and edges are stored as workflow JSON and can later compile into governed execution specs.</p>
           <div class="stack-2">
@@ -1374,7 +1423,7 @@
       </div>
 
       <div class="workspace-stack">
-        <div class="glass-card">
+        <div class="glass-card liquid-panel">
           <div class="card-title">Workspace Objects</div>
           <div class="inspector-grid">
             <div class="inspector-row">
@@ -1396,7 +1445,7 @@
           </div>
         </div>
 
-        <div class="glass-card">
+        <div class="glass-card liquid-panel">
           <div class="card-title">Router Inspector</div>
           <p class="mini-note">This exposes the route rationale layer directly in the product. Start with one task and inspect how Ophtxn would choose local vs hosted intelligence.</p>
           <div class="form-group">
@@ -1432,7 +1481,7 @@
           </div>
         </div>
 
-        <div class="glass-card">
+        <div class="glass-card liquid-panel">
           <div class="card-title">Projects</div>
           <div class="workspace-list" id="projectList">
             <div class="workspace-empty">No projects yet.</div>
