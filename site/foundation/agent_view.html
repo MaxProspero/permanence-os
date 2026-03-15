@@ -631,6 +631,105 @@
       transform: translateY(0);
     }
 
+    .roster-panel,
+    .editor-panel,
+    .assignment-panel {
+      min-height: 220px;
+    }
+    .stack { display: grid; gap: 20px; }
+    .agent-list {
+      display: grid;
+      gap: 10px;
+      max-height: 280px;
+      overflow: auto;
+    }
+    .agent-row {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,.18);
+      cursor: pointer;
+      transition: border-color .18s ease, background .18s ease;
+    }
+    .agent-row.active, .agent-row:hover {
+      border-color: var(--line-hi);
+      background: rgba(var(--f-rgb), .08);
+    }
+    .agent-row-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .agent-row-name {
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .agent-row-meta {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .field label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: rgba(0,0,0,.28);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      padding: 10px 12px;
+      font: inherit;
+      outline: none;
+    }
+    .field textarea { min-height: 84px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--line-hi); }
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(var(--f-rgb), .08);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .check-item input { accent-color: var(--c1); }
+
     /* ═══════════════ RESPONSIVE ═══════════════ */
     @media (max-width: 900px) {
       .agent-grid {
@@ -812,113 +911,85 @@
         </div>
       </div>
 
-      <!-- ═══ 2. CONVERSATION TRANSCRIPT ═══ -->
-      <div class="panel transcript-panel">
+      <!-- ═══ 2. AGENT ROSTER ═══ -->
+      <div class="panel transcript-panel roster-panel">
         <div class="halftone"></div>
-        <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>TRANSCRIPT</div>
-        <div class="transcript-scroll">
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:14:02</span>
-              <span class="msg-sender msg-sender--user">USER</span>
-            </div>
-            <div class="msg-body">Good morning, KAEL. What does today look like?</div>
+        <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>AGENT ROSTER</div>
+        <div class="stack">
+          <div class="agent-list" id="agentList">
+            <div class="agent-row"><div class="agent-row-head"><div class="agent-row-name">No agents yet</div></div><div class="agent-row-meta">Create one below</div></div>
           </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:14:03</span>
-              <span class="msg-sender msg-sender--kael">KAEL</span>
-            </div>
-            <div class="msg-body">Morning. You have 4 pending approvals in the governance queue, a briefing doc from overnight context ingestion, and two CI runs that completed green at 03:41.</div>
+          <div class="pill-list" id="selectedAgentProjects">
+            <span class="pill">No project assignments</span>
           </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:14:18</span>
-              <span class="msg-sender msg-sender--user">USER</span>
-            </div>
-            <div class="msg-body">Run the morning briefing and summarize revenue status.</div>
-          </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:14:19</span>
-              <span class="msg-sender msg-sender--kael">KAEL</span>
-            </div>
-            <div class="msg-body">Executing briefing pipeline now. Revenue for the trailing 7 days: $4,280 across 3 active streams. Stripe webhook volume is up 12% week-over-week. No anomalies flagged.</div>
-          </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:15:04</span>
-              <span class="msg-sender msg-sender--user">USER</span>
-            </div>
-            <div class="msg-body">What about the Night Capital pipeline? Any movement?</div>
-          </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:15:05</span>
-              <span class="msg-sender msg-sender--kael">KAEL</span>
-            </div>
-            <div class="msg-body">ArcticAI moved from Due Diligence to Term Sheet stage overnight. NovaPay founder responded to the data room request -- financials are in. I flagged two new inbound deals for your review in the Prospects column.</div>
-          </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:16:32</span>
-              <span class="msg-sender msg-sender--user">USER</span>
-            </div>
-            <div class="msg-body">Approve the CI deployments and schedule the ArcticAI follow-up for Thursday.</div>
-          </div>
-
-          <div class="msg">
-            <div class="msg-meta">
-              <span class="msg-time">09:16:33</span>
-              <span class="msg-sender msg-sender--kael">KAEL</span>
-            </div>
-            <div class="msg-body">Done. Both deployments approved and pushed to production. ArcticAI follow-up scheduled for Thursday at 14:00 CT. Calendar invite sent to both parties. Anything else?</div>
-          </div>
-
         </div>
       </div>
 
-      <!-- ═══ 3. AGENT VITALS ═══ -->
-      <div class="vitals-row">
-        <div class="vital-card">
-          <div class="halftone"></div>
-          <div class="vital-label">Uptime</div>
-          <div class="vital-val" style="color:var(--c1)">4h 23m</div>
-          <div class="vital-sub">Since last restart</div>
+      <!-- ═══ 3. AGENT EDITOR ═══ -->
+      <div class="panel vitals-row editor-panel" style="display:block">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c2)"></span>AGENT EDITOR</div>
+        <div class="field">
+          <label for="agentName">Agent Name</label>
+          <input id="agentName" type="text" placeholder="e.g. Claw Builder">
         </div>
-        <div class="vital-card">
-          <div class="halftone"></div>
-          <div class="vital-label">Tasks Today</div>
-          <div class="vital-val" style="color:var(--c2)">17</div>
-          <div class="vital-sub">Completed / queued</div>
+        <div class="field">
+          <label for="agentRole">Role</label>
+          <input id="agentRole" type="text" placeholder="builder">
         </div>
-        <div class="vital-card">
-          <div class="halftone"></div>
-          <div class="vital-label">Context Window</div>
-          <div class="vital-val" style="color:var(--c3)">62%</div>
-          <div class="vital-sub">Utilized</div>
+        <div class="field">
+          <label for="agentModels">Model Preferences</label>
+          <input id="agentModels" type="text" placeholder="claude-sonnet-4-6,qwen2.5:7b">
         </div>
-        <div class="vital-card">
-          <div class="halftone"></div>
-          <div class="vital-label">Active Model</div>
-          <div class="vital-val" style="color:var(--violet)">Opus 4</div>
-          <div class="vital-sub">Claude Opus 4</div>
+        <div class="field">
+          <label>Permissions</label>
+          <div class="check-grid">
+            <label class="check-item"><input type="checkbox" value="read" class="perm-check" checked> read</label>
+            <label class="check-item"><input type="checkbox" value="suggest" class="perm-check" checked> suggest</label>
+            <label class="check-item"><input type="checkbox" value="edit" class="perm-check"> edit</label>
+            <label class="check-item"><input type="checkbox" value="execute" class="perm-check"> execute</label>
+            <label class="check-item"><input type="checkbox" value="approve" class="perm-check"> approve</label>
+            <label class="check-item"><input type="checkbox" value="self_improve" class="perm-check"> self-improve</label>
+          </div>
+        </div>
+        <div class="quick-actions" style="grid-template-columns:1fr 1fr; margin-top:16px">
+          <button class="qa-btn" id="createAgentBtn">Create Agent</button>
+          <button class="qa-btn" id="saveAgentBtn">Save Agent</button>
         </div>
       </div>
 
-      <!-- ═══ 4. QUICK ACTIONS BAR ═══ -->
-      <div class="quick-actions">
-        <button class="qa-btn">Run Briefing</button>
-        <button class="qa-btn">Check Approvals</button>
-        <button class="qa-btn">Revenue Status</button>
-        <button class="qa-btn">System Health</button>
+      <!-- ═══ 4. ASSIGNMENTS / ROUTING ═══ -->
+      <div class="panel quick-actions assignment-panel" style="display:block">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c1)"></span>ASSIGNMENTS & ROUTING</div>
+        <div class="field">
+          <label for="agentProjects">Project Membership</label>
+          <select id="agentProjects" multiple size="5"></select>
+        </div>
+        <div class="field">
+          <label for="agentStatus">Status</label>
+          <select id="agentStatus">
+            <option value="active">active</option>
+            <option value="paused">paused</option>
+            <option value="review_only">review_only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="agentRouteTask">Route Task Test</label>
+          <select id="agentRouteTask">
+            <option value="planning">planning</option>
+            <option value="research_synthesis">research_synthesis</option>
+            <option value="code_generation">code_generation</option>
+            <option value="classification">classification</option>
+          </select>
+        </div>
+        <div class="pill-list" id="agentRouteResult">
+          <span class="pill">No route result yet</span>
+        </div>
+        <div class="quick-actions" style="grid-template-columns:1fr 1fr; margin-top:16px">
+          <button class="qa-btn" id="testRouteBtn">Test Route</button>
+          <button class="qa-btn" id="saveAssignmentsBtn">Save Assignment</button>
+        </div>
       </div>
 
     </div>
@@ -1032,6 +1103,216 @@
     });
     if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
     window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
+  })();
+  </script>
+
+  <script>
+  (function(){
+    var toast=document.getElementById('toast');
+    var agentList=document.getElementById('agentList');
+    var agentProjects=document.getElementById('agentProjects');
+    var selectedAgentProjects=document.getElementById('selectedAgentProjects');
+    var agentNameInput=document.getElementById('agentName');
+    var agentRoleInput=document.getElementById('agentRole');
+    var agentModelsInput=document.getElementById('agentModels');
+    var agentStatus=document.getElementById('agentStatus');
+    var routeTask=document.getElementById('agentRouteTask');
+    var routeResult=document.getElementById('agentRouteResult');
+    var presenceName=document.querySelector('.agent-name');
+    var presenceStatus=document.querySelector('.status-text');
+    var vitalValues=document.querySelectorAll('.vital-val');
+    var apiBase=(window.__OPHTXN_RUNTIME&&window.__OPHTXN_RUNTIME.apiBase)||(window.location.origin.indexOf('8797')!==-1?window.location.origin:'http://127.0.0.1:8797');
+    var state={token:'',agents:[],projects:[],selectedAgentId:''};
+
+    function showToast(msg){
+      toast.textContent=msg;
+      toast.classList.add('show');
+      clearTimeout(showToast.t);
+      showToast.t=setTimeout(function(){toast.classList.remove('show');},2200);
+    }
+
+    function api(path,options){
+      var init=Object.assign({headers:{}},options||{});
+      init.headers=Object.assign({},init.headers,{'Content-Type':'application/json'});
+      if(state.token)init.headers['X-Session-Token']=state.token;
+      return fetch(apiBase+path,init).then(function(r){
+        return r.json().catch(function(){return {};}).then(function(payload){
+          if(!r.ok||payload.ok===false)throw new Error(payload.error||'request_failed');
+          return payload;
+        });
+      });
+    }
+
+    function checkedPermissions(){
+      return Array.prototype.slice.call(document.querySelectorAll('.perm-check:checked')).map(function(el){return el.value;});
+    }
+
+    function setPermissions(values){
+      var set=new Set(values||[]);
+      document.querySelectorAll('.perm-check').forEach(function(el){el.checked=set.has(el.value);});
+    }
+
+    function selectedProjectIds(){
+      return Array.prototype.slice.call(agentProjects.selectedOptions||[]).map(function(opt){return opt.value;}).filter(Boolean);
+    }
+
+    function renderProjects(){
+      agentProjects.innerHTML=state.projects.map(function(project){
+        return '<option value="'+project.id+'">'+project.name+'</option>';
+      }).join('');
+    }
+
+    function renderSelectedProjects(agent){
+      var ids=(agent&&agent.project_ids)||[];
+      if(!ids.length){
+        selectedAgentProjects.innerHTML='<span class="pill">No project assignments</span>';
+        return;
+      }
+      selectedAgentProjects.innerHTML=ids.map(function(id){
+        var project=state.projects.find(function(row){return row.id===id;});
+        return '<span class="pill">'+(project?project.name:id)+'</span>';
+      }).join('');
+    }
+
+    function renderAgents(){
+      if(!state.agents.length){
+        agentList.innerHTML='<div class="agent-row"><div class="agent-row-head"><div class="agent-row-name">No agents yet</div></div><div class="agent-row-meta">Create one below</div></div>';
+        return;
+      }
+      agentList.innerHTML=state.agents.map(function(agent){
+        return '<div class="agent-row'+(state.selectedAgentId===agent.id?' active':'')+'" data-agent-id="'+agent.id+'">'
+          +'<div class="agent-row-head"><div class="agent-row-name">'+agent.name+'</div><span class="pill">'+(agent.status||'active')+'</span></div>'
+          +'<div class="agent-row-meta">'+agent.role+' // '+((agent.model_preferences||[]).join(', ')||'no-model')+'</div></div>';
+      }).join('');
+      agentList.querySelectorAll('[data-agent-id]').forEach(function(node){
+        node.addEventListener('click',function(){selectAgent(node.getAttribute('data-agent-id'));});
+      });
+    }
+
+    function syncPresence(agent){
+      if(!agent){
+        presenceName.textContent='KAEL';
+        presenceStatus.textContent='LISTENING';
+        if(vitalValues[3])vitalValues[3].textContent='-';
+        return;
+      }
+      presenceName.textContent=agent.name||'Agent';
+      presenceStatus.textContent=(agent.status||'active').toUpperCase();
+      if(vitalValues[0])vitalValues[0].textContent=(agent.project_ids||[]).length+' PRJ';
+      if(vitalValues[1])vitalValues[1].textContent=(agent.permissions||[]).length+' PERM';
+      if(vitalValues[2])vitalValues[2].textContent=(agent.role||'-').slice(0,12).toUpperCase();
+      if(vitalValues[3])vitalValues[3].textContent=((agent.model_preferences||[])[0]||'-').replace('claude-','').replace('qwen','Qwen');
+    }
+
+    function selectAgent(agentId){
+      state.selectedAgentId=agentId||'';
+      var agent=state.agents.find(function(row){return row.id===state.selectedAgentId;});
+      if(!agent){
+        agentNameInput.value='';
+        agentRoleInput.value='';
+        agentModelsInput.value='';
+        agentStatus.value='active';
+        setPermissions(['read','suggest']);
+        Array.prototype.forEach.call(agentProjects.options,function(opt){opt.selected=false;});
+        renderSelectedProjects(null);
+        syncPresence(null);
+        renderAgents();
+        return;
+      }
+      agentNameInput.value=agent.name||'';
+      agentRoleInput.value=agent.role||'';
+      agentModelsInput.value=(agent.model_preferences||[]).join(',');
+      agentStatus.value=agent.status||'active';
+      setPermissions(agent.permissions||[]);
+      Array.prototype.forEach.call(agentProjects.options,function(opt){opt.selected=(agent.project_ids||[]).indexOf(opt.value)!==-1;});
+      renderSelectedProjects(agent);
+      syncPresence(agent);
+      renderAgents();
+    }
+
+    function bootstrapSession(){
+      return fetch(apiBase+'/auth/session',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({user_id:'local-operator',name:'Local Operator',ttl_minutes:720})
+      }).then(function(r){return r.json();}).then(function(payload){
+        if(!payload.ok)throw new Error(payload.error||'session_failed');
+        state.token=payload.token;
+      });
+    }
+
+    function loadData(){
+      return Promise.all([api('/api/agents'),api('/api/projects')]).then(function(results){
+        state.agents=results[0].agents||[];
+        state.projects=results[1].projects||[];
+        renderProjects();
+        renderAgents();
+        if(state.selectedAgentId){
+          selectAgent(state.selectedAgentId);
+        } else if(state.agents.length){
+          selectAgent(state.agents[0].id);
+        } else {
+          selectAgent('');
+        }
+      });
+    }
+
+    function createAgent(){
+      var name=agentNameInput.value.trim();
+      var role=agentRoleInput.value.trim();
+      if(!name||!role){showToast('Name and role required');return;}
+      return api('/api/agents',{
+        method:'POST',
+        body:JSON.stringify({
+          name:name,
+          role:role,
+          status:agentStatus.value,
+          model_preferences:agentModelsInput.value,
+          permissions:checkedPermissions().join(','),
+          project_ids:selectedProjectIds().join(',')
+        })
+      }).then(function(payload){
+        showToast('Agent created');
+        state.selectedAgentId=payload.agent.id;
+        return loadData();
+      }).catch(function(err){showToast(err.message);});
+    }
+
+    function saveAgent(){
+      if(!state.selectedAgentId){showToast('Select or create an agent first');return;}
+      return api('/api/agents/'+encodeURIComponent(state.selectedAgentId),{
+        method:'PATCH',
+        body:JSON.stringify({
+          name:agentNameInput.value.trim(),
+          role:agentRoleInput.value.trim(),
+          status:agentStatus.value,
+          model_preferences:agentModelsInput.value,
+          permissions:checkedPermissions().join(','),
+          project_ids:selectedProjectIds().join(',')
+        })
+      }).then(function(){
+        showToast('Agent updated');
+        return loadData();
+      }).catch(function(err){showToast(err.message);});
+    }
+
+    function testRoute(){
+      var context={requires_approval:checkedPermissions().indexOf('approve')!==-1,local_only:(agentModelsInput.value||'').indexOf('qwen')!==-1};
+      return api('/api/router/explain',{
+        method:'POST',
+        body:JSON.stringify({task_type:routeTask.value,context:context})
+      }).then(function(payload){
+        var d=payload.decision||{};
+        routeResult.innerHTML='<span class="pill">'+(d.provider||'-')+'</span><span class="pill">'+(d.model_assigned||'-')+'</span><span class="pill">'+((d.route_reasons||[])[0]||'no-reason')+'</span>';
+      }).catch(function(err){showToast(err.message);});
+    }
+
+    document.getElementById('createAgentBtn').addEventListener('click',createAgent);
+    document.getElementById('saveAgentBtn').addEventListener('click',saveAgent);
+    document.getElementById('saveAssignmentsBtn').addEventListener('click',saveAgent);
+    document.getElementById('testRouteBtn').addEventListener('click',testRoute);
+
+    bootstrapSession().then(loadData).catch(function(err){showToast(err.message);});
   })();
   </script>
 

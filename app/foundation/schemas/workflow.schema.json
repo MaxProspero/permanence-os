@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow",
+  "type": "object",
+  "required": ["id", "name", "status", "owner", "created_at", "updated_at"],
+  "properties": {
+    "id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "name": { "type": "string" },
+    "status": { "type": "string" },
+    "owner": { "type": "string" },
+    "nodes": { "type": "array", "items": { "type": "object" } },
+    "edges": { "type": "array", "items": { "type": "object" } },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

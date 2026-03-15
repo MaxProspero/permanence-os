@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Approval",
+  "type": "object",
+  "required": ["id", "status", "owner", "created_at", "updated_at"],
+  "properties": {
+    "id": { "type": "string" },
+    "target_type": { "type": "string" },
+    "target_id": { "type": "string" },
+    "status": { "type": "string" },
+    "owner": { "type": "string" },
+    "reason": { "type": "string" },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

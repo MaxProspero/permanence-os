@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Document",
+  "type": "object",
+  "required": ["id", "title", "status", "owner", "created_at", "updated_at"],
+  "properties": {
+    "id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "string" },
+    "owner": { "type": "string" },
+    "body_path": { "type": "string" },
+    "revision_count": { "type": "integer" },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

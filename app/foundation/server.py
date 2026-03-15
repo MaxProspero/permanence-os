@@ -14,7 +14,19 @@ try:
 except ModuleNotFoundError:
     CORS = None
 
-from app.foundation.storage import append_jsonl, ensure_root, load_json, read_jsonl, save_json
+from app.foundation.storage import (
+    append_activity_event,
+    append_jsonl,
+    ensure_root,
+    list_objects,
+    load_json,
+    load_object,
+    read_jsonl,
+    save_json,
+    save_object,
+    safe_object_id,
+)
+from core.model_router import ModelRouter
 
 
 def _now_iso() -> str:
@@ -52,6 +64,10 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _slug(prefix: str) -> str:
+    return f"{prefix}_{secrets.token_hex(4)}"
+
+
 def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
     base_dir = Path(__file__).resolve().parents[2]
     site_root = base_dir / "site" / "foundation"
@@ -65,6 +81,14 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     press_html_path = site_root / "press_kit.html"
     hub_html_path = site_root / "local_hub.html"
     ai_school_html_path = site_root / "ai_school.html"
+    agent_view_html_path = site_root / "agent_view.html"
+    command_center_html_path = site_root / "command_center.html"
+    daily_planner_html_path = site_root / "daily_planner.html"
+    comms_hub_html_path = site_root / "comms_hub.html"
+    rooms_html_path = site_root / "rooms.html"
+    markets_terminal_html_path = site_root / "markets_terminal.html"
+    trading_room_html_path = site_root / "trading_room.html"
+    night_capital_html_path = site_root / "night_capital.html"
     runtime_config_path = site_root / "runtime.config.js"
     assets_root = site_root / "assets"
 
@@ -72,6 +96,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     profiles_path = root / "profiles.json"
     memory_path = root / "memory_entries.jsonl"
     schema_path = Path(__file__).with_name("memory_schema.json")
+    router = ModelRouter()
 
     app = Flask(__name__)
     app.config["JSON_SORT_KEYS"] = False
@@ -104,6 +129,40 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
 
     def _write_profiles(payload: dict[str, dict[str, Any]]) -> None:
         save_json(profiles_path, payload)
+
+    def _workspace_activity(limit: int = 50) -> list[dict[str, Any]]:
+        return read_jsonl(root / "activity.jsonl", limit=limit)
+
+    def _stamp_record(payload: dict[str, Any], *, owner: str, status: str | None = None) -> dict[str, Any]:
+        now = _now_iso()
+        record = dict(payload)
+        record.setdefault("owner", owner)
+        record.setdefault("created_at", now)
+        record["updated_at"] = now
+        if status is not None:
+            record["status"] = status
+        return record
+
+    def _log_workspace_event(event_type: str, owner: str, payload: dict[str, Any]) -> None:
+        append_activity_event(
+            root,
+            {
+                "event_id": _slug("evt"),
+                "event_type": event_type,
+                "owner": owner,
+                "timestamp": _now_iso(),
+                **payload,
+            },
+        )
+
+    def _document_body_path(document_id: str) -> Path:
+        return ensure_root(root / "documents_body") / f"{safe_object_id(document_id)}.md"
+
+    def _document_revision_log(document_id: str) -> Path:
+        return ensure_root(root / "document_revisions") / f"{safe_object_id(document_id)}.jsonl"
+
+    def _document_suggestion_log(document_id: str) -> Path:
+        return ensure_root(root / "document_suggestions") / f"{safe_object_id(document_id)}.jsonl"
 
     def _active_session() -> tuple[str, dict[str, Any]] | tuple[None, None]:
         token = str(request.headers.get("X-Session-Token") or "").strip()
@@ -168,9 +227,41 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     def local_hub() -> Any:
         return _serve_html(hub_html_path, "local hub")
 
+    @app.get("/app/command-center")
+    def command_center() -> Any:
+        return _serve_html(command_center_html_path, "command center")
+
     @app.get("/app/ai-school")
     def ai_school() -> Any:
         return _serve_html(ai_school_html_path, "ai school")
+
+    @app.get("/app/agent-view")
+    def agent_view() -> Any:
+        return _serve_html(agent_view_html_path, "agent view")
+
+    @app.get("/app/daily-planner")
+    def daily_planner() -> Any:
+        return _serve_html(daily_planner_html_path, "daily planner")
+
+    @app.get("/app/comms")
+    def comms_hub() -> Any:
+        return _serve_html(comms_hub_html_path, "comms hub")
+
+    @app.get("/app/rooms")
+    def rooms() -> Any:
+        return _serve_html(rooms_html_path, "rooms")
+
+    @app.get("/app/markets")
+    def markets_terminal() -> Any:
+        return _serve_html(markets_terminal_html_path, "markets terminal")
+
+    @app.get("/app/trading")
+    def trading_room() -> Any:
+        return _serve_html(trading_room_html_path, "trading room")
+
+    @app.get("/app/night-capital")
+    def night_capital() -> Any:
+        return _serve_html(night_capital_html_path, "night capital")
 
     @app.get("/app/runtime.config.js")
     def runtime_config() -> Any:
@@ -248,6 +339,484 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         except (OSError, json.JSONDecodeError):
             payload = {"schema_version": "unknown", "entities": {}}
         return jsonify(payload)
+
+    @app.post("/api/router/explain")
+    def router_explain() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        task_type = str(payload.get("task_type") or "").strip()
+        if not task_type:
+            return jsonify({"ok": False, "error": "task_type required"}), 400
+        context = payload.get("context")
+        if context is not None and not isinstance(context, dict):
+            return jsonify({"ok": False, "error": "context must be an object"}), 400
+        decision = router.explain_route(task_type=task_type, context=context or {})
+        return jsonify({"ok": True, "decision": decision})
+
+    @app.get("/api/workspace/bootstrap")
+    def workspace_bootstrap() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(50, int(float(request.args.get("limit", 12)))))
+        return jsonify(
+            {
+                "ok": True,
+                "projects": list_objects(root, "projects", limit=limit),
+                "tasks": list_objects(root, "tasks", limit=limit * 2),
+                "documents": list_objects(root, "documents", limit=limit),
+                "workflows": list_objects(root, "workflows", limit=limit),
+                "activity": _workspace_activity(limit=limit * 3),
+            }
+        )
+
+    @app.get("/api/projects")
+    def projects_list() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(100, int(float(request.args.get("limit", 50)))))
+        return jsonify({"ok": True, "projects": list_objects(root, "projects", limit=limit)})
+
+    @app.post("/api/projects")
+    def projects_create() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        name = str(payload.get("name") or "").strip()
+        if not name:
+            return jsonify({"ok": False, "error": "name required"}), 400
+        owner = str(session.get("user_id") or "").strip()
+        project_id = safe_object_id(str(payload.get("id") or "")) or _slug("project")
+        if project_id == "item":
+            project_id = _slug("project")
+        record = _stamp_record(
+            {
+                "id": project_id,
+                "name": name,
+                "summary": str(payload.get("summary") or "").strip(),
+                "goals": _split_csv(payload.get("goals")),
+                "agents": _split_csv(payload.get("agents")),
+                "documents": [],
+                "workflows": [],
+            },
+            owner=owner,
+            status=str(payload.get("status") or "active").strip() or "active",
+        )
+        save_object(root, "projects", project_id, record)
+        _log_workspace_event("project_created", owner, {"project_id": project_id, "name": name})
+        return jsonify({"ok": True, "project": record})
+
+    @app.get("/api/tasks")
+    def tasks_list() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(200, int(float(request.args.get("limit", 100)))))
+        project_id = str(request.args.get("project_id") or "").strip()
+        rows = list_objects(root, "tasks", limit=limit)
+        if project_id:
+            rows = [row for row in rows if str(row.get("project_id") or "").strip() == project_id]
+        return jsonify({"ok": True, "tasks": rows})
+
+    @app.post("/api/tasks")
+    def tasks_create() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        title = str(payload.get("title") or "").strip()
+        if not title:
+            return jsonify({"ok": False, "error": "title required"}), 400
+        owner = str(session.get("user_id") or "").strip()
+        task_id = safe_object_id(str(payload.get("id") or "")) or _slug("task")
+        if task_id == "item":
+            task_id = _slug("task")
+        record = _stamp_record(
+            {
+                "id": task_id,
+                "project_id": str(payload.get("project_id") or "").strip(),
+                "title": title,
+                "assignee": str(payload.get("assignee") or "").strip(),
+                "risk_tier": str(payload.get("risk_tier") or "medium").strip() or "medium",
+                "budget_tier": str(payload.get("budget_tier") or "standard").strip() or "standard",
+                "success_criteria": _split_csv(payload.get("success_criteria")),
+                "dependencies": _split_csv(payload.get("dependencies")),
+            },
+            owner=owner,
+            status=str(payload.get("status") or "queued").strip() or "queued",
+        )
+        save_object(root, "tasks", task_id, record)
+        _log_workspace_event(
+            "task_created",
+            owner,
+            {"task_id": task_id, "project_id": record.get("project_id", ""), "title": title},
+        )
+        return jsonify({"ok": True, "task": record})
+
+    @app.get("/api/agents")
+    def agents_list() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(200, int(float(request.args.get("limit", 100)))))
+        return jsonify({"ok": True, "agents": list_objects(root, "agents", limit=limit)})
+
+    @app.post("/api/agents")
+    def agents_create() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        name = str(payload.get("name") or "").strip()
+        role = str(payload.get("role") or "").strip()
+        if not name or not role:
+            return jsonify({"ok": False, "error": "name and role required"}), 400
+        owner = str(session.get("user_id") or "").strip()
+        agent_id = safe_object_id(str(payload.get("id") or "")) or _slug("agent")
+        if agent_id == "item":
+            agent_id = _slug("agent")
+        record = _stamp_record(
+            {
+                "id": agent_id,
+                "name": name,
+                "role": role,
+                "model_preferences": _split_csv(payload.get("model_preferences")),
+                "permissions": _split_csv(payload.get("permissions")),
+                "project_ids": _split_csv(payload.get("project_ids")),
+            },
+            owner=owner,
+            status=str(payload.get("status") or "active").strip() or "active",
+        )
+        save_object(root, "agents", agent_id, record)
+        for project_id in record.get("project_ids", []):
+            project = load_object(root, "projects", project_id, {})
+            if isinstance(project, dict) and project.get("id"):
+                agents = project.get("agents") if isinstance(project.get("agents"), list) else []
+                if agent_id not in agents:
+                    agents.append(agent_id)
+                project["agents"] = agents
+                project["updated_at"] = _now_iso()
+                save_object(root, "projects", project_id, project)
+        _log_workspace_event("agent_created", owner, {"agent_id": agent_id, "name": name, "role": role})
+        return jsonify({"ok": True, "agent": record})
+
+    @app.patch("/api/agents/<agent_id>")
+    def agents_update(agent_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "agents", agent_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "agent not found"}), 404
+        payload = request.get_json(silent=True) or {}
+        owner = str(session.get("user_id") or "").strip()
+        old_projects = set(record.get("project_ids") if isinstance(record.get("project_ids"), list) else [])
+        if "name" in payload:
+            record["name"] = str(payload.get("name") or record.get("name") or "").strip()
+        if "role" in payload:
+            record["role"] = str(payload.get("role") or record.get("role") or "").strip()
+        if "status" in payload:
+            record["status"] = str(payload.get("status") or record.get("status") or "").strip()
+        if "model_preferences" in payload:
+            record["model_preferences"] = _split_csv(payload.get("model_preferences"))
+        if "permissions" in payload:
+            record["permissions"] = _split_csv(payload.get("permissions"))
+        if "project_ids" in payload:
+            record["project_ids"] = _split_csv(payload.get("project_ids"))
+        record["updated_at"] = _now_iso()
+        save_object(root, "agents", agent_id, record)
+
+        new_projects = set(record.get("project_ids") if isinstance(record.get("project_ids"), list) else [])
+        for project_id in old_projects | new_projects:
+            project = load_object(root, "projects", project_id, {})
+            if not isinstance(project, dict) or not project.get("id"):
+                continue
+            agents = project.get("agents") if isinstance(project.get("agents"), list) else []
+            agents = [row for row in agents if row != agent_id]
+            if project_id in new_projects:
+                agents.append(agent_id)
+            project["agents"] = agents
+            project["updated_at"] = _now_iso()
+            save_object(root, "projects", project_id, project)
+
+        _log_workspace_event("agent_updated", owner, {"agent_id": agent_id, "name": record.get("name", "")})
+        return jsonify({"ok": True, "agent": record})
+
+    @app.get("/api/workflows")
+    def workflows_list() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(200, int(float(request.args.get("limit", 100)))))
+        project_id = str(request.args.get("project_id") or "").strip()
+        rows = list_objects(root, "workflows", limit=limit)
+        if project_id:
+            rows = [row for row in rows if str(row.get("project_id") or "").strip() == project_id]
+        return jsonify({"ok": True, "workflows": rows})
+
+    @app.post("/api/workflows")
+    def workflows_create() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        name = str(payload.get("name") or "").strip()
+        if not name:
+            return jsonify({"ok": False, "error": "name required"}), 400
+        owner = str(session.get("user_id") or "").strip()
+        workflow_id = safe_object_id(str(payload.get("id") or "")) or _slug("workflow")
+        if workflow_id == "item":
+            workflow_id = _slug("workflow")
+        record = _stamp_record(
+            {
+                "id": workflow_id,
+                "project_id": str(payload.get("project_id") or "").strip(),
+                "name": name,
+                "nodes": payload.get("nodes") if isinstance(payload.get("nodes"), list) else [],
+                "edges": payload.get("edges") if isinstance(payload.get("edges"), list) else [],
+            },
+            owner=owner,
+            status=str(payload.get("status") or "draft").strip() or "draft",
+        )
+        save_object(root, "workflows", workflow_id, record)
+        project_id = str(record.get("project_id") or "").strip()
+        if project_id:
+            project = load_object(root, "projects", project_id, {})
+            if isinstance(project, dict) and project.get("id"):
+                workflows = project.get("workflows") if isinstance(project.get("workflows"), list) else []
+                if workflow_id not in workflows:
+                    workflows.append(workflow_id)
+                project["workflows"] = workflows
+                project["updated_at"] = _now_iso()
+                save_object(root, "projects", project_id, project)
+        _log_workspace_event("workflow_created", owner, {"workflow_id": workflow_id, "project_id": project_id, "name": name})
+        return jsonify({"ok": True, "workflow": record})
+
+    @app.get("/api/workflows/<workflow_id>")
+    def workflows_detail(workflow_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "workflows", workflow_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "workflow not found"}), 404
+        return jsonify({"ok": True, "workflow": record})
+
+    @app.patch("/api/workflows/<workflow_id>")
+    def workflows_update(workflow_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "workflows", workflow_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "workflow not found"}), 404
+        payload = request.get_json(silent=True) or {}
+        owner = str(session.get("user_id") or "").strip()
+        if "name" in payload:
+            record["name"] = str(payload.get("name") or record.get("name") or "").strip()
+        if "status" in payload:
+            record["status"] = str(payload.get("status") or record.get("status") or "").strip()
+        if isinstance(payload.get("nodes"), list):
+            record["nodes"] = payload.get("nodes")
+        if isinstance(payload.get("edges"), list):
+            record["edges"] = payload.get("edges")
+        record["updated_at"] = _now_iso()
+        save_object(root, "workflows", workflow_id, record)
+        _log_workspace_event("workflow_updated", owner, {"workflow_id": workflow_id, "name": record.get("name", "")})
+        return jsonify({"ok": True, "workflow": record})
+
+    @app.get("/api/documents")
+    def documents_list() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(200, int(float(request.args.get("limit", 100)))))
+        project_id = str(request.args.get("project_id") or "").strip()
+        rows = list_objects(root, "documents", limit=limit)
+        if project_id:
+            rows = [row for row in rows if str(row.get("project_id") or "").strip() == project_id]
+        return jsonify({"ok": True, "documents": rows})
+
+    @app.post("/api/documents")
+    def documents_create() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        title = str(payload.get("title") or "").strip()
+        if not title:
+            return jsonify({"ok": False, "error": "title required"}), 400
+        owner = str(session.get("user_id") or "").strip()
+        document_id = safe_object_id(str(payload.get("id") or "")) or _slug("document")
+        if document_id == "item":
+            document_id = _slug("document")
+        body = str(payload.get("body") or "").strip()
+        body_path = _document_body_path(document_id)
+        body_path.write_text(body + ("\n" if body else ""), encoding="utf-8")
+        record = _stamp_record(
+            {
+                "id": document_id,
+                "project_id": str(payload.get("project_id") or "").strip(),
+                "title": title,
+                "body_path": str(body_path.relative_to(root)),
+                "revision_count": 1 if body else 0,
+                "suggestion_count": 0,
+            },
+            owner=owner,
+            status=str(payload.get("status") or "draft").strip() or "draft",
+        )
+        save_object(root, "documents", document_id, record)
+        if body:
+            append_jsonl(
+                _document_revision_log(document_id),
+                {
+                    "revision_id": _slug("rev"),
+                    "document_id": document_id,
+                    "author": owner,
+                    "timestamp": _now_iso(),
+                    "kind": "create",
+                    "body": body,
+                },
+            )
+        _log_workspace_event(
+            "document_created",
+            owner,
+            {"document_id": document_id, "project_id": record.get("project_id", ""), "title": title},
+        )
+        return jsonify({"ok": True, "document": record})
+
+    @app.get("/api/documents/<document_id>")
+    def documents_detail(document_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "documents", document_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "document not found"}), 404
+        body_rel = str(record.get("body_path") or "").strip()
+        body = ""
+        if body_rel:
+            try:
+                body = (root / body_rel).read_text(encoding="utf-8")
+            except OSError:
+                body = ""
+        revisions = read_jsonl(_document_revision_log(document_id), limit=20)
+        suggestions = read_jsonl(_document_suggestion_log(document_id), limit=50)
+        return jsonify(
+            {
+                "ok": True,
+                "document": record,
+                "body": body,
+                "revisions": revisions,
+                "suggestions": suggestions,
+            }
+        )
+
+    @app.patch("/api/documents/<document_id>")
+    def documents_update(document_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "documents", document_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "document not found"}), 404
+        payload = request.get_json(silent=True) or {}
+        owner = str(session.get("user_id") or "").strip()
+        body = str(payload.get("body") or "")
+        title = str(payload.get("title") or record.get("title") or "").strip()
+        body_path = root / str(record.get("body_path") or _document_body_path(document_id).relative_to(root))
+        body_path.parent.mkdir(parents=True, exist_ok=True)
+        body_path.write_text(body, encoding="utf-8")
+        record["title"] = title or str(record.get("title") or "")
+        record["revision_count"] = int(record.get("revision_count") or 0) + 1
+        record["updated_at"] = _now_iso()
+        save_object(root, "documents", document_id, record)
+        append_jsonl(
+            _document_revision_log(document_id),
+            {
+                "revision_id": _slug("rev"),
+                "document_id": document_id,
+                "author": owner,
+                "timestamp": _now_iso(),
+                "kind": "edit",
+                "body": body,
+            },
+        )
+        _log_workspace_event("document_revised", owner, {"document_id": document_id, "title": record.get("title", "")})
+        return jsonify({"ok": True, "document": record})
+
+    @app.get("/api/documents/<document_id>/suggestions")
+    def documents_suggestions_list(document_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        return jsonify({"ok": True, "suggestions": read_jsonl(_document_suggestion_log(document_id), limit=100)})
+
+    @app.post("/api/documents/<document_id>/suggestions")
+    def documents_suggestions_create(document_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "documents", document_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "document not found"}), 404
+        payload = request.get_json(silent=True) or {}
+        text = str(payload.get("text") or "").strip()
+        if not text:
+            return jsonify({"ok": False, "error": "text required"}), 400
+        owner = str(session.get("user_id") or "").strip()
+        suggestion = {
+            "suggestion_id": _slug("sug"),
+            "document_id": document_id,
+            "author": str(payload.get("author") or owner).strip() or owner,
+            "text": text,
+            "status": "proposed",
+            "timestamp": _now_iso(),
+        }
+        append_jsonl(_document_suggestion_log(document_id), suggestion)
+        record["suggestion_count"] = int(record.get("suggestion_count") or 0) + 1
+        record["updated_at"] = _now_iso()
+        save_object(root, "documents", document_id, record)
+        _log_workspace_event("document_suggestion_added", owner, {"document_id": document_id, "suggestion_id": suggestion["suggestion_id"]})
+        return jsonify({"ok": True, "suggestion": suggestion})
+
+    @app.patch("/api/documents/<document_id>/suggestions/<suggestion_id>")
+    def documents_suggestions_update(document_id: str, suggestion_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        payload = request.get_json(silent=True) or {}
+        new_status = str(payload.get("status") or "").strip().lower()
+        if new_status not in {"proposed", "accepted", "rejected"}:
+            return jsonify({"ok": False, "error": "invalid status"}), 400
+        suggestions = read_jsonl(_document_suggestion_log(document_id), limit=500)
+        updated = None
+        for row in suggestions:
+            if str(row.get("suggestion_id") or "") == suggestion_id:
+                row["status"] = new_status
+                row["updated_at"] = _now_iso()
+                updated = row
+        if updated is None:
+            return jsonify({"ok": False, "error": "suggestion not found"}), 404
+        log_path = _document_suggestion_log(document_id)
+        log_path.write_text("", encoding="utf-8")
+        for row in suggestions:
+            append_jsonl(log_path, row)
+        owner = str(session.get("user_id") or "").strip()
+        _log_workspace_event("document_suggestion_" + new_status, owner, {"document_id": document_id, "suggestion_id": suggestion_id})
+        return jsonify({"ok": True, "suggestion": updated})
+
+    @app.get("/api/activity")
+    def activity_list() -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        limit = max(1, min(200, int(float(request.args.get("limit", 100)))))
+        return jsonify({"ok": True, "activity": _workspace_activity(limit=limit)})
 
     @app.get("/ops/summary")
     def ops_summary() -> Any:

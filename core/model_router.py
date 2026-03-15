@@ -14,6 +14,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from core.model_capabilities import DEFAULT_MODEL_CAPABILITIES
+from core.model_policy import classify_task_context
+
 PROVIDERS = ("anthropic", "openai", "xai", "ollama")
 
 BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
@@ -627,61 +630,77 @@ class ModelRouter:
     # Tasks that REQUIRE paid models for quality — everything else goes to Ollama
     HYBRID_PAID_TASKS = frozenset(TASKS_OPUS) | {"research_synthesis", "conciliation", "social_drafting"}
 
-    def route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
-        # Hard guardrail: no-spend mode forces all routing to local ollama.
+    def explain_route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        task_key = str(task_type or "").strip().lower() or "default"
+        route_context = dict(context or {})
+        policy = classify_task_context(task_type=task_key, context=route_context)
+
         if self.no_spend_mode:
             ollama_map = self._build_model_map_for_provider("ollama")
-            model = ollama_map.get(task_type, ollama_map.get("default", "qwen2.5:7b"))
-            self.selected_provider = "ollama"
-            self._log_decision(
-                task_type=task_type,
+            model = ollama_map.get(task_key, ollama_map.get("default", "qwen2.5:7b"))
+            provider = "ollama"
+            return self._decision_payload(
+                task_type=task_key,
                 model=model,
-                context={**(context or {}), "policy": "no_spend_mode"},
-                budget_policy="no_spend_mode",
                 raw_model=model,
-                provider="ollama",
+                provider=provider,
+                budget_policy="no_spend_mode",
+                context={**route_context, "policy": "no_spend_mode"},
+                budget_snapshot=self._monthly_budget_snapshot(),
+                route_mode="no_spend",
+                policy=policy,
             )
-            return model
 
-        # Low-cost mode: skip opus tier, cap at sonnet.
         if self.low_cost_mode:
-            return self._route_low_cost(task_type=task_type, context=context)
+            return self._explain_low_cost(task_type=task_key, context=route_context, policy=policy)
 
-        # Hybrid mode: Ollama for routine/low tasks, paid for critical/high.
-        # Like Perplexity — free local model handles most work, escalates to
-        # paid API only when quality demands it.
         if self.hybrid_mode:
-            return self._route_hybrid(task_type=task_type, context=context)
+            return self._explain_hybrid(task_type=task_key, context=route_context, policy=policy)
 
         budget_snapshot = self._monthly_budget_snapshot()
         selected_provider, provider_policy = self._provider_for_task(
-            task_type=task_type,
+            task_type=task_key,
             budget_snapshot=budget_snapshot,
         )
         selected_map = self.model_by_task if selected_provider == self.provider else self._build_model_map_for_provider(
             selected_provider
         )
-        raw_model = selected_map.get(task_type, selected_map.get("default", self.model_by_task["default"]))
+        raw_model = selected_map.get(task_key, selected_map.get("default", self.model_by_task["default"]))
         adjusted_model, budget_policy = self._budget_adjusted_model(
-            task_type=task_type,
+            task_type=task_key,
             model=raw_model,
             snapshot=budget_snapshot,
             model_map=selected_map,
         )
-        self.selected_provider = selected_provider
-        self._log_decision(
-            task_type=task_type,
+        return self._decision_payload(
+            task_type=task_key,
             model=adjusted_model,
+            raw_model=raw_model,
+            provider=selected_provider,
+            budget_policy=f"{provider_policy}|{budget_policy}",
             context={
-                **(context or {}),
+                **route_context,
                 "provider_policy": provider_policy,
                 "provider_selected": selected_provider,
             },
             budget_snapshot=budget_snapshot,
-            budget_policy=f"{provider_policy}|{budget_policy}",
-            raw_model=raw_model,
+            route_mode="standard",
+            policy=policy,
         )
-        return adjusted_model
+
+    def route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
+        decision = self.explain_route(task_type=task_type, context=context)
+        self.selected_provider = self._normalize_provider(str(decision.get("provider") or self.provider))
+        self._log_decision(
+            task_type=str(decision.get("task_type") or task_type),
+            model=str(decision.get("model_assigned") or ""),
+            context=decision.get("context"),
+            budget_snapshot=decision.get("budget_snapshot"),
+            budget_policy=str(decision.get("budget_policy") or ""),
+            raw_model=str(decision.get("raw_model") or ""),
+            provider=str(decision.get("provider") or ""),
+        )
+        return str(decision.get("model_assigned") or "")
 
     def _route_hybrid(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> str:
         """
@@ -766,6 +785,80 @@ class ModelRouter:
         )
         return adjusted_model
 
+    def _explain_hybrid(
+        self,
+        task_type: str,
+        context: Optional[Dict[str, Any]] = None,
+        policy: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        route_context = dict(context or {})
+        policy = dict(policy or classify_task_context(task_type=task_type, context=route_context))
+        ollama_map = self._build_model_map_for_provider("ollama")
+        key = str(task_type or "").strip().lower()
+        needs_paid = key in self.HYBRID_PAID_TASKS
+
+        if not needs_paid:
+            model = ollama_map.get(key, ollama_map.get("default", "qwen2.5:7b"))
+            return self._decision_payload(
+                task_type=key,
+                model=model,
+                raw_model=model,
+                provider="ollama",
+                budget_policy="hybrid_local_free",
+                context={**route_context, "policy": "hybrid_local"},
+                budget_snapshot=self._monthly_budget_snapshot(),
+                route_mode="hybrid",
+                policy=policy,
+            )
+
+        budget_snapshot = self._monthly_budget_snapshot()
+        selected_provider, provider_policy = self._provider_for_task(
+            task_type=key,
+            budget_snapshot=budget_snapshot,
+        )
+        provider_budget = self._provider_budget_snapshot(budget_snapshot)
+        provider_row = provider_budget.get(selected_provider, {"ratio": 0.0, "capped": False})
+        if bool(provider_row.get("capped")) and float(provider_row.get("ratio", 0.0)) >= 1.0:
+            model = ollama_map.get(key, ollama_map.get("default", "qwen2.5:7b"))
+            return self._decision_payload(
+                task_type=key,
+                model=model,
+                raw_model=model,
+                provider="ollama",
+                budget_policy="hybrid_paid_exhausted_to_ollama",
+                context={**route_context, "policy": "hybrid_paid_exhausted_fallback"},
+                budget_snapshot=budget_snapshot,
+                route_mode="hybrid",
+                policy=policy,
+            )
+
+        selected_map = self.model_by_task if selected_provider == self.provider else self._build_model_map_for_provider(
+            selected_provider
+        )
+        raw_model = selected_map.get(key, selected_map.get("default", self.model_by_task["default"]))
+        adjusted_model, budget_policy = self._budget_adjusted_model(
+            task_type=key,
+            model=raw_model,
+            snapshot=budget_snapshot,
+            model_map=selected_map,
+        )
+        return self._decision_payload(
+            task_type=key,
+            model=adjusted_model,
+            raw_model=raw_model,
+            provider=selected_provider,
+            budget_policy=f"hybrid_paid|{provider_policy}|{budget_policy}",
+            context={
+                **route_context,
+                "provider_policy": provider_policy,
+                "provider_selected": selected_provider,
+                "policy": "hybrid_paid",
+            },
+            budget_snapshot=budget_snapshot,
+            route_mode="hybrid",
+            policy=policy,
+        )
+
     def get_temperature(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> float:
         """Return appropriate temperature based on task type.
 
@@ -829,6 +922,52 @@ class ModelRouter:
             raw_model=raw_model,
         )
         return adjusted_model
+
+    def _explain_low_cost(
+        self,
+        task_type: str,
+        context: Optional[Dict[str, Any]] = None,
+        policy: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        route_context = dict(context or {})
+        policy = dict(policy or classify_task_context(task_type=task_type, context=route_context))
+        budget_snapshot = self._monthly_budget_snapshot()
+        selected_provider, provider_policy = self._provider_for_task(
+            task_type=task_type,
+            budget_snapshot=budget_snapshot,
+        )
+        selected_map = (
+            self.model_by_task
+            if selected_provider == self.provider
+            else self._build_model_map_for_provider(selected_provider)
+        )
+        raw_model = selected_map.get(task_type, selected_map.get("default", self.model_by_task["default"]))
+        tier = self._tier_for_model(model_name=raw_model, task_type=task_type)
+        if tier == "opus":
+            raw_model = self._model_for_tier("sonnet", model_map=selected_map)
+
+        adjusted_model, budget_policy = self._budget_adjusted_model(
+            task_type=task_type,
+            model=raw_model,
+            snapshot=budget_snapshot,
+            model_map=selected_map,
+        )
+        return self._decision_payload(
+            task_type=task_type,
+            model=adjusted_model,
+            raw_model=raw_model,
+            provider=selected_provider,
+            budget_policy=f"low_cost|{provider_policy}|{budget_policy}",
+            context={
+                **route_context,
+                "provider_policy": provider_policy,
+                "provider_selected": selected_provider,
+                "low_cost_mode": True,
+            },
+            budget_snapshot=budget_snapshot,
+            route_mode="low_cost",
+            policy=policy,
+        )
 
     def get_budget_dashboard(self) -> Dict[str, Any]:
         """Return comprehensive budget state for UI dashboard consumption."""
@@ -984,3 +1123,50 @@ class ModelRouter:
         }
         with open(self.log_path, "a", encoding="utf-8") as handle:
             handle.write(json.dumps(entry) + "\n")
+
+    def _decision_payload(
+        self,
+        task_type: str,
+        model: str,
+        raw_model: str,
+        provider: str,
+        budget_policy: str,
+        context: Optional[Dict[str, Any]],
+        budget_snapshot: Optional[Dict[str, float]],
+        route_mode: str,
+        policy: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        normalized_provider = self._normalize_provider(provider or self.provider)
+        provider_budget = self._provider_budget_snapshot(budget_snapshot or self._monthly_budget_snapshot())
+        capabilities = DEFAULT_MODEL_CAPABILITIES.get(normalized_provider, {}).get(model, {})
+        route_context = dict(context or {})
+        policy = dict(policy or {})
+        reasons = [
+            f"mode:{route_mode}",
+            f"provider:{normalized_provider}",
+            f"budget:{budget_policy or 'unknown'}",
+        ]
+        if policy.get("privacy_tier"):
+            reasons.append(f"privacy:{policy['privacy_tier']}")
+        if policy.get("risk_tier"):
+            reasons.append(f"risk:{policy['risk_tier']}")
+        if policy.get("complexity_tier"):
+            reasons.append(f"complexity:{policy['complexity_tier']}")
+        if capabilities.get("strengths"):
+            reasons.append(f"strengths:{','.join(capabilities.get('strengths', [])[:3])}")
+
+        return {
+            "timestamp": _utc_iso(),
+            "task_type": task_type,
+            "provider": normalized_provider,
+            "model_assigned": model,
+            "raw_model": raw_model or model,
+            "route_mode": route_mode,
+            "budget_policy": budget_policy or "unknown",
+            "budget_snapshot": budget_snapshot or {},
+            "provider_budget": provider_budget,
+            "policy": policy,
+            "capabilities": capabilities,
+            "route_reasons": reasons,
+            "context": route_context,
+        }

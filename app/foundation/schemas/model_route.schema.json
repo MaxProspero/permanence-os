@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ModelRoute",
+  "type": "object",
+  "required": ["timestamp", "task_type", "provider", "model_assigned"],
+  "properties": {
+    "timestamp": { "type": "string" },
+    "task_type": { "type": "string" },
+    "provider": { "type": "string" },
+    "model_assigned": { "type": "string" },
+    "raw_model": { "type": "string" },
+    "route_mode": { "type": "string" },
+    "budget_policy": { "type": "string" },
+    "route_reasons": { "type": "array", "items": { "type": "string" } },
+    "policy": { "type": "object" },
+    "capabilities": { "type": "object" }
+  }
+}
