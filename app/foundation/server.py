@@ -311,10 +311,20 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         if not edges:
             return ""
         wanted = str(outcome or "").strip().lower()
+        aliases = {
+            "completed": {"completed", "success", "approved"},
+            "success": {"success", "completed", "approved"},
+            "failed": {"failed", "rejected", "needs_review"},
+            "rejected": {"rejected", "failed"},
+            "needs_review": {"needs_review", "failed", "rejected"},
+            "approved": {"approved", "success", "completed"},
+        }
         if wanted:
+            wanted_set = aliases.get(wanted, {wanted})
             for edge in edges:
                 label = str(edge.get("label") or "").strip().lower()
-                if label == wanted or label.replace(" ", "_") == wanted:
+                normalized = label.replace(" ", "_")
+                if label in wanted_set or normalized in wanted_set:
                     return str(edge.get("to") or "").strip()
         for edge in edges:
             if not str(edge.get("label") or "").strip():
@@ -421,7 +431,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 )
                 save_object(root, "tasks", task_id, task_record)
                 run_record["generated_task_ids"].append(task_id)
-                step["status"] = "completed"
+                step["status"] = "queued"
                 step["generated_task"] = {"id": task_id, "status": "queued"}
                 step["execution_policy"] = {
                     "required_permission": _workflow_permission_for(node_type),
@@ -429,6 +439,20 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                     "selected_agent_name": str((selected_agent or {}).get("name") or ""),
                     "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
                 }
+                step["message"] = "Execution paused pending task completion."
+                run_record["steps"].append(step)
+                run_record["step_count"] = len(run_record["steps"])
+                run_record["status"] = "awaiting_task"
+                run_record["pending_node_id"] = current_id
+                run_record["awaiting_task_id"] = task_id
+                run_record["updated_at"] = _now_iso()
+                _record_workflow_run(record, run_record, append=append_run)
+                _log_workspace_event(
+                    "workflow_paused_for_task",
+                    owner,
+                    {"workflow_id": workflow_id, "workflow_run_id": run_id, "project_id": project_id, "task_id": task_id},
+                )
+                return run_record
             elif node_type == "approval":
                 task_id = _slug("task")
                 task_record = _stamp_record(
@@ -886,15 +910,20 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         workflow_id = str(record.get("workflow_id") or "").strip()
         run_id = str(record.get("workflow_run_id") or "").strip()
         node_id = str(record.get("node_id") or "").strip()
+        owner = str(session.get("user_id") or "").strip()
+        matching_run: dict[str, Any] | None = None
+        resumed_run: dict[str, Any] | None = None
         if workflow_id and run_id and node_id:
             runs = _workflow_runs(workflow_id, limit=200)
             for run in runs:
                 if str(run.get("run_id") or "").strip() != run_id:
                     continue
+                matching_run = run
                 for step in run.get("steps") or []:
                     task_ref = step.get("generated_task") if isinstance(step, dict) else None
                     if isinstance(task_ref, dict) and str(task_ref.get("id") or "").strip() == task_id:
                         task_ref["status"] = str(record.get("status") or "")
+                        step["status"] = str(record.get("status") or "")
                         step["task_feedback"] = {
                             "status": str(record.get("status") or ""),
                             "notes": str(record.get("notes") or ""),
@@ -903,12 +932,51 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 run["updated_at"] = _now_iso()
             _rewrite_workflow_runs(workflow_id, runs)
 
+        task_outcome = str(record.get("status") or "").strip().lower()
+        if (
+            workflow_id
+            and run_id
+            and node_id
+            and matching_run
+            and str(matching_run.get("status") or "").strip() == "awaiting_task"
+            and str(matching_run.get("awaiting_task_id") or "").strip() == task_id
+            and task_outcome in {"completed", "failed"}
+        ):
+            workflow_record = load_object(root, "workflows", workflow_id, {})
+            if isinstance(workflow_record, dict) and workflow_record.get("id"):
+                _node_map, outgoing, _starts = _workflow_graph(workflow_record)
+                next_node_id = _select_next_node_id(outgoing.get(node_id, []), task_outcome)
+                matching_run["task_outcome"] = task_outcome
+                matching_run["next_node_id"] = next_node_id
+                matching_run["updated_at"] = _now_iso()
+                resumed_run = _execute_workflow(
+                    workflow_record,
+                    owner,
+                    run_record=matching_run,
+                    start_node_id=next_node_id,
+                    branch_outcome=task_outcome,
+                )
+                _log_workspace_event(
+                    "workflow_resumed_from_task",
+                    owner,
+                    {
+                        "workflow_id": workflow_id,
+                        "workflow_run_id": run_id,
+                        "project_id": str(workflow_record.get("project_id") or ""),
+                        "task_id": task_id,
+                        "outcome": task_outcome,
+                    },
+                )
+
         _log_workspace_event(
             "task_updated",
             owner,
             {"task_id": task_id, "status": record.get("status", ""), "workflow_id": workflow_id, "workflow_run_id": run_id},
         )
-        return jsonify({"ok": True, "task": record})
+        response: dict[str, Any] = {"ok": True, "task": record}
+        if resumed_run:
+            response["run"] = resumed_run
+        return jsonify(response)
 
     @app.get("/api/agents")
     def agents_list() -> Any:
