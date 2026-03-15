@@ -430,6 +430,34 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     def night_capital() -> Any:
         return _serve_html(night_capital_html_path, "night capital")
 
+    legacy_html_routes: dict[str, tuple[Path, str]] = {
+        "/index.html": (official_html_path, "official site"),
+        "/local_hub.html": (hub_html_path, "local hub"),
+        "/command_center.html": (command_center_html_path, "command center"),
+        "/ophtxn_shell.html": (shell_html_path, "ophtxn shell"),
+        "/ai_school.html": (ai_school_html_path, "ai school"),
+        "/official_app.html": (studio_html_path, "studio page"),
+        "/agent_view.html": (agent_view_html_path, "agent view"),
+        "/daily_planner.html": (daily_planner_html_path, "daily planner"),
+        "/comms_hub.html": (comms_hub_html_path, "comms hub"),
+        "/rooms.html": (rooms_html_path, "rooms"),
+        "/markets_terminal.html": (markets_terminal_html_path, "markets terminal"),
+        "/trading_room.html": (trading_room_html_path, "trading room"),
+        "/night_capital.html": (night_capital_html_path, "night capital"),
+        "/press_kit.html": (press_html_path, "press kit"),
+    }
+
+    for route_path, (html_path, label) in legacy_html_routes.items():
+        endpoint = "legacy_" + route_path.strip("/").replace(".", "_").replace("-", "_")
+
+        def _make_legacy_handler(target_path: Path = html_path, target_label: str = label):
+            def _handler() -> Any:
+                return _serve_html(target_path, target_label)
+
+            return _handler
+
+        app.add_url_rule(route_path, endpoint=endpoint, view_func=_make_legacy_handler(), methods=["GET"])
+
     @app.get("/app/runtime.config.js")
     def runtime_config() -> Any:
         try:

@@ -6,6 +6,33 @@
   if (!body || body.dataset.surfaceSystem === "ready") return;
   body.dataset.surfaceSystem = "ready";
 
+  const appBase = (runtime.appBase || (location.origin.includes("8797") ? location.origin : "http://127.0.0.1:8797")).replace(/\/$/, "");
+  const legacyRouteMap = {
+    "index.html": "/app/official",
+    "local_hub.html": "/app/hub",
+    "command_center.html": "/app/command-center",
+    "trading_room.html": "/app/trading",
+    "markets_terminal.html": "/app/markets",
+    "night_capital.html": "/app/night-capital",
+    "daily_planner.html": "/app/daily-planner",
+    "ophtxn_shell.html": "/app/ophtxn",
+    "rooms.html": "/app/rooms",
+    "ai_school.html": "/app/ai-school",
+    "official_app.html": "/app/studio",
+    "agent_view.html": "/app/agent-view",
+    "comms_hub.html": "/app/comms",
+    "press_kit.html": "/app/press",
+  };
+
+  const appHref = (href) => {
+    const token = String(href || "").trim();
+    if (!token) return token;
+    if (/^https?:\/\//i.test(token) || token.startsWith("#") || token.startsWith("mailto:") || token.startsWith("tel:")) return token;
+    const clean = token.replace(/^\.\//, "").split("?")[0].split("#")[0];
+    const mapped = legacyRouteMap[clean.toLowerCase()];
+    return mapped ? `${appBase}${mapped}` : token;
+  };
+
   const page = (() => {
     const path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
     if (path === "index.html" || path === "") return "foundation";
@@ -20,7 +47,7 @@
       id: "foundation",
       label: "Foundation",
       mode: "Front Door",
-      href: "index.html",
+      href: appHref("index.html"),
       probe: (runtime.siteUrl || "http://127.0.0.1:8787").replace(/\/$/, "") + "/",
       active: page === "foundation",
     },
@@ -28,7 +55,7 @@
       id: "hub",
       label: "Local Hub",
       mode: "Launch Cockpit",
-      href: "local_hub.html",
+      href: appHref("local_hub.html"),
       probe: (runtime.siteUrl || "http://127.0.0.1:8787").replace(/\/$/, "") + "/local_hub.html",
       active: page === "hub",
     },
@@ -37,6 +64,7 @@
       label: "Command Center",
       mode: "Execution Plane",
       href: runtime.commandCenterUrl || "http://127.0.0.1:8000",
+      external: true,
       probe: (runtime.commandCenterUrl || "http://127.0.0.1:8000").replace(/\/$/, "") + "/api/status",
       active: page === "command",
     },
@@ -44,7 +72,8 @@
       id: "shell",
       label: "Ophtxn Shell",
       mode: "Operator Console",
-      href: runtime.shellUrl || "http://127.0.0.1:8797/app/ophtxn",
+      href: runtime.shellUrl || appHref("ophtxn_shell.html"),
+      external: true,
       probe: (runtime.appBase || "http://127.0.0.1:8797").replace(/\/$/, "") + "/health",
       active: page === "shell",
     },
@@ -69,8 +98,8 @@
         ["Memory", "Context compounds across sessions"],
       ],
       actions: [
-        { label: "Open Local Hub", href: "local_hub.html", kind: "primary" },
-        { label: "Open Live Shell", href: runtime.shellUrl || "http://127.0.0.1:8797/app/ophtxn", kind: "secondary", external: true },
+        { label: "Open Local Hub", href: appHref("local_hub.html"), kind: "primary" },
+        { label: "Open Live Shell", href: runtime.shellUrl || appHref("ophtxn_shell.html"), kind: "secondary", external: true },
       ],
     },
     hub: {
@@ -91,7 +120,7 @@
       ],
       actions: [
         { label: "Open Command Center", href: runtime.commandCenterUrl || "http://127.0.0.1:8000", kind: "primary", external: true },
-        { label: "Open Shell", href: runtime.shellUrl || "http://127.0.0.1:8797/app/ophtxn", kind: "secondary", external: true },
+        { label: "Open Shell", href: runtime.shellUrl || appHref("ophtxn_shell.html"), kind: "secondary", external: true },
       ],
     },
     command: {
@@ -111,8 +140,8 @@
         ["Telemetry", "Fleet health and fuel gauges"],
       ],
       actions: [
-        { label: "Open Shell", href: runtime.shellUrl || "http://127.0.0.1:8797/app/ophtxn", kind: "primary", external: true },
-        { label: "Back To Hub", href: "local_hub.html", kind: "secondary" },
+        { label: "Open Shell", href: runtime.shellUrl || appHref("ophtxn_shell.html"), kind: "primary", external: true },
+        { label: "Back To Hub", href: appHref("local_hub.html"), kind: "secondary" },
       ],
     },
     shell: {
@@ -942,7 +971,7 @@
   dock.innerHTML = services
     .map((svc) => {
       const initials = svc.label.split(" ").map((word) => word[0]).join("").slice(0, 2);
-      const target = /^https?:\/\//i.test(svc.href) ? ' target="_blank" rel="noopener"' : "";
+      const target = svc.external ? ' target="_blank" rel="noopener"' : "";
       return `
         <a class="ops-runtime-card${svc.active ? " is-active" : ""}" href="${svc.href}" data-runtime-id="${svc.id}"${target}>
           <span class="ops-runtime-mark">${initials}</span>
@@ -959,6 +988,12 @@
     })
     .join("");
   document.body.appendChild(dock);
+
+  document.querySelectorAll('a[href]').forEach((link) => {
+    const raw = link.getAttribute("href");
+    const next = appHref(raw);
+    if (next && next !== raw) link.setAttribute("href", next);
+  });
 
   const setState = (id, state, text) => {
     const dot = document.getElementById(`ops-dot-${id}`);
