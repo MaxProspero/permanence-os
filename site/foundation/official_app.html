@@ -1345,6 +1345,10 @@
                 <label for="workflowEdgeLabel">Edge Label</label>
                 <input type="text" id="workflowEdgeLabel" placeholder="e.g. on success">
               </div>
+              <div class="form-group">
+                <label for="workflowEdgeCondition">Edge Condition</label>
+                <input type="text" id="workflowEdgeCondition" placeholder="Optional. Example: latest_output.score=0.9">
+              </div>
               <div class="btn-row">
                 <button class="btn btn-ghost" id="addWorkflowEdgeBtn">Add Edge</button>
                 <button class="btn btn-primary" id="saveWorkflowBtn">Save Workflow</button>
@@ -1708,7 +1712,12 @@
           workflowCanvas.innerHTML = '<div class="workspace-empty">No workflow nodes yet.</div>';
         } else {
           workflowCanvas.innerHTML = nodes.map(function (node) {
-            var outgoing = (state.builderWorkflow.edges || []).filter(function (edge) { return edge.from === node.id; }).map(function (edge) { return edge.to + (edge.label ? ' (' + edge.label + ')' : ''); }).join(', ');
+            var outgoing = (state.builderWorkflow.edges || []).filter(function (edge) { return edge.from === node.id; }).map(function (edge) {
+              var parts = [edge.to];
+              if (edge.label) parts.push('(' + edge.label + ')');
+              if (edge.condition) parts.push('{' + edge.condition + '}');
+              return parts.join(' ');
+            }).join(', ');
             return '<div class="workflow-node"><div><div class="workflow-node-title">' + node.label + '</div><div class="workflow-node-meta">' + node.id + ' // ' + node.type + '</div><div class="workflow-node-meta">' + (node.input_template || 'no input template') + '</div></div><div class="workflow-node-meta">' + (outgoing || 'terminal') + '</div></div>';
           }).join('');
         }
@@ -2048,9 +2057,11 @@
           id: 'e' + String((state.builderWorkflow.edges || []).length + 1).padStart(2, '0'),
           from: from,
           to: to,
-          label: document.getElementById('workflowEdgeLabel').value.trim()
+          label: document.getElementById('workflowEdgeLabel').value.trim(),
+          condition: document.getElementById('workflowEdgeCondition').value.trim()
         });
         document.getElementById('workflowEdgeLabel').value = '';
+        document.getElementById('workflowEdgeCondition').value = '';
         renderWorkflowBuilder();
         showToast('Edge added');
       }

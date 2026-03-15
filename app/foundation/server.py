@@ -310,6 +310,15 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
 def _select_next_node_id(edges: list[dict[str, Any]], outcome: str | None = None) -> str:
     if not edges:
         return ""
+    if outcome and outcome.startswith("context:"):
+        context: dict[str, Any] = {}
+        try:
+            context = json.loads(outcome[len("context:"):])
+        except json.JSONDecodeError:
+            context = {}
+        for edge in edges:
+            if _condition_matches(edge, context):
+                return str(edge.get("to") or "").strip()
     wanted = str(outcome or "").strip().lower()
     aliases = {
         "completed": {"completed", "success", "approved"},
@@ -371,6 +380,21 @@ def _render_input_template(template: str, context: dict[str, Any]) -> str:
         return str(value)
 
     return re.sub(r"\{\{\s*([^}]+?)\s*\}\}", replace, raw)
+
+
+def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
+    condition = str(edge.get("condition") or "").strip()
+    if not condition:
+        return False
+    if "=" not in condition:
+        return bool(_template_lookup(context, condition))
+    left, expected = condition.split("=", 1)
+    value = _template_lookup(context, left.strip())
+    if isinstance(value, (dict, list)):
+        actual = json.dumps(value, ensure_ascii=True, sort_keys=True)
+    else:
+        actual = "" if value is None else str(value)
+    return actual.strip().lower() == expected.strip().lower()
 
     def _record_workflow_run(record: dict[str, Any], run_record: dict[str, Any], *, append: bool) -> None:
         workflow_id = str(record.get("id") or "").strip()
@@ -612,7 +636,10 @@ def _render_input_template(template: str, context: dict[str, Any]) -> str:
                 step["message"] = f"Processed node type {node_type}."
             run_record["steps"].append(step)
             edges = outgoing.get(current_id, [])
-            current_id = _select_next_node_id(edges, next_outcome)
+            selection_hint = next_outcome
+            if not selection_hint:
+                selection_hint = "context:" + json.dumps(_workflow_template_context(run_record), ensure_ascii=True, sort_keys=True)
+            current_id = _select_next_node_id(edges, selection_hint)
             next_outcome = None
 
         run_record["step_count"] = len(run_record["steps"])
