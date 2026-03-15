@@ -610,6 +610,42 @@
       color: var(--muted);
     }
 
+    .run-log {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 340px;
+      overflow: auto;
+    }
+
+    .run-step {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .run-step-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .run-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .run-step-copy {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
     .output-header {
       display: flex;
       align-items: center;
@@ -1417,6 +1453,22 @@
         </div>
 
         <div class="glass-card">
+          <div class="card-title">Workflow Execution</div>
+          <div class="review-shell">
+            <div class="review-meta" id="selectedWorkflowMeta">No workflow selected</div>
+            <div class="btn-row">
+              <button class="btn btn-primary" id="runWorkflowBtn">Run Workflow</button>
+            </div>
+            <div class="form-group">
+              <label>Latest Execution</label>
+              <div class="run-log" id="workflowRunLog">
+                <div class="workspace-empty">No workflow execution yet.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
           <div class="card-title">Document Review</div>
           <div class="review-shell">
             <div class="review-meta" id="selectedDocumentMeta">No document selected</div>
@@ -1495,6 +1547,8 @@
       const routeProvider = document.getElementById('routeProvider');
       const routeModel = document.getElementById('routeModel');
       const routeReasons = document.getElementById('routeReasons');
+      const selectedWorkflowMeta = document.getElementById('selectedWorkflowMeta');
+      const workflowRunLog = document.getElementById('workflowRunLog');
       const selectedDocumentMeta = document.getElementById('selectedDocumentMeta');
       const reviewDocumentTitle = document.getElementById('reviewDocumentTitle');
       const reviewDocumentBody = document.getElementById('reviewDocumentBody');
@@ -1502,7 +1556,19 @@
       const suggestionList = document.getElementById('suggestionList');
       const apiBase = (window.__OPHTXN_RUNTIME && window.__OPHTXN_RUNTIME.apiBase)
         || (window.location.origin.indexOf('8797') !== -1 ? window.location.origin : 'http://127.0.0.1:8797');
-      const state = { token: '', projects: [], tasks: [], documents: [], workflows: [], activity: [], selectedDocumentId: '', selectedDocumentDetail: null, builderWorkflow: { id: '', nodes: [], edges: [] } };
+      const state = {
+        token: '',
+        projects: [],
+        tasks: [],
+        documents: [],
+        workflows: [],
+        activity: [],
+        selectedDocumentId: '',
+        selectedDocumentDetail: null,
+        selectedWorkflowId: '',
+        selectedWorkflowDetail: null,
+        builderWorkflow: { id: '', nodes: [], edges: [] }
+      };
 
       let toastTimer = null;
       function showToast(msg) {
@@ -1575,7 +1641,7 @@
             + '</div></div>';
         }, 'No documents yet.');
         renderList(workflowList, state.workflows, function (workflowRow) {
-          return '<div class="workspace-item"><div class="workspace-item-head"><div class="workspace-item-title">'
+          return '<div class="workspace-item' + (state.selectedWorkflowId === workflowRow.id ? ' active' : '') + '" data-workflow-id="' + workflowRow.id + '"><div class="workspace-item-head"><div class="workspace-item-title">'
             + workflowRow.name + '</div><span class="status-pill">' + (workflowRow.status || 'draft')
             + '</span></div><div class="workspace-item-meta">' + (workflowRow.project_id || 'no-project')
             + '</div><div class="workspace-item-copy">' + ((workflowRow.nodes || []).length) + ' nodes // ' + ((workflowRow.edges || []).length) + ' edges'
@@ -1583,6 +1649,7 @@
         }, 'No workflows yet.');
         renderWorkflowBuilder();
         bindDocumentSelection();
+        bindWorkflowSelection();
         outputBlock.textContent = state.activity.length
           ? state.activity.map(function (row) { return '[' + row.timestamp + '] ' + row.event_type + ' :: ' + JSON.stringify(row); }).join('\n')
           : 'No workspace activity yet.';
@@ -1644,6 +1711,42 @@
         bindSuggestionActions();
       }
 
+      function renderWorkflowDetail() {
+        const detail = state.selectedWorkflowDetail;
+        if (!detail || !detail.workflow) {
+          selectedWorkflowMeta.textContent = 'No workflow selected';
+          workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
+          return;
+        }
+        selectedWorkflowMeta.textContent = (detail.workflow.id || '') + ' // ' + (detail.workflow.project_id || 'no-project') + ' // ' + String(detail.workflow.run_count || 0) + ' runs';
+        const runs = detail.runs || [];
+        if (!runs.length) {
+          workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
+          return;
+        }
+        const latest = runs[runs.length - 1] || {};
+        const steps = latest.steps || [];
+        if (!steps.length) {
+          workflowRunLog.innerHTML = '<div class="workspace-empty">No steps recorded.</div>';
+          return;
+        }
+        workflowRunLog.innerHTML = steps.map(function (step) {
+          var copy = '';
+          if (step.generated_task) {
+            copy = 'Generated task ' + step.generated_task.id + ' // ' + step.generated_task.status;
+          } else if (step.route) {
+            copy = (step.route.provider || '-') + ' // ' + (step.route.model_assigned || '-') + ' // ' + ((step.route.route_reasons || []).join(' | ') || 'no-route-reasons');
+          } else if (step.agent) {
+            copy = step.agent.matched ? ('Matched agent ' + (step.agent.agent_id || '') + ' // ' + ((step.agent.model_preferences || []).join(', ') || 'no-model-prefs')) : 'No matching agent found for this label.';
+          } else {
+            copy = step.message || 'Completed.';
+          }
+          return '<div class="run-step"><div class="run-step-head"><div class="run-step-title">'
+            + step.label + '</div><span class="status-pill">' + (step.type || 'step')
+            + '</span></div><div class="run-step-copy">' + copy + '</div></div>';
+        }).join('');
+      }
+
       function bindDocumentSelection() {
         document.querySelectorAll('[data-document-id]').forEach(function (node) {
           node.addEventListener('click', function () {
@@ -1661,6 +1764,14 @@
               button.getAttribute('data-suggestion-id'),
               button.getAttribute('data-suggestion-action')
             ).catch(function (err) { showToast(err.message); });
+          });
+        });
+      }
+
+      function bindWorkflowSelection() {
+        workflowList.querySelectorAll('[data-workflow-id]').forEach(function (item) {
+          item.addEventListener('click', function () {
+            loadWorkflowDetail(item.getAttribute('data-workflow-id')).catch(function (err) { showToast(err.message); });
           });
         });
       }
@@ -1743,6 +1854,15 @@
         renderDocumentDetail();
       }
 
+      async function loadWorkflowDetail(workflowId) {
+        if (!workflowId) return;
+        const payload = await api('/api/workflows/' + encodeURIComponent(workflowId));
+        state.selectedWorkflowId = workflowId;
+        state.selectedWorkflowDetail = payload;
+        renderWorkspace();
+        renderWorkflowDetail();
+      }
+
       async function saveDocumentRevision() {
         if (!state.selectedDocumentId) return showToast('Select a document first');
         await api('/api/documents/' + encodeURIComponent(state.selectedDocumentId), {
@@ -1801,6 +1921,17 @@
         renderWorkflowBuilder();
         showToast('Workflow saved');
         await loadWorkspace();
+      }
+
+      async function executeWorkflow() {
+        if (!state.selectedWorkflowId) return showToast('Select a workflow first');
+        await api('/api/workflows/' + encodeURIComponent(state.selectedWorkflowId) + '/execute', {
+          method: 'POST',
+          body: JSON.stringify({})
+        });
+        showToast('Workflow executed');
+        await loadWorkspace();
+        await loadWorkflowDetail(state.selectedWorkflowId);
       }
 
       async function addSuggestion() {
@@ -1862,10 +1993,11 @@
       document.getElementById('addWorkflowNodeBtn').addEventListener('click', addWorkflowNode);
       document.getElementById('addWorkflowEdgeBtn').addEventListener('click', addWorkflowEdge);
       document.getElementById('saveWorkflowBtn').addEventListener('click', function () { saveWorkflow().catch(function (err) { showToast(err.message); }); });
+      document.getElementById('runWorkflowBtn').addEventListener('click', function () { executeWorkflow().catch(function (err) { showToast(err.message); }); });
 
       bootstrapSession()
         .then(loadWorkspace)
-        .then(function () { renderDocumentDetail(); })
+        .then(function () { renderDocumentDetail(); renderWorkflowDetail(); })
         .then(markActiveNav)
         .catch(function (err) {
           sessionState.textContent = 'Session bootstrap failed';
