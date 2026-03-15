@@ -864,6 +864,52 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         )
         return jsonify({"ok": True, "task": record})
 
+    @app.patch("/api/tasks/<task_id>")
+    def tasks_update(task_id: str) -> Any:
+        _token, session = _active_session()
+        if not session:
+            return jsonify({"ok": False, "error": "auth required"}), 401
+        record = load_object(root, "tasks", task_id, {})
+        if not isinstance(record, dict) or not record.get("id"):
+            return jsonify({"ok": False, "error": "task not found"}), 404
+        payload = request.get_json(silent=True) or {}
+        owner = str(session.get("user_id") or "").strip()
+        if "status" in payload:
+            record["status"] = str(payload.get("status") or record.get("status") or "").strip()
+        if "assignee" in payload:
+            record["assignee"] = str(payload.get("assignee") or record.get("assignee") or "").strip()
+        if "notes" in payload:
+            record["notes"] = str(payload.get("notes") or "").strip()
+        record["updated_at"] = _now_iso()
+        save_object(root, "tasks", task_id, record)
+
+        workflow_id = str(record.get("workflow_id") or "").strip()
+        run_id = str(record.get("workflow_run_id") or "").strip()
+        node_id = str(record.get("node_id") or "").strip()
+        if workflow_id and run_id and node_id:
+            runs = _workflow_runs(workflow_id, limit=200)
+            for run in runs:
+                if str(run.get("run_id") or "").strip() != run_id:
+                    continue
+                for step in run.get("steps") or []:
+                    task_ref = step.get("generated_task") if isinstance(step, dict) else None
+                    if isinstance(task_ref, dict) and str(task_ref.get("id") or "").strip() == task_id:
+                        task_ref["status"] = str(record.get("status") or "")
+                        step["task_feedback"] = {
+                            "status": str(record.get("status") or ""),
+                            "notes": str(record.get("notes") or ""),
+                            "updated_at": _now_iso(),
+                        }
+                run["updated_at"] = _now_iso()
+            _rewrite_workflow_runs(workflow_id, runs)
+
+        _log_workspace_event(
+            "task_updated",
+            owner,
+            {"task_id": task_id, "status": record.get("status", ""), "workflow_id": workflow_id, "workflow_run_id": run_id},
+        )
+        return jsonify({"ok": True, "task": record})
+
     @app.get("/api/agents")
     def agents_list() -> Any:
         _token, session = _active_session()

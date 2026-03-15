@@ -1651,7 +1651,10 @@
             + task.title + '</div><span class="status-pill">' + (task.status || 'queued')
             + '</span></div><div class="workspace-item-meta">' + (task.assignee || 'unassigned')
             + ' // ' + (task.risk_tier || 'medium') + '</div><div class="workspace-item-copy">Project: '
-            + (task.project_id || 'none') + '</div></div>';
+            + (task.project_id || 'none') + '</div><div class="btn-row" style="margin-top:10px">'
+            + '<button class="btn btn-ghost btn-sm" data-task-action="completed" data-task-id="' + task.id + '">Complete</button>'
+            + '<button class="btn btn-ghost btn-sm" data-task-action="failed" data-task-id="' + task.id + '">Fail</button>'
+            + '</div></div>';
         }, 'No tasks yet.');
         renderList(documentList, state.documents, function (documentRow) {
           return '<div class="workspace-item' + (state.selectedDocumentId === documentRow.id ? ' active' : '') + '" data-document-id="' + documentRow.id + '"><div class="workspace-item-head"><div class="workspace-item-title">'
@@ -1670,6 +1673,7 @@
         renderWorkflowBuilder();
         bindDocumentSelection();
         bindWorkflowSelection();
+        bindTaskActions();
         outputBlock.textContent = state.activity.length
           ? state.activity.map(function (row) { return '[' + row.timestamp + '] ' + row.event_type + ' :: ' + JSON.stringify(row); }).join('\n')
           : 'No workspace activity yet.';
@@ -1828,6 +1832,17 @@
         });
       }
 
+      function bindTaskActions() {
+        taskList.querySelectorAll('[data-task-action]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            updateTaskStatus(
+              button.getAttribute('data-task-id'),
+              button.getAttribute('data-task-action')
+            ).catch(function (err) { showToast(err.message); });
+          });
+        });
+      }
+
       async function bootstrapSession() {
         const response = await fetch(apiBase + '/auth/session', {
           method: 'POST',
@@ -1880,6 +1895,16 @@
         });
         showToast('Task added');
         await loadWorkspace();
+      }
+
+      async function updateTaskStatus(taskId, status) {
+        await api('/api/tasks/' + encodeURIComponent(taskId), {
+          method: 'PATCH',
+          body: JSON.stringify({ status: status })
+        });
+        showToast('Task marked ' + status);
+        await loadWorkspace();
+        if (state.selectedWorkflowId) await loadWorkflowDetail(state.selectedWorkflowId);
       }
 
       async function createDocument() {
