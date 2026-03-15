@@ -463,7 +463,7 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     if " and " in lowered:
         parts = [part.strip() for part in re.split(r"\s+and\s+", condition, flags=re.IGNORECASE) if part.strip()]
         return all(_condition_matches({"condition": part}, context) for part in parts)
-    for operator in (" contains ", " startswith ", " endswith "):
+    for operator in (" contains ", " startswith ", " endswith ", " matches "):
         if operator not in lowered:
             continue
         split_index = lowered.index(operator)
@@ -476,6 +476,11 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
             actual_text = "" if value is None else str(value)
             return right.lower() in actual_text.lower()
         actual_text = "" if value is None else str(value).strip().lower()
+        if operator.strip() == "matches":
+            try:
+                return re.search(right, "" if value is None else str(value), flags=re.IGNORECASE) is not None
+            except re.error:
+                return False
         expected_text = right.lower()
         if operator.strip() == "startswith":
             return actual_text.startswith(expected_text)
