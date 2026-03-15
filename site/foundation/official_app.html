@@ -1651,9 +1651,11 @@
             + task.title + '</div><span class="status-pill">' + (task.status || 'queued')
             + '</span></div><div class="workspace-item-meta">' + (task.assignee || 'unassigned')
             + ' // ' + (task.risk_tier || 'medium') + '</div><div class="workspace-item-copy">Project: '
-            + (task.project_id || 'none') + '</div><div class="btn-row" style="margin-top:10px">'
-            + '<button class="btn btn-ghost btn-sm" data-task-action="completed" data-task-id="' + task.id + '">Complete</button>'
-            + '<button class="btn btn-ghost btn-sm" data-task-action="failed" data-task-id="' + task.id + '">Fail</button>'
+            + (task.project_id || 'none') + (task.result ? (' // Result: ' + task.result) : '') + '</div><div class="btn-row" style="margin-top:10px">'
+            + '<button class="btn btn-ghost btn-sm" data-task-status="completed" data-task-result="completed" data-task-id="' + task.id + '">Complete</button>'
+            + '<button class="btn btn-ghost btn-sm" data-task-status="completed" data-task-result="success" data-task-id="' + task.id + '">Success</button>'
+            + '<button class="btn btn-ghost btn-sm" data-task-status="failed" data-task-result="needs_review" data-task-id="' + task.id + '">Needs Review</button>'
+            + '<button class="btn btn-ghost btn-sm" data-task-status="failed" data-task-result="failed" data-task-id="' + task.id + '">Fail</button>'
             + '</div></div>';
         }, 'No tasks yet.');
         renderList(documentList, state.documents, function (documentRow) {
@@ -1791,6 +1793,9 @@
           }
           if (step.task_feedback) {
             copy += (copy ? '\n' : '') + 'feedback=' + (step.task_feedback.status || 'unknown');
+            if (step.task_feedback.result) {
+              copy += ' // result=' + step.task_feedback.result;
+            }
             if (step.task_feedback.notes) {
               copy += ' // ' + step.task_feedback.notes;
             }
@@ -1842,11 +1847,12 @@
       }
 
       function bindTaskActions() {
-        taskList.querySelectorAll('[data-task-action]').forEach(function (button) {
+        taskList.querySelectorAll('[data-task-id][data-task-status]').forEach(function (button) {
           button.addEventListener('click', function () {
             updateTaskStatus(
               button.getAttribute('data-task-id'),
-              button.getAttribute('data-task-action')
+              button.getAttribute('data-task-status') || button.getAttribute('data-task-action'),
+              button.getAttribute('data-task-result') || button.getAttribute('data-task-action')
             ).catch(function (err) { showToast(err.message); });
           });
         });
@@ -1906,12 +1912,12 @@
         await loadWorkspace();
       }
 
-      async function updateTaskStatus(taskId, status) {
+      async function updateTaskStatus(taskId, status, result) {
         await api('/api/tasks/' + encodeURIComponent(taskId), {
           method: 'PATCH',
-          body: JSON.stringify({ status: status })
+          body: JSON.stringify({ status: status, result: result })
         });
-        showToast('Task marked ' + status);
+        showToast('Task marked ' + (result || status));
         await loadWorkspace();
         if (state.selectedWorkflowId) await loadWorkflowDetail(state.selectedWorkflowId);
       }

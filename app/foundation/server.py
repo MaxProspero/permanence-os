@@ -904,6 +904,13 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             record["assignee"] = str(payload.get("assignee") or record.get("assignee") or "").strip()
         if "notes" in payload:
             record["notes"] = str(payload.get("notes") or "").strip()
+        if "result" in payload:
+            record["result"] = str(payload.get("result") or "").strip().lower()
+        task_result = str(record.get("result") or "").strip().lower()
+        if task_result in {"success", "completed"}:
+            record["status"] = "completed"
+        elif task_result in {"failed", "needs_review", "rejected"}:
+            record["status"] = "failed"
         record["updated_at"] = _now_iso()
         save_object(root, "tasks", task_id, record)
 
@@ -926,13 +933,14 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                         step["status"] = str(record.get("status") or "")
                         step["task_feedback"] = {
                             "status": str(record.get("status") or ""),
+                            "result": str(record.get("result") or ""),
                             "notes": str(record.get("notes") or ""),
                             "updated_at": _now_iso(),
                         }
                 run["updated_at"] = _now_iso()
             _rewrite_workflow_runs(workflow_id, runs)
 
-        task_outcome = str(record.get("status") or "").strip().lower()
+        task_outcome = str(record.get("result") or record.get("status") or "").strip().lower()
         if (
             workflow_id
             and run_id
@@ -940,7 +948,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             and matching_run
             and str(matching_run.get("status") or "").strip() == "awaiting_task"
             and str(matching_run.get("awaiting_task_id") or "").strip() == task_id
-            and task_outcome in {"completed", "failed"}
+            and task_outcome in {"completed", "failed", "success", "needs_review"}
         ):
             workflow_record = load_object(root, "workflows", workflow_id, {})
             if isinstance(workflow_record, dict) and workflow_record.get("id"):
