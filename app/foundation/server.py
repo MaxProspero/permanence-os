@@ -416,6 +416,15 @@ def _apply_template_transform(value: Any, transform: str) -> Any:
             return round(float(value), precision)
         except (TypeError, ValueError):
             return 0
+    if token.startswith("default:"):
+        fallback = transform.split(":", 1)[1]
+        if value in {None, "", [], {}, ()}:
+            return fallback
+        return value
+    if token.startswith("coalesce:"):
+        fallback = transform.split(":", 1)[1]
+        text_value = "" if value is None else str(value)
+        return text_value if text_value.strip() else fallback
     if token == "text":
         if isinstance(value, (dict, list)):
             return json.dumps(value, ensure_ascii=True, sort_keys=True)
