@@ -1326,7 +1326,7 @@
               </div>
               <div class="form-group">
                 <label for="workflowNodeInputTemplate">Node Input Template</label>
-                <textarea id="workflowNodeInputTemplate" placeholder='Optional. Example: {{latest_output|json}} or {{task_outputs.n02.output.summary|upper}} or {{task_outputs.n02.output.items|len}}'></textarea>
+                <textarea id="workflowNodeInputTemplate" placeholder='Optional. Example: {{latest_output|json}} or {{task_outputs.n02.output.items|get:0}} or {{task_outputs.n02.output.items|last}}'></textarea>
               </div>
               <div class="btn-row">
                 <button class="btn btn-primary" id="addWorkflowNodeBtn">Add Node</button>

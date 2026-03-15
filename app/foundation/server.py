@@ -380,6 +380,22 @@ def _apply_template_transform(value: Any, transform: str) -> Any:
         if isinstance(value, (dict, list, str, tuple, set)):
             return len(value)
         return 0
+    if token == "first":
+        if isinstance(value, (list, tuple)) and value:
+            return value[0]
+        return None
+    if token == "last":
+        if isinstance(value, (list, tuple)) and value:
+            return value[-1]
+        return None
+    if token.startswith("get:"):
+        index_raw = token.split(":", 1)[1].strip()
+        if isinstance(value, (list, tuple)):
+            try:
+                return value[int(index_raw)]
+            except (ValueError, IndexError):
+                return None
+        return None
     if token == "text":
         if isinstance(value, (dict, list)):
             return json.dumps(value, ensure_ascii=True, sort_keys=True)
