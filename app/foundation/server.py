@@ -396,6 +396,26 @@ def _apply_template_transform(value: Any, transform: str) -> Any:
             except (ValueError, IndexError):
                 return None
         return None
+    if token == "int":
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            return 0
+    if token == "float":
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
+    if token.startswith("round:"):
+        precision_raw = token.split(":", 1)[1].strip()
+        try:
+            precision = int(precision_raw)
+        except ValueError:
+            precision = 0
+        try:
+            return round(float(value), precision)
+        except (TypeError, ValueError):
+            return 0
     if token == "text":
         if isinstance(value, (dict, list)):
             return json.dumps(value, ensure_ascii=True, sort_keys=True)
