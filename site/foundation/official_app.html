@@ -1324,6 +1324,10 @@
                 <label for="workflowNodeLabel">Node Label</label>
                 <input type="text" id="workflowNodeLabel" placeholder="e.g. Research competitor set">
               </div>
+              <div class="form-group">
+                <label for="workflowNodeInputTemplate">Node Input Template</label>
+                <textarea id="workflowNodeInputTemplate" placeholder='Optional. Example: {{latest_output}} or {{task_outputs.n02.output.summary}}'></textarea>
+              </div>
               <div class="btn-row">
                 <button class="btn btn-primary" id="addWorkflowNodeBtn">Add Node</button>
               </div>
@@ -1705,7 +1709,7 @@
         } else {
           workflowCanvas.innerHTML = nodes.map(function (node) {
             var outgoing = (state.builderWorkflow.edges || []).filter(function (edge) { return edge.from === node.id; }).map(function (edge) { return edge.to + (edge.label ? ' (' + edge.label + ')' : ''); }).join(', ');
-            return '<div class="workflow-node"><div><div class="workflow-node-title">' + node.label + '</div><div class="workflow-node-meta">' + node.id + ' // ' + node.type + '</div></div><div class="workflow-node-meta">' + (outgoing || 'terminal') + '</div></div>';
+            return '<div class="workflow-node"><div><div class="workflow-node-title">' + node.label + '</div><div class="workflow-node-meta">' + node.id + ' // ' + node.type + '</div><div class="workflow-node-meta">' + (node.input_template || 'no input template') + '</div></div><div class="workflow-node-meta">' + (outgoing || 'terminal') + '</div></div>';
           }).join('');
         }
         var options = '<option value="">Select node</option>' + nodes.map(function (node) {
@@ -1819,6 +1823,12 @@
               copy += ' // ' + step.task_feedback.notes;
             }
           }
+          if (step.input_template) {
+            copy += (copy ? '\n' : '') + 'template=' + step.input_template;
+          }
+          if (step.resolved_input) {
+            copy += (copy ? '\n' : '') + 'resolved_input=' + step.resolved_input;
+          }
           if (step.execution_policy) {
             var policy = step.execution_policy;
             var policyParts = [
@@ -1841,6 +1851,9 @@
               } catch (err) {
                 contextParts.push('latest_output=' + String(step.context.latest_output));
               }
+            }
+            if (step.context.resolved_input) {
+              contextParts.push('context_input=' + step.context.resolved_input);
             }
             if (contextParts.length) {
               copy += (copy ? '\n' : '') + contextParts.join(' // ');
@@ -2018,9 +2031,11 @@
         var label = document.getElementById('workflowNodeLabel').value.trim();
         if (!label) return showToast('Node label required');
         var type = document.getElementById('workflowNodeType').value;
+        var inputTemplate = document.getElementById('workflowNodeInputTemplate').value.trim();
         var nodeId = 'n' + String((state.builderWorkflow.nodes || []).length + 1).padStart(2, '0');
-        state.builderWorkflow.nodes.push({ id: nodeId, type: type, label: label });
+        state.builderWorkflow.nodes.push({ id: nodeId, type: type, label: label, input_template: inputTemplate });
         document.getElementById('workflowNodeLabel').value = '';
+        document.getElementById('workflowNodeInputTemplate').value = '';
         renderWorkflowBuilder();
         showToast('Node added');
       }

@@ -307,29 +307,70 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         ] or [node_id for node_id, count in incoming.items() if count == 0]
         return node_map, outgoing, starts
 
-    def _select_next_node_id(edges: list[dict[str, Any]], outcome: str | None = None) -> str:
-        if not edges:
-            return ""
-        wanted = str(outcome or "").strip().lower()
-        aliases = {
-            "completed": {"completed", "success", "approved"},
-            "success": {"success", "completed", "approved"},
-            "failed": {"failed", "rejected", "needs_review"},
-            "rejected": {"rejected", "failed"},
-            "needs_review": {"needs_review", "failed", "rejected"},
-            "approved": {"approved", "success", "completed"},
-        }
-        if wanted:
-            wanted_set = aliases.get(wanted, {wanted})
-            for edge in edges:
-                label = str(edge.get("label") or "").strip().lower()
-                normalized = label.replace(" ", "_")
-                if label in wanted_set or normalized in wanted_set:
-                    return str(edge.get("to") or "").strip()
+def _select_next_node_id(edges: list[dict[str, Any]], outcome: str | None = None) -> str:
+    if not edges:
+        return ""
+    wanted = str(outcome or "").strip().lower()
+    aliases = {
+        "completed": {"completed", "success", "approved"},
+        "success": {"success", "completed", "approved"},
+        "failed": {"failed", "rejected", "needs_review"},
+        "rejected": {"rejected", "failed"},
+        "needs_review": {"needs_review", "failed", "rejected"},
+        "approved": {"approved", "success", "completed"},
+    }
+    if wanted:
+        wanted_set = aliases.get(wanted, {wanted})
         for edge in edges:
-            if not str(edge.get("label") or "").strip():
+            label = str(edge.get("label") or "").strip().lower()
+            normalized = label.replace(" ", "_")
+            if label in wanted_set or normalized in wanted_set:
                 return str(edge.get("to") or "").strip()
-        return str(edges[0].get("to") or "").strip()
+    for edge in edges:
+        if not str(edge.get("label") or "").strip():
+            return str(edge.get("to") or "").strip()
+    return str(edges[0].get("to") or "").strip()
+
+
+def _workflow_template_context(run_record: dict[str, Any]) -> dict[str, Any]:
+    context = run_record.get("context")
+    if not isinstance(context, dict):
+        context = {}
+    return {
+        "latest_output": context.get("latest_output"),
+        "task_outputs": context.get("task_outputs") if isinstance(context.get("task_outputs"), dict) else {},
+    }
+
+
+def _template_lookup(context: dict[str, Any], path: str) -> Any:
+    current: Any = context
+    for part in [segment for segment in path.split(".") if segment]:
+        if isinstance(current, dict):
+            current = current.get(part)
+        elif isinstance(current, list):
+            try:
+                current = current[int(part)]
+            except (ValueError, IndexError):
+                return None
+        else:
+            return None
+    return current
+
+
+def _render_input_template(template: str, context: dict[str, Any]) -> str:
+    raw = str(template or "").strip()
+    if not raw:
+        return ""
+
+    def replace(match: re.Match[str]) -> str:
+        value = _template_lookup(context, str(match.group(1) or "").strip())
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=True, sort_keys=True)
+        return str(value)
+
+    return re.sub(r"\{\{\s*([^}]+?)\s*\}\}", replace, raw)
 
     def _record_workflow_run(record: dict[str, Any], run_record: dict[str, Any], *, append: bool) -> None:
         workflow_id = str(record.get("id") or "").strip()
@@ -398,6 +439,9 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             node_type = str(node.get("type") or "task").strip() or "task"
             label = str(node.get("label") or current_id).strip()
             assignee = str(node.get("assignee") or "").strip()
+            input_template = str(node.get("input_template") or "").strip()
+            template_context = _workflow_template_context(run_record)
+            resolved_input = _render_input_template(input_template, template_context)
             eligible_agents = _eligible_agents_for_node(
                 all_agents,
                 project_id=project_id,
@@ -414,6 +458,9 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 "label": label,
                 "timestamp": _now_iso(),
             }
+            if input_template:
+                step["input_template"] = input_template
+                step["resolved_input"] = resolved_input
             if node_type in {"task", "research", "review"}:
                 task_id = _slug("task")
                 task_record = _stamp_record(
@@ -428,6 +475,8 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                         "node_id": current_id,
                         "assigned_agent_id": str((selected_agent or {}).get("id") or ""),
                         "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
+                        "input_template": input_template,
+                        "resolved_input": resolved_input,
                     },
                     owner=owner,
                     status="queued",
@@ -525,6 +574,8 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 if isinstance(run_record.get("context"), dict):
                     route_context["latest_output"] = run_record["context"].get("latest_output")
                     route_context["task_outputs"] = run_record["context"].get("task_outputs") or {}
+                if resolved_input:
+                    route_context["resolved_input"] = resolved_input
                 decision = router.explain_route(
                     _workflow_task_type(node_type, label),
                     route_context,
@@ -545,6 +596,8 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                     "latest_output": route_context.get("latest_output"),
                     "task_output_count": len(route_context.get("task_outputs") or {}),
                 }
+                if resolved_input:
+                    step["context"]["resolved_input"] = resolved_input
             elif node_type == "start":
                 step["status"] = "completed"
                 step["message"] = "Workflow execution started."
