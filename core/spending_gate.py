@@ -62,15 +62,6 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-<<<<<<< HEAD
-=======
-try:
-    from dotenv import load_dotenv  # type: ignore
-    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
-except ImportError:
-    pass
-
->>>>>>> origin/main
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DEFAULT_GATE_LOG = os.path.join(BASE_DIR, "logs", "spending_gate.jsonl")
 DEFAULT_GATE_STATE = os.path.join(BASE_DIR, "memory", "working", "spending_gate_state.json")

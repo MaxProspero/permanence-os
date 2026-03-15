@@ -26,11 +26,7 @@ from typing import Any
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DEFAULT_CONFIG_PATH = os.path.join(
-<<<<<<< HEAD
-    os.path.expanduser("~"), ".permanence", "mac_mini_remote.json"
-=======
     BASE_DIR, "memory", "working", "remote", "mac_mini_remote.json"
->>>>>>> origin/main
 )
 
 DEFAULT_CONFIG = {
@@ -83,10 +79,7 @@ PERMANENCE_SERVICES = [
     "com.permanence.foundation-api",
     "com.permanence.cloudflare-tunnel",
     "com.permanence.git-sync",
-<<<<<<< HEAD
-=======
     "com.permanence.open-webui",
->>>>>>> origin/main
 ]
 
 
@@ -235,11 +228,7 @@ def check_status(cfg: dict[str, Any], print_cmd: bool = False) -> int:
     _require(cfg, ["host", "user"])
     status_script = r"""
 echo "=== PERMANENCE SERVICES ==="
-<<<<<<< HEAD
-for svc in com.permanence.command-center com.permanence.foundation-site com.permanence.foundation-api com.permanence.cloudflare-tunnel; do
-=======
 for svc in com.permanence.command-center com.permanence.foundation-site com.permanence.foundation-api com.permanence.cloudflare-tunnel com.permanence.open-webui; do
->>>>>>> origin/main
     if launchctl list "$svc" &>/dev/null 2>&1; then
         pid=$(launchctl list "$svc" 2>/dev/null | head -1 | awk '{print $1}')
         echo "  ✓ $svc (PID: $pid)"
@@ -250,11 +239,7 @@ done
 
 echo ""
 echo "=== ENDPOINTS ==="
-<<<<<<< HEAD
-for url in "http://127.0.0.1:8000/api/health" "http://127.0.0.1:8787/" "http://127.0.0.1:8797/app/ophtxn"; do
-=======
 for url in "http://127.0.0.1:8000/api/status" "http://127.0.0.1:8787/" "http://127.0.0.1:8797/app/ophtxn" "http://127.0.0.1:3000/"; do
->>>>>>> origin/main
     http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 3 "$url" 2>/dev/null || echo "000")
     if [ "$http_code" = "200" ]; then
         echo "  ✓ $url ($http_code)"
@@ -296,10 +281,7 @@ def tail_logs(cfg: dict[str, Any], service: str | None = None, lines: int = 30) 
         "foundation-api": "/tmp/permanence-foundation-api.log",
         "tunnel": "/tmp/permanence-cloudflare-tunnel.log",
         "git-sync": "/tmp/permanence-git-sync.log",
-<<<<<<< HEAD
-=======
         "open-webui": "/tmp/permanence-open-webui.log",
->>>>>>> origin/main
     }
 
     if service and service in service_map:
@@ -325,10 +307,7 @@ def restart_service(cfg: dict[str, Any], service: str) -> int:
         "foundation-api": "com.permanence.foundation-api",
         "tunnel": "com.permanence.cloudflare-tunnel",
         "git-sync": "com.permanence.git-sync",
-<<<<<<< HEAD
-=======
         "open-webui": "com.permanence.open-webui",
->>>>>>> origin/main
     }
 
     if service == "all":

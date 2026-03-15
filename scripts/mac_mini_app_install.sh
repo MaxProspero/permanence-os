@@ -9,11 +9,7 @@
 #   bash scripts/mac_mini_app_install.sh [--skip-casks] [--skip-docker]
 #
 # Run from the Mac Mini directly, or via SSH from the MacBook:
-<<<<<<< HEAD
-#   ssh permanence-os@192.168.40.232 "cd ~/Code/permanence-os && bash scripts/mac_mini_app_install.sh"
-=======
 #   ssh permanence-os@100.118.168.26 "cd ~/Code/permanence-os && bash scripts/mac_mini_app_install.sh"
->>>>>>> origin/main
 # ============================================================================
 set -euo pipefail
 
@@ -121,15 +117,11 @@ else
   echo "    ⚠  Ollama not found — run mac_mini_setup.sh first"
 fi
 
-<<<<<<< HEAD
-# ── 5. GitHub CLI Auth Check ─────────────────────────────────────────────
-=======
 # ── 5. Security Tools ──────────────────────────────────────────────
 step "Security Tools"
 install_cask "lulu" "LuLu (outbound firewall monitor)"
 
 # ── 6. GitHub CLI Auth Check ─────────────────────────────────────────────
->>>>>>> origin/main
 step "GitHub CLI Status"
 if command -v gh &>/dev/null; then
   if gh auth status &>/dev/null 2>&1; then
@@ -142,11 +134,7 @@ else
   echo "    ⚠  GitHub CLI not available"
 fi
 
-<<<<<<< HEAD
-# ── 6. Tailscale Setup Reminder ──────────────────────────────────────────
-=======
 # ── 7. Tailscale Setup Reminder ──────────────────────────────────────────
->>>>>>> origin/main
 step "Tailscale Status"
 if command -v tailscale &>/dev/null; then
   if tailscale status &>/dev/null 2>&1; then

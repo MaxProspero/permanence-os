@@ -467,8 +467,6 @@ System pulls from the best available model for each task — free local models f
 
 ---
 
-<<<<<<< HEAD
-=======
 ## 22. Ghost OS Integration — Mac System Control (IMPLEMENTED)
 
 **Source:** https://github.com/ghostwright/ghost-os (MIT, v2.0.6)
@@ -550,5 +548,4 @@ enforces consistent governance — same agent, different capabilities per device
 
 ---
 
->>>>>>> origin/main
 *This document is a living backlog. Items move to implementation plans when prioritized.*

@@ -1,505 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-<<<<<<< HEAD
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0a1118">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<title>Ophtxn · Local Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-<style>
-  /* ── TOKENS ─────────────────────────────────────────────── */
-  :root {
-    --bg:        #050811;
-    --surface:   #090e1a;
-    --lift:      #0d1526;
-    --border:    rgba(255,255,255,0.07);
-    --border-hi: rgba(255,255,255,0.14);
-    --ink:       #e8eeff;
-    --muted:     #5a6a8a;
-    --dim:       #2e3d5c;
-
-    --c-a: #00e5c4;   /* teal   */
-    --c-b: #ff5c8a;   /* rose   */
-    --c-c: #7b6fff;   /* violet */
-    --c-d: #f8c842;   /* gold   */
-
-    --r: 14px;
-    --mono: "DM Mono", monospace;
-    --sans: "Syne", system-ui, sans-serif;
-    --ease: cubic-bezier(.22,.68,0,1.2);
-  }
-
-  /* copper theme */
-  [data-theme="copper"] {
-    --bg: #0c0906; --surface: #130e09; --lift: #1c1510;
-    --border: rgba(255,200,120,0.08); --border-hi: rgba(255,200,120,0.18);
-    --ink: #fff0d8; --muted: #7a5f40; --dim: #3a2810;
-    --c-a: #ffb347; --c-b: #ff6b6b; --c-c: #e8a87c; --c-d: #ffd700;
-  }
-
-  /* void theme */
-  [data-theme="void"] {
-    --bg: #000000; --surface: #080808; --lift: #101010;
-    --border: rgba(255,255,255,0.05); --border-hi: rgba(255,255,255,0.10);
-    --ink: #cccccc; --muted: #444; --dim: #1a1a1a;
-    --c-a: #e0e0e0; --c-b: #888; --c-c: #bbb; --c-d: #fff;
-  }
-
-  /* ── RESET ───────────────────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; scroll-behavior: smooth; }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    overflow-x: hidden;
-    transition: background .3s, color .3s;
-  }
-
-  /* ── GRID NOISE BACKGROUND ───────────────────────────────── */
-  body::before {
-    content: "";
-    position: fixed; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(0,229,196,.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,196,.035) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-    pointer-events: none;
-  }
-
-  /* glow orbs */
-  body::after {
-    content: "";
-    position: fixed; inset: 0; z-index: 0;
-    background:
-      radial-gradient(600px 400px at 15% 20%, rgba(0,229,196,.09) 0%, transparent 70%),
-      radial-gradient(500px 350px at 85% 10%, rgba(123,111,255,.07) 0%, transparent 70%),
-      radial-gradient(700px 300px at 50% 100%, rgba(255,92,138,.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  /* ── LAYOUT ──────────────────────────────────────────────── */
-  .page { position: relative; z-index: 1; width: min(1280px, 94vw); margin: 0 auto; padding: 28px 0 96px; }
-
-  /* ── NAV ─────────────────────────────────────────────────── */
-  nav {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; flex-wrap: wrap; margin-bottom: 52px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .brand {
-    display: flex; align-items: center; gap: 10px;
-    text-decoration: none; color: var(--ink);
-    font-weight: 800; font-size: 15px; letter-spacing: -.01em;
-  }
-
-  .brand-mark {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--c-a), var(--c-c));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 800; color: #000; flex-shrink: 0;
-  }
-
-  .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-  .pill {
-    font-family: var(--mono); font-size: 11px;
-    padding: 6px 12px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--muted);
-    background: var(--surface); text-decoration: none;
-    transition: border-color .2s, color .2s;
-    cursor: pointer; appearance: none;
-  }
-  .pill:hover, .pill:focus { border-color: var(--border-hi); color: var(--ink); outline: none; }
-  .pill.active { border-color: var(--c-a); color: var(--c-a); }
-
-  select.pill { padding-right: 28px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6a8a'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-    background-size: 8px; -webkit-appearance: none; }
-
-  /* ── HERO ────────────────────────────────────────────────── */
-  .hero { margin-bottom: 48px; }
-
-  .eyebrow {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--c-a);
-    display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
-  }
-  .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--c-a); display: block; }
-
-  h1 {
-    font-size: clamp(42px, 6.5vw, 88px);
-    font-weight: 800; letter-spacing: -.04em;
-    line-height: .92; max-width: 900px;
-    margin-bottom: 22px;
-  }
-
-  h1 em {
-    font-style: normal;
-    background: linear-gradient(90deg, var(--c-a) 0%, var(--c-c) 50%, var(--c-b) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-family: var(--mono); font-size: 13px; color: var(--muted);
-    max-width: 600px; line-height: 1.7; margin-bottom: 28px;
-  }
-
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-
-  .btn-primary {
-    padding: 11px 22px; border-radius: 999px;
-    background: var(--c-a); color: #000;
-    font-family: var(--sans); font-weight: 700; font-size: 13px;
-    text-decoration: none; border: none; cursor: pointer;
-    transition: transform .2s var(--ease), box-shadow .2s;
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,196,.3); }
-
-  .cmd-bar {
-    margin-top: 20px; padding: 12px 16px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); font-family: var(--mono); font-size: 12px;
-    color: var(--c-a); overflow-x: auto; white-space: nowrap;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .cmd-bar::before { content: "❯"; color: var(--muted); flex-shrink: 0; }
-
-  /* ── SERVICE CARDS ───────────────────────────────────────── */
-  .services {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 48px;
-  }
-
-  .svc {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px;
-    position: relative; overflow: hidden;
-    transition: border-color .25s, transform .25s var(--ease);
-    cursor: default;
-  }
-  .svc:hover { border-color: var(--border-hi); transform: translateY(-2px); }
-
-  /* accent bar on left */
-  .svc::before {
-    content: ""; position: absolute; left: 0; top: 16px; bottom: 16px;
-    width: 2px; border-radius: 2px;
-    background: var(--accent, var(--c-a));
-  }
-
-  .svc-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
-  }
-
-  .svc-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-
-  .svc-url {
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    margin-bottom: 14px; word-break: break-all;
-  }
-
-  /* status indicator */
-  .svc-status {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-family: var(--mono); font-size: 11px;
-    padding: 5px 10px; border-radius: 999px;
-    background: var(--lift); border: 1px solid var(--border);
-    transition: background .3s, border-color .3s, color .3s;
-  }
-  .svc-status .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--muted); transition: background .3s;
-    flex-shrink: 0;
-  }
-
-  .svc-status[data-s="ok"] { border-color: rgba(0,229,196,.3); color: var(--c-a); }
-  .svc-status[data-s="ok"] .dot { background: var(--c-a); box-shadow: 0 0 6px var(--c-a); animation: pulse 2s infinite; }
-
-  .svc-status[data-s="warn"] { border-color: rgba(248,200,66,.3); color: var(--c-d); }
-  .svc-status[data-s="warn"] .dot { background: var(--c-d); }
-
-  .svc-status[data-s="err"] { border-color: rgba(255,92,138,.3); color: var(--c-b); }
-  .svc-status[data-s="err"] .dot { background: var(--c-b); }
-
-  @keyframes pulse {
-    0%,100% { opacity: 1; } 50% { opacity: .4; }
-  }
-
-  /* open link */
-  .svc-open {
-    display: block; margin-top: 12px;
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    text-decoration: none; transition: color .2s;
-  }
-  .svc-open:hover { color: var(--ink); }
-
-  /* ── APPROVAL QUEUE PANEL ───────────────────────────────── */
-  .aq-panel {
-    background: var(--surface);
-    border: 1px solid rgba(250,50,100,.18);
-    border-radius: var(--r);
-    padding: 20px 24px;
-    margin: 28px 0;
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
-    flex-wrap: wrap;
-  }
-  .aq-left { display: flex; align-items: center; gap: 16px; }
-  .aq-dot { width: 8px; height: 8px; border-radius: 50%; background: rgb(250,50,100); box-shadow: 0 0 8px rgba(250,50,100,.5); flex-shrink: 0; }
-  .aq-label { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: rgba(250,50,100,.7); text-transform: uppercase; }
-  .aq-count { font-family: var(--mono); font-size: 24px; font-weight: 700; color: rgb(250,50,100); letter-spacing: -.02em; }
-  .aq-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .aq-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .aq-btn-approve {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-    padding: 8px 20px; border-radius: 6px; cursor: pointer; transition: all .2s;
-    background: rgba(250,50,100,.12); border: 1px solid rgba(250,50,100,.35);
-    color: rgb(250,50,100);
-  }
-  .aq-btn-approve:hover { background: rgba(250,50,100,.22); border-color: rgba(250,50,100,.6); }
-  .aq-btn-approve:disabled { opacity: .38; cursor: not-allowed; }
-  .aq-btn-view {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-    padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all .2s;
-    background: none; border: 1px solid var(--border-hi); color: var(--muted);
-    text-decoration: none; display: inline-block;
-  }
-  .aq-btn-view:hover { color: var(--ink); border-color: var(--border); }
-  .aq-msg { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; width: 100%; }
-  .aq-msg.ok { color: #30d158; }
-  .aq-msg.err { color: rgb(250,50,100); }
-
-  /* ── SECTION HEADER ──────────────────────────────────────── */
-  .section-header {
-    display: flex; align-items: baseline; gap: 14px;
-    margin-bottom: 16px;
-  }
-  .section-header h2 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
-  .section-header p { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-
-  /* ── MATRIX ──────────────────────────────────────────────── */
-  .matrix-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 48px;
-  }
-
-  .mx {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 20px;
-    display: flex; flex-direction: column; gap: 10px;
-    transition: border-color .2s;
-  }
-  .mx:hover { border-color: var(--border-hi); }
-
-  .mx-badge {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
-    text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--muted);
-    align-self: flex-start;
-  }
-  .mx-badge.rec { border-color: rgba(0,229,196,.4); color: var(--c-a); }
-  .mx-badge.sel { border-color: rgba(248,200,66,.4); color: var(--c-d); }
-  .mx-badge.no  { border-color: rgba(255,92,138,.3); color: var(--c-b); }
-
-  .mx h3 { font-size: 15px; font-weight: 700; }
-
-  .mx ul { padding-left: 14px; color: var(--muted); display: grid; gap: 6px; font-size: 13px; font-family: var(--mono); line-height: 1.5; }
-
-  .mx-rule {
-    margin-top: 2px; padding: 8px 12px;
-    background: var(--lift); border-left: 2px solid var(--c-b);
-    border-radius: 0 8px 8px 0;
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-  }
-
-  /* ── LANES ───────────────────────────────────────────────── */
-  .lanes-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 48px;
-  }
-
-  .lane {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 20px;
-    position: relative; overflow: hidden;
-  }
-
-  .lane::after {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(200px 200px at 100% 0%, var(--lane-glow, rgba(0,229,196,.04)), transparent);
-    pointer-events: none;
-  }
-
-  .lane-icon {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: var(--lift); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; margin-bottom: 12px;
-  }
-
-  .lane h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-
-  .lane ul { padding-left: 14px; color: var(--muted); display: grid; gap: 7px; font-size: 12px; font-family: var(--mono); line-height: 1.5; }
-
-  /* ── FOOTER LINKS ────────────────────────────────────────── */
-  .doc-links { display: flex; flex-wrap: wrap; gap: 8px; }
-  .doc-links a {
-    font-family: var(--mono); font-size: 11px;
-    padding: 6px 12px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--muted);
-    text-decoration: none; transition: border-color .2s, color .2s;
-  }
-  .doc-links a:hover { border-color: var(--border-hi); color: var(--ink); }
-
-  /* ── DIVIDER ─────────────────────────────────────────────── */
-  .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 40px; }
-
-  /* ── RESPONSIVE ──────────────────────────────────────────── */
-  @media (max-width: 900px) {
-    .services, .matrix-grid, .lanes-grid, .dev-grid { grid-template-columns: 1fr; }
-  }
-
-  /* ── MODE TOGGLE ──────────────────────────────────────────── */
-  .pill.mode-active { border-color: var(--c-c); color: var(--c-c); }
-
-  /* Personal mode: hide dev-only blocks */
-  .dev-only { display: none; }
-  [data-mode="dev"] .dev-only { display: block; }
-
-  /* ── DEV PANEL ────────────────────────────────────────────── */
-  .dev-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 40px;
-  }
-
-  .dev-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 18px; overflow: hidden;
-  }
-
-  .dev-card-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
-  }
-
-  .dev-raw {
-    font-family: var(--mono); font-size: 11px; color: var(--c-c);
-    white-space: pre-wrap; word-break: break-all;
-    max-height: 180px; overflow-y: auto; line-height: 1.6;
-  }
-
-  .dev-table {
-    width: 100%; border-collapse: collapse;
-    font-family: var(--mono); font-size: 12px;
-    margin-bottom: 40px;
-  }
-
-  .dev-table th {
-    text-align: left; padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted); font-weight: 400;
-    font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-  }
-
-  .dev-table td {
-    padding: 9px 12px; border-bottom: 1px solid var(--border);
-    color: var(--muted);
-  }
-
-  .dev-table td:first-child { color: var(--c-a); }
-  .dev-table td:nth-child(2) { color: var(--c-d); }
-  .dev-table tr:hover td { background: var(--lift); }
-
-  /* ── ENTRY ANIMATIONS ────────────────────────────────────── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .hero         { animation: fadeUp .5s both; }
-  .services     { animation: fadeUp .55s .08s both; }
-  .matrix-grid  { animation: fadeUp .55s .14s both; }
-  .lanes-grid   { animation: fadeUp .55s .2s both; }
-
-  /* ── FILM GRAIN ─────────────────────────────────────────── */
-  #grain {
-    position: fixed; inset: -50%; width: 200%; height: 200%;
-    opacity: .05; mix-blend-mode: overlay;
-    animation: grainshift .5s steps(1) infinite;
-    pointer-events: none; z-index: 9999;
-  }
-  @keyframes grainshift {
-    0%  { transform: translate(0,0) }
-    10% { transform: translate(-2%,-3%) }
-    20% { transform: translate(3%,1%) }
-    30% { transform: translate(-1%,4%) }
-    40% { transform: translate(4%,-1%) }
-    50% { transform: translate(-3%,2%) }
-    60% { transform: translate(1%,-4%) }
-    70% { transform: translate(-4%,3%) }
-    80% { transform: translate(2%,2%) }
-    90% { transform: translate(-2%,-1%) }
-    100%{ transform: translate(0,0) }
-  }
-
-  /* ── RETICLE BRAND MARK ──────────────────────────────────── */
-  .brand-reticle {
-    width: 32px; height: 32px; flex-shrink: 0;
-    color: var(--c-a);
-  }
-
-  /* ── ARCHIVAL EYEBROW ────────────────────────────────────── */
-  .arc-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--c-d); opacity: .55;
-    margin-bottom: 8px;
-  }
-
-  /* ── HALFTONE on service cards ───────────────────────────── */
-  .svc::after {
-    content: "";
-    position: absolute; inset: 0;
-    background-image: radial-gradient(circle, rgba(255,200,120,.04) 1px, transparent 1px);
-    background-size: 14px 14px;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    border-radius: inherit;
-    z-index: 0;
-  }
-  .svc > * { position: relative; z-index: 1; }
-  /* ── TOWER HUD ─── */
-  :root { --f-rgb: 250,50,100; --f: rgb(var(--f-rgb)); }
-  body { padding-top: 42px; }
-  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
-  .th-l { display:flex;align-items:center; }
-  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
-  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
-  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
-  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
-  .th-r { display:flex;align-items:center;gap:12px; }
-  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.45);text-decoration:none;transition:color .2s; }
-  .th-back:hover { color:var(--f); }
-  .th-ctrl { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.4);background:none;border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:3px 8px;cursor:pointer;transition:all .2s; }
-  .th-ctrl:hover,.th-ctrl:focus { color:var(--f);border-color:rgba(var(--f-rgb),.4);outline:none; }
-  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
-</style>
-=======
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="/manifest.json">
@@ -1306,7 +807,6 @@
       .page-title { font-size: 16px; }
     }
   </style>
->>>>>>> origin/main
 </head>
 <body>
   <!-- GRAIN OVERLAY -->
@@ -1333,21 +833,6 @@
     </div>
   </div>
 
-<<<<<<< HEAD
-  <!-- HERO -->
-  <section class="hero">
-    <p class="arc-label">A-KWJ-0368 // NETWORK SURFACE ACTIVE // 26.03.07</p>
-    <p class="eyebrow">Localhost Command Surface</p>
-    <h1>Your agent stack,<br><em>governed and live.</em></h1>
-    <p class="hero-sub">
-      Ophtxn stays your source of truth — memory, approvals, and governance
-      all live here. External tools plug in as workers, not controllers.
-    </p>
-    <div class="hero-actions">
-      <a class="btn-primary" id="hero-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Command Center</a>
-      <a class="pill" id="hero-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">App Shell</a>
-      <a class="pill" id="hero-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">Foundation</a>
-=======
   <!-- MENUBAR DROPDOWNS -->
   <div class="mb-dropdown" id="ddFile" style="left:72px">
     <div class="dd-label">Ophtxn OS</div>
@@ -1386,7 +871,6 @@
         <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
         <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
       </div>
->>>>>>> origin/main
     </div>
     <div class="dd-theme-row">
       <span class="dd-theme-label">Mode</span>
@@ -1395,31 +879,6 @@
         <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
         <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
       </div>
-<<<<<<< HEAD
-      <a class="svc-open" id="svc-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Open</a>
-    </article>
-
-    <article class="svc" style="--accent: var(--c-c)">
-      <p class="svc-label">Runtime · Foundation</p>
-      <p class="svc-name">Foundation Site</p>
-      <p class="svc-url">127.0.0.1:8787</p>
-      <div class="svc-status" id="st-8787" data-s="checking">
-        <span class="dot"></span><span class="label">checking…</span>
-      </div>
-      <a class="svc-open" id="svc-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">→ Open</a>
-    </article>
-
-    <article class="svc" style="--accent: var(--c-b)">
-      <p class="svc-label">Runtime · App Shell</p>
-      <p class="svc-name">Ophtxn App</p>
-      <p class="svc-url">127.0.0.1:8797/app/ophtxn</p>
-      <div class="svc-status" id="st-8797" data-s="checking">
-        <span class="dot"></span><span class="label">checking…</span>
-      </div>
-      <a class="svc-open" id="svc-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
-    </article>
-  </section>
-=======
     </div>
   </div>
 
@@ -1433,7 +892,6 @@
   </div>
 
   <div class="mb-powered">Powered by Permanence Systems</div>
->>>>>>> origin/main
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
@@ -1444,42 +902,8 @@
     <!-- PAGE HEADER -->
     <div class="page-header">
       <div>
-<<<<<<< HEAD
-        <div class="aq-label">Approval Queue</div>
-        <div class="aq-count" id="aq-count">—</div>
-        <div class="aq-sub" id="aq-sub">fetching…</div>
-      </div>
-    </div>
-    <div class="aq-right">
-      <a class="aq-btn-view" id="aq-link-review" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Review</a>
-      <button class="aq-btn-approve" id="aq-approve-btn" type="button">⚡ Approve All</button>
-    </div>
-    <div class="aq-msg" id="aq-msg"></div>
-  </div>
-
-  <!-- DEV PANEL (hidden in personal mode) -->
-  <section class="dev-only" id="dev-panel">
-    <hr class="divider">
-    <div class="section-header">
-      <h2>Developer Panel</h2>
-      <p>Raw API responses · System info · Endpoint map</p>
-    </div>
-    <div class="dev-grid">
-      <div class="dev-card">
-        <p class="dev-card-label">Command Center :8000 — raw</p>
-        <pre class="dev-raw" id="raw-8000">—</pre>
-      </div>
-      <div class="dev-card">
-        <p class="dev-card-label">App Shell :8797 — raw</p>
-        <pre class="dev-raw" id="raw-8797">—</pre>
-      </div>
-      <div class="dev-card">
-        <p class="dev-card-label">Client Environment</p>
-        <pre class="dev-raw" id="raw-sys">—</pre>
-=======
         <div class="page-subtitle">Agent Mission Control</div>
         <h1 class="page-title">CONTROL ROOM</h1>
->>>>>>> origin/main
       </div>
     </div>
 
@@ -1753,183 +1177,10 @@
     /* ============================= HELPERS ============================= */
     function $(id) { return document.getElementById(id); }
 
-<<<<<<< HEAD
-    <article class="lane" style="--lane-glow: rgba(123,111,255,.06)">
-      <div class="lane-icon">🦅</div>
-      <h3>OpenClaw Lane</h3>
-      <ul>
-        <li>Channel configs + group policies for gated actions</li>
-        <li>Skills for repeatable social/research workflows</li>
-        <li>Runtime = worker layer, not canonical memory</li>
-        <li>Channels guide → docs.openclaw.ai/guides/channels</li>
-        <li>Skills guide → docs.openclaw.ai/guides/skills</li>
-      </ul>
-    </article>
-
-    <article class="lane" style="--lane-glow: rgba(255,92,138,.05)">
-      <div class="lane-icon">🌐</div>
-      <h3>Chrome Lane</h3>
-      <ul>
-        <li>Dedicated "agent ops" profile — minimal extensions</li>
-        <li>Pin: Local Hub, Command Center, App Shell only</li>
-        <li>Perplexity = bounded research tab, not home base</li>
-        <li>Keep finance/admin in a separate Chrome profile</li>
-      </ul>
-    </article>
-  </div>
-
-  <hr class="divider">
-
-  <!-- DOCS -->
-  <div class="section-header">
-    <h2>Docs</h2>
-    <p>Strategy, intelligence, governance</p>
-  </div>
-  <div class="doc-links">
-    <a href="../docs/ophtxn_platform_intelligence_20260306.md">Platform Intelligence</a>
-    <a href="../docs/ophtxn_skill_stack_20260306.md">Skill Stack</a>
-    <a href="../docs/ophtxn_model_policy_guardrails_20260306.md">Model Policy</a>
-    <a href="../docs/ophtxn_journey_change_log.md">Change Log</a>
-    <a href="../docs/README.md">Docs Index</a>
-  </div>
-
-</main>
-
-<script src="runtime.config.js"></script>
-<script>
-// ── RUNTIME CONFIG ────────────────────────────────────────────
-var __RT = window.__OPHTXN_RUNTIME || {};
-var API_BASE = __RT.apiBase || "http://127.0.0.1:8000";
-var APP_BASE = __RT.appBase || "http://127.0.0.1:8797";
-var SITE_BASE = __RT.siteUrl || "http://127.0.0.1:8787";
-
-// Resolve HTML href attributes from runtime config
-(function(){
-  var map = {
-    "hero-link-cc":    __RT.commandCenterUrl || API_BASE,
-    "hero-link-shell": __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
-    "hero-link-site":  SITE_BASE,
-    "svc-link-cc":     __RT.commandCenterUrl || API_BASE,
-    "svc-link-site":   SITE_BASE,
-    "svc-link-shell":  __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
-    "aq-link-review":  __RT.commandCenterUrl || API_BASE
-  };
-  for (var id in map) {
-    var el = document.getElementById(id);
-    if (el && map[id]) el.href = map[id];
-  }
-})();
-
-// ── MODE TOGGLE ───────────────────────────────────────────────
-const MODE_KEY  = 'ophtxn_hub_mode_v1';
-const modeBtn   = document.getElementById('modeBtn');
-
-function applyMode(m) {
-  document.body.dataset.mode = m;
-  modeBtn.textContent = m === 'dev' ? '← Personal' : 'Dev Mode';
-  modeBtn.classList.toggle('mode-active', m === 'dev');
-  try { localStorage.setItem(MODE_KEY, m); } catch(_) {}
-  if (m === 'dev') populateDevPanel();
-}
-
-const savedMode = (() => { try { return localStorage.getItem(MODE_KEY); } catch(_) { return null; } })();
-applyMode(savedMode || 'personal');
-
-modeBtn.addEventListener('click', () => {
-  applyMode(document.body.dataset.mode === 'dev' ? 'personal' : 'dev');
-});
-
-async function populateDevPanel() {
-  const sysEl = document.getElementById('raw-sys');
-  if (sysEl) {
-    sysEl.textContent = JSON.stringify({
-      time:     new Date().toISOString(),
-      viewport: `${window.innerWidth}×${window.innerHeight}`,
-      theme:    document.body.dataset.theme,
-      mode:     document.body.dataset.mode,
-      build:    'ophtxn-local-hub',
-    }, null, 2);
-  }
-
-  const el8000 = document.getElementById('raw-8000');
-  if (el8000) {
-    try {
-      const res  = await fetch(API_BASE + '/api/status', { signal: AbortSignal.timeout(3000) });
-      const data = await res.json();
-      el8000.textContent = JSON.stringify(data, null, 2);
-    } catch(e) { el8000.textContent = `Error: ${e.message}`; }
-  }
-
-  const el8797 = document.getElementById('raw-8797');
-  if (el8797) {
-    try {
-      const res  = await fetch(APP_BASE + '/health', { signal: AbortSignal.timeout(3000) });
-      const data = await res.json();
-      el8797.textContent = JSON.stringify(data, null, 2);
-    } catch(e) { el8797.textContent = `Error: ${e.message}`; }
-  }
-}
-
-// ── THEME ─────────────────────────────────────────────────────
-const THEME_KEY = "ophtxn_hub_theme_v2";
-const sel = document.getElementById("themeSelect");
-
-function applyTheme(t) {
-  document.body.dataset.theme = t;
-  try { localStorage.setItem(THEME_KEY, t); } catch(_) {}
-}
-
-const saved = (() => { try { return localStorage.getItem(THEME_KEY); } catch(_) { return null; } })();
-const initial = saved || "copper";
-sel.value = initial;
-applyTheme(initial);
-sel.addEventListener("change", e => applyTheme(e.target.value));
-
-// ── SMART HEALTH POLLING ──────────────────────────────────────
-// Only updates the DOM when the state actually changes.
-// No blind re-writes every tick.
-
-const SERVICES = [
-  { id: "st-8000", url: API_BASE + "/api/status", expectJson: true  },
-  { id: "st-8787", url: SITE_BASE + "/",          expectJson: false },
-  { id: "st-8797", url: APP_BASE + "/health",     expectJson: true  },
-];
-
-// Track last known state so we skip DOM writes when nothing changed
-const lastState = {};
-
-function setState(id, status, text) {
-  // DIFF CHECK — bail if nothing changed
-  const prev = lastState[id];
-  if (prev && prev.status === status && prev.text === text) return;
-  lastState[id] = { status, text };
-
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.dataset.s = status;
-  el.querySelector(".label").textContent = text;
-}
-
-async function pingService({ id, url, expectJson }) {
-  try {
-    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) });
-    if (!res.ok) {
-      setState(id, "warn", `HTTP ${res.status}`);
-      return;
-    }
-    if (expectJson) {
-      try {
-        const data = await res.json();
-        const good = data && data.ok === true;
-        setState(id, good ? "ok" : "warn", good ? "online · ok" : "online · check payload");
-      } catch (_) {
-        setState(id, "warn", "online · bad json");
-=======
     function safeFetch(url, opts) {
       var key = url;
       if (controllers[key]) {
         try { controllers[key].abort(); } catch(e) {}
->>>>>>> origin/main
       }
       var ac = new AbortController();
       controllers[key] = ac;
@@ -1974,14 +1225,9 @@ async function pingService({ id, url, expectJson }) {
       return d.innerHTML;
     }
 
-<<<<<<< HEAD
-// ── APPROVAL QUEUE ────────────────────────────────────────────
-const AQ_BASE = API_BASE;
-=======
     function jsonEqual(a, b) {
       return JSON.stringify(a) === JSON.stringify(b);
     }
->>>>>>> origin/main
 
     function showToast(msg) {
       var t = $('toast');
@@ -2081,12 +1327,6 @@ const AQ_BASE = API_BASE;
       }
     });
 
-<<<<<<< HEAD
-aqFetch();
-setInterval(aqFetch, 60_000);
-</script>
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
-=======
     /* Bulk approve */
     var bulkBtn = $('btnBulkApprove');
     if (bulkBtn) {
@@ -2712,6 +1952,5 @@ setInterval(aqFetch, 60_000);
   </script>
 
   <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
->>>>>>> origin/main
 </body>
 </html>

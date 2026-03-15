@@ -73,15 +73,6 @@ from enum import Enum
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-<<<<<<< HEAD
-=======
-try:
-    from dotenv import load_dotenv
-    load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
-except ImportError:
-    pass
-
->>>>>>> origin/main
 DEFAULT_STATE_PATH = os.path.join(BASE_DIR, "memory", "working", "device_control_state.json")
 DEFAULT_LOG_PATH = os.path.join(BASE_DIR, "logs", "device_control.jsonl")
 

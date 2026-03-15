@@ -12,11 +12,7 @@
   <meta name="description" content="Governed AI chat interface for Ophtxn inside Permanence OS.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<<<<<<< HEAD
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;600&family=Syne:wght@400;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-=======
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@700;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
->>>>>>> origin/main
   <style>
 /* ═══════════════════════════════════════════════════════
    RESET + BASE
@@ -26,11 +22,7 @@
 :root{
   /* Layout */
   --sidebar-w:280px;
-<<<<<<< HEAD
-  --hud-h:42px;
-=======
   --hud-h:28px;
->>>>>>> origin/main
   --input-max-h:180px;
 
   /* Dark Aurora (default) */
@@ -50,15 +42,9 @@
   --sys-bg:rgba(255,255,255,0.025);
   --sys-border:rgba(255,255,255,0.06);
   --accent:#00e5c4;
-<<<<<<< HEAD
-  --accent-2:#7b6fff;
-  --accent-warm:#f8c842;
-  --accent-rose:#ff5c8a;
-=======
   --violet:#7b6fff;
   --c2:#f8c842;
   --rose:#ff5c8a;
->>>>>>> origin/main
   --code-bg:#080e18;
   --code-border:rgba(255,255,255,0.06);
   --good:#54df9e;
@@ -69,15 +55,9 @@
   --r-xs:6px;
 
   /* Fonts */
-<<<<<<< HEAD
-  --sans:"DM Sans",system-ui,sans-serif;
-  --display:"Syne",system-ui,sans-serif;
-  --mono:"DM Mono",monospace;
-=======
   --sans:"Sora",system-ui,sans-serif;
   --mono:"IBM Plex Mono","DM Mono",monospace;
   --game:"Orbitron",monospace;
->>>>>>> origin/main
 
   /* Tower HUD */
   --f-rgb:50,215,75;
@@ -91,11 +71,7 @@
   --border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);
   --ink:#fff0d8;--ink-2:#d4c0a0;--muted:#7a5f40;--dim:#3d2e1e;
   --user-bg:rgba(255,179,71,0.08);--user-border:rgba(255,179,71,0.2);
-<<<<<<< HEAD
-  --accent:#ffb347;--accent-2:#e8a87c;--accent-warm:#ffd700;--accent-rose:#ff6b6b;
-=======
   --accent:#ffb347;--violet:#e8a87c;--c2:#ffd700;--rose:#ff6b6b;
->>>>>>> origin/main
   --code-bg:#100c06;--code-border:rgba(255,180,100,0.08);
   --good:#80b860;--warn:#ff9500;--bad:#e06848;
   --f-rgb:255,179,71;--f:rgb(var(--f-rgb));
@@ -108,259 +84,12 @@
   --border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);
   --ink:#c0c0c0;--ink-2:#888;--muted:#555;--dim:#333;
   --user-bg:rgba(255,255,255,0.04);--user-border:rgba(255,255,255,0.1);
-<<<<<<< HEAD
-  --accent:#d0d0d0;--accent-2:#999;--accent-warm:#bbb;--accent-rose:#888;
-=======
   --accent:#d0d0d0;--violet:#999;--c2:#bbb;--rose:#888;
->>>>>>> origin/main
   --code-bg:#060606;--code-border:rgba(255,255,255,0.05);
   --good:#7a7a7a;--warn:#999;--bad:#666;
   --f-rgb:180,180,180;--f:rgb(var(--f-rgb));
 }
 
-<<<<<<< HEAD
-/* ── LIGHT MODE ─────────────────────────────────────── */
-[data-brightness="light"]{
-  --bg-0:#f6f4f0;--bg-1:#edeae4;--bg-2:#e4e0d8;
-  --surface:#ffffff;--surface-hi:#f5f3ef;
-  --border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);
-  --ink:#1a1a2e;--ink-2:#4a4a6a;--muted:#8a8a9a;--dim:#c0c0c8;
-  --user-bg:rgba(0,229,196,0.06);--user-border:rgba(0,229,196,0.22);
-  --sys-bg:rgba(0,0,0,0.02);--sys-border:rgba(0,0,0,0.06);
-  --code-bg:#f5f3ef;--code-border:rgba(0,0,0,0.08);
-}
-[data-brightness="light"][data-theme="copper"]{
-  --bg-0:#faf6f0;--bg-1:#f0e8dc;--bg-2:#e8ddd0;
-  --surface:#fffaf4;--surface-hi:#f8f0e4;
-  --ink:#2a1e10;--ink-2:#5a4a30;--muted:#8a7a60;
-  --user-bg:rgba(255,179,71,0.08);--user-border:rgba(255,179,71,0.25);
-  --code-bg:#f8f0e4;
-}
-[data-brightness="light"][data-theme="void"]{
-  --bg-0:#f0f0f0;--bg-1:#e8e8e8;--bg-2:#e0e0e0;
-  --surface:#ffffff;--surface-hi:#f5f5f5;
-  --ink:#111;--ink-2:#444;--muted:#888;
-  --user-bg:rgba(0,0,0,0.03);--user-border:rgba(0,0,0,0.1);
-  --accent:#333;--accent-2:#666;
-  --code-bg:#f0f0f0;
-}
-@media(prefers-color-scheme:light){
-  [data-brightness="system"]{
-    --bg-0:#f6f4f0;--bg-1:#edeae4;--bg-2:#e4e0d8;
-    --surface:#ffffff;--surface-hi:#f5f3ef;
-    --border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);
-    --ink:#1a1a2e;--ink-2:#4a4a6a;--muted:#8a8a9a;--dim:#c0c0c8;
-    --user-bg:rgba(0,229,196,0.06);--user-border:rgba(0,229,196,0.22);
-    --sys-bg:rgba(0,0,0,0.02);--sys-border:rgba(0,0,0,0.06);
-    --code-bg:#f5f3ef;--code-border:rgba(0,0,0,0.08);
-  }
-}
-
-html,body{width:100%;height:100%;overflow:hidden}
-body{
-  background:var(--bg-0);color:var(--ink);
-  font-family:var(--sans);font-size:14px;line-height:1.5;
-  padding-top:var(--hud-h);
-  transition:background .3s,color .3s;
-}
-
-/* ═══════════════════════════════════════════════════════
-   GRAIN + SCANLINES
-   ═══════════════════════════════════════════════════════ */
-#grain{
-  position:fixed;inset:-50%;width:200%;height:200%;
-  pointer-events:none;z-index:9997;
-  opacity:.05;mix-blend-mode:overlay;
-  animation:grainshift .5s steps(1) infinite;
-}
-@keyframes grainshift{
-  0%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}
-  20%{transform:translate(3%,1%)}30%{transform:translate(-1%,4%)}
-  40%{transform:translate(4%,-2%)}50%{transform:translate(-3%,2%)}
-  60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}
-  80%{transform:translate(3%,3%)}90%{transform:translate(-2%,-1%)}
-}
-.scanlines{
-  position:fixed;inset:0;z-index:9998;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
-}
-
-/* ═══════════════════════════════════════════════════════
-   TOWER HUD
-   ═══════════════════════════════════════════════════════ */
-.tower-hud{
-  position:fixed;top:0;left:0;right:0;z-index:9000;height:var(--hud-h);
-  background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);
-  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  transition:border-color .3s,background .3s;
-}
-[data-brightness="light"] .tower-hud{background:rgba(246,244,240,.97);border-bottom-color:rgba(var(--f-rgb),.15)}
-.th-l{display:flex;align-items:center;gap:4px}
-.th-brand{font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none}
-.th-sep{color:rgba(var(--f-rgb),.2);margin:0 12px;font-size:10px}
-.th-num{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:10px;text-shadow:0 0 18px rgba(var(--f-rgb),.45)}
-.th-name{font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:var(--muted);text-transform:uppercase}
-.th-r{display:flex;align-items:center;gap:14px}
-.th-back{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.45);text-decoration:none;transition:color .2s}
-.th-back:hover{color:var(--f)}
-.th-conn{font-family:var(--mono);font-size:10px;display:flex;align-items:center;gap:5px}
-.th-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);transition:background .3s,box-shadow .3s}
-.th-dot.live{background:var(--good);box-shadow:0 0 8px var(--good)}
-.th-dot.err{background:var(--bad);box-shadow:0 0 8px var(--bad)}
-
-/* ═══════════════════════════════════════════════════════
-   CHAT APP LAYOUT
-   ═══════════════════════════════════════════════════════ */
-.chat-app{
-  display:flex;height:calc(100vh - var(--hud-h));
-  transition:background .3s;
-}
-
-/* ── SIDEBAR ────────────────────────────────────────── */
-.sidebar{
-  width:var(--sidebar-w);flex-shrink:0;
-  background:var(--bg-1);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  transition:transform .3s cubic-bezier(.22,.68,0,1),background .3s,border-color .3s;
-}
-.sidebar-hdr{
-  padding:16px 16px 12px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-}
-.sidebar-title{font-family:var(--display);font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
-.sidebar-close{display:none;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px}
-.sidebar-sessions{flex:1;overflow-y:auto;padding:8px}
-.sidebar-sessions::-webkit-scrollbar{width:2px}
-.sidebar-sessions::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
-
-.session-item{
-  padding:10px 12px;border-radius:var(--r-sm);cursor:pointer;
-  font-size:13px;color:var(--ink-2);transition:background .15s;
-  margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.session-item:hover{background:rgba(255,255,255,.04)}
-.session-item.active{background:rgba(var(--f-rgb),.08);color:var(--ink)}
-[data-brightness="light"] .session-item:hover{background:rgba(0,0,0,.04)}
-[data-brightness="light"] .session-item.active{background:rgba(var(--f-rgb),.1)}
-
-.sidebar-new{
-  margin:8px;padding:10px;border-radius:var(--r-sm);
-  background:none;border:1px dashed var(--border-hi);
-  color:var(--muted);font:inherit;font-size:13px;cursor:pointer;
-  transition:all .2s;text-align:center;
-}
-.sidebar-new:hover{border-color:var(--accent);color:var(--accent)}
-
-.sidebar-foot{
-  padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;
-  display:flex;flex-direction:column;gap:10px;
-}
-.theme-row{display:flex;gap:6px;align-items:center}
-.theme-row label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;min-width:52px}
-.theme-sel{
-  flex:1;background:var(--surface);border:1px solid var(--border);
-  color:var(--ink);border-radius:var(--r-xs);padding:5px 8px;
-  font:inherit;font-size:11px;cursor:pointer;
-  transition:background .3s,border-color .3s,color .3s;
-}
-
-/* ── CHAT MAIN ──────────────────────────────────────── */
-.chat-main{
-  flex:1;display:flex;flex-direction:column;min-width:0;
-  background:var(--bg-0);transition:background .3s;
-}
-
-/* ── METRICS BAR ────────────────────────────────────── */
-.metrics-bar{
-  flex-shrink:0;display:flex;align-items:center;gap:12px;
-  padding:8px 20px;border-bottom:1px solid var(--border);
-  font-family:var(--mono);font-size:11px;
-  overflow-x:auto;white-space:nowrap;
-  transition:background .3s,border-color .3s;
-}
-.metrics-bar::-webkit-scrollbar{display:none}
-.sidebar-toggle{
-  display:none;background:none;border:none;color:var(--muted);
-  font-size:16px;cursor:pointer;padding:4px 8px 4px 0;flex-shrink:0;
-}
-.metric-chip{display:flex;align-items:center;gap:6px;color:var(--muted)}
-.metric-chip .mv{font-weight:500;color:var(--ink)}
-.metric-chip .mv.good{color:var(--good)}.metric-chip .mv.warn{color:var(--warn)}.metric-chip .mv.bad{color:var(--bad)}
-.metrics-spacer{flex:1}
-
-/* ── MESSAGES ───────────────────────────────────────── */
-.messages{
-  flex:1;overflow-y:auto;padding:24px 20px;
-  scroll-behavior:smooth;
-}
-.messages::-webkit-scrollbar{width:4px}
-.messages::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
-
-.msg-group{max-width:720px;margin:0 auto 24px;animation:fadeUp .35s both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.msg{display:flex;gap:10px;margin-bottom:12px;position:relative}
-.msg.user{flex-direction:row-reverse}
-.msg-avatar{
-  width:28px;height:28px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:10px;font-weight:500;
-  border:1px solid var(--border);
-}
-.msg.user .msg-avatar{background:rgba(var(--f-rgb),.12);color:var(--f);border-color:rgba(var(--f-rgb),.2)}
-.msg.system .msg-avatar{background:var(--surface);color:var(--accent)}
-
-.msg-body{
-  max-width:calc(100% - 44px);
-  padding:12px 16px;border-radius:var(--r);
-  font-size:14px;line-height:1.65;
-  transition:background .3s,border-color .3s;
-  position:relative;
-}
-.msg.user .msg-body{
-  background:var(--user-bg);border:1px solid var(--user-border);
-  border-top-right-radius:var(--r-xs);
-}
-.msg.system .msg-body{
-  background:var(--sys-bg);border:1px solid var(--sys-border);
-  border-top-left-radius:var(--r-xs);
-}
-
-.msg-actions{
-  position:absolute;top:6px;right:6px;display:flex;gap:4px;
-  opacity:0;transition:opacity .15s;
-}
-.msg:hover .msg-actions{opacity:1}
-.msg.user .msg-actions{right:auto;left:6px}
-.msg-action-btn{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r-xs);padding:3px 6px;cursor:pointer;
-  font-family:var(--mono);font-size:9px;color:var(--muted);
-  transition:all .15s;
-}
-.msg-action-btn:hover{border-color:var(--accent);color:var(--accent)}
-
-.msg-ts{
-  font-family:var(--mono);font-size:9px;color:var(--dim);
-  margin-top:4px;
-}
-.msg.user .msg-ts{text-align:right}
-
-/* ── TYPING INDICATOR ───────────────────────────────── */
-.typing{display:flex;gap:4px;padding:12px 16px;align-items:center}
-.typing-dot{
-  width:6px;height:6px;border-radius:50%;background:var(--muted);
-  animation:bounce 1.4s ease-in-out infinite;
-}
-.typing-dot:nth-child(2){animation-delay:.2s}
-.typing-dot:nth-child(3){animation-delay:.4s}
-@keyframes bounce{
-  0%,60%,100%{transform:translateY(0);opacity:.4}
-  30%{transform:translateY(-6px);opacity:1}
-}
-
-=======
 /* ── OCEAN ──────────────────────────────────────────── */
 [data-theme="ocean"]{
   --bg-0:#060810;--bg-1:#0a1020;--bg-2:#0e182e;
@@ -772,7 +501,6 @@ body{
   30%{transform:translateY(-6px);opacity:1}
 }
 
->>>>>>> origin/main
 /* ── STREAMING ──────────────────────────────────────── */
 .streaming-word{display:inline;opacity:0;animation:wordIn .12s ease forwards}
 @keyframes wordIn{from{opacity:0}to{opacity:1}}
@@ -787,11 +515,7 @@ body{
 .md-content ul,.md-content ol{margin:8px 0;padding-left:20px}
 .md-content li{margin-bottom:4px}
 .md-content blockquote{
-<<<<<<< HEAD
-  border-left:2px solid var(--accent-warm);padding:4px 12px;
-=======
   border-left:2px solid var(--c2);padding:4px 12px;
->>>>>>> origin/main
   margin:8px 0;color:var(--ink-2);font-style:italic;
 }
 .md-content code{
@@ -885,11 +609,7 @@ body{
   border-radius:var(--r);padding:24px;
   animation:fadeUp .4s both;
 }
-<<<<<<< HEAD
-.auth-card h3{font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:4px}
-=======
 .auth-card h3{font-family:var(--sans);font-size:20px;font-weight:700;margin-bottom:4px}
->>>>>>> origin/main
 .auth-card p{color:var(--muted);font-size:13px;margin-bottom:16px}
 .auth-field{
   display:block;width:100%;margin-bottom:10px;
@@ -901,11 +621,7 @@ body{
 .auth-field::placeholder{color:var(--muted)}
 .auth-submit{
   width:100%;padding:10px;border-radius:var(--r-sm);border:none;
-<<<<<<< HEAD
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
-=======
   background:linear-gradient(135deg,var(--accent),var(--violet));
->>>>>>> origin/main
   color:var(--bg-0);font:inherit;font-weight:600;font-size:14px;
   cursor:pointer;transition:all .2s;
 }
@@ -915,11 +631,7 @@ body{
 /* ── WELCOME MSG ────────────────────────────────────── */
 .welcome{text-align:center;padding:48px 20px;max-width:520px;margin:auto;animation:fadeUp .5s both}
 .welcome-icon{font-size:36px;margin-bottom:12px;opacity:.7}
-<<<<<<< HEAD
-.welcome h2{font-family:var(--display);font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-.02em}
-=======
 .welcome h2{font-family:var(--sans);font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-.02em}
->>>>>>> origin/main
 .welcome p{color:var(--muted);font-size:14px;line-height:1.6}
 
 /* ═══════════════════════════════════════════════════════
@@ -941,11 +653,6 @@ body{
   .quick-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:12px}
   .msg-group{max-width:100%}
 }
-<<<<<<< HEAD
-  </style>
-</head>
-<body data-theme="aurora" data-brightness="dark">
-=======
 
 /* -- FAB BOT -- */
 .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
@@ -962,7 +669,6 @@ body{
 </head>
 <body data-theme="aurora" data-brightness="dark">
 <script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
->>>>>>> origin/main
 
 <!-- Grain -->
 <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -976,22 +682,6 @@ body{
 </svg>
 <div class="scanlines" aria-hidden="true"></div>
 
-<<<<<<< HEAD
-<!-- Tower HUD -->
-<div class="tower-hud">
-  <div class="th-l">
-    <a href="rooms.html" class="th-brand">OPHTXN</a>
-    <span class="th-sep">//</span>
-    <span class="th-num">05</span>
-    <span class="th-name">THE TERMINAL</span>
-  </div>
-  <div class="th-r">
-    <span class="th-conn"><span class="th-dot" id="connDot"></span><span id="connLabel">offline</span></span>
-    <a href="rooms.html" class="th-back">&uarr; TOWER</a>
-  </div>
-</div>
-
-=======
 <!-- OS MENUBAR -->
 <div class="os-menubar">
   <div class="mb-left">
@@ -1073,7 +763,6 @@ body{
 
 <div class="mb-powered">Powered by Permanence Systems</div>
 
->>>>>>> origin/main
 <!-- Sidebar overlay for mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -1087,68 +776,6 @@ body{
     </div>
     <div class="sidebar-sessions" id="sessionList"></div>
     <button class="sidebar-new" id="newChatBtn">+ New conversation</button>
-<<<<<<< HEAD
-    <div class="sidebar-foot">
-      <div class="theme-row">
-        <label>COLOR</label>
-        <select class="theme-sel" id="colorSelect">
-          <option value="aurora">Aurora</option>
-          <option value="copper">Copper</option>
-          <option value="void">Void</option>
-        </select>
-      </div>
-      <div class="theme-row">
-        <label>MODE</label>
-        <select class="theme-sel" id="brightSelect">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-          <option value="system">System</option>
-        </select>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <main class="chat-main">
-    <!-- Metrics bar -->
-    <div class="metrics-bar" id="metricsBar">
-      <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
-      <div class="metric-chip"><span>Completion</span><span class="mv" id="mCompletion">--</span></div>
-      <div class="metric-chip"><span>Revenue</span><span class="mv" id="mRevenue">--</span></div>
-      <div class="metric-chip"><span>Approvals</span><span class="mv" id="mApprovals">--</span></div>
-      <div class="metric-chip"><span>Tasks</span><span class="mv" id="mTasks">--</span></div>
-      <div class="metrics-spacer"></div>
-    </div>
-
-    <!-- Messages -->
-    <div class="messages" id="messageList">
-      <div id="chatContent"></div>
-      <div id="scrollSentinel"></div>
-    </div>
-
-    <!-- Scroll FAB -->
-    <button class="scroll-fab" id="scrollFab">&darr; New messages</button>
-
-    <!-- Quick chips -->
-    <div class="quick-chips" id="quickChips">
-      <button class="chip" data-action="status">Check status</button>
-      <button class="chip" data-action="approvals">Show approvals</button>
-      <button class="chip" data-action="memory">Memory search</button>
-      <button class="chip" data-action="briefing">Daily briefing</button>
-    </div>
-
-    <!-- Input -->
-    <div class="input-area">
-      <div class="input-wrap">
-        <textarea id="chatInput" rows="1" placeholder="Ask anything..." autocomplete="off"></textarea>
-        <button class="send-btn" id="sendBtn">&uarr;</button>
-      </div>
-      <div class="input-hint">
-        <span><kbd>Enter</kbd> send</span>
-        <span><kbd>Shift+Enter</kbd> new line</span>
-      </div>
-    </div>
-=======
     <div class="sidebar-foot">PERMANENCE OS</div>
   </aside>
 
@@ -1192,7 +819,6 @@ body{
         <span><kbd>Shift+Enter</kbd> new line</span>
       </div>
     </div>
->>>>>>> origin/main
   </main>
 </div>
 
@@ -1207,10 +833,6 @@ var CMD_BASE = __RT.apiBase || __RT.commandCenterUrl || "http://127.0.0.1:8000";
 /* ═══════════════════════════════════════════════════════
    STATE
    ═══════════════════════════════════════════════════════ */
-<<<<<<< HEAD
-var state = {
-  token: localStorage.getItem("ophtxn_session_token") || "",
-=======
 var SESSION_TOKEN_KEY = "ophtxn_session_token";
 function readSessionToken() {
   try {
@@ -1239,107 +861,11 @@ function writeSessionToken(token) {
 }
 var state = {
   token: readSessionToken(),
->>>>>>> origin/main
   messages: [],
   isStreaming: false,
   atBottom: true,
   metricsTimer: null,
 };
-<<<<<<< HEAD
-
-/* ═══════════════════════════════════════════════════════
-   ELEMENTS
-   ═══════════════════════════════════════════════════════ */
-var $ = function(id) { return document.getElementById(id); };
-var chatContent = $("chatContent");
-var messageList = $("messageList");
-var chatInput = $("chatInput");
-var sendBtn = $("sendBtn");
-var connDot = $("connDot");
-var connLabel = $("connLabel");
-var scrollFab = $("scrollFab");
-
-/* ═══════════════════════════════════════════════════════
-   THEME SYSTEM
-   ═══════════════════════════════════════════════════════ */
-function applyTheme() {
-  var c = localStorage.getItem("ophtxn_shell_color") || "aurora";
-  var b = localStorage.getItem("ophtxn_shell_bright") || "dark";
-  document.body.dataset.theme = c;
-  document.body.dataset.brightness = b;
-  $("colorSelect").value = c;
-  $("brightSelect").value = b;
-}
-$("colorSelect").addEventListener("change", function() {
-  localStorage.setItem("ophtxn_shell_color", this.value);
-  applyTheme();
-});
-$("brightSelect").addEventListener("change", function() {
-  localStorage.setItem("ophtxn_shell_bright", this.value);
-  applyTheme();
-});
-applyTheme();
-
-/* ═══════════════════════════════════════════════════════
-   SIDEBAR
-   ═══════════════════════════════════════════════════════ */
-function toggleSidebar(open) {
-  var sb = $("sidebar");
-  var ov = $("sidebarOverlay");
-  if (open) { sb.classList.add("open"); ov.classList.add("show"); }
-  else { sb.classList.remove("open"); ov.classList.remove("show"); }
-}
-$("sidebarToggle").addEventListener("click", function() { toggleSidebar(true); });
-$("sidebarClose").addEventListener("click", function() { toggleSidebar(false); });
-$("sidebarOverlay").addEventListener("click", function() { toggleSidebar(false); });
-
-/* ═══════════════════════════════════════════════════════
-   AUTH
-   ═══════════════════════════════════════════════════════ */
-function authHeaders() {
-  return state.token ? { "X-Session-Token": state.token } : {};
-}
-
-function showAuthCard() {
-  chatContent.innerHTML = "";
-  var div = document.createElement("div");
-  div.className = "msg-group";
-  div.innerHTML =
-    '<div class="auth-card">' +
-      '<h3>Start a session</h3>' +
-      '<p>Enter your user ID to connect to your Ophtxn runtime.</p>' +
-      '<input class="auth-field" id="authUser" placeholder="user_id (e.g. payton)" autocomplete="username">' +
-      '<input class="auth-field" id="authName" placeholder="name (optional)">' +
-      '<input class="auth-field" id="authPass" type="password" placeholder="passcode (if set)">' +
-      '<button class="auth-submit" id="authSubmit">Connect</button>' +
-      '<div class="auth-err" id="authErr"></div>' +
-    '</div>';
-  chatContent.appendChild(div);
-
-  var submitBtn = $("authSubmit");
-  submitBtn.addEventListener("click", doAuth);
-  $("authUser").addEventListener("keydown", function(e) { if (e.key === "Enter") doAuth(); });
-}
-
-async function doAuth() {
-  var userId = ($("authUser") || {}).value;
-  if (!userId || !userId.trim()) return;
-  userId = userId.trim();
-  var name = ($("authName") || {}).value || "";
-  var pass = ($("authPass") || {}).value || "";
-  var errEl = $("authErr");
-  var payload = { user_id: userId };
-  if (name.trim()) payload.name = name.trim();
-  if (pass.trim()) payload.passcode = pass.trim();
-
-  try {
-    var resp = await fetch(API_BASE + "/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(4000),
-    });
-=======
 
 /* ═══════════════════════════════════════════════════════
    ELEMENTS
@@ -1515,18 +1041,13 @@ async function doAuth() {
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(4000),
     });
->>>>>>> origin/main
     var data = await resp.json();
     if (!resp.ok || !data.ok) {
       if (errEl) errEl.textContent = data.error || "Authentication failed";
       return;
     }
     state.token = String(data.token || "");
-<<<<<<< HEAD
-    localStorage.setItem("ophtxn_session_token", state.token);
-=======
     writeSessionToken(state.token);
->>>>>>> origin/main
     setConn(true);
     showWelcome(userId);
     refreshMetrics();
@@ -2009,11 +1530,7 @@ async function init() {
     } catch (_) {}
     // Token expired
     state.token = "";
-<<<<<<< HEAD
-    localStorage.removeItem("ophtxn_session_token");
-=======
     writeSessionToken("");
->>>>>>> origin/main
   }
   showAuthCard();
 }
@@ -2029,8 +1546,6 @@ if (window.__OPHTXN_RUNTIME) {
   CMD_BASE = rt.apiBase || rt.commandCenterUrl || CMD_BASE;
 }
 </script>
-<<<<<<< HEAD
-=======
 <!-- SHARED: FAB BOT -->
 <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
@@ -2060,7 +1575,6 @@ if (window.__OPHTXN_RUNTIME) {
 })();
 </script>
 
->>>>>>> origin/main
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

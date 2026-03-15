@@ -895,50 +895,6 @@ var SITE_BASE = __RT.siteUrl || "http://127.0.0.1:8787";
 
 /* ── Floor data ─────────────────────────── */
 const FLOORS = [
-<<<<<<< HEAD
-  {
-    num: '06', tag: 'CONTROL', name: 'THE CONTROL ROOM', sub: 'LOCAL HUB',
-    desc: 'Everything running, everything visible. Live status, integrations, and real-time system health.',
-    feats: ['Personal + Developer modes', '30-second auto-refresh', 'Aurora · Copper · Void themes'],
-    href: 'local_hub.html', rgb: '250,50,100', port: 'HUB',
-  },
-  {
-    num: '05', tag: 'SHELL', name: 'THE TERMINAL', sub: 'OPHTXN SHELL',
-    desc: 'Direct interface to the operator. Low-latency, session-aware, no friction.',
-    feats: ['JetBrains Mono interface', 'Session history + timestamps', 'AbortSignal.timeout(4000)'],
-    href: 'ophtxn_shell.html', rgb: '50,215,75', port: ':8797',
-  },
-  {
-    num: '04', tag: 'BRAND', name: 'THE GALLERY', sub: 'BRAND + PRESS',
-    desc: 'The face of Ophtxn. Colors, typography, voice standards, downloadable assets.',
-    feats: ['Click-to-copy palette', 'SVG logo downloads', 'Brand voice do/don\'ts'],
-    href: 'press_kit.html', rgb: '255,188,0', port: 'KIT',
-  },
-  {
-    num: '03', tag: 'BUILD', name: 'THE OFFICE', sub: 'APP STUDIO',
-    desc: 'Build, configure, and share agent commands. Your profile, your presets.',
-    feats: ['Command builder + presets', 'Agent profile management', 'One-click agent sharing'],
-    href: 'official_app.html', rgb: '191,90,242', port: 'APP',
-  },
-  {
-    num: '02', tag: 'LEARN', name: 'THE LIBRARY', sub: 'AI SCHOOL',
-    desc: 'Master prompt engineering, hook systems, and agent design. Build operators that think.',
-    feats: ['Prompt engineering modules', 'Hook system design', 'Agent architecture patterns'],
-    href: 'ai_school.html', rgb: '90,200,250', port: 'EDU',
-  },
-  {
-    num: '01', tag: 'CMD', name: 'THE STUDY', sub: 'COMMAND CENTER',
-    desc: 'Direct operator control. Live status, approval gates, and system health.',
-    feats: ['Real-time API monitoring', 'Approval queue management', 'Structured event logs'],
-    href: (__RT.commandCenterUrl || API_BASE), rgb: '255,159,10', port: ':8000',
-  },
-  {
-    num: 'LB', tag: 'ENTRY', name: 'LOBBY', sub: 'ENTRY HALL',
-    desc: 'Main entrance to the Ophtxn operator system. Start here.',
-    feats: ['System overview', 'Quick navigation', 'Lead capture'],
-    href: 'index.html', rgb: '160,150,140', port: ':8787',
-  },
-=======
   { label: 'CONTROL ROOM', tag: '07', url: 'local_hub.html', rgb: [250,50,100] },
   { label: 'TRADING ROOM', tag: '06', url: 'trading_room.html', rgb: [0,229,196] },
   { label: 'TERMINAL',     tag: '05', url: 'ophtxn_shell.html', rgb: [50,215,75] },
@@ -946,7 +902,6 @@ const FLOORS = [
   { label: 'DAILY PLANNER',tag: '03', url: 'daily_planner.html', rgb: [115,184,255] },
   { label: 'THE OFFICE',   tag: '02', url: 'command_center.html', rgb: [255,159,10] },
   { label: 'LOBBY',        tag: 'LB', url: 'index.html', rgb: [160,150,140] },
->>>>>>> origin/main
 ];
 
 /* ── Skyline building layout (left to right) ─
@@ -1341,43 +1296,10 @@ window.addEventListener('keydown', function(e) {
   }
 });
 
-<<<<<<< HEAD
-/* ── Animate windows ─────────────────────── */
-setInterval(() => {
-  document.querySelectorAll('.w').forEach(w => {
-    if (Math.random() > .93) w.classList.toggle('on');
-  });
-}, 1100);
-
-/* ── Net / status check ───────────────────── */
-(async () => {
-  const netEl  = document.getElementById('netStat');
-  const dot5   = document.getElementById('dot5');  // The Study (index 5)
-  const txt5   = document.getElementById('txt5');
-  try {
-    const res = await fetch(API_BASE + '/api/status', {
-      signal: AbortSignal.timeout(3000)
-    });
-    if (res.ok) {
-      netEl.textContent = 'ONLINE';
-      netEl.className   = 'stat-val live';
-      if (dot5) { dot5.style.background = '#00e5c4'; dot5.style.boxShadow = '0 0 5px #00e5c4'; }
-      if (txt5) txt5.textContent = 'LIVE';
-    } else {
-      netEl.textContent = 'PARTIAL';
-      netEl.className   = 'stat-val warn';
-    }
-  } catch {
-    netEl.textContent = 'OFFLINE';
-    netEl.className   = 'stat-val dead';
-    if (dot5) { dot5.style.background = '#ff5c8a'; }
-    if (txt5) txt5.textContent = 'OFFL';
-=======
 /* Close panel on clicking outside */
 document.addEventListener('click', function(e) {
   if (cur !== null && !e.target.closest('.bldg') && !e.target.closest('.info-panel')) {
     closePanel();
->>>>>>> origin/main
   }
 });
 
@@ -1557,8 +1479,6 @@ var applyTheme;
   window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
 })();
 </script>
-<<<<<<< HEAD
-=======
 <!-- SHARED: FAB BOT -->
 <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
@@ -1588,7 +1508,6 @@ var applyTheme;
 })();
 </script>
 
->>>>>>> origin/main
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

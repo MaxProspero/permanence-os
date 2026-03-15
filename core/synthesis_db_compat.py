@@ -31,7 +31,6 @@ def _use_sqlite() -> bool:
     return os.getenv("PERMANENCE_USE_SQLITE", "").strip() in ("1", "true", "yes")
 
 
-<<<<<<< HEAD
 def _default_db_path(candidate_path: str | None = None) -> str:
     if candidate_path:
         base = os.path.dirname(os.path.abspath(candidate_path))
@@ -40,8 +39,6 @@ def _default_db_path(candidate_path: str | None = None) -> str:
     return os.path.join("permanence_storage", "permanence.db")
 
 
-=======
->>>>>>> origin/main
 class SQLiteZeroPoint(ZeroPoint):
     """ZeroPoint that reads/writes via SynthesisDB instead of JSON files.
 
@@ -52,15 +49,9 @@ class SQLiteZeroPoint(ZeroPoint):
         # Set _db BEFORE super().__init__() because _load() is called there
         from core.synthesis_db import SynthesisDB
 
-<<<<<<< HEAD
         effective_path = storage_path or "memory/zero_point_store.json"
         self._db = SynthesisDB(db_path=db_path or _default_db_path(effective_path))
         # Provide a default storage_path so parent __init__ doesn't crash
-=======
-        self._db = SynthesisDB(db_path=db_path)
-        # Provide a default storage_path so parent __init__ doesn't crash
-        effective_path = storage_path or "memory/zero_point_store.json"
->>>>>>> origin/main
         super().__init__(storage_path=effective_path)
 
     def _load(self) -> None:
@@ -151,12 +142,8 @@ class SQLiteEpisodicMemory(EpisodicMemory):
         super().__init__(memory_dir=memory_dir)
         from core.synthesis_db import SynthesisDB
 
-<<<<<<< HEAD
         effective_memory_dir = memory_dir or "memory/episodic"
         self._db = SynthesisDB(db_path=db_path or _default_db_path(effective_memory_dir))
-=======
-        self._db = SynthesisDB(db_path=db_path)
->>>>>>> origin/main
 
     def write_entry(self, entry: Dict[str, Any]) -> str:
         """Write to both JSONL (backward compat) and SQLite."""

@@ -14,12 +14,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-try:
-    from dotenv import load_dotenv  # type: ignore
-    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
-except ImportError:
-    pass
-
 PROVIDERS = ("anthropic", "openai", "xai", "ollama")
 
 BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {

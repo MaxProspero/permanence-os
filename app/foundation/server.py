@@ -52,23 +52,6 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
-def _cors_origins() -> list[str]:
-    defaults = [
-        "http://127.0.0.1:8787",
-        "http://localhost:8787",
-        "http://127.0.0.1:8797",
-        "http://localhost:8797",
-    ]
-    extras = _split_csv(os.getenv("PERMANENCE_FOUNDATION_CORS_ORIGINS", ""))
-    out: list[str] = []
-    seen: set[str] = set()
-    for origin in [*defaults, *extras]:
-        if origin and origin not in seen:
-            seen.add(origin)
-            out.append(origin)
-    return out
-
-
 def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
     base_dir = Path(__file__).resolve().parents[2]
     site_root = base_dir / "site" / "foundation"
@@ -95,7 +78,6 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     if CORS is not None:
         CORS(
             app,
-<<<<<<< HEAD
             origins=[
                 "http://127.0.0.1:8787",
                 "http://localhost:8787",
@@ -107,11 +89,6 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 "https://app.permanencesystems.com",
                 "https://ophtxn-official.pages.dev",
             ],
-=======
-            origins=_cors_origins(),
-            allow_headers=["Content-Type", "X-Session-Token"],
-            methods=["GET", "POST", "OPTIONS"],
->>>>>>> origin/main
         )
 
     def _sessions() -> dict[str, dict[str, Any]]:
@@ -159,30 +136,6 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         except OSError:
             return jsonify({"ok": False, "error": f"{error_label} not found"}), 404
         return Response(html, mimetype="text/html; charset=utf-8")
-
-    @app.get("/")
-    def root_redirect() -> Any:
-        return jsonify(
-            {
-                "ok": True,
-                "service": "foundation-api",
-                "timestamp": _now_iso(),
-                "endpoints": [
-                    "/health",
-                    "/app/ophtxn",
-                    "/app/official",
-                    "/app/studio",
-                    "/app/press",
-                    "/app/hub",
-                    "/app/ai-school",
-                    "/auth/session",
-                    "/onboarding/start",
-                    "/memory/schema",
-                    "/memory/entry",
-                    "/ops/summary",
-                ],
-            }
-        )
 
     @app.get("/health")
     def health() -> Any:
@@ -259,10 +212,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             "expires_at": expires_at,
         }
         _write_sessions(sessions)
-        response = jsonify({"ok": True, "token": token, "expires_at": expires_at, "user_id": user_id})
-        response.headers["Cache-Control"] = "no-store"
-        response.headers["Pragma"] = "no-cache"
-        return response
+        return jsonify({"ok": True, "token": token, "expires_at": expires_at, "user_id": user_id})
 
     @app.post("/onboarding/start")
     def onboarding_start() -> Any:
