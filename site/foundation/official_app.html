@@ -1647,11 +1647,23 @@
             + '</div></div>';
         }, 'No projects yet.');
         renderList(taskList, state.tasks, function (task) {
+          var taskOutput = '';
+          if (task.output && typeof task.output === 'object') {
+            try {
+              taskOutput = JSON.stringify(task.output);
+            } catch (err) {
+              taskOutput = '';
+            }
+          } else if (task.output) {
+            taskOutput = String(task.output);
+          }
           return '<div class="workspace-item"><div class="workspace-item-head"><div class="workspace-item-title">'
             + task.title + '</div><span class="status-pill">' + (task.status || 'queued')
             + '</span></div><div class="workspace-item-meta">' + (task.assignee || 'unassigned')
             + ' // ' + (task.risk_tier || 'medium') + '</div><div class="workspace-item-copy">Project: '
-            + (task.project_id || 'none') + (task.result ? (' // Result: ' + task.result) : '') + '</div><div class="btn-row" style="margin-top:10px">'
+            + (task.project_id || 'none') + (task.result ? (' // Result: ' + task.result) : '') + '</div>'
+            + '<textarea class="surface-input" data-task-output-id="' + task.id + '" rows="3" placeholder=\'Task output JSON or text\' style="margin-top:10px">' + taskOutput + '</textarea>'
+            + '<div class="btn-row" style="margin-top:10px">'
             + '<button class="btn btn-ghost btn-sm" data-task-status="completed" data-task-result="completed" data-task-id="' + task.id + '">Complete</button>'
             + '<button class="btn btn-ghost btn-sm" data-task-status="completed" data-task-result="success" data-task-id="' + task.id + '">Success</button>'
             + '<button class="btn btn-ghost btn-sm" data-task-status="failed" data-task-result="needs_review" data-task-id="' + task.id + '">Needs Review</button>'
@@ -1796,6 +1808,13 @@
             if (step.task_feedback.result) {
               copy += ' // result=' + step.task_feedback.result;
             }
+            if (typeof step.task_feedback.output !== 'undefined' && step.task_feedback.output !== null && step.task_feedback.output !== '') {
+              try {
+                copy += ' // output=' + JSON.stringify(step.task_feedback.output);
+              } catch (err) {
+                copy += ' // output=' + String(step.task_feedback.output);
+              }
+            }
             if (step.task_feedback.notes) {
               copy += ' // ' + step.task_feedback.notes;
             }
@@ -1913,9 +1932,19 @@
       }
 
       async function updateTaskStatus(taskId, status, result) {
+        var outputNode = taskList.querySelector('[data-task-output-id="' + taskId + '"]');
+        var outputValue = outputNode ? outputNode.value.trim() : '';
+        var outputPayload = null;
+        if (outputValue) {
+          try {
+            outputPayload = JSON.parse(outputValue);
+          } catch (err) {
+            outputPayload = { text: outputValue };
+          }
+        }
         await api('/api/tasks/' + encodeURIComponent(taskId), {
           method: 'PATCH',
-          body: JSON.stringify({ status: status, result: result })
+          body: JSON.stringify({ status: status, result: result, output: outputPayload })
         });
         showToast('Task marked ' + (result || status));
         await loadWorkspace();

@@ -876,6 +876,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 "budget_tier": str(payload.get("budget_tier") or "standard").strip() or "standard",
                 "success_criteria": _split_csv(payload.get("success_criteria")),
                 "dependencies": _split_csv(payload.get("dependencies")),
+                "output": payload.get("output") if "output" in payload else {},
             },
             owner=owner,
             status=str(payload.get("status") or "queued").strip() or "queued",
@@ -906,6 +907,8 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             record["notes"] = str(payload.get("notes") or "").strip()
         if "result" in payload:
             record["result"] = str(payload.get("result") or "").strip().lower()
+        if "output" in payload:
+            record["output"] = payload.get("output")
         task_result = str(record.get("result") or "").strip().lower()
         if task_result in {"success", "completed"}:
             record["status"] = "completed"
@@ -935,6 +938,7 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                             "status": str(record.get("status") or ""),
                             "result": str(record.get("result") or ""),
                             "notes": str(record.get("notes") or ""),
+                            "output": record.get("output"),
                             "updated_at": _now_iso(),
                         }
                 run["updated_at"] = _now_iso()
