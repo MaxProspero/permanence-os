@@ -366,13 +366,38 @@ def _template_lookup(context: dict[str, Any], path: str) -> Any:
     return current
 
 
+def _apply_template_transform(value: Any, transform: str) -> Any:
+    token = str(transform or "").strip().lower()
+    if not token:
+        return value
+    if token == "json":
+        return json.dumps(value, ensure_ascii=True, sort_keys=True)
+    if token == "lower":
+        return str(value or "").lower()
+    if token == "upper":
+        return str(value or "").upper()
+    if token == "len":
+        if isinstance(value, (dict, list, str, tuple, set)):
+            return len(value)
+        return 0
+    if token == "text":
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=True, sort_keys=True)
+        return "" if value is None else str(value)
+    return value
+
+
 def _render_input_template(template: str, context: dict[str, Any]) -> str:
     raw = str(template or "").strip()
     if not raw:
         return ""
 
     def replace(match: re.Match[str]) -> str:
-        value = _template_lookup(context, str(match.group(1) or "").strip())
+        expression = str(match.group(1) or "").strip()
+        parts = [part.strip() for part in expression.split("|")]
+        value = _template_lookup(context, parts[0] if parts else expression)
+        for transform in parts[1:]:
+            value = _apply_template_transform(value, transform)
         if value is None:
             return ""
         if isinstance(value, (dict, list)):
@@ -386,6 +411,13 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     condition = str(edge.get("condition") or "").strip()
     if not condition:
         return False
+    lowered = condition.lower()
+    if " or " in lowered:
+        parts = [part.strip() for part in re.split(r"\s+or\s+", condition, flags=re.IGNORECASE) if part.strip()]
+        return any(_condition_matches({"condition": part}, context) for part in parts)
+    if " and " in lowered:
+        parts = [part.strip() for part in re.split(r"\s+and\s+", condition, flags=re.IGNORECASE) if part.strip()]
+        return all(_condition_matches({"condition": part}, context) for part in parts)
     for operator in (">=", "<=", "!=", ">", "<", "="):
         if operator not in condition:
             continue
@@ -421,6 +453,7 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         return bool(_template_lookup(context, condition))
     return False
 
+
     def _record_workflow_run(record: dict[str, Any], run_record: dict[str, Any], *, append: bool) -> None:
         workflow_id = str(record.get("id") or "").strip()
         if append:
@@ -441,6 +474,7 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         record["last_run_id"] = str(run_record.get("run_id") or "")
         record["updated_at"] = _now_iso()
         save_object(root, "workflows", workflow_id, record)
+
 
     def _execute_workflow(
         record: dict[str, Any],
