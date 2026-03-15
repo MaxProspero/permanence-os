@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Command Center",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "scripts.command_center",
+      "args": ["--port", "8000", "--no-open"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Foundation Site",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "scripts.foundation_site",
+      "args": ["--port", "8787", "--no-open"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Foundation API (Ophtxn)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "scripts.foundation_api",
+      "args": ["--port", "8797"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Operator Surface (All 3)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "scripts.operator_surface",
+      "args": ["--no-open"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Run Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests", "-q", "--tb=short"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack (all servers)",
+      "configurations": ["Command Center", "Foundation Site", "Foundation API (Ophtxn)"]
+    }
+  ]
+}

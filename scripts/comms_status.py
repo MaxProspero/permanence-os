@@ -213,6 +213,34 @@ def _transcription_queue_stats(path: Path) -> dict[str, Any]:
     }
 
 
+def _openclaw_subprocess_env() -> dict[str, str]:
+    keys = (
+        "HOME",
+        "PATH",
+        "USER",
+        "LOGNAME",
+        "SHELL",
+        "LANG",
+        "LC_ALL",
+        "LC_CTYPE",
+        "TMPDIR",
+        "XDG_CONFIG_HOME",
+        "XDG_DATA_HOME",
+        "XDG_STATE_HOME",
+        "OPENCLAW_HOME",
+        "OPENCLAW_CONFIG",
+        "OPENCLAW_CLI",
+    )
+    env: dict[str, str] = {}
+    for key in keys:
+        value = os.getenv(key)
+        if value:
+            env[key] = value
+    env.setdefault("PATH", os.getenv("PATH", os.defpath))
+    env.setdefault("HOME", os.path.expanduser("~"))
+    return env
+
+
 def _openclaw_channels_probe(*, timeout_seconds: int = 15) -> dict[str, Any]:
     base = {
         "invoked": False,
@@ -252,6 +280,7 @@ def _openclaw_channels_probe(*, timeout_seconds: int = 15) -> dict[str, Any]:
             capture_output=True,
             text=True,
             timeout=max(2, int(timeout_seconds)),
+            env=_openclaw_subprocess_env(),
         )
     except (OSError, subprocess.SubprocessError) as exc:
         base["error"] = str(exc)

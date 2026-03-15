@@ -21,6 +21,7 @@ try:
     from flask_cors import CORS
 except ModuleNotFoundError:
     CORS = None
+import fcntl
 import json
 import os
 import datetime
@@ -109,14 +110,20 @@ def log_api_call(method: str, endpoint: str, payload: Optional[dict] = None, res
         "payload": payload,
         "result": result,
     }
-    os.makedirs(os.path.dirname(PATHS["api_log"]), exist_ok=True)
-    with open(PATHS["api_log"], "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        os.makedirs(os.path.dirname(PATHS["api_log"]), exist_ok=True)
+        with open(PATHS["api_log"], "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError:
+        pass
 
 
 # ─────────────────────────────────────────────
 # SYSTEM STATUS
 # ─────────────────────────────────────────────
+
+SITE_DIR = os.path.join(APP_DIR, "site", "foundation")
+
 
 @app.route("/", methods=["GET"])
 def dashboard_home():
@@ -126,11 +133,62 @@ def dashboard_home():
         abort(404, description=f"{DASHBOARD_FILE} not found next to dashboard_api.py")
     return send_from_directory(APP_DIR, DASHBOARD_FILE)
 
+
+@app.route("/office", methods=["GET"])
+def serve_office():
+    """Serve the Office (command_center.html) at /office."""
+    return send_from_directory(SITE_DIR, "command_center.html")
+
+
+@app.route("/manifest.json", methods=["GET"])
+def serve_manifest():
+    """Serve PWA manifest."""
+    return send_from_directory(SITE_DIR, "manifest.json")
+
+
+@app.route("/sw.js", methods=["GET"])
+def serve_sw():
+    """Serve service worker."""
+    return send_from_directory(SITE_DIR, "sw.js")
+
+
+@app.route("/runtime.config.js", methods=["GET"])
+def serve_runtime_config():
+    """Serve runtime config (empty or generated)."""
+    config_path = os.path.join(SITE_DIR, "runtime.config.js")
+    if os.path.exists(config_path):
+        return send_from_directory(SITE_DIR, "runtime.config.js")
+    # Generate inline config pointing API to self
+    return f"window.__OPHTXN_RUNTIME={{apiBase:'',appBase:'http://127.0.0.1:8797'}};", 200, {"Content-Type": "application/javascript"}
+
+
+@app.route("/assets/<path:filename>", methods=["GET"])
+def serve_assets(filename):
+    """Serve static assets (icons, images)."""
+    assets_dir = os.path.join(SITE_DIR, "assets")
+    return send_from_directory(assets_dir, filename)
+
+
+@app.route("/<path:page>", methods=["GET"])
+def serve_site_page(page):
+    """Serve any site page (rooms.html, ophtxn_shell.html, etc.)."""
+    if page.startswith("api/"):
+        abort(404)
+    safe = os.path.basename(page)
+    if not safe.endswith((".html", ".css", ".js", ".svg", ".ico")):
+        abort(404)
+    site_path = os.path.join(SITE_DIR, safe)
+    if os.path.exists(site_path):
+        return send_from_directory(SITE_DIR, safe)
+    abort(404)
+
+
 @app.route("/api/status", methods=["GET"])
 def system_status():
     """
     Returns overall system health snapshot.
     Dashboard home screen reads from this.
+    Includes agent roster for the left panel and arena.
     """
     log_api_call("GET", "/api/status")
 
@@ -143,7 +201,34 @@ def system_status():
     latest_task = _load_latest_task_summary()
     promotion = _load_promotion_status()
 
-    return jsonify({"ok": True, "ts": utc_now().isoformat() + "Z", "version": API_VERSION})
+    # Build live agent roster
+    agents = _build_arena_agents()
+
+    # Check for active tasks to mark agents as active
+    try:
+        from core.task_planner import TaskPlanner
+        planner = TaskPlanner()
+        agenda = planner.get_agenda(status="running")
+        running_agent_ids = set()
+        if isinstance(agenda, dict):
+            for t in agenda.get("tasks", []):
+                aid = t.get("agent_id", "")
+                if aid:
+                    running_agent_ids.add(aid)
+        for a in agents:
+            if a["id"] in running_agent_ids:
+                a["status"] = "active"
+    except (ImportError, Exception):
+        pass
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_now().isoformat() + "Z",
+        "version": API_VERSION,
+        "agents": agents,
+        "pending_approvals": pending_approvals,
+        "canon_version": canon_version,
+    })
 
 
 # ─────────────────────────────────────────────
@@ -183,7 +268,7 @@ def approve_item(approval_id: str):
 
     log_api_call("POST", f"/api/approvals/{approval_id}/approve", payload)
 
-    result = _update_approval_status(approval_id, "APPROVED", notes)
+    result = _update_approval_status(approval_id, "APPROVED", notes, decision_source="dashboard_api")
     if not result:
         log_api_call("POST", f"/api/approvals/{approval_id}/approve", payload, "NOT_FOUND")
         abort(404, description="Approval not found")
@@ -213,7 +298,7 @@ def reject_item(approval_id: str):
 
     log_api_call("POST", f"/api/approvals/{approval_id}/reject", payload)
 
-    result = _update_approval_status(approval_id, "REJECTED", reason)
+    result = _update_approval_status(approval_id, "REJECTED", reason, decision_source="dashboard_api")
     if not result:
         log_api_call("POST", f"/api/approvals/{approval_id}/reject", payload, "NOT_FOUND")
         abort(404, description="Approval not found")
@@ -243,25 +328,31 @@ def approve_all():
     approvals = _load_approvals()
     approved_ids = []
     skipped_high = []
+    skipped_no_priority = []
 
     for item in approvals:
         if item.get("status") != "PENDING_HUMAN_REVIEW":
             continue
-        priority = str(item.get("priority", "")).upper()
-        if priority == "HIGH":
-            skipped_high.append(item.get("id") or item.get("approval_id", ""))
+        priority = str(item.get("priority") or "").strip().upper()
+        item_id = item.get("id") or item.get("approval_id", "")
+        if priority in ("HIGH", "CRITICAL"):
+            skipped_high.append(item_id)
             continue
-        approval_id = item.get("id") or item.get("approval_id", "")
-        _update_approval_status(approval_id, "APPROVED", notes)
-        approved_ids.append(approval_id)
+        if not priority:
+            skipped_no_priority.append(item_id)
+            continue
+        _update_approval_status(item_id, "APPROVED", notes, decision_source="dashboard_api_bulk")
+        approved_ids.append(item_id)
 
     return jsonify({
         "approved": len(approved_ids),
         "skipped_high_risk": len(skipped_high),
+        "skipped_no_priority": len(skipped_no_priority),
         "approved_ids": approved_ids,
         "skipped_ids": skipped_high,
+        "skipped_no_priority_ids": skipped_no_priority,
         "decided_at": utc_iso(),
-        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH-risk items kept for individual review.",
+        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH/CRITICAL-risk items kept for individual review. {len(skipped_no_priority)} items skipped (missing priority).",
     })
 
 
@@ -3567,11 +3658,12 @@ def _load_second_brain_snapshot() -> dict:
 
 def _read_canon_version() -> str:
     changelog = os.path.join(PATHS["canon"], "CHANGELOG.md")
-    if os.path.exists(changelog):
+    try:
         with open(changelog) as f:
             first_line = f.readline().strip()
             return first_line or "v0.1.0"
-    return "v0.1.0"
+    except OSError:
+        return "v0.1.0"
 
 
 def _count_pending_approvals() -> int:
@@ -3588,10 +3680,11 @@ def _get_last_briefing_time() -> Optional[str]:
 
 def _get_test_stats() -> dict:
     stats_path = os.path.join(BASE_DIR, "outputs", "test_stats.json")
-    if os.path.exists(stats_path):
+    try:
         with open(stats_path) as f:
             return json.load(f)
-    return {"passing": 0, "failing": 0, "last_run": None}
+    except (OSError, json.JSONDecodeError):
+        return {"passing": 0, "failing": 0, "last_run": None}
 
 
 def _count_horizon_reports() -> int:
@@ -3768,24 +3861,36 @@ def _load_approvals() -> list:
             return []
 
 
-def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
-    approvals = _load_approvals()
-    found = False
-    for a in approvals:
-        if a.get("id") == approval_id or a.get("approval_id") == approval_id or a.get("proposal_id") == approval_id:
-            a["status"] = status
-            a["decided_at"] = utc_iso()
-            a["decision_notes"] = notes
-            a["decision_hash"] = hashlib.sha256(
-                f"{approval_id}{status}{notes}{utc_iso()}".encode()
-            ).hexdigest()[:16]
-            found = True
-            break
+def _update_approval_status(approval_id: str, status: str, notes: str, decision_source: str = "") -> bool:
+    """Update approval status with advisory file lock to prevent concurrent corruption."""
+    approvals_path = PATHS["approvals"]
+    lock_path = approvals_path + ".lock"
+    os.makedirs(os.path.dirname(approvals_path), exist_ok=True)
 
-    if found:
-        os.makedirs(os.path.dirname(PATHS["approvals"]), exist_ok=True)
-        with open(PATHS["approvals"], "w") as f:
-            json.dump(approvals, f, indent=2)
+    with open(lock_path, "a") as lock_fh:
+        fcntl.flock(lock_fh, fcntl.LOCK_EX)
+        try:
+            approvals = _load_approvals()
+            found = False
+            decided_at = utc_iso()
+            for a in approvals:
+                if a.get("id") == approval_id or a.get("approval_id") == approval_id or a.get("proposal_id") == approval_id:
+                    a["status"] = status
+                    a["decided_at"] = decided_at
+                    a["decision_notes"] = notes
+                    if decision_source:
+                        a["decision_source"] = decision_source
+                    a["decision_hash"] = hashlib.sha256(
+                        f"{approval_id}{status}{notes}{decided_at}".encode()
+                    ).hexdigest()[:16]
+                    found = True
+                    break
+
+            if found:
+                with open(approvals_path, "w") as f:
+                    json.dump(approvals, f, indent=2)
+        finally:
+            fcntl.flock(lock_fh, fcntl.LOCK_UN)
 
     return found
 
@@ -3808,24 +3913,27 @@ def _load_latest_briefing() -> Optional[dict]:
     if not files:
         return None
     latest = files[0]
-    if latest.endswith(".json"):
-        with open(latest) as f:
-            data = json.load(f)
-        if isinstance(data, dict):
-            data.setdefault("format", "json")
-            data.setdefault("source_path", latest)
-            return data
-        return {"format": "json", "source_path": latest, "payload": data}
+    try:
+        if latest.endswith(".json"):
+            with open(latest) as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                data.setdefault("format", "json")
+                data.setdefault("source_path", latest)
+                return data
+            return {"format": "json", "source_path": latest, "payload": data}
 
-    with open(latest) as f:
-        markdown = f.read()
-    return {
-        "format": "markdown",
-        "source_path": latest,
-        "filename": os.path.basename(latest),
-        "generated_at": timestamp_to_utc_iso(os.path.getmtime(latest)),
-        "content_markdown": markdown,
-    }
+        with open(latest) as f:
+            markdown = f.read()
+        return {
+            "format": "markdown",
+            "source_path": latest,
+            "filename": os.path.basename(latest),
+            "generated_at": timestamp_to_utc_iso(os.path.getmtime(latest)),
+            "content_markdown": markdown,
+        }
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 def _list_briefing_files() -> list:
@@ -3914,8 +4022,11 @@ def _load_episodic_memory(limit: int) -> list:
     pattern = os.path.join(PATHS["episodic"], "*.json")
     files = sorted(glob.glob(pattern), reverse=True)[:limit]
     for f in files:
-        with open(f) as fp:
-            entries.append(json.load(fp))
+        try:
+            with open(f) as fp:
+                entries.append(json.load(fp))
+        except (OSError, json.JSONDecodeError):
+            continue
     return entries
 
 
@@ -4407,6 +4518,166 @@ def api_planner_stats():
 
 
 # ─────────────────────────────────────────────
+<<<<<<< HEAD
+=======
+# ARENA STATE (Agent Grid visualization)
+# ─────────────────────────────────────────────
+
+# Department color map — matches command_center.html arena
+# v0.4: streamlined from 4 depts to 3 (CORE, OPERATIONS, INFRASTRUCTURE)
+ARENA_DEPT_COLORS = {
+    "CORE": "#00e5c4",
+    "OPERATIONS": "#ff5c8a",
+    "INFRASTRUCTURE": "#c8a84e",
+}
+
+ARENA_DEPT_LABELS = {
+    "CORE": "CORE PIPELINE",
+    "OPERATIONS": "OPERATIONS",
+    "INFRASTRUCTURE": "INFRASTRUCTURE",
+}
+
+
+def _build_arena_agents() -> list:
+    """Build arena agent + workflow list from Polemarch registries."""
+    agents = []
+    try:
+        from core.polemarch import AGENT_REGISTRY, WORKFLOW_REGISTRY, RiskTier
+    except ImportError:
+        return agents
+
+    for agent_id, info in AGENT_REGISTRY.items():
+        dept = info.get("department", "CORE")
+        risk = info.get("risk_default")
+        risk_str = risk.value if hasattr(risk, "value") else str(risk) if risk else "low"
+        agents.append({
+            "id": agent_id,
+            "name": agent_id.replace("_", " ").title(),
+            "department": dept,
+            "department_label": ARENA_DEPT_LABELS.get(dept, dept),
+            "color": ARENA_DEPT_COLORS.get(dept, "#c8a84e"),
+            "risk": risk_str,
+            "status": "idle",
+            "kind": "agent",
+            "description": info.get("description", ""),
+            "allowed_tools": info.get("allowed_tools", []),
+            "forbidden_actions": info.get("forbidden_actions", []),
+        })
+
+    # Append workflows as lightweight nodes
+    for wf_id, wf_info in WORKFLOW_REGISTRY.items():
+        risk = wf_info.get("risk_default")
+        risk_str = risk.value if hasattr(risk, "value") else str(risk) if risk else "low"
+        agents.append({
+            "id": f"wf:{wf_id}",
+            "name": wf_id.replace("_", " ").title(),
+            "department": "WORKFLOW",
+            "department_label": "WORKFLOW",
+            "color": "#6ecfff",
+            "risk": risk_str,
+            "status": "idle",
+            "kind": "workflow",
+            "description": wf_info.get("description", ""),
+            "trigger": wf_info.get("trigger", ""),
+            "steps": wf_info.get("steps", []),
+            "requires_approval": wf_info.get("requires_approval", False),
+        })
+    return agents
+
+
+def _get_arena_hub() -> dict:
+    """Build hub health summary."""
+    hub = {"status": "online", "uptime_s": 0, "services": {}}
+    # Check spending gate
+    try:
+        from core.spending_gate import SpendingGate
+        gate = SpendingGate()
+        status = gate.status()
+        hub["spending"] = {
+            "mode": status.get("mode", "unknown"),
+            "spent_today": status.get("spent_today_usd", 0),
+            "budget_limit": status.get("daily_cap_usd", 0),
+        }
+    except (ImportError, Exception):
+        hub["spending"] = {"mode": "unknown", "spent_today": 0, "budget_limit": 0}
+    return hub
+
+
+def _get_arena_connections(agents: list) -> list:
+    """Build connection lines between related agents."""
+    connections = []
+    # Core agents form a pipeline
+    core_ids = [a["id"] for a in agents if a["department"] == "CORE"]
+    for i in range(len(core_ids) - 1):
+        connections.append({"from": core_ids[i], "to": core_ids[i + 1], "type": "pipeline"})
+    # Infrastructure agents connect to hub
+    infra_ids = [a["id"] for a in agents if a["department"] == "INFRASTRUCTURE"]
+    if core_ids and infra_ids:
+        for iid in infra_ids:
+            connections.append({"from": "hub", "to": iid, "type": "control"})
+    # Department agents connect to executor
+    dept_ids = [a["id"] for a in agents if a["department"] == "DEPARTMENT"]
+    if "executor" in core_ids:
+        for did in dept_ids:
+            connections.append({"from": "executor", "to": did, "type": "dispatch"})
+    return connections
+
+
+def _get_arena_events() -> list:
+    """Get recent log events for the thought stream."""
+    events = []
+    try:
+        log_path = PATHS.get("api_log", "")
+        if log_path and os.path.exists(log_path):
+            with open(log_path) as f:
+                lines = f.readlines()
+            for line in lines[-15:]:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    events.append({
+                        "timestamp": entry.get("timestamp", ""),
+                        "event": entry.get("endpoint", entry.get("action", "")),
+                        "result": entry.get("result", "OK"),
+                        "agent": entry.get("agent_id", "system"),
+                    })
+                except json.JSONDecodeError:
+                    continue
+    except OSError:
+        pass
+    return events[-10:]
+
+
+@app.route("/api/arena/state", methods=["GET"])
+def api_arena_state():
+    """
+    Aggregated arena state for the GRID visualization.
+    Returns agents, hub health, connections, and recent events.
+    """
+    log_api_call("GET", "/api/arena/state")
+    agents = _build_arena_agents()
+    hub = _get_arena_hub()
+    connections = _get_arena_connections(agents)
+    events = _get_arena_events()
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_iso(),
+        "agents": agents,
+        "hub": hub,
+        "connections": connections,
+        "events": events,
+        "departments": {
+            k: {"label": ARENA_DEPT_LABELS[k], "color": v}
+            for k, v in ARENA_DEPT_COLORS.items()
+        },
+    })
+
+
+# ─────────────────────────────────────────────
+>>>>>>> origin/main
 # RUN
 # ─────────────────────────────────────────────
 

@@ -467,4 +467,88 @@ System pulls from the best available model for each task — free local models f
 
 ---
 
+<<<<<<< HEAD
+=======
+## 22. Ghost OS Integration — Mac System Control (IMPLEMENTED)
+
+**Source:** https://github.com/ghostwright/ghost-os (MIT, v2.0.6)
+**Status:** Installed on Mac Mini, device control module built
+
+### What ghost-os is
+macOS-native computer automation for AI agents via MCP (Model Context Protocol).
+Reads the macOS accessibility tree for structured UI data, falls back to a local
+vision model (ShowUI-2B, ~2.8 GB) for web apps. 22 MCP tools for perception,
+interaction, window management, and self-learning recipe workflows.
+
+### Key capabilities
+- **Accessibility tree** — structured data about every UI element in every app
+- **22 MCP tools** — click, type, scroll, key, window management, recipe execution
+- **Self-learning recipes** — frontier model discovers workflow once, small model runs forever
+- **Background window capture** — operates windows in any Space, no focus required
+- **Local processing** — all data stays on device, ShowUI-2B runs locally via mlx
+
+### What we built (Permanence OS integration)
+- `core/device_control.py` — Permission model with three device modes:
+  - **Mac Mini** = `full_control` — agent autonomous within guardrails
+  - **MacBook** = `suggest_only` — agent suggests, human executes
+  - **Dell** = `expansion` — task dispatch only (future)
+- Permission grants: time-limited, task-limited, action-limited, revocable
+- Blocked actions: network config, SSH, disk format, firmware, credentials
+- `scripts/mac_control.py` — AppleScript/Homebrew/service bridge
+- Polemarch agent registry: `device_control` agent with full tool/action restrictions
+- 32 tests, all passing
+
+### Security gaps in ghost-os (addressed by our permission model)
+- No built-in authentication or authorization (we add permission grants)
+- No rate limiting (we add action-limited grants)
+- No approval gates (we add human approval for medium/high-risk)
+- No audit logging (we add full audit trail)
+- No sandboxing (we restrict to specific action categories)
+
+### Mac Mini ghost-os status
+- Binary: `/opt/homebrew/bin/ghost` (v2.0.6) ✅
+- Accessibility permission: NOT GRANTED (user must grant in System Settings)
+- Screen Recording: NOT GRANTED (user must grant)
+- ShowUI-2B model: Not downloaded (needs `ghost setup`)
+- Vision sidecar: Available, auto-starts on demand
+
+### Next steps
+- [ ] User grants Accessibility + Screen Recording permissions
+- [ ] Run `ghost setup` to install recipes and download ShowUI-2B
+- [ ] Configure ghost-os as MCP server for Claude Code on Mac Mini
+- [ ] Create Permanence recipes for common workflows (email, research, file management)
+- [ ] Wire ghost-os MCP tools through device_control permission gates
+- [ ] Add Dell as expansion compute when connected
+
+---
+
+## 23. Device Permission Architecture — Design Decisions
+
+### The three-device model
+| Device | Mode | Agent Can | Agent Cannot |
+|--------|------|-----------|--------------|
+| Mac Mini M4 | full_control | Install apps, restart services, run AppleScript, manage files | Change network, modify SSH, format disk, access credentials |
+| MacBook | suggest_only | Suggest actions, read clipboard | Execute ANYTHING — human must act |
+| Dell | expansion | Dispatch compute tasks | Direct system access |
+
+### Permission grant types
+1. **Time-limited** — expires after N minutes (default: 60)
+2. **Task-limited** — expires when specific task completes
+3. **Action-limited** — expires after N actions consumed
+4. **Wildcard** — covers all non-blocked categories (never covers blocked)
+5. **Emergency revoke** — instantly kills all grants
+
+### Action risk tiers
+- **Low** (auto-granted on full_control): file read, process status, service status, system info
+- **Medium** (needs explicit grant): app management, file ops, service mgmt, automation, cron, clipboard, notifications
+- **High** (needs fresh grant each time): file delete, system config, user management, security config
+- **Blocked** (NEVER automated): network config, SSH config, disk format, firmware, credential access
+
+### One agent across all devices
+Per user request: one agent identity with device-specific restrictions. The Polemarch
+enforces consistent governance — same agent, different capabilities per device.
+
+---
+
+>>>>>>> origin/main
 *This document is a living backlog. Items move to implementation plans when prioritized.*

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Unified CLI for Permanence OS.
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
-Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-ops-pack, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, ledger,github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
+Commands: run, add-source, status, clean, test, ingest, ingest-docs, ingest-sources, ingest-drive-all, sources-digest, sources-brief, synthesis-brief, notebooklm-sync, automation-verify, automation-report, reliability-watch, reliability-gate, reliability-streak, phase-gate, status-glance, dell-cutover-verify, dell-remote, remote-ready, promote, promotion-review, promotion-daily, queue, hr-report, briefing, ari-reception, sandra-reception, research-inbox, glasses-bridge, telegram-control, ophtxn-simulation, ophtxn-daily-ops, ophtxn-ops-pack, ophtxn-completion, ophtxn-brain, terminal-task-queue, governed-learning, self-improvement, glasses-autopilot, discord-feed-manager, discord-telegram-relay, comms-digest, comms-escalation-digest, comms-status, comms-doctor, comms-automation, email-triage, gmail-ingest, health-summary, social-summary, logos-gate, dashboard, integration-readiness, anthropic-keychain, connector-keychain, external-access-policy, secret-scan, ledger,github-research-ingest, github-trending-ingest, ecosystem-research-ingest, social-research-ingest, platform-change-watch, x-account-watch, world-watch, world-watch-alerts, market-focus-brief, market-backtest-queue, narrative-tracker, conspiracy-tracker, command-center, operator-surface, setup-launchers, low-cost-mode, no-spend-audit, money-first-gate, money-first-lane, comms-loop, money-loop, second-brain-init, second-brain-loop, attachment-pipeline, resume-brand-brief, phase2-refresh, opportunity-ranker, opportunity-approval-queue, phase3-refresh, approval-triage, approval-execution-board, revenue-action-queue, revenue-architecture, revenue-cost-recovery, revenue-execution-board, revenue-weekly-summary, revenue-outreach-pack, revenue-followup-queue, revenue-eval, revenue-backup, revenue-playbook, revenue-targets, sales-pipeline, life-os-brief, side-business-portfolio, prediction-ingest, prediction-lab, clipping-transcript-ingest, clipping-pipeline, second-brain-report, foundation-site, foundation-api, snapshot, v04-snapshot, openclaw-status, openclaw-sync, organize-files, cleanup-weekly, git-autocommit, git-sync, chronicle-backfill, chronicle-capture, chronicle-report, chronicle-refinement, chronicle-approval-queue, chronicle-execution-board, chronicle-approve, chronicle-control, chronicle-publish
 """
 
 import argparse
@@ -132,6 +132,18 @@ def _inject_keychain_env(env: dict[str, str]) -> None:
             "GLASSNODE_KEYCHAIN_SERVICE",
             "GLASSNODE_KEYCHAIN_ACCOUNT",
             "permanence_os_glassnode_api_key",
+        ),
+        (
+            "NOTION_API_KEY",
+            "NOTION_API_KEY_KEYCHAIN_SERVICE",
+            "NOTION_API_KEY_KEYCHAIN_ACCOUNT",
+            "permanence_os_notion_api_key",
+        ),
+        (
+            "BRAVE_API_KEY",
+            "BRAVE_API_KEY_KEYCHAIN_SERVICE",
+            "BRAVE_API_KEY_KEYCHAIN_ACCOUNT",
+            "permanence_os_brave_api_key",
         ),
     ]
     user = os.getenv("USER", "")
@@ -304,6 +316,9 @@ def cmd_test(_args: argparse.Namespace) -> int:
         os.path.join(BASE_DIR, "tests", "test_cli_chronicle_control.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_report.py"),
         os.path.join(BASE_DIR, "tests", "test_second_brain_init.py"),
+        os.path.join(BASE_DIR, "tests", "test_mac_mini_remote.py"),
+        os.path.join(BASE_DIR, "tests", "test_social_draft_queue.py"),
+        os.path.join(BASE_DIR, "tests", "test_dashboard_social_api.py"),
     ]
     exit_code = 0
     for t in tests:
@@ -1115,6 +1130,35 @@ def main() -> int:
         )
     )
 
+<<<<<<< HEAD
+=======
+    # ── Ghost-OS Bridge ──────────────────────────────────────────────────
+    ghost_p = sub.add_parser(
+        "ghost",
+        help="Ghost-OS MCP bridge: list tools, check permissions, execute, status",
+    )
+    ghost_p.add_argument(
+        "--action",
+        choices=["list-tools", "check", "execute", "status"],
+        required=True,
+    )
+    ghost_p.add_argument("--tool", help="Ghost-OS tool name")
+    ghost_p.add_argument("--params", default="{}", help="Tool params as JSON")
+    ghost_p.add_argument("--agent", default="cli", help="Agent ID")
+    ghost_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ghost_os_bridge.py"),
+                "--action", args.action,
+                *(["--tool", args.tool] if args.tool else []),
+                *(["--params", args.params] if args.params != "{}" else []),
+                *(["--agent", args.agent] if args.agent != "cli" else []),
+            ]
+        )
+    )
+
+>>>>>>> origin/main
     # ── Spending Gate ─────────────────────────────────────────────────────
     spending_p = sub.add_parser(
         "spending",
@@ -2667,12 +2711,15 @@ def main() -> int:
             "discord-alert-webhook",
             "discord-bot-token",
             "telegram-bot-token",
+            "openai-api-key",
             "xai-api-key",
             "alpha-vantage",
             "finnhub",
             "polygon",
             "coinmarketcap",
             "glassnode",
+            "notion-api-key",
+            "brave-api-key",
         ],
         help="Connector target",
     )
@@ -2712,6 +2759,27 @@ def main() -> int:
                 os.path.join(BASE_DIR, "scripts", "secret_scan.py"),
                 *(["--all-files"] if args.all_files else []),
                 *(["--staged"] if args.staged else []),
+            ]
+        )
+    )
+
+    ledger_p = sub.add_parser(
+        "ledger",
+        help="THE LEDGER — Notion-backed project intelligence (check/sync/list/create-db)",
+    )
+    ledger_p.add_argument("--check", action="store_true", help="Verify Notion connection")
+    ledger_p.add_argument("--sync", action="store_true", help="Push current ops state to THE LEDGER")
+    ledger_p.add_argument("--list", action="store_true", help="List LEDGER pages")
+    ledger_p.add_argument("--create-db", metavar="PAGE_ID", help="Scaffold LEDGER database on given Notion page")
+    ledger_p.set_defaults(
+        func=lambda args: _run(
+            [
+                sys.executable,
+                os.path.join(BASE_DIR, "scripts", "ledger_sync.py"),
+                *(["--check"] if args.check else []),
+                *(["--sync"] if args.sync else []),
+                *(["--list"] if args.list else []),
+                *(["--create-db", args.create_db] if args.create_db else []),
             ]
         )
     )

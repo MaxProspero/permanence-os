@@ -88,596 +88,748 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <style>
+    /* ═══════════════ TOKENS ═══════════════ */
     :root {
-      --bg: #0a1118;
-      --bg-elev: rgba(15, 27, 38, 0.82);
-      --line: rgba(146, 188, 214, 0.24);
-      --ink: #e7f4ff;
-      --muted: #9ab0c1;
-      --c1: #44d7b6;
-      --c2: #efbb5f;
-      --c3: #73b8ff;
-      --danger: #ff8d8d;
-      --radius: 20px;
-      --shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+      --bg:      #060a10;
+      --bg-card: rgba(10, 18, 30, 0.72);
+      --glass:   rgba(12, 22, 38, 0.58);
+      --line:    rgba(146, 188, 214, 0.14);
+      --line-hi: rgba(0, 229, 196, 0.25);
+      --ink:     #e7f4ff;
+      --muted:   #7b96af;
+      --dim:     #3a5068;
+      --c1:      #00e5c4;
+      --c2:      #efbb5f;
+      --c3:      #73b8ff;
+      --rose:    #ff5c8a;
+      --violet:  #7b6fff;
+      --radius:  16px;
+      --mono:    "DM Mono", "IBM Plex Mono", monospace;
+      --sans:    "Sora", system-ui, sans-serif;
+      --game:    "Orbitron", monospace;
+      --f-rgb:   160,150,140;
+      --f:       rgb(var(--f-rgb));
     }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; min-height: 100%; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
     body {
+      font-family: var(--sans);
+      background: var(--bg);
       color: var(--ink);
-      font-family: "Sora", system-ui, sans-serif;
-      background:
-        radial-gradient(1200px 720px at -8% -20%, #21466a 0%, transparent 58%),
-        radial-gradient(900px 560px at 108% -8%, #3f341f 0%, transparent 56%),
-        radial-gradient(900px 520px at 50% 120%, #17342d 0%, transparent 52%),
-        var(--bg);
-      line-height: 1.45;
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-top: 28px;
     }
 
-    .layout {
-      width: min(1140px, 92vw);
-      margin: 0 auto;
-      padding: 28px 0 78px;
-    }
-
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 26px;
-      opacity: 0;
-      transform: translateY(14px);
-      animation: rise 520ms ease forwards;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--ink);
-    }
-
-    .brand img {
-      width: 38px;
-      height: 38px;
-    }
-
-    .brand span {
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-
-    .nav-links {
-      display: inline-flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-family: "IBM Plex Mono", monospace;
-      transition: color 160ms ease, border-color 160ms ease, transform 160ms ease;
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .nav-links a:hover {
-      color: var(--ink);
-      border-color: rgba(116, 188, 255, 0.6);
-      transform: translateY(-1px);
-    }
-
-    .hero {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-      box-shadow: var(--shadow);
-      padding: clamp(24px, 4vw, 46px);
-      display: grid;
-      gap: 24px;
-      margin-bottom: 18px;
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(18px);
-      animation: rise 620ms ease 140ms forwards;
-      /* subtle engraving lines override via later rule */
-    }
-
-    .hero::after {
+    /* ═══════════════ ATMOSPHERIC LAYERS ═══════════════ */
+    /* grid lines */
+    body::before {
       content: "";
-      position: absolute;
-      inset: auto -8% -40% auto;
-      width: 420px;
-      height: 420px;
-      border-radius: 999px;
-      background: radial-gradient(circle at center, rgba(68, 215, 182, 0.3), transparent 66%);
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(var(--f-rgb),.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--f-rgb),.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
       pointer-events: none;
     }
 
-    .eyebrow {
-      margin: 0;
-      color: var(--c2);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-size: 12px;
-      font-family: "IBM Plex Mono", monospace;
+    /* ambient glow */
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(var(--f-rgb),.06), transparent 60%),
+        radial-gradient(700px 500px at 85% 10%, rgba(239,187,95,.04), transparent 55%),
+        radial-gradient(800px 500px at 50% 110%, rgba(115,184,255,.04), transparent 50%);
+      pointer-events: none;
     }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(34px, 7vw, 72px);
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      max-width: 920px;
+    /* film grain */
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .04; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%   { transform: translate(0,0) }
+      10%  { transform: translate(-2%,-3%) }
+      20%  { transform: translate(3%,1%) }
+      30%  { transform: translate(-1%,4%) }
+      40%  { transform: translate(4%,-1%) }
+      50%  { transform: translate(-3%,2%) }
+      60%  { transform: translate(1%,-4%) }
+      70%  { transform: translate(-4%,3%) }
+      80%  { transform: translate(2%,2%) }
+      90%  { transform: translate(-2%,-1%) }
+      100% { transform: translate(0,0) }
     }
 
-    .hero-copy {
-      color: var(--muted);
-      max-width: 760px;
-      font-size: clamp(15px, 2vw, 18px);
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
     }
 
-    .hero-cta {
-      display: inline-flex;
-      flex-wrap: wrap;
+    /* ═══════════════ OS MENUBAR ═══════════════ */
+    .os-menubar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
+      background: rgba(4,6,10,.92);
+      border-bottom: 1px solid rgba(var(--f-rgb),.1);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px;
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      font-family: var(--sans); font-size: 12px; color: var(--ink);
+      user-select: none;
+    }
+    .mb-left { display: flex; align-items: center; gap: 0; }
+    .mb-logo {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; text-decoration: none; color: var(--c1);
+      transition: color .2s;
+    }
+    .mb-logo:hover { color: var(--ink); }
+    .mb-logo svg { width: 16px; height: 16px; }
+    .mb-appname {
+      font-weight: 700; font-size: 12px; letter-spacing: .02em;
+      color: var(--ink); margin-right: 14px;
+    }
+    .mb-mi {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--sans);
+      font-size: 12px; font-weight: 500; padding: 3px 10px;
+      border-radius: 4px; transition: background .15s, color .15s;
+    }
+    .mb-mi:hover, .mb-mi.open { background: rgba(var(--f-rgb),.12); color: var(--ink); }
+    .mb-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .mb-tagline {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: .14em; color: var(--dim); text-transform: uppercase;
+    }
+    .mb-right { display: flex; align-items: center; gap: 10px; }
+    .mb-ext {
+      color: var(--muted); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .mb-ext:hover { color: var(--ink); }
+    .mb-clock {
+      font-family: var(--mono); font-size: 11px;
+      font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: .03em;
+    }
+    .mb-date {
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .mb-powered {
+      position: fixed; bottom: 6px; right: 12px;
+      font-family: var(--mono); font-size: 8px;
+      letter-spacing: .1em; color: rgba(var(--f-rgb),.18);
+      text-transform: uppercase; z-index: 100; pointer-events: none;
+    }
+    /* ── Menubar Dropdowns ── */
+    .mb-dropdown {
+      display: none; position: fixed; top: 28px;
+      min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: rgba(8,14,22,.97); border: 1px solid rgba(var(--f-rgb),.12);
+      border-radius: 8px; padding: 4px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 9100; font-family: var(--sans); font-size: 12px;
+    }
+    .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
+    @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .mb-dropdown a, .mb-dropdown button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 6px 14px; border: none; background: none;
+      color: var(--muted); text-decoration: none; font: inherit; cursor: pointer;
+      transition: background .1s, color .1s; text-align: left;
+    }
+    .mb-dropdown a:hover, .mb-dropdown button:hover {
+      background: rgba(var(--f-rgb),.1); color: var(--ink);
+    }
+    .mb-dropdown .dd-sep {
+      height: 1px; background: rgba(var(--f-rgb),.08); margin: 4px 10px;
+    }
+    .mb-dropdown .dd-label {
+      padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+    }
+    .mb-dropdown .dd-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; opacity: .6; }
+    /* ── View dropdown theme section ── */
+    .dd-theme-row { display: flex; align-items: center; padding: 6px 14px; gap: 6px; }
+    .dd-theme-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; width: 40px; }
+    .dd-color-track { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+    .dd-color-dot {
+      width: 16px; height: 16px; min-width: 16px; border-radius: 50%;
+      border: 2px solid transparent; cursor: pointer;
+      transition: all .15s; padding: 0; outline: none;
+    }
+    .dd-color-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
+    .dd-color-dot.active { border-color: var(--ink); box-shadow: 0 0 6px rgba(var(--f-rgb),.4); }
+    .dd-color-custom { background: conic-gradient(red,yellow,lime,aqua,blue,magenta,red) !important; position: relative; overflow: hidden; }
+    .dd-color-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; }
+    .dd-bright-btns { display: flex; gap: 3px; }
+    .dd-bright-btn {
+      width: 24px; height: 24px; border-radius: 6px; background: none;
+      border: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: var(--muted);
+      transition: all .15s; padding: 0; font-size: 12px;
+    }
+    .dd-bright-btn:hover { border-color: var(--line-hi); color: var(--ink); }
+    .dd-bright-btn.active { border-color: var(--c1); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+
+    /* ═══════════════ LAYOUT SHELL ═══════════════ */
+    .shell {
+      position: relative; z-index: 1;
+      width: min(1200px, 94vw);
+      margin: 0 auto;
+      padding: 20px 0 60px;
+    }
+
+    /* ═══════════════ BENTO GRID ═══════════════ */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
       gap: 10px;
     }
 
-    .btn {
-      appearance: none;
+    /* ═══════════════ GLASS PANEL BASE ═══════════════ */
+    .panel {
+      position: relative;
+      background: var(--glass);
       border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px 16px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .panel:hover {
+      border-color: var(--line-hi);
+      box-shadow: 0 0 30px rgba(var(--f-rgb),.04);
+    }
+
+    /* corner brackets */
+    .panel::before, .panel::after {
+      content: ''; position: absolute;
+      width: 10px; height: 10px;
+      border-color: rgba(var(--f-rgb),.2); border-style: solid;
+      pointer-events: none; z-index: 2;
+    }
+    .panel::before { top: -1px; left: -1px;  border-width: 1px 0 0 1px; }
+    .panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+    /* halftone dots */
+    .panel > .halftone {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(239,187,95,.03) 1px, transparent 1px);
+      background-size: 16px 16px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .panel > *:not(.halftone):not(.hero-vortex) { position: relative; z-index: 1; }
+
+    /* ═══════════════ SECTION LABEL ═══════════════ */
+    .sec-label {
+      font-family: var(--game); font-size: 7px; font-weight: 700;
+      letter-spacing: .3em; color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .sec-label .dot {
+      display: inline-block; width: 5px; height: 5px;
+      border-radius: 50%; margin-right: 6px; vertical-align: middle;
+    }
+
+    /* ═══════════════ HERO PANEL ═══════════════ */
+    .hero-cell {
+      grid-column: 1 / 9;
+      grid-row: 1;
+      padding: clamp(22px, 3vw, 36px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--c2); letter-spacing: .06em;
+      margin-bottom: 14px;
+    }
+    .hero-eyebrow .arc {
+      color: rgba(239,187,95,.35); font-size: 9px; letter-spacing: .1em;
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 5.5vw, 56px);
+      font-weight: 800; line-height: .96;
+      letter-spacing: -.03em;
+      max-width: 680px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--ink), rgba(var(--f-rgb),.6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-copy {
+      color: var(--muted); font-size: clamp(14px, 1.6vw, 16px);
+      max-width: 560px; margin-bottom: 20px; line-height: 1.6;
+    }
+
+    .hero-ctas {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+
+    /* vortex decoration */
+    .hero-vortex {
+      position: absolute; right: -20px; top: -20px;
+      width: 300px; height: 300px;
+      opacity: .08; pointer-events: none; z-index: 0;
+    }
+
+    /* ═══════════════ STATS SIDEBAR ═══════════════ */
+    .stats-cell {
+      grid-column: 9 / 13;
+      grid-row: 1;
+      display: grid;
+      grid-template-rows: repeat(4, auto);
+      gap: 8px;
+      align-content: center;
+    }
+
+    .stat-card {
+      padding: 10px 16px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .stat-k {
+      font-family: var(--game); font-size: 7px; font-weight: 700;
+      letter-spacing: .2em; color: var(--dim);
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+
+    .stat-v {
+      font-size: 18px; font-weight: 800; letter-spacing: -.02em;
+      line-height: 1.1;
+    }
+
+    .stat-v.gold  { color: var(--c2); }
+    .stat-v.teal  { color: var(--c1); }
+    .stat-v.blue  { color: var(--c3); }
+    .stat-v.rose  { color: var(--rose); }
+
+    /* ═══════════════ BUTTONS ═══════════════ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 14px;
       color: var(--ink);
       text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-      background: rgba(255, 255, 255, 0.04);
+      font-weight: 600; font-size: 13px;
+      transition: transform .15s, border-color .2s, background .2s, box-shadow .2s;
+      background: rgba(255,255,255,.03);
+      white-space: nowrap;
     }
-
     .btn:hover {
       transform: translateY(-1px);
-      border-color: rgba(116, 188, 255, 0.7);
+      border-color: rgba(var(--f-rgb),.4);
+      box-shadow: 0 4px 20px rgba(var(--f-rgb),.08);
     }
-
     .btn.primary {
       border-color: transparent;
-      color: #03261f;
-      background: linear-gradient(135deg, var(--c1), #6ee3ca);
+      color: #031a14;
+      background: linear-gradient(135deg, var(--c1), #5aedc7);
+      font-weight: 700;
+    }
+    .btn.primary:hover {
+      box-shadow: 0 4px 24px rgba(var(--f-rgb),.25);
     }
 
-    .stats {
+    /* service status dot inside button */
+    .svc-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--dim); flex-shrink: 0;
+      transition: background .3s, box-shadow .3s;
+    }
+    .svc-dot.live { background: var(--c1); box-shadow: 0 0 6px var(--c1); }
+    .svc-dot.dead { background: var(--rose); }
+
+    /* ═══════════════ FEATURE PANELS ═══════════════ */
+    .diff-cell {
+      grid-column: 1 / 7;
+      grid-row: 2;
+      padding: 20px;
+    }
+    .outcomes-cell {
+      grid-column: 7 / 13;
+      grid-row: 2;
+      padding: 20px;
+    }
+
+    .panel h2 {
+      font-size: 17px; font-weight: 700;
+      letter-spacing: -.01em; margin-bottom: 12px;
+    }
+
+    .feat-list {
+      list-style: none; padding: 0;
+      display: grid; gap: 8px;
+    }
+
+    .feat-list li {
+      color: var(--muted); font-size: 13.5px; line-height: 1.55;
+      padding-left: 16px; position: relative;
+    }
+    .feat-list li::before {
+      content: ''; position: absolute; left: 0; top: 8px;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--c1); opacity: .6;
+    }
+
+    .outcomes-cell .feat-list li::before { background: var(--c2); }
+
+    /* ═══════════════ PILLARS ROW ═══════════════ */
+    .pillars-row {
+      grid-column: 1 / 13;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
 
-    .stat {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--bg-elev);
-      padding: 14px;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: rise 560ms ease forwards;
+    .pillar-card {
+      padding: 18px;
     }
 
-    .stat:nth-child(1) { animation-delay: 180ms; }
-    .stat:nth-child(2) { animation-delay: 240ms; }
-    .stat:nth-child(3) { animation-delay: 300ms; }
-    .stat:nth-child(4) { animation-delay: 360ms; }
+    .pillar-card h3 {
+      font-size: 15px; font-weight: 700; margin-bottom: 6px;
+    }
+    .pillar-card p {
+      color: var(--muted); font-size: 13px; line-height: 1.55;
+    }
 
-    .stat .k {
-      color: var(--muted);
-      font-family: "IBM Plex Mono", monospace;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 11px;
+    .pillar-card .pillar-icon {
+      font-family: var(--game); font-size: 22px; font-weight: 900;
+      line-height: 1; margin-bottom: 10px; opacity: .3;
+    }
+
+    .pillar-card:nth-child(1) .pillar-icon { color: var(--c1); }
+    .pillar-card:nth-child(2) .pillar-icon { color: var(--c2); }
+    .pillar-card:nth-child(3) .pillar-icon { color: var(--c3); }
+
+    /* ═══════════════ EXECUTION PATH (TIMELINE) ═══════════════ */
+    .path-cell {
+      grid-column: 1 / 13;
+      padding: 22px 24px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+      margin-top: 8px;
+    }
+
+    /* connecting line */
+    .timeline::before {
+      content: '';
+      position: absolute; top: 12px; left: 24px; right: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3), var(--violet));
+      opacity: .3;
+    }
+
+    .tl-step {
+      position: relative;
+      padding: 0 12px;
+    }
+
+    .tl-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--c1);
+      background: var(--bg);
+      margin-bottom: 12px;
+      position: relative; z-index: 1;
+    }
+    .tl-step:nth-child(2) .tl-dot { border-color: var(--c2); }
+    .tl-step:nth-child(3) .tl-dot { border-color: var(--c3); }
+    .tl-step:nth-child(4) .tl-dot { border-color: var(--violet); }
+
+    .tl-step.done .tl-dot {
+      background: var(--c1);
+      box-shadow: 0 0 8px rgba(var(--f-rgb),.4);
+    }
+
+    .tl-title {
+      font-size: 13px; font-weight: 700; line-height: 1.35;
       margin-bottom: 4px;
     }
-
-    .stat .v {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+    .tl-sub {
+      font-family: var(--mono); font-size: 11px; color: var(--dim);
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 12px;
-      margin-bottom: 12px;
+    /* ═══════════════ BOTTOM ROW: LEAD + FAQ ═══════════════ */
+    .lead-cell {
+      grid-column: 1 / 8;
+      grid-row: 5;
+      padding: 22px;
+    }
+    .faq-cell {
+      grid-column: 8 / 13;
+      grid-row: 5;
+      padding: 22px;
     }
 
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--bg-elev);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      opacity: 0;
-      transform: translateY(12px);
-      animation: rise 620ms ease forwards;
-    }
-
-    .card:nth-child(1) { animation-delay: 220ms; }
-    .card:nth-child(2) { animation-delay: 290ms; }
-
-    .card h2 {
-      margin: 0 0 10px;
-      font-size: 19px;
-      letter-spacing: -0.01em;
-    }
-
-    .list {
-      margin: 0;
-      padding-left: 16px;
-      color: var(--muted);
-      display: grid;
-      gap: 8px;
-    }
-
-    .pillars {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .pillar {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(11, 23, 35, 0.84);
-      padding: 14px;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: rise 560ms ease forwards;
-    }
-
-    .pillar:nth-child(1) { animation-delay: 260ms; }
-    .pillar:nth-child(2) { animation-delay: 320ms; }
-    .pillar:nth-child(3) { animation-delay: 380ms; }
-
-    .pillar h3 {
-      margin: 0 0 8px;
-      font-size: 16px;
-    }
-
-    .pillar p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .path {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: linear-gradient(160deg, rgba(115, 184, 255, 0.1), rgba(239, 187, 95, 0.06));
-      padding: 16px;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: rise 620ms ease 340ms forwards;
-    }
-
-    .path h2 {
-      margin: 0 0 10px;
-      font-size: 20px;
-    }
-
-    .steps {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 8px;
-      color: var(--ink);
-    }
-
-    .steps span {
-      color: var(--muted);
-      font-size: 14px;
-      display: block;
-      margin-top: 2px;
-    }
-
-    .lead-panel {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--bg-elev);
-      padding: 16px;
-      margin-top: 12px;
-      box-shadow: var(--shadow);
-    }
-
-    .lead-panel h2 {
-      margin: 0 0 10px;
-      font-size: 19px;
-    }
-
+    /* ═══════════════ LEAD FORM ═══════════════ */
     .lead-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
     .lead-field {
-      display: grid;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 13px;
+      display: grid; gap: 4px;
+      color: var(--muted); font-size: 12px;
     }
 
     .lead-field input,
     .lead-field select,
     .lead-field textarea {
-      border: 1px solid rgba(146, 188, 214, 0.28);
-      border-radius: 10px;
-      background: rgba(3, 10, 17, 0.72);
-      color: var(--ink);
-      font: inherit;
-      padding: 10px 11px;
-      width: 100%;
+      border: 1px solid rgba(146,188,214,.15);
+      border-radius: 8px;
+      background: rgba(3,10,17,.7);
+      color: var(--ink); font: inherit;
+      padding: 9px 10px; width: 100%;
+      transition: border-color .2s;
     }
 
-    .lead-field textarea {
-      min-height: 92px;
-      resize: vertical;
+    .lead-field input:focus,
+    .lead-field select:focus,
+    .lead-field textarea:focus {
+      outline: none; border-color: var(--c1);
     }
 
-    .lead-field.full {
-      grid-column: 1 / -1;
-    }
+    .lead-field textarea { min-height: 72px; resize: vertical; }
+    .lead-field.full { grid-column: 1 / -1; }
 
     .lead-actions {
       margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
     }
 
     .lead-status {
-      color: var(--muted);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      min-height: 16px;
+      color: var(--dim);
+      font-family: var(--mono); font-size: 11px;
+      min-height: 14px;
     }
 
-    .footer {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 12px;
-      font-family: "IBM Plex Mono", monospace;
-      opacity: 0.86;
+    .field-error {
+      display: block; font-size: 11px; color: var(--rose);
+      min-height: 14px; margin-top: 2px;
+      font-family: var(--mono);
     }
 
-    .faq-panel {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--bg-elev);
-      padding: 16px;
-      margin-top: 12px;
-      box-shadow: var(--shadow);
+    .btn.loading { opacity: .7; cursor: not-allowed; }
+    .btn.loading::before {
+      content: "";
+      display: inline-block; width: 11px; height: 11px;
+      border: 2px solid rgba(3,38,31,.35);
+      border-top-color: #031a14;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin-right: 6px; vertical-align: middle;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .faq-panel h2 {
-      margin: 0 0 12px;
-      font-size: 19px;
+    .success-state {
+      text-align: center; padding: 32px 16px; display: none;
     }
+    .success-state svg { color: var(--c1); }
+    .success-state h3 { font-size: 22px; margin: 12px 0 6px; }
+    .success-state p { color: var(--muted); font-size: 13px; }
 
+    #leadForm { transition: opacity .4s, transform .4s; }
+
+    /* ═══════════════ FAQ ═══════════════ */
     .faq-list { display: grid; gap: 4px; }
 
     .faq-item {
       border: 1px solid var(--line);
       border-radius: 10px;
       overflow: hidden;
+      transition: border-color .2s;
     }
+    .faq-item:hover { border-color: rgba(146,188,214,.22); }
 
     .faq-item summary {
-      padding: 12px 14px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
+      padding: 10px 12px; cursor: pointer;
+      font-weight: 600; font-size: 12.5px;
       list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 140ms ease;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background .15s;
     }
-
     .faq-item summary::-webkit-details-marker { display: none; }
-
     .faq-item summary::after {
-      content: "+";
-      font-size: 18px;
-      font-weight: 300;
-      color: var(--muted);
-      flex-shrink: 0;
-      margin-left: 12px;
-      transition: transform 200ms ease;
+      content: "+"; font-size: 16px; font-weight: 300;
+      color: var(--dim); flex-shrink: 0; margin-left: 8px;
+      transition: transform .2s;
     }
-
     .faq-item[open] summary::after { transform: rotate(45deg); }
-
-    .faq-item summary:hover { background: rgba(255,255,255,.03); }
-
+    .faq-item summary:hover { background: rgba(255,255,255,.02); }
     .faq-item p {
-      margin: 0;
-      padding: 0 14px 14px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-      border-top: 1px solid var(--line);
-      padding-top: 12px;
+      margin: 0; padding: 0 12px 12px;
+      color: var(--muted); font-size: 12.5px; line-height: 1.6;
+      border-top: 1px solid var(--line); padding-top: 10px;
     }
 
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* ═══════════════ FOOTER ═══════════════ */
+    .footer-cell {
+      grid-column: 1 / 13;
+      padding: 16px 0 0;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
     }
 
-    .field-error {
-      display: block;
-      font-size: 12px;
-      color: var(--danger);
-      min-height: 16px;
-      margin-top: 4px;
-      font-family: "IBM Plex Mono", monospace;
+    .footer-text {
+      color: var(--dim); font-size: 11px;
+      font-family: var(--mono);
     }
 
-    .btn.loading {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .btn.loading::before {
-      content: "";
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba(3, 38, 31, 0.4);
-      border-top-color: #03261f;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .success-state {
-      text-align: center;
-      padding: 40px 20px;
-      display: none;
-    }
-
-    .success-state svg { color: var(--c1); }
-    .success-state h3 { font-size: 28px; margin: 16px 0 8px; }
-    .success-state p { color: var(--muted); }
-
-    #leadForm {
-      transition: opacity 0.4s, transform 0.4s;
-    }
-
-    @media (max-width: 980px) {
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .grid { grid-template-columns: 1fr; }
-      .pillars { grid-template-columns: 1fr; }
-      .lead-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .stats { grid-template-columns: 1fr; }
-      .hero { padding: 20px; }
-      .nav { flex-direction: column; align-items: flex-start; }
-    }
-
-    /* ── FILM GRAIN ─────────────────────────────────────────── */
-    #grain {
-      position: fixed; inset: -50%; width: 200%; height: 200%;
-      opacity: .055; mix-blend-mode: overlay;
-      animation: grainshift .5s steps(1) infinite;
-      pointer-events: none; z-index: 9999;
-    }
-    @keyframes grainshift {
-      0%  { transform: translate(0,0) }
-      10% { transform: translate(-2%,-3%) }
-      20% { transform: translate(3%,1%) }
-      30% { transform: translate(-1%,4%) }
-      40% { transform: translate(4%,-1%) }
-      50% { transform: translate(-3%,2%) }
-      60% { transform: translate(1%,-4%) }
-      70% { transform: translate(-4%,3%) }
-      80% { transform: translate(2%,2%) }
-      90% { transform: translate(-2%,-1%) }
-      100%{ transform: translate(0,0) }
-    }
-
-    /* ── HALFTONE on key panels ─────────────────────────────── */
-    .hero::before, .card::before, .stat::before, .pillar::before, .path::before {
-      content: "";
-      position: absolute; inset: 0;
-      background-image: radial-gradient(circle, rgba(239,187,95,.045) 1px, transparent 1px);
-      background-size: 14px 14px;
-      pointer-events: none;
-      mix-blend-mode: overlay;
-      border-radius: inherit;
-      z-index: 0;
-    }
-
-    /* ensure children sit above halftone */
-    .hero > *, .card > *, .stat > *, .pillar > *, .path > * { position: relative; z-index: 1; }
-
-    /* ── RETICLE BRAND MARK ──────────────────────────────────── */
-    .brand-reticle {
-      width: 34px; height: 34px; color: var(--c2);
-      flex-shrink: 0;
-    }
-
-    /* ── VORTEX RINGS in hero ────────────────────────────────── */
-    .hero-vortex {
-      position: absolute; right: -60px; top: -40px;
-      width: 380px; height: 380px;
-      opacity: 0.09; pointer-events: none; z-index: 0;
-    }
-
-    /* ── ARCHIVAL EYEBROW ────────────────────────────────────── */
-    .eyebrow-arc {
-      color: rgba(239,187,95,.45);
-      letter-spacing: .06em;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 10px;
-    }
-
-    /* ── ARCHIVE STAMP in footer ─────────────────────────────── */
-    .footer-arc {
-      color: rgba(239,187,95,.3);
-      letter-spacing: .12em;
-      font-size: 10px;
-      font-family: "IBM Plex Mono", monospace;
+    .footer-stamp {
+      font-family: var(--game); font-size: 7px;
+      letter-spacing: .15em; color: rgba(239,187,95,.25);
       text-transform: uppercase;
     }
 
-    /* ── STAT VALUE punch-up ─────────────────────────────────── */
-    .stat .v { color: var(--c2); }
-
-    /* ── ENGRAVING lines on hero background ─────────────────── */
-    .hero {
-      background-image:
-        repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(239,187,95,.015) 47px, rgba(239,187,95,.015) 48px),
-        linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    /* ═══════════════ ANIMATIONS ═══════════════ */
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-  /* ── TOWER HUD ─── */
-  :root { --f-rgb: 160,150,140; --f: rgb(var(--f-rgb)); }
-  body { padding-top: 42px; }
-  .tower-hud { position:fixed;top:0;left:0;right:0;z-index:9000;height:42px;background:rgba(4,6,10,.97);border-bottom:1px solid rgba(var(--f-rgb),.2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
-  .th-l { display:flex;align-items:center; }
-  .th-brand { font-family:'Orbitron',monospace;font-size:10px;font-weight:800;letter-spacing:.3em;color:var(--f);text-decoration:none; }
-  .th-sep { color:rgba(255,255,255,.12);margin:0 16px;font-size:10px; }
-  .th-num { font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--f);letter-spacing:.04em;margin-right:12px;text-shadow:0 0 18px rgba(var(--f-rgb),.45); }
-  .th-name { font-family:'Orbitron',monospace;font-size:7px;font-weight:500;letter-spacing:.28em;color:rgba(255,255,255,.38);text-transform:uppercase; }
-  .th-r { display:flex;align-items:center;gap:16px; }
-  .th-back { font-family:'DM Mono','IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:rgba(var(--f-rgb),.5);text-decoration:none;transition:color .2s; }
-  .th-back:hover { color:var(--f); }
-  .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
+
+    .bento > * {
+      opacity: 0; transform: translateY(16px);
+      animation: rise 550ms ease forwards;
+    }
+
+    .hero-cell    { animation-delay: 60ms; }
+    .stats-cell   { animation-delay: 120ms; }
+    .diff-cell    { animation-delay: 200ms; }
+    .outcomes-cell{ animation-delay: 260ms; }
+    .pillars-row  { animation-delay: 320ms; }
+    .path-cell    { animation-delay: 400ms; }
+    .lead-cell    { animation-delay: 460ms; }
+    .faq-cell     { animation-delay: 520ms; }
+    .platform-row { animation-delay: 580ms; }
+
+    /* ═══════════════ RESPONSIVE ═══════════════ */
+    @media (max-width: 960px) {
+      .bento > * { grid-column: 1 / 13 !important; grid-row: auto !important; }
+      .stats-cell   { grid-template-rows: auto; grid-template-columns: repeat(4, 1fr); }
+      .pillars-row  { grid-template-columns: 1fr; }
+      .timeline     { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .timeline::before { display: none; }
+      .platform-row { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+
+    @media (max-width: 640px) {
+      .stats-cell { grid-template-columns: repeat(2, 1fr); }
+      .timeline   { grid-template-columns: 1fr; }
+      .lead-grid  { grid-template-columns: 1fr; }
+      .hero-ctas  { flex-direction: column; }
+      .hero-ctas .btn { justify-content: center; }
+      .platform-row { grid-template-columns: 1fr !important; }
+    }
+
+    /* ═══════════════ TOAST ═══════════════ */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: rgba(10,18,30,.95); border: 1px solid var(--rose);
+      border-radius: 10px; padding: 10px 18px;
+      font-family: var(--mono); font-size: 12px; color: var(--rose);
+      z-index: 10000; pointer-events: none;
+      opacity: 0; transition: transform .35s ease, opacity .35s ease;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+
+    /* -- MENUBAR RESPONSIVE -- */
+    @media(max-width:768px){
+      .mb-center{display:none}
+      .mb-mi{display:none}
+      .mb-date{display:none}
+      .mb-hamburger{display:flex!important}
+    }
+    .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
+    /* (theme UI now lives in View dropdown) */
+
+    /* -- FAB BOT -- */
+    .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
+    .fab-bot:hover{box-shadow:0 0 36px rgba(var(--f-rgb),0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
+    .fab-bot svg{color:var(--c1);pointer-events:none}
+    .fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid var(--line-hi);border-radius:var(--radius);padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(var(--f-rgb),0.08)}
+    .fab-popup.open{display:block;animation:fabIn 200ms both}
+    @keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
+    .fab-popup input:focus{border-color:var(--c1)}
+    .fab-popup input::placeholder{color:var(--muted)}
+    .fab-popup-label{font-size:11px;color:var(--muted);margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+    /* ── THEME: COPPER ─── */
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--c3:#e8a87c;--rose:#ff6b6b;--violet:#e8a87c;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    /* ── THEME: VOID ───── */
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c1:#d0d0d0;--c2:#bbb;--c3:#999;--rose:#888;--violet:#999;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    /* ── THEME: OCEAN ──── */
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--c3:#6eb8ff;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:74,158,255;--f:rgb(var(--f-rgb))}
+    /* ── THEME: ROSE ───── */
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--c3:#ffb6c9;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,92,138;--f:rgb(var(--f-rgb))}
+    /* ── THEME: VIOLET ─── */
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--c3:#b088ff;--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:155,109,255;--f:rgb(var(--f-rgb))}
+    /* ── THEME: FOREST ─── */
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--c3:#72efb2;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:61,220,132;--f:rgb(var(--f-rgb))}
+    /* ── THEME: SOLAR ──── */
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c1:#ffd700;--c2:#ffb347;--c3:#ffe066;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,215,0;--f:rgb(var(--f-rgb))}
+    /* ── THEME: CRIMSON ── */
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--c3:#ff8888;--rose:#ff4444;--violet:#d06fff;--f-rgb:255,68,68;--f:rgb(var(--f-rgb))}
+    /* ── THEME: FROST ──── */
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--c3:#a0e0f8;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:136,216,245;--f:rgb(var(--f-rgb))}
+    /* ── BRIGHTNESS: LIGHT ── */
+    [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
+    [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--ink:#2a1e10;--muted:#8a7a60}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--ink:#111;--muted:#888;--c1:#333;--violet:#666}
+    [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}
+    [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}
+    [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}
+    [data-brightness="light"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}
+    [data-brightness="light"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}
+    [data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}
+    [data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}
+    @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}}
+    [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
+    [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
+    [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
   </style>
 </head>
-<body>
+<body data-theme="aurora" data-brightness="dark">
+<script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
 
-  <!-- FILM GRAIN OVERLAY -->
+  <!-- FILM GRAIN -->
   <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <filter id="gf" x="0%" y="0%" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
@@ -687,20 +839,68 @@
     </filter>
     <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
   </svg>
+  <div class="scanlines" aria-hidden="true"></div>
 
-  <main class="layout">
-    <!-- TOWER HUD -->
-    <div class="tower-hud">
-      <div class="th-l">
-        <a href="rooms.html" class="th-brand">OPHTXN</a>
-        <span class="th-sep">//</span>
-        <span class="th-num">LB</span>
-        <span class="th-name">ENTRY HALL</span>
-      </div>
-      <div class="th-r">
-        <a href="rooms.html" class="th-back">↑ TOWER</a>
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-mi" id="mbGo">Go</button>
+      <button class="mb-hamburger" id="mbHamburger">Menu</button>
+    </div>
+    <div class="mb-center"><span class="mb-tagline">GOVERNANCE OS INTELLIGENCE</span></div>
+    <div class="mb-right">
+      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">Dark</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <!-- MENUBAR DROPDOWNS -->
+  <div class="mb-dropdown" id="ddFile" style="left:72px">
+    <div class="dd-label">Ophtxn OS</div>
+    <a href="index.html"><span class="dd-icon"></span> Lobby</a>
+    <a href="local_hub.html"><span class="dd-icon"></span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon"></span> Command Center</a>
+    <a href="trading_room.html"><span class="dd-icon"></span> Trading Room</a>
+    <a href="markets_terminal.html"><span class="dd-icon"></span> Markets Terminal</a>
+    <a href="night_capital.html"><span class="dd-icon"></span> Night Capital</a>
+    <a href="daily_planner.html"><span class="dd-icon"></span> Daily Planner</a>
+    <a href="ophtxn_shell.html"><span class="dd-icon"></span> Terminal</a>
+    <a href="rooms.html"><span class="dd-icon"></span> Tower</a>
+    <div class="dd-sep"></div>
+    <div class="dd-label">Permanence Platform</div>
+    <a href="ai_school.html"><span class="dd-icon"></span> AI School</a>
+    <a href="official_app.html"><span class="dd-icon"></span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon"></span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon"></span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon"></span> Mind Map</a>
+  </div>
+
+  <div class="mb-dropdown" id="ddView" style="left:112px">
+    <div class="dd-label">Theme</div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Color</span>
+      <div class="dd-color-track" id="ddThemeColor">
+        <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
+        <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
+        <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
+        <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
+        <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
+        <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
+        <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
+        <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
+        <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
+        <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
+        <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
       </div>
     </div>
+<<<<<<< HEAD
     <div class="scanlines" aria-hidden="true"></div>
 
     <section class="hero">
@@ -742,343 +942,647 @@
         <a class="btn" href="./ai_school.html" data-cta="open_ai_school">Open AI School</a>
         <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" id="link-live-shell" data-cta="open_live_shell">Open Live Ops Shell</a>
         <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Get Brand Assets</a>
+=======
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Mode</span>
+      <div class="dd-bright-btns" id="ddThemeBright">
+        <button class="dd-bright-btn" data-bright="dark" title="Dark">Dark</button>
+        <button class="dd-bright-btn" data-bright="light" title="Light">Light</button>
+        <button class="dd-bright-btn" data-bright="system" title="System"></button>
+>>>>>>> origin/main
       </div>
-    </section>
+    </div>
+  </div>
 
-    <section class="stats">
-      <article class="stat">
-        <div class="k">Model Spend</div>
-        <div class="v">$0 default</div>
-      </article>
-      <article class="stat">
-        <div class="k">Control Layer</div>
-        <div class="v">Human approved</div>
-      </article>
-      <article class="stat">
-        <div class="k">Core Channels</div>
-        <div class="v">Telegram + Discord</div>
-      </article>
-      <article class="stat">
-        <div class="k">Runtime Mode</div>
-        <div class="v">No-spend local</div>
-      </article>
-    </section>
+  <div class="mb-dropdown" id="ddGo" style="left:150px">
+    <div class="dd-label">Quick Nav</div>
+    <a href="rooms.html"><span class="dd-icon"></span> Tower Overview</a>
+    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon"></span> Command Center</a>
+    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon"></span> Live Shell</a>
+    <div class="dd-sep"></div>
+    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon"></span> GitHub</a>
+  </div>
 
-    <section class="grid">
-      <article class="card">
+  <div class="mb-powered">Powered by Permanence Systems</div>
+
+  <!-- TOAST (for offline service warnings) -->
+  <div class="toast" id="toast"></div>
+
+  <main class="shell">
+    <div class="bento">
+
+      <!-- ═══ HERO ═══ -->
+      <section class="panel hero-cell">
+        <div class="halftone"></div>
+        <svg class="hero-vortex" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <ellipse cx="150" cy="150" rx="48" ry="18" stroke="#efbb5f" stroke-width="0.7">
+            <animate attributeName="rx" values="34;62;34" dur="4.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.18;0;0.18" dur="4.2s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="150" cy="150" rx="80" ry="29" stroke="#efbb5f" stroke-width="0.5">
+            <animate attributeName="rx" values="64;104;64" dur="4.2s" begin="0.7s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.14;0;0.14" dur="4.2s" begin="0.7s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="150" cy="150" rx="118" ry="43" stroke="#00e5c4" stroke-width="0.4">
+            <animate attributeName="rx" values="96;140;96" dur="4.2s" begin="1.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.10;0;0.10" dur="4.2s" begin="1.4s" repeatCount="indefinite"/>
+          </ellipse>
+          <line x1="150" y1="125" x2="150" y2="175" stroke="#efbb5f" stroke-width="0.5" opacity="0.25"/>
+          <line x1="125" y1="150" x2="175" y2="150" stroke="#efbb5f" stroke-width="0.5" opacity="0.25"/>
+          <circle cx="150" cy="150" r="2.5" fill="#efbb5f" opacity="0.35"/>
+        </svg>
+
+        <p class="hero-eyebrow">Governance OS Intelligence <span class="arc">// A-KWJ-0368</span></p>
+        <h1 class="hero-title">The personal intelligence OS with governance built in.</h1>
+        <p class="hero-copy">
+          Not a chatbot. A runtime. Persistent memory, autonomous agents,
+          multi-channel comms, and human-in-the-loop approval gates in one system.
+          Agents plan and act — you approve what matters.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn primary" href="./local_hub.html" data-cta="open_local_hub">Open Local Hub</a>
+          <a class="btn primary" href="./official_app.html" data-cta="open_app_studio">App Studio</a>
+          <a class="btn" href="http://127.0.0.1:8000" id="link-command-center" data-cta="open_command_center" data-svc="cc">
+            <span class="svc-dot" id="dot-cc"></span> Command Center
+          </a>
+          <a class="btn" href="http://127.0.0.1:8797/app/ophtxn" id="link-live-shell" data-cta="open_live_shell" data-svc="shell">
+            <span class="svc-dot" id="dot-shell"></span> Live Shell
+          </a>
+          <a class="btn" href="./ai_school.html" data-cta="open_ai_school">AI School</a>
+          <a class="btn" href="./press_kit.html" data-cta="open_press_kit">Mind Map</a>
+          <a class="btn" href="./night_capital.html" data-cta="open_night_capital">Night Capital</a>
+          <a class="btn" href="./agent_view.html" data-cta="open_agent_view">Agent View</a>
+          <a class="btn" href="./comms_hub.html" data-cta="open_comms_hub">Comms Hub</a>
+        </div>
+      </section>
+
+      <!-- ═══ STATS SIDEBAR ═══ -->
+      <div class="stats-cell">
+        <article class="panel stat-card">
+          <div class="halftone"></div>
+          <div class="stat-k">Model Spend</div>
+          <div class="stat-v gold">$0 default</div>
+        </article>
+        <article class="panel stat-card">
+          <div class="halftone"></div>
+          <div class="stat-k">Control Layer</div>
+          <div class="stat-v teal">Human approved</div>
+        </article>
+        <article class="panel stat-card">
+          <div class="halftone"></div>
+          <div class="stat-k">Core Channels</div>
+          <div class="stat-v blue">Telegram + Discord</div>
+        </article>
+        <article class="panel stat-card">
+          <div class="halftone"></div>
+          <div class="stat-k">Runtime Mode</div>
+          <div class="stat-v rose">No-spend local</div>
+        </article>
+      </div>
+
+      <!-- ═══ WHAT'S DIFFERENT ═══ -->
+      <section class="panel diff-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c1)"></span> DIFFERENTIATORS</div>
         <h2>What makes this different</h2>
-        <ul class="list">
-          <li>Governed actions: every high-stakes execution step passes through an explicit human approval gate before running.</li>
-          <li>Causal agents: agents understand action → consequence chains, not just pattern recognition. Plans are auditable and reversible.</li>
-          <li>Memory over time: profile, habits, context, and intake signals compound across sessions instead of resetting.</li>
-          <li>Operator-grade controls: spend caps, provider limits, audit trails, and queue triage built into the core runtime.</li>
-          <li>Cross-channel flow: one intelligence layer across Telegram, Discord, terminal, and web.</li>
+        <ul class="feat-list">
+          <li>Governed actions — every high-stakes step passes through an explicit human approval gate before running.</li>
+          <li>Causal agents — agents understand action-consequence chains, not just patterns. Plans are auditable.</li>
+          <li>Memory over time — context and decisions compound across sessions instead of resetting.</li>
+          <li>Operator-grade controls — spend caps, audit trails, and queue triage in the core runtime.</li>
+          <li>Cross-channel flow — one intelligence layer across Telegram, Discord, terminal, and web.</li>
         </ul>
-      </article>
-      <article class="card">
-        <h2>Immediate outcomes</h2>
-        <ul class="list">
+      </section>
+
+      <!-- ═══ OUTCOMES ═══ -->
+      <section class="panel outcomes-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c2)"></span> OUTCOMES</div>
+        <h2>Immediate results</h2>
+        <ul class="feat-list">
           <li>Turn high-volume links and ideas into ranked, filterable opportunities.</li>
           <li>Reduce chaos with daily ops packs and safe batch approval actions.</li>
           <li>Keep conversation and action history tied to one operating context.</li>
           <li>Move from tool-hopping to a single system of execution.</li>
         </ul>
-      </article>
-    </section>
+      </section>
 
-    <section class="pillars">
-      <article class="pillar">
-        <h3>Personal OS</h3>
-        <p>Build your own second-brain runtime with memory, habits, and strategic decision loops.</p>
-      </article>
-      <article class="pillar">
-        <h3>Vertical Packs</h3>
-        <p>Add domain modules for finance, creator ops, audit workflows, and research lanes.</p>
-      </article>
-      <article class="pillar">
-        <h3>Team Expansion</h3>
-        <p>Evolve into multi-user and enterprise modes once personal runtime quality is proven.</p>
-      </article>
-    </section>
-
-    <section class="path">
-      <h2>Execution Path</h2>
-      <ol class="steps">
-        <li>Stabilize personal runtime and daily no-spend operations.<span>Done and actively improving.</span></li>
-        <li>Ship official app shell + onboarding studio + brand kit.<span>This release.</span></li>
-        <li>Launch one monetized vertical pack with strict governance.<span>Next 30 days.</span></li>
-        <li>Expand to team mode and managed deployment paths.<span>After repeatable user results.</span></li>
-      </ol>
-    </section>
-
-    <section class="lead-panel">
-      <h2>Join Early Access</h2>
-      <form id="leadForm" novalidate>
-        <div class="lead-grid">
-          <label class="lead-field">Name
-            <input id="leadName" name="name" autocomplete="name" required>
-            <span class="field-error" id="err-leadName"></span>
-          </label>
-          <label class="lead-field">Email
-            <input id="leadEmail" name="email" type="email" autocomplete="email" required>
-            <span class="field-error" id="err-leadEmail"></span>
-          </label>
-          <label class="lead-field">Primary Workflow
-            <input id="leadWorkflow" name="workflow" placeholder="e.g. founder ops, finance research, execution stack">
-          </label>
-          <label class="lead-field">Package
-            <select id="leadPackage" name="package">
-              <option value="Pilot">Pilot</option>
-              <option value="Core" selected>Core</option>
-              <option value="Operator">Operator</option>
-            </select>
-          </label>
-          <label class="lead-field full">Current Blocker
-            <textarea id="leadBlocker" name="blocker" placeholder="What is blocking execution right now?"></textarea>
-          </label>
-        </div>
-        <div class="lead-actions">
-          <button class="btn primary" type="submit" data-cta="submit_early_access">Request Access</button>
-          <span class="lead-status" id="leadStatus">Lead capture ready.</span>
-        </div>
-      </form>
-      <div class="success-state" id="leadSuccess">
-        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.3" fill="none"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7 12.5l3.5 3.5 6-7"/>
-        </svg>
-        <h3>You're in.</h3>
-        <p>We'll follow up shortly.</p>
+      <!-- ═══ PILLARS ═══ -->
+      <div class="pillars-row">
+        <article class="panel pillar-card">
+          <div class="halftone"></div>
+          <div class="pillar-icon">01</div>
+          <h3>Personal OS</h3>
+          <p>Build your own second-brain runtime with memory, habits, and strategic decision loops.</p>
+        </article>
+        <article class="panel pillar-card">
+          <div class="halftone"></div>
+          <div class="pillar-icon">02</div>
+          <h3>Vertical Packs</h3>
+          <p>Add domain modules for finance, creator ops, audit workflows, and research lanes.</p>
+        </article>
+        <article class="panel pillar-card">
+          <div class="halftone"></div>
+          <div class="pillar-icon">03</div>
+          <h3>Team Expansion</h3>
+          <p>Evolve into multi-user and enterprise modes once personal runtime quality is proven.</p>
+        </article>
       </div>
-    </section>
 
-    <section class="faq-panel" aria-labelledby="faq-heading">
-      <h2 id="faq-heading">Common Questions</h2>
-      <div class="faq-list">
-        <details class="faq-item">
-          <summary>What is Ophtxn?</summary>
-          <p>Ophtxn is a governed personal intelligence operating system. It wraps AI models with persistent memory, autonomous research agents, multi-channel communications, and human-in-the-loop approval gates. It is not a chatbot — it is a runtime that compounds context and decisions across sessions.</p>
-        </details>
-        <details class="faq-item">
-          <summary>How is this different from ChatGPT or Claude?</summary>
-          <p>ChatGPT and Claude are stateless conversational models — every session starts fresh. Ophtxn is an OS layer: it maintains memory across sessions, runs autonomous multi-agent workflows, enforces spend caps and approval queues, and gives you audit trails for every action. You keep control; the agents do the work.</p>
-        </details>
-        <details class="faq-item">
-          <summary>What is a governed personal intelligence OS?</summary>
-          <p>A category pioneered by Ophtxn. Agents plan and act autonomously, but irreversible or costly actions are queued for human approval rather than executed immediately. Every decision is logged with causal context — why the agent proposed it and what it expected to happen. Governance is architecture, not policy.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Is it free? What does it cost to run?</summary>
-          <p>Ophtxn runs in no-spend local mode by default, using free or locally-hosted models. Paid API usage (Claude, GPT-4, etc.) is opt-in with configurable hard spend caps. The core runtime is open source at github.com/MaxProspero/permanence-os.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Who is it built for?</summary>
-          <p>Founders, operators, and solo builders running high-volume execution stacks — people who need the leverage of autonomous AI without losing control over decisions, budget, or data. If you currently manage AI through 10 different browser tabs, Ophtxn is the single runtime that replaces them.</p>
-        </details>
+      <!-- ═══ EXECUTION PATH ═══ -->
+      <section class="panel path-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--c3)"></span> EXECUTION PATH</div>
+        <h2>Where we are</h2>
+        <div class="timeline">
+          <div class="tl-step done">
+            <div class="tl-dot"></div>
+            <div class="tl-title">Stabilize personal runtime</div>
+            <div class="tl-sub">Done — actively improving</div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-dot"></div>
+            <div class="tl-title">Ship app shell + onboarding</div>
+            <div class="tl-sub">This release</div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-dot"></div>
+            <div class="tl-title">Launch monetized vertical pack</div>
+            <div class="tl-sub">Next 30 days</div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-dot"></div>
+            <div class="tl-title">Expand to team mode</div>
+            <div class="tl-sub">After repeatable results</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ LEAD FORM ═══ -->
+      <section class="panel lead-cell">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--violet)"></span> EARLY ACCESS</div>
+        <h2>Join Early Access</h2>
+        <form id="leadForm" novalidate>
+          <div class="lead-grid">
+            <label class="lead-field">Name
+              <input id="leadName" name="name" autocomplete="name" required>
+              <span class="field-error" id="err-leadName"></span>
+            </label>
+            <label class="lead-field">Email
+              <input id="leadEmail" name="email" type="email" autocomplete="email" required>
+              <span class="field-error" id="err-leadEmail"></span>
+            </label>
+            <label class="lead-field">Primary Workflow
+              <input id="leadWorkflow" name="workflow" placeholder="e.g. founder ops, finance research">
+            </label>
+            <label class="lead-field">Package
+              <select id="leadPackage" name="package">
+                <option value="Pilot">Pilot</option>
+                <option value="Core" selected>Core</option>
+                <option value="Operator">Operator</option>
+              </select>
+            </label>
+            <label class="lead-field full">Current Blocker
+              <textarea id="leadBlocker" name="blocker" placeholder="What is blocking execution right now?"></textarea>
+            </label>
+          </div>
+          <div class="lead-actions">
+            <button class="btn primary" type="submit" data-cta="submit_early_access">Request Access</button>
+            <span class="lead-status" id="leadStatus"></span>
+          </div>
+        </form>
+        <div class="success-state" id="leadSuccess">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.3" fill="none"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 12.5l3.5 3.5 6-7"/>
+          </svg>
+          <h3>You're in.</h3>
+          <p>We'll follow up shortly.</p>
+        </div>
+      </section>
+
+      <!-- ═══ FAQ ═══ -->
+      <section class="panel faq-cell" aria-labelledby="faq-heading">
+        <div class="halftone"></div>
+        <div class="sec-label"><span class="dot" style="background:var(--muted)"></span> FAQ</div>
+        <h2 id="faq-heading">Common Questions</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What is Ophtxn?</summary>
+            <p>A governed personal intelligence OS. It wraps AI models with persistent memory, autonomous research agents, multi-channel comms, and human approval gates. Not a chatbot — a runtime that compounds context across sessions.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How is this different from ChatGPT?</summary>
+            <p>ChatGPT and Claude are stateless — every session starts fresh. Ophtxn maintains memory, runs multi-agent workflows, enforces spend caps, and gives you audit trails. You keep control; agents do the work.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What is a governed intelligence OS?</summary>
+            <p>Agents plan and act autonomously, but costly or irreversible actions queue for human approval. Every decision is logged with causal context. Governance is architecture, not policy.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is it free to use?</summary>
+            <p>Runs in no-spend local mode by default. Paid API usage is opt-in with hard spend caps. Core runtime is open source.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Who is it for?</summary>
+            <p>Founders, operators, and solo builders running high-volume execution stacks who need AI leverage without losing control over decisions, budget, or data.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ═══ PERMANENCE PLATFORM ═══ -->
+      <section class="platform-row" style="grid-column:1/13;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+        <div style="grid-column:1/-1;margin-bottom:2px;">
+          <div class="sec-label"><span class="dot" style="background:var(--c2)"></span> PERMANENCE SYSTEMS · THE PLATFORM</div>
+        </div>
+        <a href="ai_school.html" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
+          <div class="halftone"></div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c1);"></div>
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">AI School</h3>
+          <p style="color:var(--muted);font-size:12px;line-height:1.5;">Interactive courses on AI fundamentals, agent architecture, and governed intelligence systems.</p>
+        </a>
+        <a href="official_app.html" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
+          <div class="halftone"></div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c2);"></div>
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">App Studio</h3>
+          <p style="color:var(--muted);font-size:12px;line-height:1.5;">Build, customize, and deploy Ophtxn apps with the visual studio environment.</p>
+        </a>
+        <a href="#faq-heading" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
+          <div class="halftone"></div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--c3);"></div>
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Knowledge Base</h3>
+          <p style="color:var(--muted);font-size:12px;line-height:1.5;">FAQs, guides, and documentation for operators building on the Permanence platform.</p>
+        </a>
+        <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener" class="panel plat-card" style="padding:18px;text-decoration:none;color:inherit;display:block;">
+          <div class="halftone"></div>
+          <div style="font-family:var(--game);font-size:20px;font-weight:900;opacity:.3;margin-bottom:8px;color:var(--violet);"></div>
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Open Source</h3>
+          <p style="color:var(--muted);font-size:12px;line-height:1.5;">Core runtime on GitHub. Contribute, fork, and build extensions for the governed OS.</p>
+        </a>
+      </section>
+
+      <!-- ═══ FOOTER ═══ -->
+      <div class="footer-cell">
+        <span class="footer-text">Ophtxn by Permanence OS — Build intentionally. Move fast. Keep control.</span>
+        <span class="footer-stamp">Permanence Systems · ACTIVE</span>
       </div>
-    </section>
 
-    <p class="footer">
-      Ophtxn by Permanence OS | Build intentionally. Move fast. Keep control.
-      <br><span class="footer-arc">A-KWJ-0368 · PERMANENCE OS v1.0 · BUILD DATE 26.03.07 · STATUS ACTIVE</span>
-    </p>
+    </div>
   </main>
+
   <script src="./runtime.config.js"></script>
   <script>(function(){var rt=window.__OPHTXN_RUNTIME||{};var el;el=document.getElementById("link-command-center");if(el&&rt.commandCenterUrl)el.href=rt.commandCenterUrl;el=document.getElementById("link-live-shell");if(el&&rt.shellUrl)el.href=rt.shellUrl;})();</script>
   <script>
-    (function () {
-      const runtime = window.__OPHTXN_RUNTIME || {};
-      const apiBaseRaw = String(runtime.apiBase || "").trim();
-      const apiBase = apiBaseRaw.replace(/\/$/, "");
-      const source = String(runtime.source || "foundation_site").trim() || "foundation_site";
-      const analyticsEnabled = runtime.analyticsEnabled !== false;
-      const trackPageViews = runtime.trackPageViews !== false;
-      const trackCtas = runtime.trackCtas !== false;
-      const leadCaptureEnabled = runtime.leadCaptureEnabled !== false;
-      const leadCaptureEndpoint = String(runtime.leadCaptureEndpoint || "/api/revenue/intake").trim() || "/api/revenue/intake";
-      const siteEventEndpoint = String(runtime.siteEventEndpoint || "/api/revenue/site-event").trim() || "/api/revenue/site-event";
-      const fallbackEmail = String(runtime.fallbackEmail || "").trim() || "hello@ophtxn.com";
-      const sessionKey = "ophtxn_session_id";
-      let sessionId = localStorage.getItem(sessionKey);
-      if (!sessionId) {
-        sessionId = "sess_" + Math.random().toString(36).slice(2, 11);
-        localStorage.setItem(sessionKey, sessionId);
-      }
+  (function () {
+    'use strict';
 
-      const byId = (id) => document.getElementById(id);
-      const statusEl = byId("leadStatus");
+    var rt = window.__OPHTXN_RUNTIME || {};
 
-      function endpoint(path) {
-        if (!path) return "";
-        if (/^https?:\/\//i.test(path)) return path;
-        return apiBase ? apiBase + path : "";
-      }
+    /* ── Update service links from runtime config ── */
+    var el;
+    el = document.getElementById('link-command-center');
+    if (el && rt.commandCenterUrl) el.href = rt.commandCenterUrl;
+    el = document.getElementById('link-live-shell');
+    if (el && rt.shellUrl) el.href = rt.shellUrl;
 
-      async function track(eventType, meta) {
-        if (!analyticsEnabled) return false;
-        const url = endpoint(siteEventEndpoint);
-        if (!url) return false;
-        try {
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              event_type: eventType,
-              source: source,
-              session_id: sessionId,
-              channel: "web",
-              meta: meta || {},
-            }),
-          });
-          return res.ok;
-        } catch (_err) {
-          return false;
-        }
-      }
+    /* ── Service health checks (status dots + click guard) ── */
+    var services = {
+      cc:    { url: (rt.commandCenterUrl || 'http://127.0.0.1:8000') + '/api/status', dot: 'dot-cc', live: false },
+      shell: { url: (rt.appBase || 'http://127.0.0.1:8797') + '/health',              dot: 'dot-shell', live: false }
+    };
 
-      if (trackPageViews) {
-        track("page_view", {
-          path: location.pathname,
-          referrer: document.referrer || "",
-          user_agent: navigator.userAgent,
-          ts: new Date().toISOString(),
+    var toastEl = document.getElementById('toast');
+    var toastTimer = null;
+
+    function showToast(msg) {
+      if (!toastEl) return;
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 3200);
+    }
+
+    function checkService(key) {
+      var svc = services[key];
+      if (!svc) return;
+      var dotEl = document.getElementById(svc.dot);
+      fetch(svc.url, { signal: AbortSignal.timeout(3000) })
+        .then(function (res) {
+          svc.live = res.ok;
+          if (dotEl) dotEl.classList.toggle('live', res.ok);
+          if (dotEl) dotEl.classList.toggle('dead', !res.ok);
+        })
+        .catch(function () {
+          svc.live = false;
+          if (dotEl) dotEl.classList.add('dead');
         });
-      }
+    }
 
-      if (trackCtas) {
-        document.querySelectorAll("[data-cta]").forEach((node) => {
-          node.addEventListener("click", () => {
-            track("cta_click", { cta: node.getAttribute("data-cta") || "unknown" });
-          });
-        });
-      }
+    checkService('cc');
+    checkService('shell');
 
-      const form = byId("leadForm");
-      if (!form) return;
-
-      // --- Per-field inline validation ---
-      const nameInput = byId("leadName");
-      const emailInput = byId("leadEmail");
-      const nameError = byId("err-leadName");
-      const emailError = byId("err-leadEmail");
-
-      function validateName() {
-        const val = String(nameInput.value || "").trim();
-        if (!val) {
-          nameError.textContent = "Name is required.";
-          return false;
-        }
-        nameError.textContent = "";
-        return true;
-      }
-
-      function validateEmail() {
-        const val = String(emailInput.value || "").trim();
-        if (!val || !val.includes("@")) {
-          emailError.textContent = "Valid email is required.";
-          return false;
-        }
-        emailError.textContent = "";
-        return true;
-      }
-
-      nameInput.addEventListener("blur", validateName);
-      nameInput.addEventListener("focus", function () { nameError.textContent = ""; });
-
-      emailInput.addEventListener("blur", validateEmail);
-      emailInput.addEventListener("focus", function () { emailError.textContent = ""; });
-
-      // --- Submit handler with loading state + success animation ---
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const nameValid = validateName();
-        const emailValid = validateEmail();
-        if (!nameValid || !emailValid) return;
-
-        const name = String(nameInput.value || "").trim();
-        const email = String(emailInput.value || "").trim();
-        const workflow = String(byId("leadWorkflow")?.value || "").trim();
-        const pkg = String(byId("leadPackage")?.value || "Core").trim() || "Core";
-        const blocker = String(byId("leadBlocker")?.value || "").trim();
-
-        const submitBtn = form.querySelector("button[type=submit]");
-        const originalText = submitBtn ? submitBtn.textContent : "";
-
-        function setLoading(on) {
-          if (!submitBtn) return;
-          if (on) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Capturing...";
-            submitBtn.classList.add("loading");
-          } else {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-            submitBtn.classList.remove("loading");
-          }
-        }
-
-        function showSuccess() {
-          form.style.opacity = "0";
-          form.style.transform = "translateY(-20px)";
-          setTimeout(function () {
-            form.style.display = "none";
-            const successEl = byId("leadSuccess");
-            if (successEl) successEl.style.display = "block";
-          }, 400);
-        }
-
-        setLoading(true);
-
-        await track("intake_submit", { package: pkg });
-        const intakeUrl = endpoint(leadCaptureEndpoint);
-        if (!leadCaptureEnabled || !intakeUrl) {
-          const subject = encodeURIComponent("Ophtxn Early Access");
-          const body = encodeURIComponent(
-            "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker
-          );
-          setLoading(false);
-          location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
-          await track("intake_fallback", { reason: "missing_endpoint", package: pkg });
-          return;
-        }
-
-        try {
-          const response = await fetch(intakeUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: name,
-              email: email,
-              workflow: workflow,
-              package: pkg,
-              blocker: blocker,
-              source: source + ":website",
-              create_lead: true,
-            }),
-          });
-          if (!response.ok) {
-            throw new Error("Intake request failed");
-          }
-          const payload = await response.json();
-          const leadId = payload && payload.lead_id ? String(payload.lead_id) : "";
-          setLoading(false);
-          form.reset();
-          await track("intake_captured", { lead_id: leadId, package: pkg });
-          showSuccess();
-        } catch (_err) {
-          setLoading(false);
-          const subject = encodeURIComponent("Ophtxn Early Access (fallback)");
-          const body = encodeURIComponent(
-            "Name: " + name + "\\nEmail: " + email + "\\nWorkflow: " + workflow + "\\nPackage: " + pkg + "\\nBlocker: " + blocker
-          );
-          location.href = "mailto:" + fallbackEmail + "?subject=" + subject + "&body=" + body;
-          if (statusEl) statusEl.textContent = "Fallback opened in mail client.";
-          await track("intake_fallback", { reason: "post_failed", package: pkg });
+    /* Guard clicks on service links */
+    document.querySelectorAll('[data-svc]').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        var key = link.getAttribute('data-svc');
+        var svc = services[key];
+        if (svc && !svc.live) {
+          e.preventDefault();
+          showToast('Service offline — start the server first, then try again.');
         }
       });
-    })();
+    });
+
+    /* ── Analytics + Lead Capture ── */
+    var apiBaseRaw = String(rt.apiBase || '').trim();
+    var apiBase = apiBaseRaw.replace(/\/$/, '');
+    var source = String(rt.source || 'foundation_site').trim() || 'foundation_site';
+    var analyticsEnabled = rt.analyticsEnabled !== false;
+    var trackPageViews = rt.trackPageViews !== false;
+    var trackCtas = rt.trackCtas !== false;
+    var leadCaptureEnabled = rt.leadCaptureEnabled !== false;
+    var leadCaptureEndpoint = String(rt.leadCaptureEndpoint || '/api/revenue/intake').trim();
+    var siteEventEndpoint = String(rt.siteEventEndpoint || '/api/revenue/site-event').trim();
+    var fallbackEmail = String(rt.fallbackEmail || '').trim() || 'hello@ophtxn.com';
+    var sessionKey = 'ophtxn_session_id';
+    var sessionId = localStorage.getItem(sessionKey);
+    if (!sessionId) {
+      sessionId = 'sess_' + Math.random().toString(36).slice(2, 11);
+      localStorage.setItem(sessionKey, sessionId);
+    }
+
+    var byId = function (id) { return document.getElementById(id); };
+    var statusEl = byId('leadStatus');
+
+    function endpoint(path) {
+      if (!path) return '';
+      if (/^https?:\/\//i.test(path)) return path;
+      return apiBase ? apiBase + path : '';
+    }
+
+    function track(eventType, meta) {
+      if (!analyticsEnabled) return Promise.resolve(false);
+      var url = endpoint(siteEventEndpoint);
+      if (!url) return Promise.resolve(false);
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: eventType, source: source,
+          session_id: sessionId, channel: 'web', meta: meta || {}
+        })
+      }).then(function (r) { return r.ok; }).catch(function () { return false; });
+    }
+
+    if (trackPageViews) {
+      track('page_view', {
+        path: location.pathname, referrer: document.referrer || '',
+        user_agent: navigator.userAgent, ts: new Date().toISOString()
+      });
+    }
+
+    if (trackCtas) {
+      document.querySelectorAll('[data-cta]').forEach(function (node) {
+        node.addEventListener('click', function () {
+          track('cta_click', { cta: node.getAttribute('data-cta') || 'unknown' });
+        });
+      });
+    }
+
+    /* ── Lead form ── */
+    var form = byId('leadForm');
+    if (!form) return;
+
+    var nameInput = byId('leadName');
+    var emailInput = byId('leadEmail');
+    var nameError = byId('err-leadName');
+    var emailError = byId('err-leadEmail');
+
+    function validateName() {
+      var val = String(nameInput.value || '').trim();
+      if (!val) { nameError.textContent = 'Name is required.'; return false; }
+      nameError.textContent = ''; return true;
+    }
+    function validateEmail() {
+      var val = String(emailInput.value || '').trim();
+      if (!val || !val.includes('@')) { emailError.textContent = 'Valid email is required.'; return false; }
+      emailError.textContent = ''; return true;
+    }
+
+    nameInput.addEventListener('blur', validateName);
+    nameInput.addEventListener('focus', function () { nameError.textContent = ''; });
+    emailInput.addEventListener('blur', validateEmail);
+    emailInput.addEventListener('focus', function () { emailError.textContent = ''; });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!validateName() | !validateEmail()) return;
+
+      var name = String(nameInput.value || '').trim();
+      var email = String(emailInput.value || '').trim();
+      var workflow = String((byId('leadWorkflow') || {}).value || '').trim();
+      var pkg = String((byId('leadPackage') || {}).value || 'Core').trim() || 'Core';
+      var blocker = String((byId('leadBlocker') || {}).value || '').trim();
+
+      var submitBtn = form.querySelector('button[type=submit]');
+      var originalText = submitBtn ? submitBtn.textContent : '';
+
+      function setLoading(on) {
+        if (!submitBtn) return;
+        submitBtn.disabled = on;
+        submitBtn.textContent = on ? 'Capturing...' : originalText;
+        submitBtn.classList.toggle('loading', on);
+      }
+
+      function showSuccess() {
+        form.style.opacity = '0';
+        form.style.transform = 'translateY(-20px)';
+        setTimeout(function () {
+          form.style.display = 'none';
+          var s = byId('leadSuccess');
+          if (s) s.style.display = 'block';
+        }, 400);
+      }
+
+      setLoading(true);
+      track('intake_submit', { package: pkg }).then(function () {
+        var intakeUrl = endpoint(leadCaptureEndpoint);
+        if (!leadCaptureEnabled || !intakeUrl) {
+          var subject = encodeURIComponent('Ophtxn Early Access');
+          var body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nWorkflow: ' + workflow + '\nPackage: ' + pkg + '\nBlocker: ' + blocker);
+          setLoading(false);
+          location.href = 'mailto:' + fallbackEmail + '?subject=' + subject + '&body=' + body;
+          track('intake_fallback', { reason: 'missing_endpoint', package: pkg });
+          return;
+        }
+        fetch(intakeUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, workflow: workflow, package: pkg, blocker: blocker, source: source + ':website', create_lead: true })
+        }).then(function (response) {
+          if (!response.ok) throw new Error('fail');
+          return response.json();
+        }).then(function (payload) {
+          var leadId = payload && payload.lead_id ? String(payload.lead_id) : '';
+          setLoading(false);
+          form.reset();
+          track('intake_captured', { lead_id: leadId, package: pkg });
+          showSuccess();
+        }).catch(function () {
+          setLoading(false);
+          var subject = encodeURIComponent('Ophtxn Early Access (fallback)');
+          var body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nWorkflow: ' + workflow + '\nPackage: ' + pkg + '\nBlocker: ' + blocker);
+          location.href = 'mailto:' + fallbackEmail + '?subject=' + subject + '&body=' + body;
+          if (statusEl) statusEl.textContent = 'Fallback opened in mail client.';
+          track('intake_fallback', { reason: 'post_failed', package: pkg });
+        });
+      });
+    });
+  })();
   </script>
+<<<<<<< HEAD
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+=======
+  <!-- SHARED: FAB BOT -->
+  <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+  </div>
+  <div class="fab-popup" id="fabPopup">
+    <p class="fab-popup-label">Ask Ophtxn</p>
+    <input type="text" id="fabInput" placeholder="Type a question&hellip;" autocomplete="off">
+  </div>
+
+  <script>
+  /* ═══ MENUBAR: CLOCK ═══ */
+  (function(){
+    var ck=document.getElementById('mbClock'),dt=document.getElementById('mbDate');
+    if(!ck)return;
+    var hidden=false;
+    function tick(){
+      if(hidden)return;
+      var n=new Date();
+      ck.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      dt.textContent=n.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    tick();setInterval(tick,1000);
+    document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
+  })();
+
+  /* ═══ MENUBAR: DROPDOWNS ═══ */
+  (function(){
+    var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
+    var openDD=null;
+    function closeAll(){
+      document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
+      document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
+      openDD=null;
+    }
+    Object.keys(menus).forEach(function(btnId){
+      var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
+      if(!btn||!dd)return;
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(openDD===dd){closeAll();return;}
+        closeAll();
+        dd.classList.add('open');btn.classList.add('open');openDD=dd;
+      });
+      btn.addEventListener('mouseenter',function(){
+        if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
+      });
+    });
+    document.addEventListener('click',function(){closeAll();});
+    document.querySelectorAll('.mb-dropdown').forEach(function(dd){
+      dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
+    });
+    /* Hamburger for mobile */
+    var hb=document.getElementById('mbHamburger');
+    if(hb)hb.addEventListener('click',function(e){
+      e.stopPropagation();var dd=document.getElementById('ddFile');
+      if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
+    });
+    /* Quick theme toggle via moon icon */
+    var tg=document.getElementById('mbTheme');
+    if(tg)tg.addEventListener('click',function(){
+      var cur=document.body.dataset.brightness||'dark';
+      var next=cur==='dark'?'light':'dark';
+      try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
+      document.body.dataset.brightness=next;
+      tg.textContent=next==='dark'?'Dark':'Light';
+      applyTheme();
+    });
+  })();
+
+  /* ═══ SITE THEME (View dropdown) ═══ */
+  var applyTheme;
+  (function(){
+    var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
+    function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
+    function gb(){try{return localStorage.getItem(BK)||'dark';}catch(e){return 'dark';}}
+    function gc(){try{return localStorage.getItem(CK)||'#00e5c4';}catch(e){return '#00e5c4';}}
+    function hexToRgb(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
+    function applyCustom(hex){
+      var el=document.getElementById('customThemeStyle');
+      if(!el){el=document.createElement('style');el.id='customThemeStyle';document.head.appendChild(el);}
+      var rgb=hexToRgb(hex);
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var bgR=Math.round(r*0.025),bgG=Math.round(g*0.025),bgB=Math.round(b*0.025);
+      var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
+      var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
+      var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
+      '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--bg-card:rgba(255,255,255,0.72);--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
+      var ci=document.getElementById('ddCustomColor');
+      if(ci)ci.value=hex;
+      var cd=document.querySelector('.dd-color-custom');
+      if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
+    }
+    function apply(){
+      var t=gt(),b=gb();
+      document.body.dataset.theme=t;document.body.dataset.brightness=b;
+      if(t==='custom')applyCustom(gc());
+      document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
+      document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+      var tgEl=document.getElementById('mbTheme');
+      if(tgEl)tgEl.textContent=b==='light'?'Light':'Dark';
+    }
+    applyTheme=apply;
+    apply();
+    var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
+    if(cE)cE.addEventListener('click',function(e){
+      var btn=e.target.closest('.dd-color-dot');
+      if(!btn||!btn.dataset.color)return;
+      if(btn.dataset.color==='custom')return;
+      try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
+    });
+    var ci=document.getElementById('ddCustomColor');
+    if(ci)ci.addEventListener('input',function(e){
+      try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
+    });
+    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
+    window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
+  })();
+
+  /* ═══ FAB BOT ═══ */
+  (function(){
+    var fabBot=document.getElementById('fabBot'),fabPopup=document.getElementById('fabPopup'),fabInput=document.getElementById('fabInput');
+    if(!fabBot)return;
+    var fabDragging=false,fabDragStart={x:0,y:0},fabPos={x:0,y:0};
+    try{var sp=JSON.parse(localStorage.getItem('ophtxn_fab_pos'));if(sp&&typeof sp.right==='number'){fabBot.style.right=sp.right+'px';fabBot.style.bottom=sp.bottom+'px';fabPopup.style.right=sp.right+'px';fabPopup.style.bottom=(sp.bottom+68)+'px';}}catch(_){}
+    fabBot.addEventListener('click',function(){if(fabDragging)return;if(fabPopup){fabPopup.classList.toggle('open');if(fabPopup.classList.contains('open')&&fabInput)setTimeout(function(){fabInput.focus();},100);}});
+    var startDrag=function(sx,sy){fabDragging=false;var r=fabBot.getBoundingClientRect();fabDragStart={x:sx,y:sy};fabPos={right:window.innerWidth-r.right,bottom:window.innerHeight-r.bottom};
+      var moved=function(mx,my){var dx=mx-fabDragStart.x,dy=my-fabDragStart.y;if(Math.abs(dx)>4||Math.abs(dy)>4)fabDragging=true;if(!fabDragging)return;var nr=Math.max(8,Math.min(fabPos.right-dx,window.innerWidth-64)),nb=Math.max(8,Math.min(fabPos.bottom-dy,window.innerHeight-64));fabBot.style.right=nr+'px';fabBot.style.bottom=nb+'px';fabPopup.style.right=nr+'px';fabPopup.style.bottom=(nb+68)+'px';};
+      var end=function(){document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',end);document.removeEventListener('touchmove',tm);document.removeEventListener('touchend',end);if(fabDragging){try{localStorage.setItem('ophtxn_fab_pos',JSON.stringify({right:parseInt(fabBot.style.right),bottom:parseInt(fabBot.style.bottom)}));}catch(_){}setTimeout(function(){fabDragging=false;},50);}};
+      var mm=function(e){moved(e.clientX,e.clientY);};var tm=function(e){if(e.touches.length===1){moved(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();}};
+      document.addEventListener('mousemove',mm);document.addEventListener('mouseup',end);document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',end);
+    };
+    fabBot.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);});
+    fabBot.addEventListener('touchstart',function(e){if(e.touches.length===1)startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+    if(fabInput)fabInput.addEventListener('keydown',function(e){if(e.key==='Enter'){var q=fabInput.value.trim();if(q)window.location.href='ophtxn_shell.html?q='+encodeURIComponent(q);}});
+  })();
+  </script>
+
+  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+>>>>>>> origin/main
 </body>
 </html>

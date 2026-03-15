@@ -1,0 +1,1452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a1118">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Trading Room</title>
+  <meta name="description" content="Ophtxn Trading Room — agent-driven trading dashboard with live chart, positions, signals, and autonomous trading agents.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════ TOKENS ═══════════════ */
+    :root {
+      --bg:      #060a10;
+      --bg-card: rgba(10, 18, 30, 0.72);
+      --glass:   rgba(12, 22, 38, 0.58);
+      --line:    rgba(146, 188, 214, 0.14);
+      --line-hi: rgba(0, 229, 196, 0.25);
+      --ink:     #e7f4ff;
+      --muted:   #7b96af;
+      --dim:     #3a5068;
+      --c1:      #00e5c4;
+      --c2:      #efbb5f;
+      --c3:      #73b8ff;
+      --rose:    #ff5c8a;
+      --violet:  #7b6fff;
+      --radius:  16px;
+      --mono:    "DM Mono", "IBM Plex Mono", monospace;
+      --sans:    "Sora", system-ui, sans-serif;
+      --game:    "Orbitron", monospace;
+      --f-rgb:   160,150,140;
+      --f:       rgb(var(--f-rgb));
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-top: 28px;
+    }
+
+    /* ═══════════════ ATMOSPHERIC LAYERS ═══════════════ */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(var(--f-rgb),.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--f-rgb),.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+      pointer-events: none;
+    }
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(var(--f-rgb),.06), transparent 60%),
+        radial-gradient(700px 500px at 85% 10%, rgba(239,187,95,.04), transparent 55%),
+        radial-gradient(800px 500px at 50% 110%, rgba(115,184,255,.04), transparent 50%);
+      pointer-events: none;
+    }
+    #grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: .04; mix-blend-mode: overlay;
+      animation: grainshift .5s steps(1) infinite;
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes grainshift {
+      0%   { transform: translate(0,0) }
+      10%  { transform: translate(-2%,-3%) }
+      20%  { transform: translate(3%,1%) }
+      30%  { transform: translate(-1%,4%) }
+      40%  { transform: translate(4%,-1%) }
+      50%  { transform: translate(-3%,2%) }
+      60%  { transform: translate(1%,-4%) }
+      70%  { transform: translate(-4%,3%) }
+      80%  { transform: translate(2%,2%) }
+      90%  { transform: translate(-2%,-1%) }
+      100% { transform: translate(0,0) }
+    }
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
+    }
+
+    /* ═══════════════ OS MENUBAR ═══════════════ */
+    .os-menubar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
+      background: rgba(4,6,10,.92);
+      border-bottom: 1px solid rgba(var(--f-rgb),.1);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px;
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      font-family: var(--sans); font-size: 12px; color: var(--ink);
+      user-select: none;
+    }
+    .mb-left { display: flex; align-items: center; gap: 0; }
+    .mb-logo {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; text-decoration: none; color: var(--c1);
+      transition: color .2s;
+    }
+    .mb-logo:hover { color: var(--ink); }
+    .mb-logo svg { width: 16px; height: 16px; }
+    .mb-appname {
+      font-weight: 700; font-size: 12px; letter-spacing: .02em;
+      color: var(--ink); margin-right: 14px;
+    }
+    .mb-mi {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--sans);
+      font-size: 12px; font-weight: 500; padding: 3px 10px;
+      border-radius: 4px; transition: background .15s, color .15s;
+    }
+    .mb-mi:hover, .mb-mi.open { background: rgba(var(--f-rgb),.12); color: var(--ink); }
+    .mb-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .mb-tagline {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: .14em; color: var(--dim); text-transform: uppercase;
+    }
+    .mb-right { display: flex; align-items: center; gap: 10px; }
+    .mb-ext {
+      color: var(--muted); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; transition: color .2s;
+    }
+    .mb-ext:hover { color: var(--ink); }
+    .mb-clock {
+      font-family: var(--mono); font-size: 11px;
+      font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: .03em;
+    }
+    .mb-date {
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .mb-powered {
+      position: fixed; bottom: 6px; right: 12px;
+      font-family: var(--mono); font-size: 8px;
+      letter-spacing: .1em; color: rgba(var(--f-rgb),.18);
+      text-transform: uppercase; z-index: 100; pointer-events: none;
+    }
+    /* ── Menubar Dropdowns ── */
+    .mb-dropdown {
+      display: none; position: fixed; top: 28px;
+      min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: rgba(8,14,22,.97); border: 1px solid rgba(var(--f-rgb),.12);
+      border-radius: 8px; padding: 4px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 9100; font-family: var(--sans); font-size: 12px;
+    }
+    .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
+    @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .mb-dropdown a, .mb-dropdown button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 6px 14px; border: none; background: none;
+      color: var(--muted); text-decoration: none; font: inherit; cursor: pointer;
+      transition: background .1s, color .1s; text-align: left;
+    }
+    .mb-dropdown a:hover, .mb-dropdown button:hover {
+      background: rgba(var(--f-rgb),.1); color: var(--ink);
+    }
+    .mb-dropdown .dd-sep {
+      height: 1px; background: rgba(var(--f-rgb),.08); margin: 4px 10px;
+    }
+    .mb-dropdown .dd-label {
+      padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+    }
+    .mb-dropdown .dd-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; opacity: .6; }
+    /* ── View dropdown theme section ── */
+    .dd-theme-row { display: flex; align-items: center; padding: 6px 14px; gap: 6px; }
+    .dd-theme-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; width: 40px; }
+    .dd-color-track { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+    .dd-color-dot {
+      width: 16px; height: 16px; min-width: 16px; border-radius: 50%;
+      border: 2px solid transparent; cursor: pointer;
+      transition: all .15s; padding: 0; outline: none;
+    }
+    .dd-color-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
+    .dd-color-dot.active { border-color: var(--ink); box-shadow: 0 0 6px rgba(var(--f-rgb),.4); }
+    .dd-color-custom { background: conic-gradient(red,yellow,lime,aqua,blue,magenta,red) !important; position: relative; overflow: hidden; }
+    .dd-color-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; }
+    .dd-bright-btns { display: flex; gap: 3px; }
+    .dd-bright-btn {
+      width: 24px; height: 24px; border-radius: 6px; background: none;
+      border: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: var(--muted);
+      transition: all .15s; padding: 0; font-size: 12px;
+    }
+    .dd-bright-btn:hover { border-color: var(--line-hi); color: var(--ink); }
+    .dd-bright-btn.active { border-color: var(--c1); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+
+    /* ═══════════════ TOAST ═══════════════ */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: rgba(10,18,30,.95); border: 1px solid var(--rose);
+      border-radius: 10px; padding: 10px 18px;
+      font-family: var(--mono); font-size: 12px; color: var(--rose);
+      z-index: 10000; pointer-events: none;
+      opacity: 0; transition: transform .35s ease, opacity .35s ease;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── MENUBAR RESPONSIVE ── */
+    @media(max-width:768px){
+      .mb-center{display:none}
+      .mb-mi{display:none}
+      .mb-date{display:none}
+      .mb-hamburger{display:flex!important}
+    }
+    .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
+
+    /* ── FAB BOT ── */
+    .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
+    .fab-bot:hover{box-shadow:0 0 36px rgba(var(--f-rgb),0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
+    .fab-bot svg{color:var(--c1);pointer-events:none}
+    .fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid var(--line-hi);border-radius:var(--radius);padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(var(--f-rgb),0.08)}
+    .fab-popup.open{display:block;animation:fabIn 200ms both}
+    @keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
+    .fab-popup input:focus{border-color:var(--c1)}
+    .fab-popup input::placeholder{color:var(--muted)}
+    .fab-popup-label{font-size:11px;color:var(--muted);margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+
+    /* ── THEME: COPPER ─── */
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--c3:#e8a87c;--rose:#ff6b6b;--violet:#e8a87c;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    /* ── THEME: VOID ───── */
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c1:#d0d0d0;--c2:#bbb;--c3:#999;--rose:#888;--violet:#999;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    /* ── THEME: OCEAN ──── */
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--c3:#6eb8ff;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:74,158,255;--f:rgb(var(--f-rgb))}
+    /* ── THEME: ROSE ───── */
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--c3:#ffb6c9;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,92,138;--f:rgb(var(--f-rgb))}
+    /* ── THEME: VIOLET ─── */
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--c3:#b088ff;--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:155,109,255;--f:rgb(var(--f-rgb))}
+    /* ── THEME: FOREST ─── */
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--c3:#72efb2;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:61,220,132;--f:rgb(var(--f-rgb))}
+    /* ── THEME: SOLAR ──── */
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c1:#ffd700;--c2:#ffb347;--c3:#ffe066;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,215,0;--f:rgb(var(--f-rgb))}
+    /* ── THEME: CRIMSON ── */
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--c3:#ff8888;--rose:#ff4444;--violet:#d06fff;--f-rgb:255,68,68;--f:rgb(var(--f-rgb))}
+    /* ── THEME: FROST ──── */
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--c3:#a0e0f8;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:136,216,245;--f:rgb(var(--f-rgb))}
+    /* ── BRIGHTNESS: LIGHT ── */
+    [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
+    [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--ink:#2a1e10;--muted:#8a7a60}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--ink:#111;--muted:#888;--c1:#333;--violet:#666}
+    [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}
+    [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}
+    [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}
+    [data-brightness="light"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}
+    [data-brightness="light"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}
+    [data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}
+    [data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}
+    @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--ink:#0a1e3a;--muted:#5070a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--ink:#3a0a1e;--muted:#a05070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--ink:#1e0a3a;--muted:#7050a0}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="forest"]{--bg:#f0faf4;--bg-card:rgba(240,255,245,0.72);--ink:#0a3a1e;--muted:#50a070}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}}
+    @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}}
+    [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
+    [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
+    [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
+
+    /* ═══════════════ PANEL (glass card) ═══════════════ */
+    .panel {
+      position: relative;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .panel:hover {
+      border-color: var(--line-hi);
+      box-shadow: 0 0 30px rgba(var(--f-rgb),.04);
+    }
+    .panel::before, .panel::after {
+      content: ''; position: absolute;
+      width: 10px; height: 10px;
+      border-color: rgba(var(--f-rgb),.2); border-style: solid;
+      pointer-events: none; z-index: 2;
+    }
+    .panel::before { top: -1px; left: -1px;  border-width: 1px 0 0 1px; }
+    .panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+    .panel > .halftone {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(239,187,95,.03) 1px, transparent 1px);
+      background-size: 16px 16px;
+      pointer-events: none; z-index: 0;
+    }
+    .panel > *:not(.halftone) { position: relative; z-index: 1; }
+
+    /* ═══════════════ TRADING ROOM LAYOUT ═══════════════ */
+    .tr-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      grid-template-rows: 1fr auto;
+      gap: 10px;
+      height: calc(100vh - 28px);
+      padding: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Section Headers ── */
+    .tr-header {
+      font-family: var(--game);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .25em;
+      color: var(--dim);
+      text-transform: uppercase;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .tr-header .dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; margin-right: 8px; vertical-align: middle;
+    }
+
+    /* ═══════════════ AGENT TEAM PANEL (LEFT) ═══════════════ */
+    .tr-agents {
+      grid-row: 1 / 2;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tr-agents-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .agent-card {
+      background: rgba(var(--f-rgb),.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      transition: border-color .2s, background .2s;
+      cursor: default;
+    }
+    .agent-card:hover {
+      border-color: var(--line-hi);
+      background: rgba(var(--f-rgb),.08);
+    }
+    .agent-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .agent-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--game); font-size: 11px; font-weight: 900;
+      color: #fff; flex-shrink: 0;
+    }
+    .agent-info { flex: 1; min-width: 0; }
+    .agent-name {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .agent-role {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .agent-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+    }
+    .agent-stat {
+      text-align: center;
+    }
+    .agent-stat-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .agent-stat-val {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* ═══════════════ CENTER PANEL ═══════════════ */
+    .tr-center {
+      grid-row: 1 / 2;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tab Bar */
+    .tr-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .tr-tab {
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-family: var(--game);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .tr-tab:hover {
+      color: var(--ink);
+      background: rgba(var(--f-rgb),.08);
+    }
+    .tr-tab.active {
+      color: var(--ink);
+      border-color: var(--line-hi);
+      background: rgba(var(--f-rgb),.1);
+    }
+
+    /* Tab Content */
+    .tr-tab-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .tr-tab-pane {
+      display: none;
+      position: absolute;
+      inset: 0;
+      flex-direction: column;
+    }
+    .tr-tab-pane.active {
+      display: flex;
+    }
+
+    /* Chart Area */
+    .tr-chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      flex-shrink: 0;
+    }
+    .tr-chart-ticker {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .tr-chart-symbol {
+      font-family: var(--game);
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: .04em;
+    }
+    .tr-chart-price {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .tr-chart-change {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .tr-chart-change.up { color: #00e5c4; }
+    .tr-chart-change.down { color: var(--rose); }
+    .tr-chart-vol {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .tr-time-btns {
+      display: flex;
+      gap: 3px;
+    }
+    .tr-time-btn {
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .tr-time-btn:hover { border-color: var(--line-hi); color: var(--ink); }
+    .tr-time-btn.active { border-color: var(--c1); color: var(--ink); background: rgba(var(--f-rgb),.08); }
+
+    .tr-chart-wrap {
+      flex: 1;
+      padding: 0 14px 10px;
+      min-height: 0;
+    }
+    .tr-chart-wrap canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+
+    /* Feed Area */
+    .tr-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+    }
+    .feed-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(var(--f-rgb),.04);
+    }
+    .feed-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .feed-body { flex: 1; min-width: 0; }
+    .feed-text {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .feed-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--dim);
+      margin-top: 2px;
+    }
+
+    /* Signals Area */
+    .tr-signals {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .signal-card {
+      background: rgba(var(--f-rgb),.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .signal-badge {
+      font-family: var(--game);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .signal-badge.buy  { background: rgba(0,229,196,.15); color: #00e5c4; border: 1px solid rgba(0,229,196,.3); }
+    .signal-badge.sell { background: rgba(255,92,138,.15); color: #ff5c8a; border: 1px solid rgba(255,92,138,.3); }
+    .signal-badge.hold { background: rgba(239,187,95,.15); color: #efbb5f; border: 1px solid rgba(239,187,95,.3); }
+    .signal-info { flex: 1; min-width: 0; }
+    .signal-sym {
+      font-family: var(--game);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: .06em;
+    }
+    .signal-reason {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .signal-conf {
+      flex-shrink: 0;
+      width: 50px;
+      text-align: right;
+    }
+    .signal-conf-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .signal-conf-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(var(--f-rgb),.1);
+      margin-top: 3px;
+      overflow: hidden;
+    }
+    .signal-conf-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .3s;
+    }
+
+    /* ═══════════════ POSITIONS PANEL (RIGHT) ═══════════════ */
+    .tr-positions {
+      grid-row: 1 / 2;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tr-portfolio-summary {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .tr-portfolio-val {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .tr-portfolio-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 2px;
+    }
+    .tr-portfolio-pnl {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .tr-positions-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pos-card {
+      background: rgba(var(--f-rgb),.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      transition: border-color .2s;
+    }
+    .pos-card:hover { border-color: var(--line-hi); }
+    .pos-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .pos-sym {
+      font-family: var(--game);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: .06em;
+    }
+    .pos-pnl {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pos-pnl.up { color: #00e5c4; }
+    .pos-pnl.down { color: var(--rose); }
+    .pos-details {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* ═══════════════ TICKER TAPE ═══════════════ */
+    .tr-ticker {
+      grid-column: 1 / -1;
+      grid-row: 2 / 3;
+      overflow: hidden;
+      background: rgba(var(--f-rgb),.03);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker-scroll 40s linear infinite;
+    }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 0 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ticker-sym {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .ticker-pct.up { color: #00e5c4; }
+    .ticker-pct.down { color: var(--rose); }
+    .ticker-sep {
+      color: var(--dim);
+      font-size: 8px;
+    }
+
+    /* ═══════════════ RESPONSIVE ═══════════════ */
+    @media (max-width: 960px) {
+      .tr-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto auto;
+        height: auto;
+        min-height: calc(100vh - 28px);
+      }
+      .tr-agents { max-height: 260px; }
+      .tr-center { min-height: 480px; }
+      .tr-positions { max-height: 320px; }
+    }
+    @media (max-width: 640px) {
+      .tr-layout { padding: 6px; gap: 6px; }
+      .tr-center { min-height: 380px; }
+    }
+  </style>
+</head>
+<body data-theme="aurora" data-brightness="dark">
+<script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
+
+  <!-- FILM GRAIN -->
+  <svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="gf" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
+        <animate attributeName="seed" values="0;7;14;3;11;5;0" dur="0.6s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
+  </svg>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-mi" id="mbGo">Go</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
+    </div>
+    <div class="mb-center"><span class="mb-tagline">GOVERNANCE OS INTELLIGENCE</span></div>
+    <div class="mb-right">
+      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">&#9790;</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <!-- MENUBAR DROPDOWNS -->
+  <div class="mb-dropdown" id="ddFile" style="left:72px">
+    <div class="dd-label">Ophtxn OS</div>
+    <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
+    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
+    <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
+    <a href="markets_terminal.html"><span class="dd-icon">&#9638;</span> Markets Terminal</a>
+    <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
+    <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
+    <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
+    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
+    <div class="dd-sep"></div>
+    <div class="dd-label">Permanence Platform</div>
+    <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
+    <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
+    <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
+    <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
+    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
+  </div>
+
+  <div class="mb-dropdown" id="ddView" style="left:112px">
+    <div class="dd-label">Theme</div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Color</span>
+      <div class="dd-color-track" id="ddThemeColor">
+        <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
+        <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
+        <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
+        <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
+        <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
+        <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
+        <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
+        <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
+        <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
+        <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
+        <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
+      </div>
+    </div>
+    <div class="dd-theme-row">
+      <span class="dd-theme-label">Mode</span>
+      <div class="dd-bright-btns" id="ddThemeBright">
+        <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
+        <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
+        <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-dropdown" id="ddGo" style="left:150px">
+    <div class="dd-label">Quick Nav</div>
+    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
+    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
+    <div class="dd-sep"></div>
+    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
+  </div>
+
+  <div class="mb-powered">Powered by Permanence Systems</div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══════════════ TRADING ROOM LAYOUT ═══════════════ -->
+  <div class="tr-layout">
+
+    <!-- LEFT: AGENT TEAM -->
+    <div class="tr-agents panel">
+      <div class="halftone"></div>
+      <div class="tr-header"><span class="dot" style="background:#00e5c4"></span>AGENT TEAM</div>
+      <div class="tr-agents-list" id="agentList">
+        <div class="agent-card" data-agent="mike">
+          <div class="agent-top">
+            <div class="agent-avatar" style="background:#00e5c4">M</div>
+            <div class="agent-info">
+              <div class="agent-name">Momentum Mike</div>
+              <div class="agent-role">Trend follower, rides momentum</div>
+            </div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-mike-wr">68%</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-mike-pnl" style="color:#00e5c4">+$2,840</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-mike-str">4W</div></div>
+          </div>
+        </div>
+        <div class="agent-card" data-agent="victor">
+          <div class="agent-top">
+            <div class="agent-avatar" style="background:#ffb347">V</div>
+            <div class="agent-info">
+              <div class="agent-name">Value Victor</div>
+              <div class="agent-role">Deep value plays, buys dips</div>
+            </div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-victor-wr">72%</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-victor-pnl" style="color:#00e5c4">+$4,120</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-victor-str">6W</div></div>
+          </div>
+        </div>
+        <div class="agent-card" data-agent="quinn">
+          <div class="agent-top">
+            <div class="agent-avatar" style="background:#73b8ff">Q</div>
+            <div class="agent-info">
+              <div class="agent-name">Quant Quinn</div>
+              <div class="agent-role">Statistical arb, mean reversion</div>
+            </div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-quinn-wr">65%</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-quinn-pnl" style="color:#00e5c4">+$1,560</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-quinn-str">2W</div></div>
+          </div>
+        </div>
+        <div class="agent-card" data-agent="sam">
+          <div class="agent-top">
+            <div class="agent-avatar" style="background:#ff5c8a">S</div>
+            <div class="agent-info">
+              <div class="agent-name">Sentinel Sam</div>
+              <div class="agent-role">Risk management, position sizing</div>
+            </div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-sam-wr">81%</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-sam-pnl" style="color:#ff5c8a">-$320</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-sam-str">1L</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: CHART / FEED / SIGNALS -->
+    <div class="tr-center panel">
+      <div class="halftone"></div>
+      <div class="tr-tabs">
+        <button class="tr-tab active" data-tab="chart">CHART</button>
+        <button class="tr-tab" data-tab="feed">FEED</button>
+        <button class="tr-tab" data-tab="signals">SIGNALS</button>
+      </div>
+      <div class="tr-tab-content">
+
+        <!-- CHART TAB -->
+        <div class="tr-tab-pane active" id="pane-chart">
+          <div class="tr-chart-header">
+            <div class="tr-chart-ticker">
+              <span class="tr-chart-symbol">AAPL</span>
+              <span class="tr-chart-price" id="chartPrice">$185.42</span>
+              <span class="tr-chart-change up" id="chartChange">+$2.95 (+1.62%)</span>
+              <span class="tr-chart-vol" id="chartVol">Vol 42.1M</span>
+            </div>
+            <div class="tr-time-btns">
+              <button class="tr-time-btn active" data-range="1D">1D</button>
+              <button class="tr-time-btn" data-range="1W">1W</button>
+              <button class="tr-time-btn" data-range="1M">1M</button>
+              <button class="tr-time-btn" data-range="3M">3M</button>
+              <button class="tr-time-btn" data-range="1Y">1Y</button>
+            </div>
+          </div>
+          <div class="tr-chart-wrap">
+            <canvas id="priceChart"></canvas>
+          </div>
+        </div>
+
+        <!-- FEED TAB -->
+        <div class="tr-tab-pane" id="pane-feed">
+          <div class="tr-feed" id="feedList"></div>
+        </div>
+
+        <!-- SIGNALS TAB -->
+        <div class="tr-tab-pane" id="pane-signals">
+          <div class="tr-signals" id="signalsList"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: POSITIONS -->
+    <div class="tr-positions panel">
+      <div class="halftone"></div>
+      <div class="tr-header"><span class="dot" style="background:var(--c2)"></span>POSITIONS</div>
+      <div class="tr-portfolio-summary">
+        <div class="tr-portfolio-label">PORTFOLIO VALUE</div>
+        <div class="tr-portfolio-val">$127,420.00</div>
+        <div class="tr-portfolio-pnl" style="color:#00e5c4" id="portPnl">+$820.00 today (+0.65%)</div>
+      </div>
+      <div class="tr-positions-list" id="posList">
+        <div class="pos-card">
+          <div class="pos-top">
+            <span class="pos-sym">AAPL</span>
+            <span class="pos-pnl up">+$295.00 (+1.62%)</span>
+          </div>
+          <div class="pos-details">
+            <span>100 shares</span>
+            <span>Avg $182.50</span>
+          </div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-top">
+            <span class="pos-sym">NVDA</span>
+            <span class="pos-pnl down">-$125.00 (-0.29%)</span>
+          </div>
+          <div class="pos-details">
+            <span>50 shares</span>
+            <span>Avg $875.00</span>
+          </div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-top">
+            <span class="pos-sym">MSFT</span>
+            <span class="pos-pnl up">+$562.50 (+1.81%)</span>
+          </div>
+          <div class="pos-details">
+            <span>75 shares</span>
+            <span>Avg $415.00</span>
+          </div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-top">
+            <span class="pos-sym">TSLA</span>
+            <span class="pos-pnl up">+$87.50 (+1.41%)</span>
+          </div>
+          <div class="pos-details">
+            <span>25 shares</span>
+            <span>Avg $248.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: TICKER TAPE -->
+    <div class="tr-ticker">
+      <div class="ticker-track" id="tickerTrack">
+        <div class="ticker-item"><span class="ticker-sym">AAPL</span><span class="ticker-pct up">+1.62%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">NVDA</span><span class="ticker-pct down">-0.29%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">MSFT</span><span class="ticker-pct up">+1.81%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">TSLA</span><span class="ticker-pct up">+1.41%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">SPY</span><span class="ticker-pct up">+0.45%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">QQQ</span><span class="ticker-pct up">+0.72%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">AMZN</span><span class="ticker-pct up">+0.98%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">GOOG</span><span class="ticker-pct down">-0.34%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">META</span><span class="ticker-pct up">+1.25%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">AMD</span><span class="ticker-pct up">+2.14%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">JPM</span><span class="ticker-pct up">+0.55%</span></div>
+        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym">V</span><span class="ticker-pct down">-0.18%</span></div>
+        <span class="ticker-sep">|</span>
+      </div>
+    </div>
+
+  </div><!-- /tr-layout -->
+
+  <!-- SHARED: FAB BOT -->
+  <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+  </div>
+  <div class="fab-popup" id="fabPopup">
+    <p class="fab-popup-label">Ask Ophtxn</p>
+    <input type="text" id="fabInput" placeholder="Type a question&hellip;" autocomplete="off">
+  </div>
+
+  <script>
+  /* ═══ MENUBAR: CLOCK ═══ */
+  (function(){
+    var ck=document.getElementById('mbClock'),dt=document.getElementById('mbDate');
+    if(!ck)return;
+    var hidden=false;
+    function tick(){
+      if(hidden)return;
+      var n=new Date();
+      ck.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      dt.textContent=n.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    tick();setInterval(tick,1000);
+    document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
+  })();
+
+  /* ═══ MENUBAR: DROPDOWNS ═══ */
+  (function(){
+    var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
+    var openDD=null;
+    function closeAll(){
+      document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
+      document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
+      openDD=null;
+    }
+    Object.keys(menus).forEach(function(btnId){
+      var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
+      if(!btn||!dd)return;
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(openDD===dd){closeAll();return;}
+        closeAll();
+        dd.classList.add('open');btn.classList.add('open');openDD=dd;
+      });
+      btn.addEventListener('mouseenter',function(){
+        if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
+      });
+    });
+    document.addEventListener('click',function(){closeAll();});
+    document.querySelectorAll('.mb-dropdown').forEach(function(dd){
+      dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
+    });
+    /* Hamburger for mobile */
+    var hb=document.getElementById('mbHamburger');
+    if(hb)hb.addEventListener('click',function(e){
+      e.stopPropagation();var dd=document.getElementById('ddFile');
+      if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
+    });
+    /* Quick theme toggle via moon icon */
+    var tg=document.getElementById('mbTheme');
+    if(tg)tg.addEventListener('click',function(){
+      var cur=document.body.dataset.brightness||'dark';
+      var next=cur==='dark'?'light':'dark';
+      try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
+      document.body.dataset.brightness=next;
+      tg.textContent=next==='dark'?'\u263E':'\u2600';
+      applyTheme();
+    });
+  })();
+
+  /* ═══ SITE THEME (View dropdown) ═══ */
+  var applyTheme;
+  (function(){
+    var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
+    function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
+    function gb(){try{return localStorage.getItem(BK)||'dark';}catch(e){return 'dark';}}
+    function gc(){try{return localStorage.getItem(CK)||'#00e5c4';}catch(e){return '#00e5c4';}}
+    function hexToRgb(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
+    function applyCustom(hex){
+      var el=document.getElementById('customThemeStyle');
+      if(!el){el=document.createElement('style');el.id='customThemeStyle';document.head.appendChild(el);}
+      var rgb=hexToRgb(hex);
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var bgR=Math.round(r*0.025),bgG=Math.round(g*0.025),bgB=Math.round(b*0.025);
+      var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
+      var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
+      var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
+      '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--bg-card:rgba(255,255,255,0.72);--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
+      var ci=document.getElementById('ddCustomColor');
+      if(ci)ci.value=hex;
+      var cd=document.querySelector('.dd-color-custom');
+      if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
+    }
+    function apply(){
+      var t=gt(),b=gb();
+      document.body.dataset.theme=t;document.body.dataset.brightness=b;
+      if(t==='custom')applyCustom(gc());
+      document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
+      document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
+      var tgEl=document.getElementById('mbTheme');
+      if(tgEl)tgEl.textContent=b==='light'?'\u2600':'\u263E';
+    }
+    applyTheme=apply;
+    apply();
+    var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
+    if(cE)cE.addEventListener('click',function(e){
+      var btn=e.target.closest('.dd-color-dot');
+      if(!btn||!btn.dataset.color)return;
+      if(btn.dataset.color==='custom')return;
+      try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
+    });
+    var ci=document.getElementById('ddCustomColor');
+    if(ci)ci.addEventListener('input',function(e){
+      try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
+    });
+    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
+    window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
+  })();
+
+  /* ═══ FAB BOT ═══ */
+  (function(){
+    var fabBot=document.getElementById('fabBot'),fabPopup=document.getElementById('fabPopup'),fabInput=document.getElementById('fabInput');
+    if(!fabBot)return;
+    var fabDragging=false,fabDragStart={x:0,y:0},fabPos={x:0,y:0};
+    try{var sp=JSON.parse(localStorage.getItem('ophtxn_fab_pos'));if(sp&&typeof sp.right==='number'){fabBot.style.right=sp.right+'px';fabBot.style.bottom=sp.bottom+'px';fabPopup.style.right=sp.right+'px';fabPopup.style.bottom=(sp.bottom+68)+'px';}}catch(_){}
+    fabBot.addEventListener('click',function(){if(fabDragging)return;if(fabPopup){fabPopup.classList.toggle('open');if(fabPopup.classList.contains('open')&&fabInput)setTimeout(function(){fabInput.focus();},100);}});
+    var startDrag=function(sx,sy){fabDragging=false;var r=fabBot.getBoundingClientRect();fabDragStart={x:sx,y:sy};fabPos={right:window.innerWidth-r.right,bottom:window.innerHeight-r.bottom};
+      var moved=function(mx,my){var dx=mx-fabDragStart.x,dy=my-fabDragStart.y;if(Math.abs(dx)>4||Math.abs(dy)>4)fabDragging=true;if(!fabDragging)return;var nr=Math.max(8,Math.min(fabPos.right-dx,window.innerWidth-64)),nb=Math.max(8,Math.min(fabPos.bottom-dy,window.innerHeight-64));fabBot.style.right=nr+'px';fabBot.style.bottom=nb+'px';fabPopup.style.right=nr+'px';fabPopup.style.bottom=(nb+68)+'px';};
+      var end=function(){document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',end);document.removeEventListener('touchmove',tm);document.removeEventListener('touchend',end);if(fabDragging){try{localStorage.setItem('ophtxn_fab_pos',JSON.stringify({right:parseInt(fabBot.style.right),bottom:parseInt(fabBot.style.bottom)}));}catch(_){}setTimeout(function(){fabDragging=false;},50);}};
+      var mm=function(e){moved(e.clientX,e.clientY);};var tm=function(e){if(e.touches.length===1){moved(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();}};
+      document.addEventListener('mousemove',mm);document.addEventListener('mouseup',end);document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',end);
+    };
+    fabBot.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);});
+    fabBot.addEventListener('touchstart',function(e){if(e.touches.length===1)startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+    if(fabInput)fabInput.addEventListener('keydown',function(e){if(e.key==='Enter'){var q=fabInput.value.trim();if(q)window.location.href='ophtxn_shell.html?q='+encodeURIComponent(q);}});
+  })();
+
+  /* ═══════════════ TRADING ROOM: TAB SWITCHING ═══════════════ */
+  (function(){
+    var tabs=document.querySelectorAll('.tr-tab');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click',function(){
+        tabs.forEach(function(t){t.classList.remove('active');});
+        tab.classList.add('active');
+        document.querySelectorAll('.tr-tab-pane').forEach(function(p){p.classList.remove('active');});
+        var pane=document.getElementById('pane-'+tab.dataset.tab);
+        if(pane)pane.classList.add('active');
+      });
+    });
+  })();
+
+  /* ═══════════════ TRADING ROOM: CANDLESTICK CHART ═══════════════ */
+  (function(){
+    var canvas=document.getElementById('priceChart');
+    if(!canvas)return;
+    var ctx=canvas.getContext('2d');
+    var currentRange='1D';
+
+    function generateOHLCV(count,basePrice){
+      var data=[];
+      var price=basePrice||180;
+      for(var i=0;i<count;i++){
+        var open=price+(Math.random()-0.48)*2;
+        var close=open+(Math.random()-0.47)*3;
+        var high=Math.max(open,close)+(Math.random()*1.5);
+        var low=Math.min(open,close)-(Math.random()*1.5);
+        var vol=Math.floor(20000000+Math.random()*40000000);
+        data.push({o:open,h:high,l:low,c:close,v:vol});
+        price=close;
+      }
+      return data;
+    }
+
+    function drawChart(data){
+      var dpr=window.devicePixelRatio||1;
+      var rect=canvas.parentElement.getBoundingClientRect();
+      canvas.width=rect.width*dpr;
+      canvas.height=rect.height*dpr;
+      canvas.style.width=rect.width+'px';
+      canvas.style.height=rect.height+'px';
+      ctx.scale(dpr,dpr);
+      var w=rect.width,h=rect.height;
+
+      /* background */
+      var cs=getComputedStyle(document.documentElement);
+      var bgCard=cs.getPropertyValue('--bg-card').trim()||'rgba(10,18,30,0.72)';
+      ctx.fillStyle=bgCard;
+      ctx.fillRect(0,0,w,h);
+
+      /* grid lines */
+      var lineColor=cs.getPropertyValue('--line').trim()||'rgba(146,188,214,0.14)';
+      ctx.strokeStyle=lineColor;
+      ctx.lineWidth=0.5;
+      for(var gy=0;gy<5;gy++){
+        var yy=h*0.1+gy*(h*0.8/4);
+        ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();
+      }
+
+      if(!data||!data.length)return;
+
+      var prices=[];
+      data.forEach(function(d){prices.push(d.h,d.l);});
+      var minP=Math.min.apply(null,prices);
+      var maxP=Math.max.apply(null,prices);
+      var range=maxP-minP||1;
+      var padY=h*0.1;
+      var chartH=h-padY*2;
+      var candleW=Math.max(2,(w-20)/data.length*0.7);
+      var gap=Math.max(1,(w-20)/data.length*0.3);
+
+      function priceToY(p){return padY+chartH*(1-(p-minP)/range);}
+
+      for(var i=0;i<data.length;i++){
+        var d=data[i];
+        var x=10+i*(candleW+gap)+candleW/2;
+        var isUp=d.c>=d.o;
+        var color=isUp?'#00e5c4':'#ff5c8a';
+
+        /* wick */
+        ctx.strokeStyle=color;
+        ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.moveTo(x,priceToY(d.h));
+        ctx.lineTo(x,priceToY(d.l));
+        ctx.stroke();
+
+        /* body */
+        var bodyTop=priceToY(Math.max(d.o,d.c));
+        var bodyBot=priceToY(Math.min(d.o,d.c));
+        var bodyH=Math.max(1,bodyBot-bodyTop);
+        ctx.fillStyle=color;
+        ctx.fillRect(x-candleW/2,bodyTop,candleW,bodyH);
+      }
+
+      /* update header */
+      var last=data[data.length-1];
+      var first=data[0];
+      var chg=last.c-first.o;
+      var chgPct=(chg/first.o*100);
+      document.getElementById('chartPrice').textContent='$'+last.c.toFixed(2);
+      var chgEl=document.getElementById('chartChange');
+      chgEl.textContent=(chg>=0?'+':'')+chg.toFixed(2)+' ('+(chg>=0?'+':'')+chgPct.toFixed(2)+'%)';
+      chgEl.className='tr-chart-change '+(chg>=0?'up':'down');
+      document.getElementById('chartVol').textContent='Vol '+Math.round(last.v/1000000)+'M';
+    }
+
+    var chartData=generateOHLCV(120,180);
+    function redraw(){drawChart(chartData);}
+    var ro=new ResizeObserver(redraw);
+    ro.observe(canvas.parentElement);
+    redraw();
+
+    /* Time range buttons */
+    var rangeCounts={'1D':120,'1W':35,'1M':30,'3M':90,'1Y':252};
+    document.querySelectorAll('.tr-time-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        document.querySelectorAll('.tr-time-btn').forEach(function(b){b.classList.remove('active');});
+        btn.classList.add('active');
+        currentRange=btn.dataset.range;
+        chartData=generateOHLCV(rangeCounts[currentRange]||120,180);
+        redraw();
+      });
+    });
+  })();
+
+  /* ═══════════════ TRADING ROOM: ACTIVITY FEED ═══════════════ */
+  (function(){
+    var feedEl=document.getElementById('feedList');
+    if(!feedEl)return;
+    var agents=[
+      {name:'Momentum Mike',color:'#00e5c4'},
+      {name:'Value Victor',color:'#ffb347'},
+      {name:'Quant Quinn',color:'#73b8ff'},
+      {name:'Sentinel Sam',color:'#ff5c8a'}
+    ];
+    var actions=[
+      {a:0,text:'Bought AAPL at $185.42 \u2014 RSI breakout signal detected'},
+      {a:1,text:'Watching NVDA for support at $870 \u2014 accumulation zone forming'},
+      {a:2,text:'Closed MSFT short at $418.20 \u2014 mean reversion target hit'},
+      {a:3,text:'Reduced TSLA position by 20% \u2014 volatility threshold exceeded'},
+      {a:0,text:'Added to QQQ long at $445.80 \u2014 momentum acceleration confirmed'},
+      {a:1,text:'Initiated AMZN position at $186.50 \u2014 P/E below 5yr average'},
+      {a:2,text:'Sold SPY straddle \u2014 implied vol 18% above realized, capture premium'},
+      {a:3,text:'Flagged portfolio beta at 1.32 \u2014 recommending hedge via VIX calls'},
+      {a:0,text:'Exited META at $512.30 \u2014 momentum divergence on 4h chart'},
+      {a:1,text:'Bid placed for JPM at $195.00 \u2014 book value discount play'},
+      {a:2,text:'Pairs trade: long AMD / short INTC \u2014 z-score at -2.1'},
+      {a:3,text:'Daily risk report: max drawdown 1.8%, within tolerance'}
+    ];
+    var now=Date.now();
+    var html='';
+    for(var i=0;i<actions.length;i++){
+      var ag=agents[actions[i].a];
+      var mins=i*7+Math.floor(Math.random()*5);
+      var t=new Date(now-mins*60000);
+      var ts=t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+      html+='<div class="feed-item"><div class="feed-dot" style="background:'+ag.color+'"></div><div class="feed-body"><div class="feed-text"><strong>'+ag.name+'</strong> '+actions[i].text+'</div><div class="feed-time">'+ts+'</div></div></div>';
+    }
+    feedEl.innerHTML=html;
+  })();
+
+  /* ═══════════════ TRADING ROOM: SIGNALS ═══════════════ */
+  (function(){
+    var sigEl=document.getElementById('signalsList');
+    if(!sigEl)return;
+    var signals=[
+      {type:'buy',sym:'AAPL',reason:'RSI breakout + volume surge, Momentum Mike 92% conf',conf:92,color:'#00e5c4'},
+      {type:'sell',sym:'META',reason:'Momentum divergence on 4h, approaching resistance',conf:78,color:'#ff5c8a'},
+      {type:'buy',sym:'AMZN',reason:'P/E below 5yr avg, Value Victor deep value signal',conf:85,color:'#00e5c4'},
+      {type:'hold',sym:'NVDA',reason:'Accumulation zone, wait for support confirmation',conf:65,color:'#efbb5f'},
+      {type:'buy',sym:'AMD',reason:'Pairs trade signal, z-score -2.1 vs INTC',conf:88,color:'#00e5c4'},
+      {type:'sell',sym:'TSLA',reason:'Volatility spike, Sentinel Sam risk reduction',conf:71,color:'#ff5c8a'},
+      {type:'hold',sym:'MSFT',reason:'Near mean reversion target, wait for entry',conf:60,color:'#efbb5f'}
+    ];
+    var html='';
+    for(var i=0;i<signals.length;i++){
+      var s=signals[i];
+      html+='<div class="signal-card">';
+      html+='<span class="signal-badge '+s.type+'">'+s.type.toUpperCase()+'</span>';
+      html+='<div class="signal-info"><div class="signal-sym">'+s.sym+'</div><div class="signal-reason">'+s.reason+'</div></div>';
+      html+='<div class="signal-conf"><div class="signal-conf-label">CONF</div><div class="signal-conf-bar"><div class="signal-conf-fill" style="width:'+s.conf+'%;background:'+s.color+'"></div></div></div>';
+      html+='</div>';
+    }
+    sigEl.innerHTML=html;
+  })();
+
+  /* ═══════════════ TRADING ROOM: TICKER TAPE DUPLICATE ═══════════════ */
+  (function(){
+    var track=document.getElementById('tickerTrack');
+    if(!track)return;
+    var content=track.innerHTML;
+    track.innerHTML=content+content;
+  })();
+
+  /* ═══════════════ TRADING ROOM: AGENT STATS UPDATE ═══════════════ */
+  (function(){
+    var defaults={
+      mike:{wr:68,pnl:2840,str:'4W'},
+      victor:{wr:72,pnl:4120,str:'6W'},
+      quinn:{wr:65,pnl:1560,str:'2W'},
+      sam:{wr:81,pnl:-320,str:'1L'}
+    };
+    function load(){
+      try{
+        var s=JSON.parse(localStorage.getItem('ophtxn_trade_stats'));
+        if(s)return s;
+      }catch(e){}
+      return JSON.parse(JSON.stringify(defaults));
+    }
+    function render(stats){
+      Object.keys(stats).forEach(function(k){
+        var d=stats[k];
+        var wrEl=document.getElementById('stat-'+k+'-wr');
+        var pnlEl=document.getElementById('stat-'+k+'-pnl');
+        var strEl=document.getElementById('stat-'+k+'-str');
+        if(wrEl)wrEl.textContent=d.wr+'%';
+        if(pnlEl){
+          var sign=d.pnl>=0?'+':'';
+          pnlEl.textContent=sign+'$'+Math.abs(d.pnl).toLocaleString();
+          pnlEl.style.color=d.pnl>=0?'#00e5c4':'#ff5c8a';
+        }
+        if(strEl)strEl.textContent=d.str;
+      });
+    }
+    var stats=load();
+    render(stats);
+    setInterval(function(){
+      Object.keys(stats).forEach(function(k){
+        var d=stats[k];
+        d.pnl+=Math.round((Math.random()-0.45)*80);
+        d.wr=Math.max(40,Math.min(95,d.wr+Math.round((Math.random()-0.48)*2)));
+      });
+      try{localStorage.setItem('ophtxn_trade_stats',JSON.stringify(stats));}catch(e){}
+      render(stats);
+    },30000);
+  })();
+  </script>
+
+  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+</body>
+</html>

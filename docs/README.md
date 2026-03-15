@@ -1,6 +1,6 @@
 # Documentation Index
 
-This folder contains canonical operational and architecture references for Permanence OS.
+Master index for all Permanence OS documentation. Organized by category.
 
 ## Start Here
 
@@ -8,6 +8,14 @@ This folder contains canonical operational and architecture references for Perma
 - [CLI Reference](cli_reference.md)
 - [Operator Command Guide](ophtxn_operator_command_guide.md)
 - [Governance Operating Model](ophtxn_governance_operating_model.md)
+
+## Context Architecture
+
+Permanence OS uses a three-layer context routing pattern:
+
+1. **CLAUDE.md** (root) -- global identity, file locations, code standards, hard rules
+2. **context.md** (per-directory) -- scoped instructions for agents working in a subdirectory
+3. **Workspaces** -- `.vscode/` configs and specialized directories with bundled rules
 
 ## Operations and Execution
 
@@ -22,6 +30,10 @@ This folder contains canonical operational and architecture references for Perma
 - [Official Launch Path](ophtxn_official_launch_path_20260305.md)
 - [Production Deployment Runbook](ophtxn_production_deployment_runbook_20260305.md)
 - [Fastlane Execution](ophtxn_fastlane_execution_20260305.md)
+- [Mac Mini Ops Guide](mac_mini_ops_guide.md)
+- [Mac Mini Deployment Handoff](mac_mini_deployment_handoff.md)
+- [Dell Cutover](dell_cutover.md)
+- [Dell Cutover (PowerShell)](dell_cutover_powershell.md)
 
 ## Strategy and Research
 
@@ -32,6 +44,9 @@ This folder contains canonical operational and architecture references for Perma
 - [Link Review (March 2026)](ophtxn_link_review_20260306.md)
 - [Personal Agent Roadmap](ophtxn_personal_agent_roadmap.md)
 - [Research Method](ophtxn_research_method_20260304.md)
+- [Vision Research Backlog](vision_research_backlog.md)
+- [AI Paper Insights](ai_paper_insights.md)
+- [Compression Framework](compression_framework.md)
 
 ## Governance and Change Tracking
 
@@ -40,6 +55,31 @@ This folder contains canonical operational and architecture references for Perma
 - [Dashboard Stack Strategy](ophtxn_dashboard_stack_strategy_20260306.md)
 - [Journey Change Log](ophtxn_journey_change_log.md)
 - [Canon Change Template](canon_change_template.md)
+- [Promotion Rubric](promotion_rubric.md)
+
+## Agent System
+
+- [Agent Specs](agent_specs.md)
+- [Memory System](memory_system.md)
+- [Claude Handoff Template](ophtxn_claude_handoff_template.md)
+- [Claude Secure Handoff](ophtxn_claude_secure_handoff.md)
+
+## Design
+
+- [Brand Identity (docs/brand/)](brand/README.md)
+
+## Research
+
+- [Agent Orchestration Research](research/research_agent_orchestration_20260310.md)
+- [Design Systems Research](research/research_design_systems_20260310.md)
+- [Security Hardening Research](research/research_security_hardening_20260310.md)
+
+## Sales
+
+- [Foundation Discovery Call](sales/foundation_discovery_call.md)
+- [Foundation DM Playbook](sales/foundation_dm_playbook.md)
+- [Foundation Offer CTA](sales/foundation_offer_cta.md)
+- [Revenue Architecture v1](sales/revenue_architecture_v1.md)
 
 ## Archive
 

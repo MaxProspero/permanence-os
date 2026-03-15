@@ -410,6 +410,71 @@ def test_approval_triage_top_sorts_high_before_low() -> None:
         assert "2. APR-low [LOW]" in text
 
 
+def test_approval_triage_status_reports_stale_pending() -> None:
+    """Verify stale pending items are counted and warned about in status output."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        output = root / "outputs"
+        tool = root / "tool"
+        approvals = root / "approvals.json"
+        output.mkdir(parents=True, exist_ok=True)
+        tool.mkdir(parents=True, exist_ok=True)
+
+        approvals.write_text(
+            json.dumps(
+                [
+                    {
+                        "approval_id": "STALE-1",
+                        "title": "Old pending item",
+                        "status": "PENDING_HUMAN_REVIEW",
+                        "queued_at": "2026-01-01T00:00:00Z",
+                        "source": "phase3_opportunity_queue",
+                    },
+                    {
+                        "approval_id": "FRESH-1",
+                        "title": "Recent pending item",
+                        "status": "PENDING_HUMAN_REVIEW",
+                        "queued_at": "2099-12-31T23:59:59Z",
+                        "source": "phase3_opportunity_queue",
+                    },
+                    {
+                        "approval_id": "NO-TS",
+                        "title": "No timestamp item",
+                        "status": "PENDING_HUMAN_REVIEW",
+                        "source": "phase3_opportunity_queue",
+                    },
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        original = {
+            "OUTPUT_DIR": triage_mod.OUTPUT_DIR,
+            "TOOL_DIR": triage_mod.TOOL_DIR,
+            "APPROVALS_PATH": triage_mod.APPROVALS_PATH,
+        }
+        try:
+            triage_mod.OUTPUT_DIR = output
+            triage_mod.TOOL_DIR = tool
+            triage_mod.APPROVALS_PATH = approvals
+            rc = triage_mod.main(["--action", "status"])
+        finally:
+            triage_mod.OUTPUT_DIR = original["OUTPUT_DIR"]
+            triage_mod.TOOL_DIR = original["TOOL_DIR"]
+            triage_mod.APPROVALS_PATH = original["APPROVALS_PATH"]
+
+        assert rc == 0
+        latest = output / "approval_triage_latest.md"
+        text = latest.read_text(encoding="utf-8")
+        assert "Stale (>48h pending): 2" in text
+        assert "have been pending for more than 48 hours" in text
+
+        payload_files = sorted(tool.glob("approval_triage_*.json"))
+        assert payload_files
+        payload = json.loads(payload_files[-1].read_text(encoding="utf-8"))
+        assert payload.get("stale_pending_count") == 2
+
+
 if __name__ == "__main__":
     test_approval_triage_decides_oldest_pending_globally()
     test_approval_triage_can_scope_by_source()
@@ -417,4 +482,5 @@ if __name__ == "__main__":
     test_approval_triage_safe_batch_requires_source_allowlist()
     test_approval_triage_safe_batch_respects_priority_and_source()
     test_approval_triage_top_sorts_high_before_low()
+    test_approval_triage_status_reports_stale_pending()
     print("✓ Approval triage tests passed")

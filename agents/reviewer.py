@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-REVIEWER AGENT
+REVIEWER AGENT (v0.4)
 Evaluates outputs against a spec/rubric. Does not create content.
+Now includes conciliation logic (accept/retry/escalate) previously in conciliator.py.
 """
 
 from dataclasses import dataclass
@@ -24,17 +25,29 @@ class ReviewResult:
     created_at: str
 
 
+@dataclass
+class ConciliationDecision:
+    """Accept/retry/escalate decision (merged from conciliator.py)."""
+    decision: str  # ACCEPT | RETRY | ESCALATE
+    reason: str
+    created_at: str
+
+
 class ReviewerAgent:
     """
-    ROLE: Evaluate outputs against specifications.
+    ROLE: Evaluate outputs against specifications + decide accept/retry/escalate.
+
+    v0.4: Absorbs ConciliatorAgent retry logic. Single agent handles both
+    review evaluation and the retry/escalate decision, reducing overhead.
 
     CONSTRAINTS:
     - Cannot generate or modify outputs
     - Must provide explicit pass/fail and reasons
     """
 
-    def __init__(self, model_router: Optional["ModelRouter"] = None):
+    def __init__(self, model_router: Optional["ModelRouter"] = None, max_retries: int = 2):
         self.model_router = model_router or (ModelRouter() if ModelRouter else None)
+        self.max_retries = max_retries
         self.enable_model_assist = os.getenv("PERMANENCE_ENABLE_MODEL_ASSIST", "").lower() in {
             "1",
             "true",
@@ -169,6 +182,94 @@ class ReviewerAgent:
         if total > 0 and (top_count / total) >= threshold:
             return f"Source dominance detected: {top_label} accounts for {top_count}/{total} evidence lines."
         return None
+
+
+    # ── Conciliation (merged from conciliator.py) ──────────────────────────
+
+    def decide(
+        self,
+        review_result: ReviewResult,
+        retry_count: int,
+        max_retries: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> ConciliationDecision:
+        """
+        Accept/retry/escalate decision based on review outcome.
+        Previously handled by ConciliatorAgent; merged here in v0.4.
+        """
+        effective_max = max_retries if max_retries is not None else self.max_retries
+
+        if self.enable_model_assist:
+            model_reason = self._model_advisory_reason(review_result, retry_count, effective_max)
+            if model_reason:
+                reason = f"{reason}; {model_reason}" if reason else model_reason
+
+        if review_result.approved:
+            log("Reviewer decision: ACCEPT", level="INFO")
+            return ConciliationDecision(
+                decision="ACCEPT",
+                reason=reason or "Review approved output.",
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+
+        if retry_count >= effective_max:
+            log("Reviewer decision: ESCALATE", level="WARNING")
+            return ConciliationDecision(
+                decision="ESCALATE",
+                reason=reason or "Retry limit reached; escalate to human.",
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+
+        log("Reviewer decision: RETRY", level="INFO")
+        return ConciliationDecision(
+            decision="RETRY",
+            reason=reason or "Review failed; retry allowed.",
+            created_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+    def review_and_decide(
+        self,
+        output: Optional[str],
+        spec: Optional[Dict[str, Any]],
+        retry_count: int = 0,
+    ) -> tuple:
+        """
+        Combined review + conciliation in one call.
+        Returns (ReviewResult, ConciliationDecision).
+        """
+        result = self.review(output, spec)
+        decision = self.decide(result, retry_count)
+        return result, decision
+
+    def _model_advisory_reason(
+        self,
+        review_result: ReviewResult,
+        retry_count: int,
+        max_retries: int,
+    ) -> Optional[str]:
+        """Optional LLM-assisted conciliation reasoning."""
+        if not self.model_router:
+            return None
+        model = self.model_router.get_model("conciliation")
+        if not model:
+            return None
+        prompt = "\n".join(
+            [
+                "Conciliation advisory only. Do not create content.",
+                f"Review approved: {review_result.approved}",
+                f"Retry count: {retry_count}",
+                f"Max retries: {max_retries}",
+                f"Issues: {review_result.required_changes}",
+                "Respond in one short sentence with recommendation rationale.",
+            ]
+        )
+        try:
+            response = model.generate(prompt=prompt)
+            text = response.text.strip()
+            return text or None
+        except Exception as exc:
+            log(f"Reviewer model advisory failed: {exc}", level="WARNING")
+            return None
 
 
 if __name__ == "__main__":

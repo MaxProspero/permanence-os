@@ -39,6 +39,9 @@ def test_external_access_policy_writes_template_and_low_risk():
                     "PERMANENCE_SOCIAL_PUBLISH_TOKEN",
                     "GH_TOKEN",
                     "GITHUB_TOKEN",
+                    "PERMANENCE_TELEGRAM_CHAT_ID",
+                    "PERMANENCE_TELEGRAM_BOT_TOKEN",
+                    "DISCORD_ALERT_WEBHOOK_URL",
                 ]
             },
         }
@@ -55,6 +58,9 @@ def test_external_access_policy_writes_template_and_low_risk():
             os.environ.pop("PERMANENCE_SOCIAL_PUBLISH_TOKEN", None)
             os.environ.pop("GH_TOKEN", None)
             os.environ.pop("GITHUB_TOKEN", None)
+            os.environ.pop("PERMANENCE_TELEGRAM_CHAT_ID", None)
+            os.environ.pop("PERMANENCE_TELEGRAM_BOT_TOKEN", None)
+            os.environ.pop("DISCORD_ALERT_WEBHOOK_URL", None)
 
             rc = policy_mod.main([])
         finally:

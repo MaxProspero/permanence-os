@@ -1,29 +1,52 @@
-# Permanence OS
+# Permanence OS / Ophtxn
 
-Permanence OS is a governed personal intelligence system that runs local-first operations for planning, research, execution, and communication.
+A governed personal intelligence OS. Automation can assist, but human authority is final.
 
-It is built around one rule: automation can assist, but human authority is final.
+Permanence OS runs local-first operations for planning, research, execution, communication, and venture intelligence -- all behind approval gates and governance checks.
 
-## Current Focus
+## Three Live Runtimes
 
-- Stabilize Ophtxn as a personal operator system.
-- Keep no-spend defaults active unless explicitly overridden.
-- Maintain reliable Telegram and Discord command/control flows.
-- Keep all changes auditable through reports, tests, and change logs.
+| Runtime | Endpoint |
+|---------|----------|
+| Command Center | `http://127.0.0.1:8000` |
+| Foundation Site | `http://127.0.0.1:8787` |
+| Ophtxn Shell | `http://127.0.0.1:8797/app/ophtxn` |
 
-## Live Local Surfaces
+## Site Pages (13)
 
-When the operator stack is running, these endpoints are available:
+All pages share a unified navigation bar and consistent design system (Sora / IBM Plex Mono / Orbitron / DM Mono).
 
-- Local hub: `http://127.0.0.1:8787/local_hub.html`
-- Command center API/UI: `http://127.0.0.1:8000`
-- Foundation site: `http://127.0.0.1:8787`
-- Ophtxn shell: `http://127.0.0.1:8797/app/ophtxn`
-- OpenClaw dashboard: `openclaw dashboard`
+| Page | File | Purpose |
+|------|------|---------|
+| Local Hub | `local_hub.html` | System health dashboard and quick links |
+| Command Center | `command_center.html` | Operational control panel |
+| Ophtxn Shell | `ophtxn_shell.html` | Agent operator terminal |
+| Official App | `official_app.html` | Primary application surface |
+| Foundation Home | `index.html` | Public landing page |
+| Rooms | `rooms.html` | Workspace and room navigator |
+| Trading Room | `trading_room.html` | Market and trading interface |
+| Daily Planner | `daily_planner.html` | Day planning and task board |
+| AI School | `ai_school.html` | Learning and training interface |
+| Press Kit | `press_kit.html` | Brand and media resources |
+| Night Capital | `night_capital.html` | Venture intelligence dashboard |
+| Agent View | `agent_view.html` | FaceTime-like agent interface |
+| Comms Hub | `comms_hub.html` | Unified Discord/Telegram/WhatsApp chat |
+
+All pages live under `site/foundation/`.
+
+## Three-Layer Architecture
+
+Permanence OS uses a three-layer context architecture that governs how Claude agents interact with the codebase:
+
+**Layer 1: CLAUDE.md** -- The root map. Defines identity, file locations, code standards, and hard rules (never-touch list). Every agent session reads this first.
+
+**Layer 2: context.md files** -- Per-directory routing files. Each workspace or subdirectory can include a `context.md` that provides scoped instructions, reducing prompt size and keeping agents focused on the relevant slice of the project.
+
+**Layer 3: Workspaces** -- `.vscode/` workspace configs and specialized directories (`docs/design/`, `docs/workflows/`) that bundle related files with their own rules and templates.
 
 ## Quick Start
 
-1. Install dependencies.
+1. Clone and install dependencies.
 
 ```bash
 git clone https://github.com/MaxProspero/permanence-os.git
@@ -46,10 +69,27 @@ python cli.py ophtxn-production --action status --strict --min-score 80
 python cli.py comms-status
 ```
 
-4. Launch full local interface.
+4. Launch the full operator surface (all three runtimes).
 
 ```bash
 python cli.py operator-surface --run-horizon
+```
+
+## Tech Stack
+
+- **Backend**: Python 3 / Flask (dashboard API, foundation server, Ophtxn shell)
+- **Frontend**: Static HTML/CSS/JS with CSS custom properties and glassmorphism design
+- **Automation**: macOS launchd for scheduled jobs (briefing, money loop, second brain)
+- **Governance**: Canon-based approval gates, compliance checks, secret scanning
+- **Agents**: Governed routing with specialist agents (Planner, Researcher, Executor, Reviewer, Compliance)
+
+## Test Suite
+
+772+ tests covering commands, workflows, agent logic, and governance gates.
+
+```bash
+pytest -q               # run all tests
+python cli.py test      # run via CLI
 ```
 
 ## Core Operator Commands
@@ -63,43 +103,22 @@ python cli.py telegram-control --action poll --enable-commands --ack --max-comma
 python cli.py discord-telegram-relay --action run
 ```
 
-## OpenClaw Notes
-
-- OpenClaw runtime is related to Telegram/Discord flows, but not the same process.
-- Telegram and Discord can be healthy even when OpenClaw has a separate channel issue.
-- iMessage is optional and should be enabled only after `imsg` prerequisites are installed.
-
-Useful checks:
-
-```bash
-python cli.py openclaw-status
-openclaw channels status --probe
-openclaw doctor --non-interactive
-```
-
-## No-Spend-First Mode
-
-Keep budget control enabled while building:
-
-```bash
-python cli.py low-cost-mode --action enable
-python cli.py no-spend-audit --strict
-```
-
-This keeps provider routing local-first and surfaces spend violations early.
-
 ## Repository Map
 
-- `cli.py`: unified entrypoint for operational commands.
-- `scripts/`: implementation modules used by `cli.py`.
-- `agents/`: governed routing + specialist agent logic.
-- `app/`: Flask services for foundation/ophtxn local app shell.
-- `site/foundation/`: static web surface for local and hosted pages.
-- `memory/`: approvals, queues, tool payloads, and working state.
-- `outputs/`: generated markdown/text/json run artifacts.
-- `automation/`: launchd and automation helper scripts.
-- `docs/`: architecture, operations, governance, and runbooks.
-- `tests/`: regression coverage for commands and workflows.
+- `cli.py` -- Unified entrypoint for operational commands
+- `dashboard_api.py` -- Command Center Flask API
+- `horizon_agent.py` -- Horizon planning agent
+- `context_loader.py` -- Task-aware context injection
+- `scripts/` -- Implementation modules used by cli.py
+- `agents/` -- Governed routing and specialist agent logic
+- `app/` -- Flask services for foundation/ophtxn local app shell
+- `site/foundation/` -- Static web surface (13 pages)
+- `memory/` -- Approvals, queues, tool payloads, and working state
+- `outputs/` -- Generated markdown/text/json run artifacts
+- `automation/` -- launchd and automation helper scripts
+- `docs/` -- Architecture, operations, governance, and runbooks
+- `tests/` -- Regression coverage (772+ tests)
+- `.vscode/` -- VS Code workspace configuration
 
 ## Documentation
 
@@ -110,11 +129,6 @@ Start here:
 - [CLI Reference](docs/cli_reference.md)
 - [Operator Command Guide](docs/ophtxn_operator_command_guide.md)
 - [Governance Operating Model](docs/ophtxn_governance_operating_model.md)
-- [Best Path (March 2026)](docs/ophtxn_best_path_20260306.md)
-- [Dashboard Stack Strategy](docs/ophtxn_dashboard_stack_strategy_20260306.md)
-- [Platform Intelligence](docs/ophtxn_platform_intelligence_20260306.md)
-- [Skill Stack](docs/ophtxn_skill_stack_20260306.md)
-- [Journey Change Log](docs/ophtxn_journey_change_log.md)
 
 ## Security and Secrets
 
@@ -128,22 +142,14 @@ python cli.py secret-scan --staged
 
 ## Branch and Merge Workflow
 
-Repository homepage should show `main` as default. Feature work should use `codex/*` branches and merge back to `main`.
-
-To verify updates:
+Feature work uses `codex/*` branches and merges back to `main`.
 
 ```bash
 git fetch origin --prune
 git log --oneline origin/main -n 5
-git branch -r
 gh pr list --state open
 ```
 
-## Contribution Standard
+## Contributing
 
-Any meaningful change should include:
-
-1. Command or behavior validation.
-2. Updated docs when interface/flow changes.
-3. Tests for non-trivial logic updates.
-4. Explicit handling of cost, security, and governance impact.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for change process and standards.

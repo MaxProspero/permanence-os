@@ -38,6 +38,9 @@ def _env(memory_dir: Path, log_dir: Path, output_dir: Path) -> dict[str, str]:
     env["PERMANENCE_MEMORY_DIR"] = str(memory_dir)
     env["PERMANENCE_LOG_DIR"] = str(log_dir)
     env["PERMANENCE_OUTPUT_DIR"] = str(output_dir)
+    # Isolate from production data — prevent _candidate_log_dirs() fallback
+    env["PERMANENCE_STORAGE_ROOT"] = str(memory_dir.parent / "fake_storage")
+    env["PERMANENCE_STATUS_TODAY_JSON"] = str(log_dir / "status_today.json")
     return env
 
 
