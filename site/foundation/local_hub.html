@@ -265,7 +265,7 @@
 
     /* =============================== PAGE HEADER =============================== */
     .page-header {
-      padding: 20px 0 16px;
+      padding: 22px 0 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -285,9 +285,10 @@
     .page-subtitle {
       font-family: var(--mono);
       font-size: 10px;
-      color: var(--dim);
-      letter-spacing: .14em;
+      color: var(--muted);
+      letter-spacing: .18em;
       text-transform: uppercase;
+      margin-bottom: 6px;
     }
 
     /* =============================== GLASS PANEL =============================== */
@@ -324,11 +325,12 @@
     /* =============================== SECTION LABEL =============================== */
     .sec-label {
       font-family: var(--game); font-size: 8px; font-weight: 700;
-      letter-spacing: .25em; color: var(--dim);
+      letter-spacing: .22em; color: var(--muted);
       text-transform: uppercase;
-      padding: 12px 14px 10px;
+      padding: 13px 14px 11px;
       border-bottom: 1px solid var(--line);
       display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
     }
     .sec-label-left {
       display: flex; align-items: center; gap: 6px;
@@ -339,8 +341,9 @@
     }
     .sec-badge {
       font-family: var(--mono); font-size: 10px; font-weight: 600;
-      padding: 1px 7px; border-radius: 8px;
-      background: rgba(var(--f-rgb),.1);
+      padding: 2px 8px; border-radius: 999px;
+      border: 1px solid rgba(var(--f-rgb),.12);
+      background: rgba(var(--f-rgb),.08);
       color: var(--c1);
     }
     .sec-badge.urgent {
@@ -367,21 +370,22 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
     }
     .metric-card {
-      padding: 14px 16px;
+      padding: 16px 16px 15px;
       border-right: 1px solid var(--line);
-      transition: background .2s;
+      transition: background .2s, transform .2s;
     }
     .metric-card:last-child { border-right: none; }
-    .metric-card:hover { background: rgba(var(--f-rgb),.04); }
+    .metric-card:hover { background: rgba(var(--f-rgb),.04); transform: translateY(-1px); }
     .metric-label {
       font-family: var(--game); font-size: 7px; font-weight: 700;
-      letter-spacing: .2em; color: var(--dim);
+      letter-spacing: .18em; color: var(--muted);
       text-transform: uppercase; margin-bottom: 4px;
     }
     .metric-val {
-      font-size: 20px; font-weight: 800; letter-spacing: -.02em;
+      font-size: 22px; font-weight: 800; letter-spacing: -.03em;
       line-height: 1.1;
     }
     .metric-sub {
@@ -531,14 +535,15 @@
     .ledger-tab {
       font-family: var(--mono); font-size: 10px; font-weight: 600;
       letter-spacing: .06em; text-transform: uppercase;
-      padding: 8px 14px; border: none; background: none;
+      padding: 9px 14px; border: none; background: none;
       color: var(--dim); cursor: pointer;
-      transition: color .15s, background .15s;
+      transition: color .15s, background .15s, border-color .15s;
       border-bottom: 2px solid transparent;
     }
     .ledger-tab:hover { color: var(--muted); background: rgba(var(--f-rgb),.04); }
     .ledger-tab.active {
       color: var(--c1); border-bottom-color: var(--c1);
+      background: rgba(var(--f-rgb),.05);
     }
     .ledger-feed {
       padding: 0;
@@ -589,23 +594,24 @@
     .cmd-bar {
       display: flex; gap: 0;
       border-top: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01));
     }
     .cmd-input {
       flex: 1;
       font-family: var(--mono); font-size: 12px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       background: none; border: none; color: var(--ink);
       outline: none;
     }
     .cmd-input::placeholder { color: var(--dim); }
     .cmd-send {
       font-family: var(--mono); font-size: 11px; font-weight: 600;
-      padding: 10px 16px;
+      padding: 12px 18px;
       background: none; border: none; border-left: 1px solid var(--line);
       color: var(--c1); cursor: pointer;
-      transition: background .15s, color .15s;
+      transition: background .15s, color .15s, letter-spacing .15s;
     }
-    .cmd-send:hover { background: rgba(0,229,196,.08); }
+    .cmd-send:hover { background: rgba(0,229,196,.08); letter-spacing: .08em; }
     .cmd-result {
       padding: 8px 14px;
       font-family: var(--mono); font-size: 11px; color: var(--muted);
@@ -902,8 +908,43 @@
     <!-- PAGE HEADER -->
     <div class="page-header">
       <div>
-        <div class="page-subtitle">Agent Mission Control</div>
-        <h1 class="page-title">CONTROL ROOM</h1>
+        <div class="page-subtitle">Launch Cockpit</div>
+        <h1 class="page-title">LOCAL HUB</h1>
+      </div>
+    </div>
+
+    <div class="panel animate" style="margin-bottom:18px;">
+      <div class="halftone"></div>
+      <div class="sec-label">
+        <span class="sec-label-left"><span class="sec-dot" style="background:var(--c2)"></span>LAUNCH DECK</span>
+        <span class="sec-badge">THREE RUNTIMES</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start;">
+        <div>
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Readiness First</div>
+          <div style="font-size:clamp(26px,3vw,40px);line-height:1.02;font-weight:800;letter-spacing:-.04em;max-width:14ch;margin-bottom:10px;">The operator checks posture here before entering live execution.</div>
+          <div style="font-size:14px;line-height:1.7;color:var(--muted);max-width:62ch;">
+            Local Hub is the readiness layer for Permanence OS. Verify runtime health, scan the approval queue, confirm constitution posture, then route into <span style="color:var(--ink);">"COMMAND"</span>, <span style="color:var(--ink);">"CAPITAL"</span>, or the live operator shell.
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+            <a href="http://127.0.0.1:8000" style="display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:999px;text-decoration:none;background:linear-gradient(135deg,rgba(242,237,232,.96),rgba(201,168,76,.92));border:1px solid rgba(201,168,76,.34);color:#07121a;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Open Command Center</a>
+            <a href="http://127.0.0.1:8797/app/ophtxn" style="display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:999px;text-decoration:none;background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Open Shell</a>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"OPS"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Launch, verify, and route work without losing the queue.</div>
+          </div>
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"REVIEW"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Consequential actions stay visible before they become real.</div>
+          </div>
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"ARENA"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Fleet posture, canon status, and runtime health in one view.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -917,14 +958,14 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--rose)"></span>PENDING APPROVALS</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--rose)"></span>"REVIEW" QUEUE</span>
             <span class="sec-badge urgent" id="approvalCount">--</span>
           </div>
           <div class="approval-list" id="approvalList">
             <div class="ledger-empty">Loading approvals...</div>
           </div>
           <div class="approval-bulk">
-            <button class="btn-bulk" id="btnBulkApprove">Approve All Low/Med</button>
+            <button class="btn-bulk" id="btnBulkApprove">Approve Low / Medium</button>
           </div>
         </div>
 
@@ -932,7 +973,7 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c1)"></span>AGENTS</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c1)"></span>ACTIVE FLEET</span>
             <span class="sec-badge" id="agentCountBadge">--</span>
           </div>
           <div class="agent-grid" id="agentGrid">
@@ -945,7 +986,7 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--violet)"></span>CONSTITUTION</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--violet)"></span>CANON STATUS</span>
           </div>
           <div class="const-body" id="constBody">
             <div class="const-row">
@@ -973,19 +1014,19 @@
           <div class="halftone"></div>
           <div class="metrics-bar">
             <div class="metric-card">
-              <div class="metric-label">Pending Approvals</div>
+              <div class="metric-label">Review Queue</div>
               <div class="metric-val" id="mApprovals" style="color:var(--rose)">--</div>
-              <div class="metric-sub">governance queue</div>
+              <div class="metric-sub">awaiting authority</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Tests Passing</div>
+              <div class="metric-label">Runtime Health</div>
               <div class="metric-val" id="mTests" style="color:var(--c1)"><span class="metric-dot" style="background:var(--c1)"></span>--</div>
-              <div class="metric-sub" id="mTestsSub">test suite</div>
+              <div class="metric-sub" id="mTestsSub">validation posture</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Revenue Pipeline</div>
+              <div class="metric-label">Capital Pipeline</div>
               <div class="metric-val" id="mRevenue" style="color:var(--c2)">--</div>
-              <div class="metric-sub">open leads</div>
+              <div class="metric-sub">open opportunities</div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Uptime</div>
@@ -993,9 +1034,9 @@
               <div class="metric-sub">session time</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Spending</div>
+              <div class="metric-label">Spend Gate</div>
               <div class="metric-val" id="mSpending" style="color:var(--violet)">--</div>
-              <div class="metric-sub" id="mSpendingSub">budget util</div>
+              <div class="metric-sub" id="mSpendingSub">budget posture</div>
             </div>
           </div>
         </div>
@@ -1019,7 +1060,7 @@
 
           <!-- 6. COMMAND INPUT -->
           <div class="cmd-bar">
-            <input type="text" class="cmd-input" id="cmdInput" placeholder="Enter command..." autocomplete="off">
+            <input type="text" class="cmd-input" id="cmdInput" placeholder="Route a command into the runtime..." autocomplete="off">
             <button class="cmd-send" id="cmdSend">SEND</button>
           </div>
           <div class="cmd-result" id="cmdResult"></div>
@@ -1034,7 +1075,7 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c2)"></span>BRIEFING</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c2)"></span>"INTEL" BRIEFING</span>
           </div>
           <div class="widget-body" id="briefingBody">
             <div class="widget-title" id="briefingTitle">--</div>
@@ -1048,7 +1089,7 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c2)"></span>REVENUE OPS</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c2)"></span>"CAPITAL" OPS</span>
           </div>
           <div class="widget-body" id="revenueBody">
             <div class="rev-stages" id="revStages">
@@ -1069,7 +1110,7 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c3)"></span>EPISODIC MEMORY</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--c3)"></span>"MEMORY" FEED</span>
           </div>
           <div class="widget-body">
             <div class="memory-list" id="memoryList">
@@ -1082,7 +1123,7 @@
         <div class="panel animate">
           <div class="halftone"></div>
           <div class="sec-label">
-            <span class="sec-label-left"><span class="sec-dot" style="background:var(--violet)"></span>CHRONICLE</span>
+            <span class="sec-label-left"><span class="sec-dot" style="background:var(--violet)"></span>"CHRONICLE"</span>
           </div>
           <div class="widget-body" id="chronicleBody">
             <div class="widget-title" id="chronicleTitle">--</div>
@@ -1951,6 +1992,7 @@
   })();
   </script>
 
+  <script src="surface-system.js"></script>
   <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

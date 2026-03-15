@@ -285,9 +285,10 @@
     .page-subtitle {
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--dim);
-      letter-spacing: .12em;
+      color: var(--muted);
+      letter-spacing: .16em;
       text-transform: uppercase;
+      margin-bottom: 6px;
     }
     .page-meta {
       display: flex; gap: 16px; align-items: center;
@@ -318,11 +319,12 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       overflow: hidden;
-      transition: border-color .25s, box-shadow .25s;
+      transition: border-color .25s, box-shadow .25s, transform .25s;
     }
     .panel:hover {
       border-color: var(--line-hi);
-      box-shadow: 0 0 30px rgba(var(--f-rgb),.04);
+      box-shadow: 0 10px 34px rgba(var(--f-rgb),.05);
+      transform: translateY(-1px);
     }
     .panel::before, .panel::after {
       content: ''; position: absolute;
@@ -343,10 +345,11 @@
     /* ═══════════════ SECTION LABEL ═══════════════ */
     .sec-label {
       font-family: var(--game); font-size: 8px; font-weight: 700;
-      letter-spacing: .25em; color: var(--dim);
+      letter-spacing: .22em; color: var(--muted);
       text-transform: uppercase;
-      padding: 14px 16px 10px;
+      padding: 14px 16px 11px;
       border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
     }
     .sec-label .dot {
       display: inline-block; width: 5px; height: 5px;
@@ -364,14 +367,16 @@
       gap: 0;
     }
     .port-stat {
-      padding: 16px 20px;
+      padding: 18px 20px 16px;
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
+      transition: background .2s, transform .2s;
     }
+    .port-stat:hover { background: rgba(var(--f-rgb),.035); transform: translateY(-1px); }
     .port-stat:last-child { border-right: none; }
     .port-stat-label {
       font-family: var(--game); font-size: 7px; font-weight: 700;
-      letter-spacing: .2em; color: var(--dim);
+      letter-spacing: .18em; color: var(--muted);
       text-transform: uppercase; margin-bottom: 4px;
     }
     .port-stat-val {
@@ -423,7 +428,7 @@
     .pipeline-col-header {
       font-family: var(--game); font-size: 8px; font-weight: 700;
       letter-spacing: .18em; text-transform: uppercase;
-      color: var(--dim); margin-bottom: 4px;
+      color: var(--muted); margin-bottom: 4px;
       display: flex; align-items: center; justify-content: space-between;
     }
     .pipeline-count {
@@ -716,12 +721,40 @@
     <!-- PAGE HEADER -->
     <div class="page-header">
       <div>
-        <div class="page-subtitle">Venture Intelligence</div>
+        <div class="page-subtitle">Night Capital Command</div>
         <h1 class="page-title">Night Capital</h1>
       </div>
       <div class="page-meta">
-        <div class="page-meta-item">Fund Vintage: <span class="page-meta-val">2025</span></div>
+        <div class="page-meta-item">Mandate: <span class="page-meta-val">Signal → thesis → deployment</span></div>
         <div class="page-meta-item">Last Sync: <span class="page-meta-val" id="lastSync">--</span></div>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column:1/-1;margin-bottom:18px;">
+      <div class="halftone"></div>
+      <div class="sec-label"><span class="dot" style="background:var(--c2)"></span>NIGHT CAPITAL DECK</div>
+      <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start;">
+        <div>
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Capital With A Thesis</div>
+          <div style="font-size:clamp(26px,3vw,42px);line-height:1.02;font-weight:800;letter-spacing:-.04em;max-width:14ch;margin-bottom:10px;">A private investment surface for signal, conviction, and deployment rhythm.</div>
+          <div style="font-size:14px;line-height:1.72;color:var(--muted);max-width:64ch;">
+            Night Capital is where venture intelligence becomes a governed operating surface. Thesis quality, pipeline posture, watch conditions, and deployment cadence should all read clearly enough to support real decisions under pressure.
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"CAPITAL"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Portfolio posture, dry powder, and deployment readiness.</div>
+          </div>
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"INTEL"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Thesis board, watch conditions, and signal interpretation.</div>
+          </div>
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"REVIEW"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Conviction stays auditable before capital moves.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -730,7 +763,7 @@
       <!-- ═══ 1. PORTFOLIO OVERVIEW ═══ -->
       <div class="panel portfolio-cell">
         <div class="halftone"></div>
-        <div class="sec-label"><span class="dot" style="background:var(--c1)"></span>PORTFOLIO OVERVIEW</div>
+        <div class="sec-label"><span class="dot" style="background:var(--c1)"></span>"CAPITAL" OVERVIEW</div>
         <div class="port-stats">
           <div class="port-stat">
             <div class="port-stat-label">Total Value</div>
@@ -866,7 +899,7 @@
       <!-- ═══ 3. THESIS BOARD ═══ -->
       <div class="panel thesis-cell">
         <div class="halftone"></div>
-        <div class="sec-label"><span class="dot" style="background:var(--violet)"></span>THESIS BOARD</div>
+        <div class="sec-label"><span class="dot" style="background:var(--violet)"></span>"INTEL" THESIS BOARD</div>
         <div class="thesis-list">
           <div class="thesis-card">
             <div class="thesis-header">
@@ -962,7 +995,7 @@
       <!-- ═══ 5. CAPITAL DEPLOYMENT LOG ═══ -->
       <div class="panel deploy-cell">
         <div class="halftone"></div>
-        <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>CAPITAL DEPLOYMENT LOG</div>
+        <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>"CAPITAL" DEPLOYMENT LOG</div>
         <table class="deploy-table">
           <thead>
             <tr>
@@ -1187,6 +1220,7 @@
   })();
   </script>
 
+  <script src="surface-system.js"></script>
   <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

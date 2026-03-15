@@ -318,22 +318,22 @@ body{
 .mb-mi{background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:12px;font-weight:500;padding:3px 10px;border-radius:4px;transition:background .15s,color .15s}
 .mb-mi:hover,.mb-mi.open{background:rgba(var(--f-rgb),.12);color:var(--ink)}
 .mb-center{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
-.mb-tagline{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.mb-tagline{display:inline-flex;align-items:center;min-height:22px;padding:0 10px;border-radius:999px;border:1px solid rgba(186,212,230,.16);background:rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#e6eef5;text-transform:uppercase}
 .mb-right{display:flex;align-items:center;gap:10px}
 .mb-ext{color:var(--muted);cursor:pointer;font-size:13px;display:flex;align-items:center;transition:color .2s}
 .mb-ext:hover{color:var(--ink)}
-.mb-clock{font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:.03em}
-.mb-date{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.mb-clock{font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums;color:#f0f6fb;letter-spacing:.03em;padding:3px 8px;border-radius:7px;background:rgba(255,255,255,.04)}
+.mb-date{font-family:var(--mono);font-size:11px;color:#d6e3ed;padding:3px 8px;border-radius:7px;background:rgba(255,255,255,.04)}
 .mb-powered{position:fixed;bottom:6px;right:12px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:rgba(var(--f-rgb),.18);text-transform:uppercase;z-index:100;pointer-events:none}
 .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
 /* Menubar Dropdowns */
-.mb-dropdown{display:none;position:fixed;top:28px;min-width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(8,14,22,.97);border:1px solid rgba(var(--f-rgb),.12);border-radius:8px;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9100;font-family:var(--sans);font-size:12px}
+.mb-dropdown{display:none;position:fixed;top:28px;min-width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(12,19,28,.95);border:1px solid rgba(186,212,230,.16);border-radius:8px;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9100;font-family:var(--sans);font-size:12px}
 .mb-dropdown.open{display:block;animation:ddIn 120ms ease-out}
 @keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.mb-dropdown a,.mb-dropdown button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 14px;border:none;background:none;color:var(--muted);text-decoration:none;font:inherit;cursor:pointer;transition:background .1s,color .1s;text-align:left}
-.mb-dropdown a:hover,.mb-dropdown button:hover{background:rgba(var(--f-rgb),.1);color:var(--ink)}
+.mb-dropdown a,.mb-dropdown button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 14px;border:none;background:none;color:#eef6fb;text-decoration:none;font:inherit;cursor:pointer;transition:background .1s,color .1s;text-align:left}
+.mb-dropdown a:hover,.mb-dropdown button:hover{background:rgba(255,255,255,.09);color:#ffffff}
 .mb-dropdown .dd-sep{height:1px;background:rgba(var(--f-rgb),.08);margin:4px 10px}
-.mb-dropdown .dd-label{padding:6px 14px 2px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.mb-dropdown .dd-label{padding:6px 14px 2px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#9fb6c8}
 .mb-dropdown .dd-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.6}
 .dd-theme-row{display:flex;align-items:center;padding:6px 14px;gap:6px}
 .dd-theme-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;width:40px}
@@ -415,18 +415,51 @@ body{
 /* ── METRICS BAR ────────────────────────────────────── */
 .metrics-bar{
   flex-shrink:0;display:flex;align-items:center;gap:12px;
-  padding:8px 20px;border-bottom:1px solid var(--border);
+  padding:10px 20px 12px;border-bottom:1px solid var(--border);
   font-family:var(--mono);font-size:11px;
   overflow-x:auto;white-space:nowrap;
   transition:background .3s,border-color .3s;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01));
 }
 .metrics-bar::-webkit-scrollbar{display:none}
+.shell-titlebar{
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+  min-height:30px;padding:0;
+  background:transparent;
+  box-shadow:none;
+}
+.shell-title-word{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:28px;padding:0 11px;border-radius:999px;
+  border:1px solid rgba(var(--f-rgb),.12);
+  background:rgba(var(--f-rgb),.06);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  color:rgba(var(--f-rgb),.92);font-size:9px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.shell-title-word.divider{
+  min-width:38px;
+  color:rgba(var(--f-rgb),.92);
+}
+.metrics-cluster{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-left:auto;
+}
 .sidebar-toggle{
   display:none;background:none;border:none;color:var(--muted);
   font-size:16px;cursor:pointer;padding:4px 8px 4px 0;flex-shrink:0;
 }
-.metric-chip{display:flex;align-items:center;gap:6px;color:var(--muted)}
-.metric-chip .mv{font-weight:500;color:var(--ink)}
+.metric-chip{
+  display:flex;align-items:center;gap:8px;color:var(--muted);
+  min-height:30px;padding:0 11px;border-radius:999px;
+  border:1px solid var(--border);background:rgba(255,255,255,.035);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+.metric-chip span:first-child{
+  letter-spacing:.12em;font-size:9px;text-transform:uppercase;
+}
+.metric-chip .mv{font-weight:600;color:var(--ink)}
 .metric-chip .mv.good{color:var(--good)}.metric-chip .mv.warn{color:var(--warn)}.metric-chip .mv.bad{color:var(--bad)}
 .metrics-spacer{flex:1}
 
@@ -555,29 +588,37 @@ body{
 
 /* ── QUICK CHIPS ────────────────────────────────────── */
 .quick-chips{
-  display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 8px;
+  display:flex;flex-wrap:wrap;gap:8px;padding:6px 20px 10px;
   max-width:760px;margin:0 auto;width:100%;
 }
 .chip{
-  font-family:var(--mono);font-size:11px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
   border:1px solid var(--border);border-radius:999px;
-  padding:5px 14px;background:transparent;color:var(--muted);
+  padding:7px 14px;background:rgba(255,255,255,.025);color:var(--muted);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
   cursor:pointer;transition:all .2s;white-space:nowrap;
 }
-.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(var(--f-rgb),.07);transform:translateY(-1px)}
 
 /* ── INPUT AREA ─────────────────────────────────────── */
 .input-area{
-  flex-shrink:0;padding:0 20px 16px;
+  flex-shrink:0;padding:0 20px 18px;
   max-width:760px;margin:0 auto;width:100%;
 }
 .input-wrap{
   display:flex;align-items:flex-end;gap:8px;
-  border:1px solid var(--border-hi);border-radius:var(--r);
-  background:var(--surface);padding:10px 12px;
+  border:1px solid rgba(var(--f-rgb),.14);border-radius:18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+    var(--surface);
+  padding:12px 13px;
+  box-shadow:0 14px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04);
   transition:border-color .2s,background .3s,box-shadow .2s;
 }
-.input-wrap:focus-within{border-color:rgba(var(--f-rgb),.3);box-shadow:0 0 0 3px rgba(var(--f-rgb),.06)}
+.input-wrap:focus-within{
+  border-color:rgba(var(--f-rgb),.34);
+  box-shadow:0 0 0 3px rgba(var(--f-rgb),.07), 0 16px 40px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.05);
+}
 .input-wrap textarea{
   flex:1;border:none;background:transparent;color:var(--ink);
   font:inherit;font-size:14px;line-height:1.5;resize:none;
@@ -585,14 +626,15 @@ body{
 }
 .input-wrap textarea::placeholder{color:var(--muted)}
 .send-btn{
-  width:32px;height:32px;border-radius:50%;border:none;
+  width:36px;height:36px;border-radius:50%;border:1px solid rgba(var(--f-rgb),.18);
   background:var(--accent);color:var(--bg-0);cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   font-size:14px;font-weight:700;flex-shrink:0;
+  box-shadow:0 8px 20px rgba(var(--f-rgb),.2);
   opacity:.3;pointer-events:none;transition:all .2s;
 }
 .send-btn.active{opacity:1;pointer-events:auto}
-.send-btn.active:hover{transform:scale(1.05);box-shadow:0 0 16px rgba(var(--f-rgb),.3)}
+.send-btn.active:hover{transform:translateY(-1px) scale(1.03);box-shadow:0 0 18px rgba(var(--f-rgb),.26)}
 .input-hint{
   display:flex;gap:12px;padding:6px 4px 0;
   font-family:var(--mono);font-size:10px;color:var(--dim);
@@ -650,6 +692,9 @@ body{
     background:rgba(0,0,0,.5);
   }
   .sidebar-overlay.show{display:block}
+  .shell-titlebar{gap:6px}
+  .shell-title-word{padding:0 10px}
+  .metrics-cluster{width:100%;margin-left:0}
   .quick-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:12px}
   .msg-group{max-width:100%}
 }
@@ -694,7 +739,7 @@ body{
     <button class="mb-mi" id="mbGo">Go</button>
     <button class="mb-hamburger" id="mbHamburger">Menu</button>
   </div>
-  <div class="mb-center"><span class="mb-tagline">THE TERMINAL // SHELL</span></div>
+  <div class="mb-center"></div>
   <div class="mb-right">
     <span class="th-conn"><span class="th-dot" id="connDot"></span><span id="connLabel">offline</span></span>
     <span class="mb-ext" id="mbTheme" title="Toggle dark/light">Dark</span>
@@ -784,11 +829,18 @@ body{
     <!-- Metrics bar -->
     <div class="metrics-bar" id="metricsBar">
       <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
-      <div class="metric-chip"><span>Completion</span><span class="mv" id="mCompletion">--</span></div>
-      <div class="metric-chip"><span>Revenue</span><span class="mv" id="mRevenue">--</span></div>
-      <div class="metric-chip"><span>Approvals</span><span class="mv" id="mApprovals">--</span></div>
-      <div class="metric-chip"><span>Tasks</span><span class="mv" id="mTasks">--</span></div>
-      <div class="metrics-spacer"></div>
+      <div class="shell-titlebar" aria-label="Shell title">
+        <span class="shell-title-word">The</span>
+        <span class="shell-title-word">Terminal</span>
+        <span class="shell-title-word divider">//</span>
+        <span class="shell-title-word">Shell</span>
+      </div>
+      <div class="metrics-cluster">
+        <div class="metric-chip"><span>Completion</span><span class="mv" id="mCompletion"></span></div>
+        <div class="metric-chip"><span>Revenue</span><span class="mv" id="mRevenue"></span></div>
+        <div class="metric-chip"><span>Review</span><span class="mv" id="mApprovals"></span></div>
+        <div class="metric-chip"><span>Tasks</span><span class="mv" id="mTasks"></span></div>
+      </div>
     </div>
 
     <!-- Messages -->
@@ -802,16 +854,16 @@ body{
 
     <!-- Quick chips -->
     <div class="quick-chips" id="quickChips">
-      <button class="chip" data-action="status">Check status</button>
-      <button class="chip" data-action="approvals">Show approvals</button>
+      <button class="chip" data-action="status">Runtime posture</button>
+      <button class="chip" data-action="approvals">Review queue</button>
       <button class="chip" data-action="memory">Memory search</button>
-      <button class="chip" data-action="briefing">Daily briefing</button>
+      <button class="chip" data-action="briefing">Intel briefing</button>
     </div>
 
     <!-- Input -->
     <div class="input-area">
       <div class="input-wrap">
-        <textarea id="chatInput" rows="1" placeholder="Ask anything..." autocomplete="off"></textarea>
+        <textarea id="chatInput" rows="1" placeholder="Route intent through the operator shell..." autocomplete="off"></textarea>
         <button class="send-btn" id="sendBtn">&uarr;</button>
       </div>
       <div class="input-hint">
@@ -1538,6 +1590,7 @@ async function init() {
 init();
 </script>
 <script src="runtime.config.js"></script>
+<script src="surface-system.js"></script>
 <script>
 // Re-init runtime config if loaded after main script
 if (window.__OPHTXN_RUNTIME) {

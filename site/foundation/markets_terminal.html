@@ -285,9 +285,10 @@
     .page-subtitle {
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--dim);
-      letter-spacing: .12em;
+      color: var(--muted);
+      letter-spacing: .16em;
       text-transform: uppercase;
+      margin-bottom: 6px;
     }
     .page-meta {
       display: flex; gap: 16px; align-items: center;
@@ -311,11 +312,12 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       overflow: hidden;
-      transition: border-color .25s, box-shadow .25s;
+      transition: border-color .25s, box-shadow .25s, transform .25s;
     }
     .panel:hover {
       border-color: var(--line-hi);
-      box-shadow: 0 0 30px rgba(var(--f-rgb),.04);
+      box-shadow: 0 10px 34px rgba(var(--f-rgb),.05);
+      transform: translateY(-1px);
     }
     .panel::before, .panel::after {
       content: ''; position: absolute;
@@ -336,10 +338,11 @@
     /* ═══════════════ SECTION LABEL ═══════════════ */
     .sec-label {
       font-family: var(--game); font-size: 8px; font-weight: 700;
-      letter-spacing: .25em; color: var(--dim);
+      letter-spacing: .22em; color: var(--muted);
       text-transform: uppercase;
-      padding: 14px 16px 10px;
+      padding: 14px 16px 11px;
       border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
     }
     .sec-label .dot {
       display: inline-block; width: 5px; height: 5px;
@@ -356,34 +359,36 @@
       border-radius: var(--radius);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 0 8px;
+      padding: 0 10px;
       margin-bottom: 10px;
       overflow-x: auto;
+      box-shadow: 0 10px 28px rgba(0,0,0,.14);
     }
     .market-tab {
       background: none; border: none; cursor: pointer;
       font-family: var(--game); font-size: 10px; font-weight: 700;
       letter-spacing: .12em; text-transform: uppercase;
-      color: var(--muted); padding: 12px 18px;
+      color: var(--muted); padding: 13px 18px;
       border-bottom: 2px solid transparent;
-      transition: color .2s, border-color .2s;
+      transition: color .2s, border-color .2s, background .2s;
       white-space: nowrap;
     }
-    .market-tab:hover { color: var(--ink); }
+    .market-tab:hover { color: var(--ink); background: rgba(var(--f-rgb),.04); }
     .market-tab.active {
       color: var(--c1);
       border-bottom-color: var(--c1);
+      background: rgba(var(--f-rgb),.05);
     }
     .tab-spacer { flex: 1; }
     .tab-action {
       background: none; border: 1px solid var(--line); cursor: pointer;
       font-family: var(--mono); font-size: 10px;
-      color: var(--muted); padding: 5px 12px;
-      border-radius: 6px; transition: all .2s;
+      color: var(--muted); padding: 6px 12px;
+      border-radius: 999px; transition: all .2s;
       white-space: nowrap; margin: 4px 2px;
     }
-    .tab-action:hover { border-color: var(--line-hi); color: var(--ink); }
-    .tab-action.active { border-color: var(--c1); color: var(--c1); }
+    .tab-action:hover { border-color: var(--line-hi); color: var(--ink); background: rgba(var(--f-rgb),.04); }
+    .tab-action.active { border-color: var(--c1); color: var(--c1); background: rgba(var(--f-rgb),.06); }
 
     /* ═══════════════ TERMINAL LAYOUT ═══════════════ */
     .terminal-layout {
@@ -820,7 +825,7 @@
     <!-- PAGE HEADER -->
     <div class="page-header animate">
       <div>
-        <div class="page-subtitle">Multi-Market Intelligence</div>
+        <div class="page-subtitle">Cross-Market Command</div>
         <h1 class="page-title">Markets Terminal</h1>
       </div>
       <div class="page-meta">
@@ -829,13 +834,41 @@
       </div>
     </div>
 
+    <div class="panel animate" style="margin-bottom:18px;">
+      <div class="halftone"></div>
+      <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>TERMINAL DECK</div>
+      <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start;">
+        <div>
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">One Board, Multiple Regimes</div>
+          <div style="font-size:clamp(26px,3vw,42px);line-height:1.02;font-weight:800;letter-spacing:-.04em;max-width:14ch;margin-bottom:10px;">Prediction, equities, FX, crypto, and commodities in one instrument panel.</div>
+          <div style="font-size:14px;line-height:1.72;color:var(--muted);max-width:64ch;">
+            Markets Terminal should feel like an operator-grade cross-market lens. It is not trying to be a brokerage app; it is trying to make regime shifts, watchlists, and conviction changes legible across multiple asset classes.
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"SIGNAL"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Track regime changes across market types without changing tools.</div>
+          </div>
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"WATCH"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Keep the right instruments close with split view and watchlist posture.</div>
+          </div>
+          <div style="padding:12px 13px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">"INTEL"</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--ink);font-weight:700;">Prediction markets and price data stay in the same operating context.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- MARKET TAB BAR -->
     <div class="market-tabs animate">
-      <button class="market-tab active" data-tab="polymarket">Polymarket</button>
-      <button class="market-tab" data-tab="stocks">Stocks</button>
-      <button class="market-tab" data-tab="forex">Forex</button>
+      <button class="market-tab active" data-tab="polymarket">Predictions</button>
+      <button class="market-tab" data-tab="stocks">Equities</button>
+      <button class="market-tab" data-tab="forex">FX</button>
       <button class="market-tab" data-tab="crypto">Crypto</button>
-      <button class="market-tab" data-tab="commodities">Commodities</button>
+      <button class="market-tab" data-tab="commodities">Futures</button>
       <div class="tab-spacer"></div>
       <button class="tab-action" id="btnSplitView">Split View</button>
       <button class="tab-action" id="btnPopOut">Pop Out</button>
@@ -1577,6 +1610,7 @@
   })();
   </script>
 
+  <script src="surface-system.js"></script>
   <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>
