@@ -191,6 +191,53 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             return "research_synthesis"
         return "planning"
 
+    def _workflow_permission_for(node_type: str) -> str:
+        if node_type in {"task", "research", "review"}:
+            return "execute"
+        if node_type == "approval":
+            return "approve"
+        if node_type in {"agent", "model_route"}:
+            return "read"
+        return "read"
+
+    def _agent_matches_project(agent: dict[str, Any], project_id: str) -> bool:
+        project_ids = agent.get("project_ids") if isinstance(agent.get("project_ids"), list) else []
+        return not project_id or project_id in project_ids
+
+    def _eligible_agents_for_node(
+        all_agents: list[dict[str, Any]],
+        *,
+        project_id: str,
+        node_type: str,
+        label: str,
+        assignee: str,
+    ) -> list[dict[str, Any]]:
+        permission = _workflow_permission_for(node_type)
+        wanted = assignee.strip().lower() or label.strip().lower()
+        ranked: list[tuple[int, dict[str, Any]]] = []
+        for agent in all_agents:
+            if not isinstance(agent, dict) or not str(agent.get("id") or "").strip():
+                continue
+            if str(agent.get("status") or "active").strip().lower() != "active":
+                continue
+            if not _agent_matches_project(agent, project_id):
+                continue
+            permissions = agent.get("permissions") if isinstance(agent.get("permissions"), list) else []
+            if permission not in permissions:
+                continue
+            name = str(agent.get("name") or "").strip().lower()
+            role = str(agent.get("role") or "").strip().lower()
+            score = 0
+            if wanted and wanted in {name, role}:
+                score += 4
+            if wanted and wanted and wanted in f"{name} {role}":
+                score += 2
+            if node_type in role:
+                score += 2
+            ranked.append((score, agent))
+        ranked.sort(key=lambda item: item[0], reverse=True)
+        return [agent for _score, agent in ranked]
+
     def _ordered_workflow_nodes(record: dict[str, Any]) -> list[dict[str, Any]]:
         nodes = record.get("nodes") if isinstance(record.get("nodes"), list) else []
         edges = record.get("edges") if isinstance(record.get("edges"), list) else []
@@ -306,9 +353,10 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
         workflow_id = str(record.get("id") or "").strip()
         project_id = str(record.get("project_id") or "").strip()
         node_map, outgoing, starts = _workflow_graph(record)
-        agents = {
+        all_agents = list_objects(root, "agents", limit=500)
+        agents_by_name = {
             str(row.get("name") or "").strip().lower(): row
-            for row in list_objects(root, "agents", limit=500)
+            for row in all_agents
             if isinstance(row, dict) and str(row.get("name") or "").strip()
         }
         append_run = run_record is None
@@ -336,6 +384,15 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             node = node_map[current_id]
             node_type = str(node.get("type") or "task").strip() or "task"
             label = str(node.get("label") or current_id).strip()
+            assignee = str(node.get("assignee") or "").strip()
+            eligible_agents = _eligible_agents_for_node(
+                all_agents,
+                project_id=project_id,
+                node_type=node_type,
+                label=label,
+                assignee=assignee,
+            )
+            selected_agent = eligible_agents[0] if eligible_agents else None
             step: dict[str, Any] = {
                 "step_id": _slug("wfstep"),
                 "index": len(run_record["steps"]) + 1,
@@ -351,11 +408,13 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                         "id": task_id,
                         "project_id": project_id,
                         "title": label,
-                        "assignee": str(node.get("assignee") or node_type).strip() or node_type,
+                        "assignee": assignee or str((selected_agent or {}).get("name") or node_type).strip() or node_type,
                         "risk_tier": "medium",
                         "workflow_id": workflow_id,
                         "workflow_run_id": run_id,
                         "node_id": current_id,
+                        "assigned_agent_id": str((selected_agent or {}).get("id") or ""),
+                        "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
                     },
                     owner=owner,
                     status="queued",
@@ -364,6 +423,12 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 run_record["generated_task_ids"].append(task_id)
                 step["status"] = "completed"
                 step["generated_task"] = {"id": task_id, "status": "queued"}
+                step["execution_policy"] = {
+                    "required_permission": _workflow_permission_for(node_type),
+                    "selected_agent_id": str((selected_agent or {}).get("id") or ""),
+                    "selected_agent_name": str((selected_agent or {}).get("name") or ""),
+                    "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
+                }
             elif node_type == "approval":
                 task_id = _slug("task")
                 task_record = _stamp_record(
@@ -371,11 +436,13 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                         "id": task_id,
                         "project_id": project_id,
                         "title": label,
-                        "assignee": str(node.get("assignee") or "approval").strip() or "approval",
+                        "assignee": assignee or str((selected_agent or {}).get("name") or "approval").strip() or "approval",
                         "risk_tier": "high",
                         "workflow_id": workflow_id,
                         "workflow_run_id": run_id,
                         "node_id": current_id,
+                        "assigned_agent_id": str((selected_agent or {}).get("id") or ""),
+                        "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
                     },
                     owner=owner,
                     status="awaiting_approval",
@@ -385,6 +452,12 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 step["status"] = "awaiting_approval"
                 step["generated_task"] = {"id": task_id, "status": "awaiting_approval"}
                 step["message"] = "Execution paused pending approval."
+                step["execution_policy"] = {
+                    "required_permission": _workflow_permission_for(node_type),
+                    "selected_agent_id": str((selected_agent or {}).get("id") or ""),
+                    "selected_agent_name": str((selected_agent or {}).get("name") or ""),
+                    "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
+                }
                 run_record["steps"].append(step)
                 run_record["step_count"] = len(run_record["steps"])
                 run_record["status"] = "awaiting_approval"
@@ -399,23 +472,39 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
                 )
                 return run_record
             elif node_type == "agent":
-                agent = agents.get(label.lower())
+                agent = agents_by_name.get(label.lower()) or selected_agent
                 step["status"] = "completed"
                 step["agent"] = {
                     "matched": bool(agent),
                     "agent_id": str(agent.get("id") or "") if agent else "",
+                    "role": str(agent.get("role") or "") if agent else "",
+                    "permissions": agent.get("permissions") if agent else [],
                     "model_preferences": agent.get("model_preferences") if agent else [],
                 }
             elif node_type == "model_route":
+                route_context = {
+                    "project_id": project_id,
+                    "workflow_id": workflow_id,
+                    "workflow_run_id": run_id,
+                }
+                if selected_agent:
+                    route_context["preferred_models"] = selected_agent.get("model_preferences") or []
+                    route_context["agent_id"] = str(selected_agent.get("id") or "")
                 decision = router.explain_route(
                     _workflow_task_type(node_type, label),
-                    {"project_id": project_id, "workflow_id": workflow_id, "workflow_run_id": run_id},
+                    route_context,
                 )
                 step["status"] = "completed"
                 step["route"] = {
                     "provider": decision.get("provider"),
                     "model_assigned": decision.get("model_assigned"),
                     "route_reasons": decision.get("route_reasons") or [],
+                }
+                step["execution_policy"] = {
+                    "required_permission": _workflow_permission_for(node_type),
+                    "selected_agent_id": str((selected_agent or {}).get("id") or ""),
+                    "selected_agent_name": str((selected_agent or {}).get("name") or ""),
+                    "preferred_models": (selected_agent or {}).get("model_preferences") if selected_agent else [],
                 }
             elif node_type == "start":
                 step["status"] = "completed"

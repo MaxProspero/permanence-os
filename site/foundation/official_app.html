@@ -1782,6 +1782,17 @@
           } else {
             copy = step.message || 'Completed.';
           }
+          if (step.execution_policy) {
+            var policy = step.execution_policy;
+            var policyParts = [
+              'perm=' + (policy.required_permission || 'read'),
+              'agent=' + (policy.selected_agent_name || 'unassigned')
+            ];
+            if ((policy.preferred_models || []).length) {
+              policyParts.push('models=' + policy.preferred_models.join(', '));
+            }
+            copy += (copy ? '\n' : '') + policyParts.join(' // ');
+          }
           return '<div class="run-step"><div class="run-step-head"><div class="run-step-title">'
             + step.label + '</div><span class="status-pill">' + (step.type || 'step')
             + '</span></div><div class="run-step-copy">' + copy + '</div></div>';
