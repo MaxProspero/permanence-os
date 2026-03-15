@@ -386,15 +386,40 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     condition = str(edge.get("condition") or "").strip()
     if not condition:
         return False
+    for operator in (">=", "<=", "!=", ">", "<", "="):
+        if operator not in condition:
+            continue
+        left, expected = condition.split(operator, 1)
+        value = _template_lookup(context, left.strip())
+        if operator == "=":
+            if isinstance(value, (dict, list)):
+                actual = json.dumps(value, ensure_ascii=True, sort_keys=True)
+            else:
+                actual = "" if value is None else str(value)
+            return actual.strip().lower() == expected.strip().lower()
+        try:
+            actual_num = float(value)
+            expected_num = float(expected.strip())
+        except (TypeError, ValueError):
+            actual_text = "" if value is None else str(value).strip().lower()
+            expected_text = expected.strip().lower()
+            if operator == "!=":
+                return actual_text != expected_text
+            return False
+        if operator == ">=":
+            return actual_num >= expected_num
+        if operator == "<=":
+            return actual_num <= expected_num
+        if operator == ">":
+            return actual_num > expected_num
+        if operator == "<":
+            return actual_num < expected_num
+        if operator == "!=":
+            return actual_num != expected_num
+        return False
     if "=" not in condition:
         return bool(_template_lookup(context, condition))
-    left, expected = condition.split("=", 1)
-    value = _template_lookup(context, left.strip())
-    if isinstance(value, (dict, list)):
-        actual = json.dumps(value, ensure_ascii=True, sort_keys=True)
-    else:
-        actual = "" if value is None else str(value)
-    return actual.strip().lower() == expected.strip().lower()
+    return False
 
     def _record_workflow_run(record: dict[str, Any], run_record: dict[str, Any], *, append: bool) -> None:
         workflow_id = str(record.get("id") or "").strip()
