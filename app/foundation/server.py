@@ -454,6 +454,25 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     if " and " in lowered:
         parts = [part.strip() for part in re.split(r"\s+and\s+", condition, flags=re.IGNORECASE) if part.strip()]
         return all(_condition_matches({"condition": part}, context) for part in parts)
+    for operator in (" contains ", " startswith ", " endswith "):
+        if operator not in lowered:
+            continue
+        split_index = lowered.index(operator)
+        left = condition[:split_index].strip()
+        right = condition[split_index + len(operator):].strip()
+        value = _template_lookup(context, left)
+        if operator.strip() == "contains":
+            if isinstance(value, (list, tuple, set)):
+                return right in {str(item).strip() for item in value}
+            actual_text = "" if value is None else str(value)
+            return right.lower() in actual_text.lower()
+        actual_text = "" if value is None else str(value).strip().lower()
+        expected_text = right.lower()
+        if operator.strip() == "startswith":
+            return actual_text.startswith(expected_text)
+        if operator.strip() == "endswith":
+            return actual_text.endswith(expected_text)
+        return False
     for operator in (">=", "<=", "!=", ">", "<", "="):
         if operator not in condition:
             continue
