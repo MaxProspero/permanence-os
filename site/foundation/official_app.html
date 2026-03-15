@@ -1766,7 +1766,10 @@
         rejectWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
         successWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
         reviewWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
-        workflowRunState.textContent = (latest.status || 'unknown') + (latest.approval_outcome ? (' // outcome: ' + latest.approval_outcome) : '');
+        workflowRunState.textContent = (latest.status || 'unknown')
+          + (latest.approval_outcome ? (' // approval: ' + latest.approval_outcome) : '')
+          + (latest.task_outcome ? (' // task: ' + latest.task_outcome) : '')
+          + (latest.awaiting_task_id ? (' // pending task: ' + latest.awaiting_task_id) : '');
         workflowRunHistory.textContent = runs.slice(-3).reverse().map(function (run) {
           return (run.run_id || 'run') + ' [' + (run.status || 'unknown') + ']';
         }).join(' | ');
@@ -1785,6 +1788,12 @@
             copy = step.agent.matched ? ('Matched agent ' + (step.agent.agent_id || '') + ' // ' + ((step.agent.model_preferences || []).join(', ') || 'no-model-prefs')) : 'No matching agent found for this label.';
           } else {
             copy = step.message || 'Completed.';
+          }
+          if (step.task_feedback) {
+            copy += (copy ? '\n' : '') + 'feedback=' + (step.task_feedback.status || 'unknown');
+            if (step.task_feedback.notes) {
+              copy += ' // ' + step.task_feedback.notes;
+            }
           }
           if (step.execution_policy) {
             var policy = step.execution_policy;
