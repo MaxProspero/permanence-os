@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional
 from core.model_capabilities import DEFAULT_MODEL_CAPABILITIES
 from core.model_policy import classify_task_context
 
-PROVIDERS = ("anthropic", "openai", "xai", "ollama")
+PROVIDERS = ("anthropic", "openai", "xai", "openclaw", "ollama")
 
 BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
     "free": {
@@ -123,6 +123,22 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "formatting": "grok-2-mini",
         "default": "grok-3-mini",
     },
+    "openclaw": {
+        "canon_interpretation": "openclaw-opus",
+        "strategy": "openclaw-opus",
+        "code_generation": "openclaw-opus",
+        "adversarial_review": "openclaw-opus",
+        "research_synthesis": "openclaw-sonnet",
+        "planning": "openclaw-sonnet",
+        "review": "openclaw-sonnet",
+        "execution": "openclaw-sonnet",
+        "conciliation": "openclaw-sonnet",
+        "classification": "openclaw-haiku",
+        "summarization": "openclaw-haiku",
+        "tagging": "openclaw-haiku",
+        "formatting": "openclaw-haiku",
+        "default": "openclaw-sonnet",
+    },
     "ollama": {
         "canon_interpretation": "qwen2.5:7b",
         "strategy": "qwen2.5:7b",
@@ -199,6 +215,8 @@ def _provider_from_model(model_name: str) -> str:
         return "anthropic"
     if token.startswith("grok") or token.startswith("xai"):
         return "xai"
+    if token.startswith("openclaw") or token.startswith("claw"):
+        return "openclaw"
     if token.startswith("gpt") or token.startswith("o1") or token.startswith("o3") or token.startswith("o4"):
         return "openai"
     if token.startswith("qwen") or token.startswith("llama") or token.startswith("gemma") or "ollama" in token:
@@ -259,12 +277,14 @@ class ModelRouter:
             return "openai"
         if token in {"xai", "grok"}:
             return "xai"
+        if token in {"openclaw", "open_claw", "claw"}:
+            return "openclaw"
         if token in {"ollama", "local", "qwen"}:
             return "ollama"
         return "anthropic"
 
     def _provider_fallbacks(self) -> list[str]:
-        raw = str(os.getenv("PERMANENCE_MODEL_PROVIDER_FALLBACKS", "anthropic,openai,xai,ollama"))
+        raw = str(os.getenv("PERMANENCE_MODEL_PROVIDER_FALLBACKS", "anthropic,openai,xai,openclaw,ollama"))
         ordered: list[str] = []
         primary = self._normalize_provider(self.provider)
         if primary in PROVIDERS:

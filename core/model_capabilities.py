@@ -64,6 +64,26 @@ DEFAULT_MODEL_CAPABILITIES: Dict[str, Dict[str, Dict[str, Any]]] = {
             "cost": "low",
         },
     },
+    "openclaw": {
+        "openclaw-opus": {
+            "tier": "opus",
+            "strengths": ["reasoning", "code", "strategy"],
+            "privacy": "hosted",
+            "cost": "high",
+        },
+        "openclaw-sonnet": {
+            "tier": "sonnet",
+            "strengths": ["planning", "execution", "research"],
+            "privacy": "hosted",
+            "cost": "medium",
+        },
+        "openclaw-haiku": {
+            "tier": "haiku",
+            "strengths": ["classification", "summarization", "utility"],
+            "privacy": "hosted",
+            "cost": "low",
+        },
+    },
     "ollama": {
         "qwen2.5:7b": {
             "tier": "sonnet",

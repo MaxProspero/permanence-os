@@ -41,6 +41,10 @@ PRICING: Dict[str, Dict[str, float]] = {
     "grok-3-latest":                {"input": 3.00,  "output": 15.00},
     "grok-3-mini":                  {"input": 0.30,  "output": 0.50},
     "grok-2-mini":                  {"input": 0.10,  "output": 0.25},
+    # OpenClaw
+    "openclaw-opus":                {"input": 3.00,  "output": 12.00},
+    "openclaw-sonnet":              {"input": 1.00,  "output": 4.00},
+    "openclaw-haiku":               {"input": 0.25,  "output": 1.00},
     # Ollama — free (local)
     "ollama":                       {"input": 0.00,  "output": 0.00},
 }

@@ -67,7 +67,7 @@ DEFAULT_GATE_LOG = os.path.join(BASE_DIR, "logs", "spending_gate.jsonl")
 DEFAULT_GATE_STATE = os.path.join(BASE_DIR, "memory", "working", "spending_gate_state.json")
 
 # Provider list
-PAID_PROVIDERS = ("anthropic", "openai", "xai")
+PAID_PROVIDERS = ("anthropic", "openai", "xai", "openclaw")
 
 # Approval type constants
 APPROVAL_TYPE_CREDITS = "credits"           # Basic credit-based (original)
