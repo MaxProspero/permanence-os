@@ -54,8 +54,26 @@ BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
     },
 }
 
-TASKS_OPUS = ("canon_interpretation", "strategy", "code_generation", "adversarial_review", "deep_reflection")
-TASKS_SONNET = ("research_synthesis", "planning", "review", "execution", "conciliation", "social_drafting")
+TASKS_OPUS = (
+    "canon_interpretation",
+    "strategy",
+    "code_generation",
+    "adversarial_review",
+    "deep_reflection",
+    "finance_analysis",
+    "portfolio_risk",
+    "valuation",
+)
+TASKS_SONNET = (
+    "research_synthesis",
+    "planning",
+    "review",
+    "execution",
+    "conciliation",
+    "social_drafting",
+    "financial_review",
+    "market_monitoring",
+)
 TASKS_HAIKU = ("classification", "summarization", "tagging", "formatting")
 
 # ── AI Paper Insights (v0.4) ────────────────────────────────────────────
@@ -80,11 +98,16 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "strategy": "claude-opus-4-6",
         "code_generation": "claude-opus-4-6",
         "adversarial_review": "claude-opus-4-6",
+        "finance_analysis": "claude-opus-4-6",
+        "portfolio_risk": "claude-opus-4-6",
+        "valuation": "claude-opus-4-6",
         "research_synthesis": "claude-sonnet-4-6",
         "planning": "claude-sonnet-4-6",
         "review": "claude-sonnet-4-6",
         "execution": "claude-sonnet-4-6",
         "conciliation": "claude-sonnet-4-6",
+        "financial_review": "claude-sonnet-4-6",
+        "market_monitoring": "claude-sonnet-4-6",
         "classification": "claude-haiku-4-5-20251001",
         "summarization": "claude-haiku-4-5-20251001",
         "tagging": "claude-haiku-4-5-20251001",
@@ -96,11 +119,16 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "strategy": "gpt-4.1",
         "code_generation": "gpt-4.1",
         "adversarial_review": "gpt-4.1",
+        "finance_analysis": "gpt-4.1",
+        "portfolio_risk": "gpt-4.1",
+        "valuation": "gpt-4.1",
         "research_synthesis": "gpt-4o",
         "planning": "gpt-4o",
         "review": "gpt-4o",
         "execution": "gpt-4o",
         "conciliation": "gpt-4o",
+        "financial_review": "gpt-4o",
+        "market_monitoring": "gpt-4o",
         "classification": "gpt-4o-mini",
         "summarization": "gpt-4o-mini",
         "tagging": "gpt-4o-mini",
@@ -112,11 +140,16 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "strategy": "grok-3-latest",
         "code_generation": "grok-3-latest",
         "adversarial_review": "grok-3-latest",
+        "finance_analysis": "grok-3-latest",
+        "portfolio_risk": "grok-3-latest",
+        "valuation": "grok-3-latest",
         "research_synthesis": "grok-3-mini",
         "planning": "grok-3-mini",
         "review": "grok-3-mini",
         "execution": "grok-3-mini",
         "conciliation": "grok-3-mini",
+        "financial_review": "grok-3-mini",
+        "market_monitoring": "grok-3-mini",
         "classification": "grok-2-mini",
         "summarization": "grok-2-mini",
         "tagging": "grok-2-mini",
@@ -128,11 +161,16 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "strategy": "openclaw-opus",
         "code_generation": "openclaw-opus",
         "adversarial_review": "openclaw-opus",
+        "finance_analysis": "openclaw-opus",
+        "portfolio_risk": "openclaw-opus",
+        "valuation": "openclaw-opus",
         "research_synthesis": "openclaw-sonnet",
         "planning": "openclaw-sonnet",
         "review": "openclaw-sonnet",
         "execution": "openclaw-sonnet",
         "conciliation": "openclaw-sonnet",
+        "financial_review": "openclaw-sonnet",
+        "market_monitoring": "openclaw-sonnet",
         "classification": "openclaw-haiku",
         "summarization": "openclaw-haiku",
         "tagging": "openclaw-haiku",
@@ -144,12 +182,17 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "strategy": "qwen2.5:7b",
         "code_generation": "qwen2.5:7b",
         "adversarial_review": "qwen2.5:7b",
+        "finance_analysis": "qwen2.5:7b",
+        "portfolio_risk": "qwen2.5:7b",
+        "valuation": "qwen2.5:7b",
         "research_synthesis": "qwen2.5:7b",
         "planning": "qwen2.5:7b",
         "review": "qwen2.5:7b",
         "execution": "qwen2.5:7b",
         "conciliation": "qwen2.5:7b",
         "social_drafting": "qwen2.5:7b",
+        "financial_review": "qwen2.5:7b",
+        "market_monitoring": "qwen2.5:7b",
         "deep_reflection": "qwen2.5:7b",
         "classification": "qwen2.5:3b",
         "summarization": "qwen2.5:3b",
@@ -648,7 +691,13 @@ class ModelRouter:
         return model, "budget_ok"
 
     # Tasks that REQUIRE paid models for quality — everything else goes to Ollama
-    HYBRID_PAID_TASKS = frozenset(TASKS_OPUS) | {"research_synthesis", "conciliation", "social_drafting"}
+    HYBRID_PAID_TASKS = frozenset(TASKS_OPUS) | {
+        "research_synthesis",
+        "conciliation",
+        "social_drafting",
+        "financial_review",
+        "market_monitoring",
+    }
 
     def explain_route(self, task_type: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         task_key = str(task_type or "").strip().lower() or "default"
@@ -1168,6 +1217,8 @@ class ModelRouter:
         ]
         if policy.get("privacy_tier"):
             reasons.append(f"privacy:{policy['privacy_tier']}")
+        if policy.get("domain"):
+            reasons.append(f"domain:{policy['domain']}")
         if policy.get("risk_tier"):
             reasons.append(f"risk:{policy['risk_tier']}")
         if policy.get("complexity_tier"):

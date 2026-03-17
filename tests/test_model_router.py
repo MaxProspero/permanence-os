@@ -11,6 +11,7 @@ os.environ.setdefault("PERMANENCE_LOG_DIR", "/tmp/permanence-os-test-logs")
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from core.model_router import ModelRouter
+from core.model_policy import classify_task_context
 
 
 MODEL_ENV_KEYS = [
@@ -213,6 +214,19 @@ def test_hybrid_routes_canon_interpretation_to_paid():
             _restore_env(snapshot)
 
 
+def test_hybrid_routes_finance_analysis_to_paid():
+    """Finance analysis should never default to Ollama in hybrid mode."""
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
+    with tempfile.TemporaryDirectory() as tmp:
+        try:
+            router = _make_hybrid_router(tmp)
+            model = router.route("finance_analysis")
+            assert "qwen" not in model, f"Expected paid model, got {model}"
+            assert router.selected_provider != "ollama"
+        finally:
+            _restore_env(snapshot)
+
+
 def test_hybrid_routes_research_synthesis_to_paid():
     """Research synthesis needs quality — goes to paid provider."""
     snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
@@ -221,6 +235,40 @@ def test_hybrid_routes_research_synthesis_to_paid():
             router = _make_hybrid_router(tmp)
             model = router.route("research_synthesis")
             assert "qwen" not in model, f"Expected paid model, got {model}"
+        finally:
+            _restore_env(snapshot)
+
+
+def test_finance_policy_marks_domain_high_risk_and_high_complexity():
+    policy = classify_task_context(
+        "portfolio_risk",
+        {"portfolio_data": True, "financial_action": False},
+    )
+    assert policy["domain"] == "finance"
+    assert policy["finance_domain"] is True
+    assert policy["risk_tier"] == "high"
+    assert policy["complexity_tier"] == "high"
+
+
+def test_explain_route_includes_finance_domain_reason():
+    snapshot = {key: os.environ.get(key) for key in MODEL_ENV_KEYS}
+    with tempfile.TemporaryDirectory() as tmp:
+        log_path = os.path.join(tmp, "routing.jsonl")
+        for key in MODEL_ENV_KEYS:
+            os.environ.pop(key, None)
+        os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
+        try:
+            router = ModelRouter(log_path=log_path)
+            router._estimate_monthly_spend_by_provider_usd = lambda: {  # type: ignore[assignment]
+                "anthropic": 0.0,
+                "openai": 0.0,
+                "xai": 0.0,
+                "ollama": 0.0,
+            }
+            decision = router.explain_route("finance_analysis", {"portfolio_data": True})
+            reasons = decision.get("route_reasons") or []
+            assert "domain:finance" in reasons
+            assert "risk:high" in reasons
         finally:
             _restore_env(snapshot)
 
