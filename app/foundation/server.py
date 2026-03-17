@@ -611,6 +611,19 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         if function_name in {"count", "len"} and len(function_args) == 1:
             numeric_value = numeric_expression_value(condition)
             return bool(numeric_value)
+        if function_name in {"any", "all"} and len(function_args) >= 2:
+            function_target = function_args[0]
+            function_values = function_args[1:]
+            target_value = _template_lookup(context, function_target)
+            if not isinstance(target_value, (list, tuple, set)):
+                target_items = [] if target_value is None else [str(target_value)]
+            else:
+                target_items = [str(item) for item in target_value]
+            normalized_items = {item.strip().lower() for item in target_items}
+            normalized_values = [value.strip().lower() for value in function_values]
+            if function_name == "any":
+                return any(value in normalized_items for value in normalized_values)
+            return all(value in normalized_items for value in normalized_values)
         if function_name in {"exists", "empty"} and len(function_args) == 1:
             function_target = function_args[0]
             if function_name == "exists":

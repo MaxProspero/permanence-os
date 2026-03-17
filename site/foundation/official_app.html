@@ -1396,7 +1396,7 @@
               </div>
               <div class="form-group">
                 <label for="workflowEdgeCondition">Edge Condition</label>
-                <input type="text" id="workflowEdgeCondition" placeholder='Optional. Example: count(latest_output.reviewers)>=2 and not_matches_cs(latest_output.slug, "^beta-")'>
+                <input type="text" id="workflowEdgeCondition" placeholder='Optional. Example: any(latest_output.tags, "launch","urgent") and count(latest_output.reviewers)>=2'>
               </div>
               <div class="btn-row">
                 <button class="btn btn-ghost" id="addWorkflowEdgeBtn">Add Edge</button>
