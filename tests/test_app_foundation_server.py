@@ -14,6 +14,34 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from app.foundation.server import _condition_matches, create_app  # noqa: E402
 
 
+def _auth_headers(client) -> dict[str, str]:
+    auth = client.post("/auth/session", json={"user_id": "payton"})
+    assert auth.status_code == 200
+    token = str((auth.get_json() or {}).get("token") or "")
+    assert token
+    return {"X-Session-Token": token}
+
+
+def _create_project(client, headers: dict[str, str], *, name: str = "Workflow Project") -> dict:
+    resp = client.post(
+        "/api/projects",
+        headers=headers,
+        json={"name": name, "summary": "test project"},
+    )
+    assert resp.status_code == 200
+    project = (resp.get_json() or {}).get("project") or {}
+    assert project.get("id")
+    return project
+
+
+def _create_workflow(client, headers: dict[str, str], payload: dict) -> dict:
+    resp = client.post("/api/workflows", headers=headers, json=payload)
+    assert resp.status_code == 200
+    workflow = (resp.get_json() or {}).get("workflow") or {}
+    assert workflow.get("id")
+    return workflow
+
+
 def test_foundation_health_endpoint() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         app = create_app(storage_root=Path(tmp))
@@ -258,6 +286,150 @@ def test_workflow_condition_matches_quoted_lists_and_regex() -> None:
         {"condition": 'not_matches_cs(latest_output.slug, "^alpha-(draft|final)$")'},
         context,
     )
+
+
+def test_workflow_task_run_resumes_and_propagates_outputs() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        app = create_app(storage_root=Path(tmp))
+        client = app.test_client()
+        headers = _auth_headers(client)
+        project = _create_project(client, headers)
+        workflow = _create_workflow(
+            client,
+            headers,
+            {
+                "project_id": project["id"],
+                "name": "Task Resume Flow",
+                "nodes": [
+                    {"id": "start", "type": "start", "label": "Start"},
+                    {"id": "draft", "type": "task", "label": "Draft memo"},
+                    {"id": "finish", "type": "end", "label": "Finish"},
+                ],
+                "edges": [
+                    {"from": "start", "to": "draft"},
+                    {"from": "draft", "to": "finish", "label": "success"},
+                ],
+            },
+        )
+
+        execute = client.post(f"/api/workflows/{workflow['id']}/execute", headers=headers)
+        assert execute.status_code == 200
+        run = (execute.get_json() or {}).get("run") or {}
+        assert run.get("status") == "awaiting_task"
+        task_id = str(run.get("awaiting_task_id") or "")
+        assert task_id
+
+        complete = client.patch(
+            f"/api/tasks/{task_id}",
+            headers=headers,
+            json={"result": "success", "output": {"summary": "Memo shipped", "status": "ready"}},
+        )
+        assert complete.status_code == 200
+        resumed_run = (complete.get_json() or {}).get("run") or {}
+        assert resumed_run.get("status") == "completed"
+        assert resumed_run.get("task_outcome") == "success"
+        context = resumed_run.get("context") or {}
+        assert (context.get("latest_output") or {}).get("summary") == "Memo shipped"
+        assert ((context.get("task_outputs") or {}).get("draft") or {}).get("result") == "success"
+
+        detail = client.get(f"/api/workflows/{workflow['id']}", headers=headers)
+        assert detail.status_code == 200
+        runs = (detail.get_json() or {}).get("runs") or []
+        assert runs
+        latest = runs[-1]
+        assert latest.get("status") == "completed"
+        assert ((latest.get("context") or {}).get("latest_output") or {}).get("status") == "ready"
+
+
+def test_workflow_approval_run_resumes_from_api() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        app = create_app(storage_root=Path(tmp))
+        client = app.test_client()
+        headers = _auth_headers(client)
+        project = _create_project(client, headers, name="Approval Project")
+        workflow = _create_workflow(
+            client,
+            headers,
+            {
+                "project_id": project["id"],
+                "name": "Approval Flow",
+                "nodes": [
+                    {"id": "start", "type": "start", "label": "Start"},
+                    {"id": "gate", "type": "approval", "label": "Approve release"},
+                    {"id": "finish", "type": "end", "label": "Finish"},
+                ],
+                "edges": [
+                    {"from": "start", "to": "gate"},
+                    {"from": "gate", "to": "finish", "label": "approved"},
+                ],
+            },
+        )
+
+        execute = client.post(f"/api/workflows/{workflow['id']}/execute", headers=headers)
+        assert execute.status_code == 200
+        run = (execute.get_json() or {}).get("run") or {}
+        assert run.get("status") == "awaiting_approval"
+        run_id = str(run.get("run_id") or "")
+        assert run_id
+
+        resume = client.post(
+            f"/api/workflows/{workflow['id']}/runs/{run_id}/resume",
+            headers=headers,
+            json={"outcome": "approved"},
+        )
+        assert resume.status_code == 200
+        resumed_run = (resume.get_json() or {}).get("run") or {}
+        assert resumed_run.get("status") == "completed"
+        assert resumed_run.get("approval_outcome") == "approved"
+        assert resumed_run.get("completed_at")
+
+
+def test_workflow_condition_edges_use_task_output_context() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        app = create_app(storage_root=Path(tmp))
+        client = app.test_client()
+        headers = _auth_headers(client)
+        project = _create_project(client, headers, name="Conditional Flow Project")
+        workflow = _create_workflow(
+            client,
+            headers,
+            {
+                "project_id": project["id"],
+                "name": "Conditional Flow",
+                "nodes": [
+                    {"id": "start", "type": "start", "label": "Start"},
+                    {"id": "draft", "type": "task", "label": "Draft memo"},
+                    {"id": "route", "type": "agent", "label": "Ops"},
+                    {"id": "ready_end", "type": "end", "label": "Ready"},
+                    {"id": "fallback_end", "type": "end", "label": "Fallback"},
+                ],
+                "edges": [
+                    {"from": "start", "to": "draft"},
+                    {"from": "draft", "to": "route", "label": "success"},
+                    {"from": "route", "to": "ready_end", "condition": 'latest_output.status = "ready"'},
+                    {"from": "route", "to": "fallback_end"},
+                ],
+            },
+        )
+
+        execute = client.post(f"/api/workflows/{workflow['id']}/execute", headers=headers)
+        assert execute.status_code == 200
+        run = (execute.get_json() or {}).get("run") or {}
+        task_id = str(run.get("awaiting_task_id") or "")
+        assert task_id
+
+        complete = client.patch(
+            f"/api/tasks/{task_id}",
+            headers=headers,
+            json={"result": "success", "output": {"status": "ready", "summary": "Approved draft"}},
+        )
+        assert complete.status_code == 200
+        resumed_run = (complete.get_json() or {}).get("run") or {}
+        assert resumed_run.get("status") == "completed"
+        step_node_ids = [str(step.get("node_id") or "") for step in resumed_run.get("steps") or []]
+        assert "route" in step_node_ids
+        assert "ready_end" in step_node_ids
+        assert "fallback_end" not in step_node_ids
 
 
 if __name__ == "__main__":
