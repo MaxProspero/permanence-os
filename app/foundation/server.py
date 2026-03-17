@@ -525,6 +525,27 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         args = parse_literal_list(args_raw)
         return name, args
 
+    def numeric_expression_value(text: str) -> float | None:
+        expression = str(text or "").strip()
+        function_call = parse_function_call(expression)
+        if function_call:
+            function_name, function_args = function_call
+            if function_name in {"count", "len"} and len(function_args) == 1:
+                value = _template_lookup(context, function_args[0])
+                if value is None:
+                    return 0.0
+                if isinstance(value, (str, bytes, list, tuple, set, dict)):
+                    return float(len(value))
+                return 0.0
+        try:
+            return float(expression)
+        except ValueError:
+            value = _template_lookup(context, expression)
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
     def split_top_level(text: str, keyword: str) -> list[str]:
         parts: list[str] = []
         buffer: list[str] = []
@@ -587,6 +608,9 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     function_call = parse_function_call(condition)
     if function_call:
         function_name, function_args = function_call
+        if function_name in {"count", "len"} and len(function_args) == 1:
+            numeric_value = numeric_expression_value(condition)
+            return bool(numeric_value)
         if function_name in {"exists", "empty"} and len(function_args) == 1:
             function_target = function_args[0]
             if function_name == "exists":
@@ -659,18 +683,17 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
             continue
         left, expected = condition.split(operator, 1)
         expected = normalize_literal(expected)
-        value = _template_lookup(context, left.strip())
+        left_value = _template_lookup(context, left.strip())
         if operator == "=":
-            if isinstance(value, (dict, list)):
-                actual = json.dumps(value, ensure_ascii=True, sort_keys=True)
+            if isinstance(left_value, (dict, list)):
+                actual = json.dumps(left_value, ensure_ascii=True, sort_keys=True)
             else:
-                actual = "" if value is None else str(value)
+                actual = "" if left_value is None else str(left_value)
             return actual.strip().lower() == expected.strip().lower()
-        try:
-            actual_num = float(value)
-            expected_num = float(expected.strip())
-        except (TypeError, ValueError):
-            actual_text = "" if value is None else str(value).strip().lower()
+        actual_num = numeric_expression_value(left.strip())
+        expected_num = numeric_expression_value(expected.strip())
+        if actual_num is None or expected_num is None:
+            actual_text = "" if left_value is None else str(left_value).strip().lower()
             expected_text = expected.strip().lower()
             if operator == "!=":
                 return actual_text != expected_text
