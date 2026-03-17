@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import secrets
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -720,20 +721,35 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         left, expected = condition.split(operator, 1)
         expected = normalize_literal(expected)
         left_value = _template_lookup(context, left.strip())
+        actual_num = numeric_expression_value(left.strip())
+        expected_num = numeric_expression_value(expected.strip())
+        if actual_num is not None and expected_num is not None:
+            if operator == "=":
+                return actual_num == expected_num
+            if operator == "!=":
+                return actual_num != expected_num
+            if operator == ">=":
+                return actual_num >= expected_num
+            if operator == "<=":
+                return actual_num <= expected_num
+            if operator == ">":
+                return actual_num > expected_num
+            if operator == "<":
+                return actual_num < expected_num
         if operator == "=":
             if isinstance(left_value, (dict, list)):
                 actual = json.dumps(left_value, ensure_ascii=True, sort_keys=True)
             else:
                 actual = "" if left_value is None else str(left_value)
             return actual.strip().lower() == expected.strip().lower()
-        actual_num = numeric_expression_value(left.strip())
-        expected_num = numeric_expression_value(expected.strip())
         if actual_num is None or expected_num is None:
             actual_text = "" if left_value is None else str(left_value).strip().lower()
             expected_text = expected.strip().lower()
             if operator == "!=":
                 return actual_text != expected_text
             return False
+        if operator == "!=":
+            return actual_num != expected_num
         if operator == ">=":
             return actual_num >= expected_num
         if operator == "<=":
@@ -742,8 +758,6 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
             return actual_num > expected_num
         if operator == "<":
             return actual_num < expected_num
-        if operator == "!=":
-            return actual_num != expected_num
         return False
     if "=" not in condition:
         return bool(_template_lookup(context, condition))

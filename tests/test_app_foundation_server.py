@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.foundation.server import create_app  # noqa: E402
+from app.foundation.server import _condition_matches, create_app  # noqa: E402
 
 
 def test_foundation_health_endpoint() -> None:
@@ -178,9 +178,94 @@ def test_foundation_auth_requires_passcode_for_non_local_access() -> None:
             os.environ["PERMANENCE_FOUNDATION_PASSCODE"] = snapshot_passcode
 
 
+def test_workflow_condition_matches_grouped_and_function_syntax() -> None:
+    context = {
+        "latest_output": {
+            "title": "Launch Memo",
+            "slug": "Alpha-launch",
+            "owner": "payton",
+            "reviewers": ["alex", "sam"],
+        }
+    }
+
+    assert _condition_matches(
+        {
+            "condition": '(contains(latest_output.title, "launch") and exists(latest_output.owner)) '
+            'or empty(latest_output.reviewers)'
+        },
+        context,
+    )
+    assert _condition_matches(
+        {"condition": 'startswith_cs(latest_output.slug, "Alpha-")'},
+        context,
+    )
+    assert not _condition_matches(
+        {"condition": 'not_contains(latest_output.title, "launch")'},
+        context,
+    )
+
+
+def test_workflow_condition_matches_list_membership_and_aggregates() -> None:
+    context = {
+        "latest_output": {
+            "tags": ["launch", "urgent", "external"],
+            "permissions": ["approve", "execute", "review"],
+            "scores": [0.82, 0.91, 0.88],
+            "weights": [2, 3, 5],
+        }
+    }
+
+    assert _condition_matches(
+        {"condition": 'any(latest_output.tags, "launch","beta")'},
+        context,
+    )
+    assert _condition_matches(
+        {"condition": 'all(latest_output.permissions, "approve","execute")'},
+        context,
+    )
+    assert _condition_matches(
+        {"condition": "max(latest_output.scores)>=0.9 and avg(latest_output.scores)>=0.85"},
+        context,
+    )
+    assert _condition_matches(
+        {"condition": "sum(latest_output.weights)=10"},
+        context,
+    )
+
+
+def test_workflow_condition_matches_quoted_lists_and_regex() -> None:
+    context = {
+        "latest_output": {
+            "team": "legal ops",
+            "status": "ready to ship",
+            "slug": "alpha-final",
+        }
+    }
+
+    assert _condition_matches(
+        {"condition": 'latest_output.team in "legal ops","finance"'},
+        context,
+    )
+    assert _condition_matches(
+        {"condition": 'latest_output.status = "ready to ship"'},
+        context,
+    )
+    assert _condition_matches(
+        {"condition": 'matches(latest_output.slug, "^alpha-(draft|final)$")'},
+        context,
+    )
+    assert not _condition_matches(
+        {"condition": 'not_matches_cs(latest_output.slug, "^alpha-(draft|final)$")'},
+        context,
+    )
+
+
 if __name__ == "__main__":
     test_foundation_health_endpoint()
     test_foundation_auth_onboarding_and_memory_flow()
     test_foundation_ophtxn_shell_and_ops_summary()
     test_foundation_auth_requires_passcode_for_non_local_access()
+    test_workflow_condition_matches_grouped_and_function_syntax()
+    test_workflow_condition_matches_list_membership_and_aggregates()
+    test_workflow_condition_matches_quoted_lists_and_regex()
     print("✓ Foundation API scaffold tests passed")
