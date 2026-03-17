@@ -537,6 +537,19 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
                 if isinstance(value, (str, bytes, list, tuple, set, dict)):
                     return float(len(value))
                 return 0.0
+            if function_name in {"min", "max"} and len(function_args) == 1:
+                value = _template_lookup(context, function_args[0])
+                if not isinstance(value, (list, tuple, set)):
+                    return None
+                numeric_items: list[float] = []
+                for item in value:
+                    try:
+                        numeric_items.append(float(item))
+                    except (TypeError, ValueError):
+                        continue
+                if not numeric_items:
+                    return None
+                return min(numeric_items) if function_name == "min" else max(numeric_items)
         try:
             return float(expression)
         except ValueError:
