@@ -695,6 +695,36 @@
       white-space: pre-wrap;
     }
 
+    .run-summary {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      margin-bottom: 16px;
+    }
+
+    .run-summary-copy {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    .run-step-block {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .run-step-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--c1);
+      margin-bottom: 6px;
+    }
+
     .output-header {
       display: flex;
       align-items: center;
@@ -1531,6 +1561,13 @@
               </div>
             </div>
             <div class="form-group">
+              <label for="workflowRunSelect">Selected Run</label>
+              <select id="workflowRunSelect"><option value="">Latest run</option></select>
+            </div>
+            <div class="run-summary" id="workflowRunSummary">
+              <div class="run-summary-copy">No workflow execution summary yet.</div>
+            </div>
+            <div class="form-group">
               <label>Latest Execution</label>
               <div class="run-log" id="workflowRunLog">
                 <div class="workspace-empty">No workflow execution yet.</div>
@@ -1620,6 +1657,8 @@
       const routeReasons = document.getElementById('routeReasons');
       const selectedWorkflowMeta = document.getElementById('selectedWorkflowMeta');
       const workflowRunLog = document.getElementById('workflowRunLog');
+      const workflowRunSelect = document.getElementById('workflowRunSelect');
+      const workflowRunSummary = document.getElementById('workflowRunSummary');
       const approveWorkflowBtn = document.getElementById('approveWorkflowBtn');
       const rejectWorkflowBtn = document.getElementById('rejectWorkflowBtn');
       const successWorkflowBtn = document.getElementById('successWorkflowBtn');
@@ -1644,6 +1683,7 @@
         selectedDocumentDetail: null,
         selectedWorkflowId: '',
         selectedWorkflowDetail: null,
+        selectedWorkflowRunId: '',
         builderWorkflow: { id: '', nodes: [], edges: [] }
       };
 
@@ -1662,6 +1702,15 @@
         }).catch(function () {
           showToast('Copy failed');
         });
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
       }
 
       async function api(path, options) {
@@ -1815,6 +1864,8 @@
         const detail = state.selectedWorkflowDetail;
         if (!detail || !detail.workflow) {
           selectedWorkflowMeta.textContent = 'No workflow selected';
+          workflowRunSelect.innerHTML = '<option value="">Latest run</option>';
+          workflowRunSummary.innerHTML = '<div class="run-summary-copy">No workflow execution summary yet.</div>';
           workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
           approveWorkflowBtn.style.display = 'none';
           rejectWorkflowBtn.style.display = 'none';
@@ -1827,6 +1878,8 @@
         selectedWorkflowMeta.textContent = (detail.workflow.id || '') + ' // ' + (detail.workflow.project_id || 'no-project') + ' // ' + String(detail.workflow.run_count || 0) + ' runs';
         const runs = detail.runs || [];
         if (!runs.length) {
+          workflowRunSelect.innerHTML = '<option value="">Latest run</option>';
+          workflowRunSummary.innerHTML = '<div class="run-summary-copy">No workflow execution summary yet.</div>';
           workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
           approveWorkflowBtn.style.display = 'none';
           rejectWorkflowBtn.style.display = 'none';
@@ -1836,7 +1889,18 @@
           workflowRunHistory.textContent = 'No run history';
           return;
         }
-        const latest = runs[runs.length - 1] || {};
+        workflowRunSelect.innerHTML = runs.slice().reverse().map(function (run, index) {
+          var selected = '';
+          var runId = run.run_id || '';
+          if ((state.selectedWorkflowRunId && state.selectedWorkflowRunId === runId) || (!state.selectedWorkflowRunId && index === 0)) {
+            selected = ' selected';
+          }
+          return '<option value="' + runId + '"' + selected + '>' + runId + ' [' + (run.status || 'unknown') + ']</option>';
+        }).join('');
+        const latest = runs.find(function (run) {
+          return (run.run_id || '') === (workflowRunSelect.value || '');
+        }) || runs[runs.length - 1] || {};
+        state.selectedWorkflowRunId = latest.run_id || '';
         const awaitingApproval = (latest.status || '') === 'awaiting_approval';
         approveWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
         rejectWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
@@ -1849,6 +1913,20 @@
         workflowRunHistory.textContent = runs.slice(-3).reverse().map(function (run) {
           return (run.run_id || 'run') + ' [' + (run.status || 'unknown') + ']';
         }).join(' | ');
+        var summary = [
+          'run_id=' + (latest.run_id || 'unknown'),
+          'status=' + (latest.status || 'unknown'),
+          'started_at=' + (latest.started_at || '-'),
+          'updated_at=' + (latest.updated_at || '-'),
+          'step_count=' + String(latest.step_count || 0)
+        ];
+        if (latest.completed_at) summary.push('completed_at=' + latest.completed_at);
+        if (latest.pending_node_id) summary.push('pending_node=' + latest.pending_node_id);
+        if (latest.next_node_id) summary.push('next_node=' + latest.next_node_id);
+        if (latest.awaiting_task_id) summary.push('awaiting_task_id=' + latest.awaiting_task_id);
+        if (latest.approval_outcome) summary.push('approval_outcome=' + latest.approval_outcome);
+        if (latest.task_outcome) summary.push('task_outcome=' + latest.task_outcome);
+        workflowRunSummary.innerHTML = '<div class="run-summary-copy">' + escapeHtml(summary.join('\n')) + '</div>';
         const steps = latest.steps || [];
         if (!steps.length) {
           workflowRunLog.innerHTML = '<div class="workspace-empty">No steps recorded.</div>';
@@ -1917,9 +1995,28 @@
               copy += (copy ? '\n' : '') + contextParts.join(' // ');
             }
           }
+          var extraBlocks = '';
+          if (step.task_feedback && typeof step.task_feedback.output !== 'undefined' && step.task_feedback.output !== null && step.task_feedback.output !== '') {
+            var outputCopy = '';
+            try {
+              outputCopy = JSON.stringify(step.task_feedback.output, null, 2);
+            } catch (err) {
+              outputCopy = String(step.task_feedback.output);
+            }
+            extraBlocks += '<div class="run-step-block"><div class="run-step-label">Task Output</div><div class="run-step-copy">' + escapeHtml(outputCopy) + '</div></div>';
+          }
+          if (step.context && typeof step.context.latest_output !== 'undefined' && step.context.latest_output !== null && step.context.latest_output !== '') {
+            var latestOutputCopy = '';
+            try {
+              latestOutputCopy = JSON.stringify(step.context.latest_output, null, 2);
+            } catch (err) {
+              latestOutputCopy = String(step.context.latest_output);
+            }
+            extraBlocks += '<div class="run-step-block"><div class="run-step-label">Latest Output</div><div class="run-step-copy">' + escapeHtml(latestOutputCopy) + '</div></div>';
+          }
           return '<div class="run-step"><div class="run-step-head"><div class="run-step-title">'
-            + step.label + '</div><span class="status-pill">' + (step.type || 'step')
-            + '</span></div><div class="run-step-copy">' + copy + '</div></div>';
+            + escapeHtml(step.label) + '</div><span class="status-pill">' + escapeHtml(step.type || 'step')
+            + '</span></div><div class="run-step-copy">' + escapeHtml(copy) + '</div>' + extraBlocks + '</div>';
         }).join('');
       }
 
@@ -2067,6 +2164,7 @@
         const payload = await api('/api/workflows/' + encodeURIComponent(workflowId));
         state.selectedWorkflowId = workflowId;
         state.selectedWorkflowDetail = payload;
+        state.selectedWorkflowRunId = '';
         renderWorkspace();
         renderWorkflowDetail();
       }
@@ -2221,6 +2319,10 @@
       document.getElementById('addWorkflowEdgeBtn').addEventListener('click', addWorkflowEdge);
       document.getElementById('saveWorkflowBtn').addEventListener('click', function () { saveWorkflow().catch(function (err) { showToast(err.message); }); });
       document.getElementById('runWorkflowBtn').addEventListener('click', function () { executeWorkflow().catch(function (err) { showToast(err.message); }); });
+      workflowRunSelect.addEventListener('change', function () {
+        state.selectedWorkflowRunId = workflowRunSelect.value || '';
+        renderWorkflowDetail();
+      });
       approveWorkflowBtn.addEventListener('click', function () { resumeWorkflow('approved').catch(function (err) { showToast(err.message); }); });
       rejectWorkflowBtn.addEventListener('click', function () { resumeWorkflow('rejected').catch(function (err) { showToast(err.message); }); });
       successWorkflowBtn.addEventListener('click', function () { resumeWorkflow('success').catch(function (err) { showToast(err.message); }); });
