@@ -619,6 +619,10 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         if function_name in {"contains", "startswith", "endswith", "matches", "contains_cs", "startswith_cs", "endswith_cs", "matches_cs"} and len(function_args) == 2:
             function_target, function_value = function_args
             return _condition_matches({"condition": f'{function_target} {function_name} "{function_value}"'}, context)
+        if function_name in {"not_contains", "not_startswith", "not_endswith", "not_matches", "not_contains_cs", "not_startswith_cs", "not_endswith_cs", "not_matches_cs"} and len(function_args) == 2:
+            function_target, function_value = function_args
+            positive_name = function_name.removeprefix("not_")
+            return not _condition_matches({"condition": f'{function_target} {positive_name} "{function_value}"'}, context)
     if lowered.startswith("not "):
         return not _condition_matches({"condition": condition[4:].strip()}, context)
     if lowered.startswith("exists "):
