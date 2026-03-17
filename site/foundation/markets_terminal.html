@@ -1324,7 +1324,7 @@
     <div class="status-right">
       <div class="status-item"><span class="status-dot green"></span> Connected</div>
       <div class="status-item">Refresh: <span id="statusRefresh">--</span></div>
-      <div class="status-item">Source: Simulated</div>
+      <div class="status-item">Source: <span id="dataSource">Simulated</span></div>
     </div>
   </div>
 
@@ -1583,6 +1583,164 @@
       var activeTab=window._getActiveTab?window._getActiveTab():'polymarket';
       createPopout(activeTab);
     });
+  })();
+
+  /* ═══ LIVE MARKET DATA FETCHER ═══ */
+  (function(){
+    var API_BASE='http://127.0.0.1:8000';
+    var isLive=false;
+
+    function fmt(n,dec){return n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
+    function fmtPrice(n){
+      if(Math.abs(n)>=1000)return '$'+fmt(n,2);
+      if(Math.abs(n)>=1)return '$'+fmt(n,2);
+      return '$'+fmt(n,4);
+    }
+    function cls(n){return n>=0?'up':'down';}
+    function sign(n){return n>=0?'+':'';}
+    function spark(){return '<div class="sparkline"><span class="bar" style="height:12px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:16px"></span><span class="bar" style="height:14px"></span><span class="bar" style="height:18px"></span><span class="bar" style="height:16px"></span></div>';}
+
+    function updateStocks(data){
+      var view=document.querySelector('.market-view[data-market="stocks"]');
+      if(!view||!data||!data.length)return;
+      var tbody=view.querySelector('.data-table tbody');
+      if(!tbody)return;
+      var html='';
+      data.forEach(function(q){
+        var c=cls(q.change_pct);
+        html+='<tr>';
+        html+='<td class="ticker">'+q.ticker+'</td>';
+        html+='<td>'+fmtPrice(q.price)+'</td>';
+        html+='<td class="'+c+'">'+sign(q.change)+fmt(Math.abs(q.change),2)+'</td>';
+        html+='<td class="'+c+'">'+sign(q.change_pct)+fmt(Math.abs(q.change_pct),2)+'%</td>';
+        html+='<td>'+(q.volume>1e6?fmt(q.volume/1e6,1)+'M':fmt(q.volume,0))+'</td>';
+        html+='<td>--</td>';
+        html+='<td>'+spark()+'</td>';
+        html+='</tr>';
+      });
+      tbody.innerHTML=html;
+    }
+
+    function updateCrypto(data){
+      var view=document.querySelector('.market-view[data-market="crypto"]');
+      if(!view||!data||!data.length)return;
+      var tbody=view.querySelector('.data-table tbody');
+      if(!tbody)return;
+      var html='';
+      data.forEach(function(q){
+        var c24=cls(q.change_pct);var c7=cls(q.week_change_pct);
+        html+='<tr>';
+        html+='<td class="ticker">'+q.symbol+'</td>';
+        html+='<td>'+fmtPrice(q.price)+'</td>';
+        html+='<td class="'+c24+'">'+sign(q.change_pct)+fmt(Math.abs(q.change_pct),2)+'%</td>';
+        html+='<td class="'+c7+'">'+sign(q.week_change_pct)+fmt(Math.abs(q.week_change_pct),2)+'%</td>';
+        html+='<td>'+(q.market_cap>1e12?'$'+fmt(q.market_cap/1e12,2)+'T':q.market_cap>1e9?'$'+fmt(q.market_cap/1e9,1)+'B':'$'+fmt(q.market_cap/1e6,0)+'M')+'</td>';
+        html+='<td>'+(q.volume>1e9?'$'+fmt(q.volume/1e9,1)+'B':'$'+fmt(q.volume/1e6,0)+'M')+'</td>';
+        html+='<td>'+spark()+'</td>';
+        html+='</tr>';
+      });
+      tbody.innerHTML=html;
+    }
+
+    function updateForex(data){
+      var view=document.querySelector('.market-view[data-market="forex"]');
+      if(!view||!data||!data.length)return;
+      var tbody=view.querySelector('.data-table tbody');
+      if(!tbody)return;
+      var html='';
+      data.forEach(function(q){
+        var c=cls(q.change_pct);
+        var bid=q.price;var ask=bid+0.0002;var spread=(ask-bid).toFixed(1);
+        html+='<tr>';
+        html+='<td class="ticker">'+q.name+'</td>';
+        html+='<td>'+fmt(bid,4)+'</td>';
+        html+='<td>'+fmt(ask,4)+'</td>';
+        html+='<td>'+spread+'</td>';
+        html+='<td class="'+c+'">'+sign(q.change_pct)+fmt(Math.abs(q.change_pct),2)+'%</td>';
+        html+='<td>'+spark()+'</td>';
+        html+='</tr>';
+      });
+      tbody.innerHTML=html;
+    }
+
+    function updateCommodities(data){
+      var view=document.querySelector('.market-view[data-market="commodities"]');
+      if(!view||!data||!data.length)return;
+      var tbody=view.querySelector('.data-table tbody');
+      if(!tbody)return;
+      var html='';
+      data.forEach(function(q){
+        var c=cls(q.change_pct);
+        html+='<tr>';
+        html+='<td class="ticker">'+q.name+'</td>';
+        html+='<td>'+fmtPrice(q.price)+'</td>';
+        html+='<td class="'+c+'">'+sign(q.change)+fmt(Math.abs(q.change),2)+'</td>';
+        html+='<td class="'+c+'">'+sign(q.change_pct)+fmt(Math.abs(q.change_pct),2)+'%</td>';
+        html+='<td>--</td>';
+        html+='<td>'+spark()+'</td>';
+        html+='</tr>';
+      });
+      tbody.innerHTML=html;
+    }
+
+    function updateWatchlist(snapshot){
+      var body=document.getElementById('watchlistBody');
+      if(!body)return;
+      var items=[];
+      if(snapshot.crypto&&snapshot.crypto.length){
+        var btc=snapshot.crypto.find(function(c){return c.symbol==='BTC';});
+        if(btc)items.push({name:'BTC',market:'Crypto',price:fmtPrice(btc.price),pct:btc.change_pct});
+        var sol=snapshot.crypto.find(function(c){return c.symbol==='SOL';});
+        if(sol)items.push({name:'SOL',market:'Crypto',price:fmtPrice(sol.price),pct:sol.change_pct});
+      }
+      if(snapshot.equities&&snapshot.equities.length){
+        var nvda=snapshot.equities.find(function(e){return e.ticker==='NVDA';});
+        if(nvda)items.push({name:'NVDA',market:'Stocks',price:fmtPrice(nvda.price),pct:nvda.change_pct});
+        var aapl=snapshot.equities.find(function(e){return e.ticker==='AAPL';});
+        if(aapl)items.push({name:'AAPL',market:'Stocks',price:fmtPrice(aapl.price),pct:aapl.change_pct});
+      }
+      if(snapshot.forex&&snapshot.forex.length){
+        var eur=snapshot.forex[0];
+        if(eur)items.push({name:eur.name,market:'Forex',price:fmt(eur.price,4),pct:eur.change_pct});
+      }
+      if(snapshot.commodities&&snapshot.commodities.length){
+        var gold=snapshot.commodities[0];
+        if(gold)items.push({name:gold.name,market:'Commodities',price:fmtPrice(gold.price),pct:gold.change_pct});
+      }
+      if(!items.length)return;
+      var html='';
+      items.forEach(function(it){
+        var c=cls(it.pct);
+        html+='<div class="watchlist-item"><div><div class="wl-name">'+it.name+'</div><div class="wl-market">'+it.market+'</div></div>';
+        html+='<div><div class="wl-price" style="color:var(--c1)">'+it.price+'</div><div class="wl-change '+c+'">'+sign(it.pct)+fmt(Math.abs(it.pct),2)+'%</div></div></div>';
+      });
+      body.innerHTML=html;
+    }
+
+    function fetchAll(){
+      var ctrl=new AbortController();
+      setTimeout(function(){ctrl.abort();},10000);
+      fetch(API_BASE+'/api/markets/snapshot',{signal:ctrl.signal})
+        .then(function(r){return r.json();})
+        .then(function(json){
+          if(json.error)return;
+          isLive=true;
+          var src=document.getElementById('dataSource');
+          if(src)src.textContent='Live (Stooq/CoinGecko)';
+          if(json.equities)updateStocks(json.equities);
+          if(json.crypto)updateCrypto(json.crypto);
+          if(json.forex)updateForex(json.forex);
+          if(json.commodities)updateCommodities(json.commodities);
+          updateWatchlist(json);
+        })
+        .catch(function(){
+          var src=document.getElementById('dataSource');
+          if(src&&!isLive)src.textContent='Simulated (API offline)';
+        });
+    }
+
+    fetchAll();
+    setInterval(fetchAll,60000);
   })();
 
   /* ═══ WATCHLIST SIDEBAR COLLAPSE ═══ */

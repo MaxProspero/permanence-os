@@ -1257,19 +1257,19 @@
     var canvas=document.getElementById('priceChart');
     if(!canvas)return;
     var ctx=canvas.getContext('2d');
-    var currentRange='1D';
+    var currentRange='1M';
+    var currentSymbol='AAPL.US';
+    var API_BASE='http://127.0.0.1:8000';
 
     function generateOHLCV(count,basePrice){
-      var data=[];
-      var price=basePrice||180;
+      var data=[];var price=basePrice||180;
       for(var i=0;i<count;i++){
         var open=price+(Math.random()-0.48)*2;
         var close=open+(Math.random()-0.47)*3;
         var high=Math.max(open,close)+(Math.random()*1.5);
         var low=Math.min(open,close)-(Math.random()*1.5);
         var vol=Math.floor(20000000+Math.random()*40000000);
-        data.push({o:open,h:high,l:low,c:close,v:vol});
-        price=close;
+        data.push({o:open,h:high,l:low,c:close,v:vol});price=close;
       }
       return data;
     }
@@ -1277,93 +1277,91 @@
     function drawChart(data){
       var dpr=window.devicePixelRatio||1;
       var rect=canvas.parentElement.getBoundingClientRect();
-      canvas.width=rect.width*dpr;
-      canvas.height=rect.height*dpr;
-      canvas.style.width=rect.width+'px';
-      canvas.style.height=rect.height+'px';
-      ctx.scale(dpr,dpr);
-      var w=rect.width,h=rect.height;
-
-      /* background */
+      canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+      canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
+      ctx.scale(dpr,dpr);var w=rect.width,h=rect.height;
       var cs=getComputedStyle(document.documentElement);
       var bgCard=cs.getPropertyValue('--bg-card').trim()||'rgba(10,18,30,0.72)';
-      ctx.fillStyle=bgCard;
-      ctx.fillRect(0,0,w,h);
-
-      /* grid lines */
+      ctx.fillStyle=bgCard;ctx.fillRect(0,0,w,h);
       var lineColor=cs.getPropertyValue('--line').trim()||'rgba(146,188,214,0.14)';
-      ctx.strokeStyle=lineColor;
-      ctx.lineWidth=0.5;
-      for(var gy=0;gy<5;gy++){
-        var yy=h*0.1+gy*(h*0.8/4);
-        ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();
-      }
-
+      ctx.strokeStyle=lineColor;ctx.lineWidth=0.5;
+      for(var gy=0;gy<5;gy++){var yy=h*0.1+gy*(h*0.8/4);ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();}
       if(!data||!data.length)return;
-
-      var prices=[];
-      data.forEach(function(d){prices.push(d.h,d.l);});
-      var minP=Math.min.apply(null,prices);
-      var maxP=Math.max.apply(null,prices);
-      var range=maxP-minP||1;
-      var padY=h*0.1;
-      var chartH=h-padY*2;
-      var candleW=Math.max(2,(w-20)/data.length*0.7);
-      var gap=Math.max(1,(w-20)/data.length*0.3);
-
+      var prices=[];data.forEach(function(d){prices.push(d.h,d.l);});
+      var minP=Math.min.apply(null,prices);var maxP=Math.max.apply(null,prices);
+      var range=maxP-minP||1;var padY=h*0.1;var chartH=h-padY*2;
+      var candleW=Math.max(2,(w-20)/data.length*0.7);var gap=Math.max(1,(w-20)/data.length*0.3);
       function priceToY(p){return padY+chartH*(1-(p-minP)/range);}
-
       for(var i=0;i<data.length;i++){
-        var d=data[i];
-        var x=10+i*(candleW+gap)+candleW/2;
-        var isUp=d.c>=d.o;
+        var d=data[i];var x=10+i*(candleW+gap)+candleW/2;var isUp=d.c>=d.o;
         var color=isUp?'#00e5c4':'#ff5c8a';
-
-        /* wick */
-        ctx.strokeStyle=color;
-        ctx.lineWidth=1;
-        ctx.beginPath();
-        ctx.moveTo(x,priceToY(d.h));
-        ctx.lineTo(x,priceToY(d.l));
-        ctx.stroke();
-
-        /* body */
-        var bodyTop=priceToY(Math.max(d.o,d.c));
-        var bodyBot=priceToY(Math.min(d.o,d.c));
-        var bodyH=Math.max(1,bodyBot-bodyTop);
-        ctx.fillStyle=color;
-        ctx.fillRect(x-candleW/2,bodyTop,candleW,bodyH);
+        ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,priceToY(d.h));ctx.lineTo(x,priceToY(d.l));ctx.stroke();
+        var bodyTop=priceToY(Math.max(d.o,d.c));var bodyBot=priceToY(Math.min(d.o,d.c));var bodyH=Math.max(1,bodyBot-bodyTop);
+        ctx.fillStyle=color;ctx.fillRect(x-candleW/2,bodyTop,candleW,bodyH);
       }
-
-      /* update header */
-      var last=data[data.length-1];
-      var first=data[0];
-      var chg=last.c-first.o;
-      var chgPct=(chg/first.o*100);
+      var last=data[data.length-1];var first=data[0];
+      var chg=last.c-first.o;var chgPct=(chg/first.o*100);
       document.getElementById('chartPrice').textContent='$'+last.c.toFixed(2);
       var chgEl=document.getElementById('chartChange');
       chgEl.textContent=(chg>=0?'+':'')+chg.toFixed(2)+' ('+(chg>=0?'+':'')+chgPct.toFixed(2)+'%)';
       chgEl.className='tr-chart-change '+(chg>=0?'up':'down');
-      document.getElementById('chartVol').textContent='Vol '+Math.round(last.v/1000000)+'M';
+      document.getElementById('chartVol').textContent='Vol '+(last.v?Math.round(last.v/1000000)+'M':'--');
     }
 
-    var chartData=generateOHLCV(120,180);
+    var chartData=generateOHLCV(30,180);
     function redraw(){drawChart(chartData);}
-    var ro=new ResizeObserver(redraw);
-    ro.observe(canvas.parentElement);
+    var ro=new ResizeObserver(redraw);ro.observe(canvas.parentElement);
+
+    function fetchOHLCV(symbol,range){
+      var ctrl=new AbortController();
+      setTimeout(function(){ctrl.abort();},8000);
+      fetch(API_BASE+'/api/markets/ohlcv/'+encodeURIComponent(symbol)+'?range='+range,{signal:ctrl.signal})
+        .then(function(r){return r.json();})
+        .then(function(json){
+          if(json.candles&&json.candles.length>0){chartData=json.candles;redraw();}
+        })
+        .catch(function(){/* keep existing data */});
+    }
+
+    /* Initial load: try live, fallback to mock */
+    fetchOHLCV(currentSymbol,currentRange);
     redraw();
 
+    /* Auto-refresh every 60s */
+    setInterval(function(){fetchOHLCV(currentSymbol,currentRange);},60000);
+
     /* Time range buttons */
-    var rangeCounts={'1D':120,'1W':35,'1M':30,'3M':90,'1Y':252};
     document.querySelectorAll('.tr-time-btn').forEach(function(btn){
       btn.addEventListener('click',function(){
         document.querySelectorAll('.tr-time-btn').forEach(function(b){b.classList.remove('active');});
         btn.classList.add('active');
         currentRange=btn.dataset.range;
-        chartData=generateOHLCV(rangeCounts[currentRange]||120,180);
-        redraw();
+        fetchOHLCV(currentSymbol,currentRange);
       });
     });
+
+    /* Update ticker tape with live data */
+    function updateTickerTape(){
+      var ctrl=new AbortController();
+      setTimeout(function(){ctrl.abort();},8000);
+      fetch(API_BASE+'/api/markets/equities',{signal:ctrl.signal})
+        .then(function(r){return r.json();})
+        .then(function(json){
+          if(!json.equities||!json.equities.length)return;
+          var track=document.getElementById('tickerTrack');
+          if(!track)return;
+          var html='';
+          json.equities.forEach(function(q){
+            var cls=q.change_pct>=0?'up':'down';
+            var sign=q.change_pct>=0?'+':'';
+            html+='<div class="ticker-item"><span class="ticker-sym">'+q.ticker+'</span><span class="ticker-pct '+cls+'">'+sign+q.change_pct.toFixed(2)+'%</span></div><span class="ticker-sep">|</span>';
+          });
+          track.innerHTML=html+html;
+        })
+        .catch(function(){});
+    }
+    updateTickerTape();
+    setInterval(updateTickerTape,60000);
   })();
 
   /* ═══════════════ TRADING ROOM: ACTIVITY FEED ═══════════════ */
@@ -1427,13 +1425,7 @@
     sigEl.innerHTML=html;
   })();
 
-  /* ═══════════════ TRADING ROOM: TICKER TAPE DUPLICATE ═══════════════ */
-  (function(){
-    var track=document.getElementById('tickerTrack');
-    if(!track)return;
-    var content=track.innerHTML;
-    track.innerHTML=content+content;
-  })();
+  /* Ticker tape duplication now handled by live data fetch above */
 
   /* ═══════════════ TRADING ROOM: AGENT STATS UPDATE ═══════════════ */
   (function(){

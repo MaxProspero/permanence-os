@@ -4407,6 +4407,108 @@ def api_planner_stats():
 
 
 # ─────────────────────────────────────────────
+# LIVE MARKET DATA
+# ─────────────────────────────────────────────
+
+
+def _market_service():
+    """Lazy import of market data service to avoid startup cost."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import market_data_service as mds
+        return mds
+    except ImportError:
+        return None
+
+
+@app.route("/api/markets/snapshot", methods=["GET"])
+def get_markets_snapshot():
+    """Full market snapshot: equities, crypto, forex, commodities."""
+    log_api_call("GET", "/api/markets/snapshot")
+    mds = _market_service()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    try:
+        data = mds.get_all_quotes()
+        return jsonify(data)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/markets/equities", methods=["GET"])
+def get_markets_equities():
+    """Equity watchlist quotes."""
+    log_api_call("GET", "/api/markets/equities")
+    mds = _market_service()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    symbols_param = request.args.get("symbols", "")
+    symbols = [s.strip() for s in symbols_param.split(",") if s.strip()] or None
+    try:
+        data = mds.get_equity_quotes(symbols)
+        return jsonify({"equities": data, "count": len(data)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/markets/crypto", methods=["GET"])
+def get_markets_crypto():
+    """Crypto market data from CoinGecko."""
+    log_api_call("GET", "/api/markets/crypto")
+    mds = _market_service()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    try:
+        data = mds.get_crypto_quotes()
+        return jsonify({"crypto": data, "count": len(data)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/markets/forex", methods=["GET"])
+def get_markets_forex():
+    """Forex pair quotes."""
+    log_api_call("GET", "/api/markets/forex")
+    mds = _market_service()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    try:
+        data = mds.get_forex_quotes()
+        return jsonify({"forex": data, "count": len(data)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/markets/commodities", methods=["GET"])
+def get_markets_commodities():
+    """Commodity futures quotes."""
+    log_api_call("GET", "/api/markets/commodities")
+    mds = _market_service()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    try:
+        data = mds.get_commodity_quotes()
+        return jsonify({"commodities": data, "count": len(data)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/markets/ohlcv/<symbol>", methods=["GET"])
+def get_markets_ohlcv(symbol):
+    """OHLCV candle data for charting. ?range=1M (1D,1W,1M,3M,6M,1Y,5Y)."""
+    log_api_call("GET", f"/api/markets/ohlcv/{symbol}")
+    mds = _market_service()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    range_key = request.args.get("range", "1M")
+    try:
+        data = mds.get_ohlcv(symbol, range_key)
+        return jsonify({"symbol": symbol, "range": range_key, "candles": data, "count": len(data)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+# ─────────────────────────────────────────────
 # RUN
 # ─────────────────────────────────────────────
 
