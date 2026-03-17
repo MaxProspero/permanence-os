@@ -69,279 +69,6 @@ def _slug(prefix: str) -> str:
     return f"{prefix}_{secrets.token_hex(4)}"
 
 
-def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
-    base_dir = Path(__file__).resolve().parents[2]
-    site_root = base_dir / "site" / "foundation"
-
-    root = ensure_root(storage_root or _storage_root(base_dir))
-    tool_dir = ensure_root(tool_root or (base_dir / "memory" / "tool"))
-
-    shell_html_path = Path(shell_path or (site_root / "ophtxn_shell.html"))
-    official_html_path = site_root / "index.html"
-    studio_html_path = site_root / "official_app.html"
-    press_html_path = site_root / "press_kit.html"
-    hub_html_path = site_root / "local_hub.html"
-    ai_school_html_path = site_root / "ai_school.html"
-    agent_view_html_path = site_root / "agent_view.html"
-    command_center_html_path = site_root / "command_center.html"
-    daily_planner_html_path = site_root / "daily_planner.html"
-    comms_hub_html_path = site_root / "comms_hub.html"
-    rooms_html_path = site_root / "rooms.html"
-    markets_terminal_html_path = site_root / "markets_terminal.html"
-    trading_room_html_path = site_root / "trading_room.html"
-    night_capital_html_path = site_root / "night_capital.html"
-    runtime_config_path = site_root / "runtime.config.js"
-    assets_root = site_root / "assets"
-
-    sessions_path = root / "sessions.json"
-    profiles_path = root / "profiles.json"
-    memory_path = root / "memory_entries.jsonl"
-    schema_path = Path(__file__).with_name("memory_schema.json")
-    router = ModelRouter()
-
-    app = Flask(__name__)
-    app.config["JSON_SORT_KEYS"] = False
-    if CORS is not None:
-        CORS(
-            app,
-            origins=[
-                "http://127.0.0.1:8787",
-                "http://localhost:8787",
-                "http://127.0.0.1:8797",
-                "http://localhost:8797",
-                "https://ophtxn.com",
-                "https://www.ophtxn.com",
-                "https://permanencesystems.com",
-                "https://app.permanencesystems.com",
-                "https://ophtxn-official.pages.dev",
-            ],
-        )
-
-    def _sessions() -> dict[str, dict[str, Any]]:
-        payload = load_json(sessions_path, {})
-        return payload if isinstance(payload, dict) else {}
-
-    def _profiles() -> dict[str, dict[str, Any]]:
-        payload = load_json(profiles_path, {})
-        return payload if isinstance(payload, dict) else {}
-
-    def _write_sessions(payload: dict[str, dict[str, Any]]) -> None:
-        save_json(sessions_path, payload)
-
-    def _write_profiles(payload: dict[str, dict[str, Any]]) -> None:
-        save_json(profiles_path, payload)
-
-    def _workspace_activity(limit: int = 50) -> list[dict[str, Any]]:
-        return read_jsonl(root / "activity.jsonl", limit=limit)
-
-    def _stamp_record(payload: dict[str, Any], *, owner: str, status: str | None = None) -> dict[str, Any]:
-        now = _now_iso()
-        record = dict(payload)
-        record.setdefault("owner", owner)
-        record.setdefault("created_at", now)
-        record["updated_at"] = now
-        if status is not None:
-            record["status"] = status
-        return record
-
-    def _log_workspace_event(event_type: str, owner: str, payload: dict[str, Any]) -> None:
-        append_activity_event(
-            root,
-            {
-                "event_id": _slug("evt"),
-                "event_type": event_type,
-                "owner": owner,
-                "timestamp": _now_iso(),
-                **payload,
-            },
-        )
-
-    def _document_body_path(document_id: str) -> Path:
-        return ensure_root(root / "documents_body") / f"{safe_object_id(document_id)}.md"
-
-    def _document_revision_log(document_id: str) -> Path:
-        return ensure_root(root / "document_revisions") / f"{safe_object_id(document_id)}.jsonl"
-
-    def _document_suggestion_log(document_id: str) -> Path:
-        return ensure_root(root / "document_suggestions") / f"{safe_object_id(document_id)}.jsonl"
-
-    def _workflow_run_log(workflow_id: str) -> Path:
-        return ensure_root(root / "workflow_runs") / f"{safe_object_id(workflow_id)}.jsonl"
-
-    def _append_workflow_run(workflow_id: str, payload: dict[str, Any]) -> None:
-        append_jsonl(_workflow_run_log(workflow_id), payload)
-
-    def _workflow_runs(workflow_id: str, limit: int = 30) -> list[dict[str, Any]]:
-        return read_jsonl(_workflow_run_log(workflow_id), limit=limit)
-
-    def _rewrite_workflow_runs(workflow_id: str, rows: list[dict[str, Any]]) -> None:
-        log_path = _workflow_run_log(workflow_id)
-        log_path.write_text("", encoding="utf-8")
-        for row in rows:
-            append_jsonl(log_path, row)
-
-    def _workflow_task_type(node_type: str, label: str) -> str:
-        token = f"{node_type} {label}".lower()
-        if "code" in token or "build" in token or "app" in token:
-            return "code_generation"
-        if "classif" in token:
-            return "classification"
-        if "summary" in token or "brief" in token:
-            return "summarization"
-        if "research" in token:
-            return "research_synthesis"
-        return "planning"
-
-    def _workflow_permission_for(node_type: str) -> str:
-        if node_type in {"task", "research", "review"}:
-            return "execute"
-        if node_type == "approval":
-            return "approve"
-        if node_type in {"agent", "model_route"}:
-            return "read"
-        return "read"
-
-    def _agent_matches_project(agent: dict[str, Any], project_id: str) -> bool:
-        project_ids = agent.get("project_ids") if isinstance(agent.get("project_ids"), list) else []
-        return not project_id or project_id in project_ids
-
-    def _eligible_agents_for_node(
-        all_agents: list[dict[str, Any]],
-        *,
-        project_id: str,
-        node_type: str,
-        label: str,
-        assignee: str,
-    ) -> list[dict[str, Any]]:
-        permission = _workflow_permission_for(node_type)
-        wanted = assignee.strip().lower() or label.strip().lower()
-        ranked: list[tuple[int, dict[str, Any]]] = []
-        for agent in all_agents:
-            if not isinstance(agent, dict) or not str(agent.get("id") or "").strip():
-                continue
-            if str(agent.get("status") or "active").strip().lower() != "active":
-                continue
-            if not _agent_matches_project(agent, project_id):
-                continue
-            permissions = agent.get("permissions") if isinstance(agent.get("permissions"), list) else []
-            if permission not in permissions:
-                continue
-            name = str(agent.get("name") or "").strip().lower()
-            role = str(agent.get("role") or "").strip().lower()
-            score = 0
-            if wanted and wanted in {name, role}:
-                score += 4
-            if wanted and wanted and wanted in f"{name} {role}":
-                score += 2
-            if node_type in role:
-                score += 2
-            ranked.append((score, agent))
-        ranked.sort(key=lambda item: item[0], reverse=True)
-        return [agent for _score, agent in ranked]
-
-    def _ordered_workflow_nodes(record: dict[str, Any]) -> list[dict[str, Any]]:
-        nodes = record.get("nodes") if isinstance(record.get("nodes"), list) else []
-        edges = record.get("edges") if isinstance(record.get("edges"), list) else []
-        node_map = {
-            str(node.get("id") or ""): node
-            for node in nodes
-            if isinstance(node, dict) and str(node.get("id") or "").strip()
-        }
-        if not node_map:
-            return []
-        outgoing: dict[str, list[str]] = {}
-        incoming: dict[str, int] = {node_id: 0 for node_id in node_map}
-        for edge in edges:
-            if not isinstance(edge, dict):
-                continue
-            source = str(edge.get("from") or "").strip()
-            target = str(edge.get("to") or "").strip()
-            if source in node_map and target in node_map:
-                outgoing.setdefault(source, []).append(target)
-                incoming[target] = incoming.get(target, 0) + 1
-        start_ids = [
-            node_id
-            for node_id, node in node_map.items()
-            if str(node.get("type") or "").strip() == "start"
-        ] or [node_id for node_id, count in incoming.items() if count == 0]
-        ordered: list[dict[str, Any]] = []
-        seen: set[str] = set()
-
-        def walk(node_id: str) -> None:
-            if node_id in seen or node_id not in node_map:
-                return
-            seen.add(node_id)
-            ordered.append(node_map[node_id])
-            for target in outgoing.get(node_id, []):
-                walk(target)
-
-        for node_id in start_ids:
-            walk(node_id)
-        for node in nodes:
-            node_id = str(node.get("id") or "").strip()
-            if node_id and node_id not in seen:
-                ordered.append(node)
-        return ordered
-
-    def _workflow_graph(record: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]], list[str]]:
-        nodes = record.get("nodes") if isinstance(record.get("nodes"), list) else []
-        edges = record.get("edges") if isinstance(record.get("edges"), list) else []
-        node_map = {
-            str(node.get("id") or "").strip(): node
-            for node in nodes
-            if isinstance(node, dict) and str(node.get("id") or "").strip()
-        }
-        outgoing: dict[str, list[dict[str, Any]]] = {}
-        incoming: dict[str, int] = {node_id: 0 for node_id in node_map}
-        for edge in edges:
-            if not isinstance(edge, dict):
-                continue
-            source = str(edge.get("from") or "").strip()
-            target = str(edge.get("to") or "").strip()
-            if source in node_map and target in node_map:
-                outgoing.setdefault(source, []).append(edge)
-                incoming[target] = incoming.get(target, 0) + 1
-        starts = [
-            node_id
-            for node_id, node in node_map.items()
-            if str(node.get("type") or "").strip() == "start"
-        ] or [node_id for node_id, count in incoming.items() if count == 0]
-        return node_map, outgoing, starts
-
-def _select_next_node_id(edges: list[dict[str, Any]], outcome: str | None = None) -> str:
-    if not edges:
-        return ""
-    if outcome and outcome.startswith("context:"):
-        context: dict[str, Any] = {}
-        try:
-            context = json.loads(outcome[len("context:"):])
-        except json.JSONDecodeError:
-            context = {}
-        for edge in edges:
-            if _condition_matches(edge, context):
-                return str(edge.get("to") or "").strip()
-    wanted = str(outcome or "").strip().lower()
-    aliases = {
-        "completed": {"completed", "success", "approved"},
-        "success": {"success", "completed", "approved"},
-        "failed": {"failed", "rejected", "needs_review"},
-        "rejected": {"rejected", "failed"},
-        "needs_review": {"needs_review", "failed", "rejected"},
-        "approved": {"approved", "success", "completed"},
-    }
-    if wanted:
-        wanted_set = aliases.get(wanted, {wanted})
-        for edge in edges:
-            label = str(edge.get("label") or "").strip().lower()
-            normalized = label.replace(" ", "_")
-            if label in wanted_set or normalized in wanted_set:
-                return str(edge.get("to") or "").strip()
-    for edge in edges:
-        if not str(edge.get("label") or "").strip():
-            return str(edge.get("to") or "").strip()
-    return str(edges[0].get("to") or "").strip()
-
-
 def _workflow_template_context(run_record: dict[str, Any]) -> dict[str, Any]:
     context = run_record.get("context")
     if not isinstance(context, dict):
@@ -365,100 +92,6 @@ def _template_lookup(context: dict[str, Any], path: str) -> Any:
         else:
             return None
     return current
-
-
-def _apply_template_transform(value: Any, transform: str) -> Any:
-    token = str(transform or "").strip().lower()
-    if not token:
-        return value
-    if token == "json":
-        return json.dumps(value, ensure_ascii=True, sort_keys=True)
-    if token == "lower":
-        return str(value or "").lower()
-    if token == "upper":
-        return str(value or "").upper()
-    if token == "strip":
-        return str(value or "").strip()
-    if token == "len":
-        if isinstance(value, (dict, list, str, tuple, set)):
-            return len(value)
-        return 0
-    if token == "first":
-        if isinstance(value, (list, tuple)) and value:
-            return value[0]
-        return None
-    if token == "last":
-        if isinstance(value, (list, tuple)) and value:
-            return value[-1]
-        return None
-    if token.startswith("split"):
-        separator = ","
-        if ":" in transform:
-            separator = transform.split(":", 1)[1]
-        text = "" if value is None else str(value)
-        return text.split(separator)
-    if token.startswith("get:"):
-        index_raw = token.split(":", 1)[1].strip()
-        if isinstance(value, (list, tuple)):
-            try:
-                return value[int(index_raw)]
-            except (ValueError, IndexError):
-                return None
-        return None
-    if token == "int":
-        try:
-            return int(float(value))
-        except (TypeError, ValueError):
-            return 0
-    if token == "float":
-        try:
-            return float(value)
-        except (TypeError, ValueError):
-            return 0.0
-    if token.startswith("round:"):
-        precision_raw = token.split(":", 1)[1].strip()
-        try:
-            precision = int(precision_raw)
-        except ValueError:
-            precision = 0
-        try:
-            return round(float(value), precision)
-        except (TypeError, ValueError):
-            return 0
-    if token.startswith("default:"):
-        fallback = transform.split(":", 1)[1]
-        if value in {None, "", [], {}, ()}:
-            return fallback
-        return value
-    if token.startswith("coalesce:"):
-        fallback = transform.split(":", 1)[1]
-        text_value = "" if value is None else str(value)
-        return text_value if text_value.strip() else fallback
-    if token == "text":
-        if isinstance(value, (dict, list)):
-            return json.dumps(value, ensure_ascii=True, sort_keys=True)
-        return "" if value is None else str(value)
-    return value
-
-
-def _render_input_template(template: str, context: dict[str, Any]) -> str:
-    raw = str(template or "").strip()
-    if not raw:
-        return ""
-
-    def replace(match: re.Match[str]) -> str:
-        expression = str(match.group(1) or "").strip()
-        parts = [part.strip() for part in expression.split("|")]
-        value = _template_lookup(context, parts[0] if parts else expression)
-        for transform in parts[1:]:
-            value = _apply_template_transform(value, transform)
-        if value is None:
-            return ""
-        if isinstance(value, (dict, list)):
-            return json.dumps(value, ensure_ascii=True, sort_keys=True)
-        return str(value)
-
-    return re.sub(r"\{\{\s*([^}]+?)\s*\}\}", replace, raw)
 
 
 def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
@@ -762,6 +395,701 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     if "=" not in condition:
         return bool(_template_lookup(context, condition))
     return False
+
+
+def create_app(storage_root: Path | None = None, tool_root: Path | None = None, shell_path: Path | None = None) -> Flask:
+    base_dir = Path(__file__).resolve().parents[2]
+    site_root = base_dir / "site" / "foundation"
+
+    root = ensure_root(storage_root or _storage_root(base_dir))
+    tool_dir = ensure_root(tool_root or (base_dir / "memory" / "tool"))
+
+    shell_html_path = Path(shell_path or (site_root / "ophtxn_shell.html"))
+    official_html_path = site_root / "index.html"
+    studio_html_path = site_root / "official_app.html"
+    press_html_path = site_root / "press_kit.html"
+    hub_html_path = site_root / "local_hub.html"
+    ai_school_html_path = site_root / "ai_school.html"
+    agent_view_html_path = site_root / "agent_view.html"
+    command_center_html_path = site_root / "command_center.html"
+    daily_planner_html_path = site_root / "daily_planner.html"
+    comms_hub_html_path = site_root / "comms_hub.html"
+    rooms_html_path = site_root / "rooms.html"
+    markets_terminal_html_path = site_root / "markets_terminal.html"
+    trading_room_html_path = site_root / "trading_room.html"
+    night_capital_html_path = site_root / "night_capital.html"
+    runtime_config_path = site_root / "runtime.config.js"
+    assets_root = site_root / "assets"
+
+    sessions_path = root / "sessions.json"
+    profiles_path = root / "profiles.json"
+    memory_path = root / "memory_entries.jsonl"
+    schema_path = Path(__file__).with_name("memory_schema.json")
+    router = ModelRouter()
+
+    app = Flask(__name__)
+    app.config["JSON_SORT_KEYS"] = False
+    if CORS is not None:
+        CORS(
+            app,
+            origins=[
+                "http://127.0.0.1:8787",
+                "http://localhost:8787",
+                "http://127.0.0.1:8797",
+                "http://localhost:8797",
+                "https://ophtxn.com",
+                "https://www.ophtxn.com",
+                "https://permanencesystems.com",
+                "https://app.permanencesystems.com",
+                "https://ophtxn-official.pages.dev",
+            ],
+        )
+
+    def _sessions() -> dict[str, dict[str, Any]]:
+        payload = load_json(sessions_path, {})
+        return payload if isinstance(payload, dict) else {}
+
+    def _profiles() -> dict[str, dict[str, Any]]:
+        payload = load_json(profiles_path, {})
+        return payload if isinstance(payload, dict) else {}
+
+    def _write_sessions(payload: dict[str, dict[str, Any]]) -> None:
+        save_json(sessions_path, payload)
+
+    def _write_profiles(payload: dict[str, dict[str, Any]]) -> None:
+        save_json(profiles_path, payload)
+
+    def _workspace_activity(limit: int = 50) -> list[dict[str, Any]]:
+        return read_jsonl(root / "activity.jsonl", limit=limit)
+
+    def _stamp_record(payload: dict[str, Any], *, owner: str, status: str | None = None) -> dict[str, Any]:
+        now = _now_iso()
+        record = dict(payload)
+        record.setdefault("owner", owner)
+        record.setdefault("created_at", now)
+        record["updated_at"] = now
+        if status is not None:
+            record["status"] = status
+        return record
+
+    def _log_workspace_event(event_type: str, owner: str, payload: dict[str, Any]) -> None:
+        append_activity_event(
+            root,
+            {
+                "event_id": _slug("evt"),
+                "event_type": event_type,
+                "owner": owner,
+                "timestamp": _now_iso(),
+                **payload,
+            },
+        )
+
+    def _document_body_path(document_id: str) -> Path:
+        return ensure_root(root / "documents_body") / f"{safe_object_id(document_id)}.md"
+
+    def _document_revision_log(document_id: str) -> Path:
+        return ensure_root(root / "document_revisions") / f"{safe_object_id(document_id)}.jsonl"
+
+    def _document_suggestion_log(document_id: str) -> Path:
+        return ensure_root(root / "document_suggestions") / f"{safe_object_id(document_id)}.jsonl"
+
+    def _workflow_run_log(workflow_id: str) -> Path:
+        return ensure_root(root / "workflow_runs") / f"{safe_object_id(workflow_id)}.jsonl"
+
+    def _append_workflow_run(workflow_id: str, payload: dict[str, Any]) -> None:
+        append_jsonl(_workflow_run_log(workflow_id), payload)
+
+    def _workflow_runs(workflow_id: str, limit: int = 30) -> list[dict[str, Any]]:
+        return read_jsonl(_workflow_run_log(workflow_id), limit=limit)
+
+    def _rewrite_workflow_runs(workflow_id: str, rows: list[dict[str, Any]]) -> None:
+        log_path = _workflow_run_log(workflow_id)
+        log_path.write_text("", encoding="utf-8")
+        for row in rows:
+            append_jsonl(log_path, row)
+
+    def _workflow_task_type(node_type: str, label: str) -> str:
+        token = f"{node_type} {label}".lower()
+        if "code" in token or "build" in token or "app" in token:
+            return "code_generation"
+        if "classif" in token:
+            return "classification"
+        if "summary" in token or "brief" in token:
+            return "summarization"
+        if "research" in token:
+            return "research_synthesis"
+        return "planning"
+
+    def _workflow_permission_for(node_type: str) -> str:
+        if node_type in {"task", "research", "review"}:
+            return "execute"
+        if node_type == "approval":
+            return "approve"
+        if node_type in {"agent", "model_route"}:
+            return "read"
+        return "read"
+
+    def _agent_matches_project(agent: dict[str, Any], project_id: str) -> bool:
+        project_ids = agent.get("project_ids") if isinstance(agent.get("project_ids"), list) else []
+        return not project_id or project_id in project_ids
+
+    def _eligible_agents_for_node(
+        all_agents: list[dict[str, Any]],
+        *,
+        project_id: str,
+        node_type: str,
+        label: str,
+        assignee: str,
+    ) -> list[dict[str, Any]]:
+        permission = _workflow_permission_for(node_type)
+        wanted = assignee.strip().lower() or label.strip().lower()
+        ranked: list[tuple[int, dict[str, Any]]] = []
+        for agent in all_agents:
+            if not isinstance(agent, dict) or not str(agent.get("id") or "").strip():
+                continue
+            if str(agent.get("status") or "active").strip().lower() != "active":
+                continue
+            if not _agent_matches_project(agent, project_id):
+                continue
+            permissions = agent.get("permissions") if isinstance(agent.get("permissions"), list) else []
+            if permission not in permissions:
+                continue
+            name = str(agent.get("name") or "").strip().lower()
+            role = str(agent.get("role") or "").strip().lower()
+            score = 0
+            if wanted and wanted in {name, role}:
+                score += 4
+            if wanted and wanted and wanted in f"{name} {role}":
+                score += 2
+            if node_type in role:
+                score += 2
+            ranked.append((score, agent))
+        ranked.sort(key=lambda item: item[0], reverse=True)
+        return [agent for _score, agent in ranked]
+
+    def _ordered_workflow_nodes(record: dict[str, Any]) -> list[dict[str, Any]]:
+        nodes = record.get("nodes") if isinstance(record.get("nodes"), list) else []
+        edges = record.get("edges") if isinstance(record.get("edges"), list) else []
+        node_map = {
+            str(node.get("id") or ""): node
+            for node in nodes
+            if isinstance(node, dict) and str(node.get("id") or "").strip()
+        }
+        if not node_map:
+            return []
+        outgoing: dict[str, list[str]] = {}
+        incoming: dict[str, int] = {node_id: 0 for node_id in node_map}
+        for edge in edges:
+            if not isinstance(edge, dict):
+                continue
+            source = str(edge.get("from") or "").strip()
+            target = str(edge.get("to") or "").strip()
+            if source in node_map and target in node_map:
+                outgoing.setdefault(source, []).append(target)
+                incoming[target] = incoming.get(target, 0) + 1
+        start_ids = [
+            node_id
+            for node_id, node in node_map.items()
+            if str(node.get("type") or "").strip() == "start"
+        ] or [node_id for node_id, count in incoming.items() if count == 0]
+        ordered: list[dict[str, Any]] = []
+        seen: set[str] = set()
+
+        def walk(node_id: str) -> None:
+            if node_id in seen or node_id not in node_map:
+                return
+            seen.add(node_id)
+            ordered.append(node_map[node_id])
+            for target in outgoing.get(node_id, []):
+                walk(target)
+
+        for node_id in start_ids:
+            walk(node_id)
+        for node in nodes:
+            node_id = str(node.get("id") or "").strip()
+            if node_id and node_id not in seen:
+                ordered.append(node)
+        return ordered
+
+    def _workflow_graph(record: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]], list[str]]:
+        nodes = record.get("nodes") if isinstance(record.get("nodes"), list) else []
+        edges = record.get("edges") if isinstance(record.get("edges"), list) else []
+        node_map = {
+            str(node.get("id") or "").strip(): node
+            for node in nodes
+            if isinstance(node, dict) and str(node.get("id") or "").strip()
+        }
+        outgoing: dict[str, list[dict[str, Any]]] = {}
+        incoming: dict[str, int] = {node_id: 0 for node_id in node_map}
+        for edge in edges:
+            if not isinstance(edge, dict):
+                continue
+            source = str(edge.get("from") or "").strip()
+            target = str(edge.get("to") or "").strip()
+            if source in node_map and target in node_map:
+                outgoing.setdefault(source, []).append(edge)
+                incoming[target] = incoming.get(target, 0) + 1
+        starts = [
+            node_id
+            for node_id, node in node_map.items()
+            if str(node.get("type") or "").strip() == "start"
+        ] or [node_id for node_id, count in incoming.items() if count == 0]
+        return node_map, outgoing, starts
+
+    def _select_next_node_id(edges: list[dict[str, Any]], outcome: str | None = None) -> str:
+        if not edges:
+            return ""
+        if outcome and outcome.startswith("context:"):
+            context: dict[str, Any] = {}
+            try:
+                context = json.loads(outcome[len("context:"):])
+            except json.JSONDecodeError:
+                context = {}
+            for edge in edges:
+                if _condition_matches(edge, context):
+                    return str(edge.get("to") or "").strip()
+        wanted = str(outcome or "").strip().lower()
+        aliases = {
+            "completed": {"completed", "success", "approved"},
+            "success": {"success", "completed", "approved"},
+            "failed": {"failed", "rejected", "needs_review"},
+            "rejected": {"rejected", "failed"},
+            "needs_review": {"needs_review", "failed", "rejected"},
+            "approved": {"approved", "success", "completed"},
+        }
+        if wanted:
+            wanted_set = aliases.get(wanted, {wanted})
+            for edge in edges:
+                label = str(edge.get("label") or "").strip().lower()
+                normalized = label.replace(" ", "_")
+                if label in wanted_set or normalized in wanted_set:
+                    return str(edge.get("to") or "").strip()
+        for edge in edges:
+            if not str(edge.get("label") or "").strip():
+                return str(edge.get("to") or "").strip()
+        return str(edges[0].get("to") or "").strip()
+
+
+    def _workflow_template_context(run_record: dict[str, Any]) -> dict[str, Any]:
+        context = run_record.get("context")
+        if not isinstance(context, dict):
+            context = {}
+        return {
+            "latest_output": context.get("latest_output"),
+            "task_outputs": context.get("task_outputs") if isinstance(context.get("task_outputs"), dict) else {},
+        }
+
+
+    def _template_lookup(context: dict[str, Any], path: str) -> Any:
+        current: Any = context
+        for part in [segment for segment in path.split(".") if segment]:
+            if isinstance(current, dict):
+                current = current.get(part)
+            elif isinstance(current, list):
+                try:
+                    current = current[int(part)]
+                except (ValueError, IndexError):
+                    return None
+            else:
+                return None
+        return current
+
+
+    def _apply_template_transform(value: Any, transform: str) -> Any:
+        token = str(transform or "").strip().lower()
+        if not token:
+            return value
+        if token == "json":
+            return json.dumps(value, ensure_ascii=True, sort_keys=True)
+        if token == "lower":
+            return str(value or "").lower()
+        if token == "upper":
+            return str(value or "").upper()
+        if token == "strip":
+            return str(value or "").strip()
+        if token == "len":
+            if isinstance(value, (dict, list, str, tuple, set)):
+                return len(value)
+            return 0
+        if token == "first":
+            if isinstance(value, (list, tuple)) and value:
+                return value[0]
+            return None
+        if token == "last":
+            if isinstance(value, (list, tuple)) and value:
+                return value[-1]
+            return None
+        if token.startswith("split"):
+            separator = ","
+            if ":" in transform:
+                separator = transform.split(":", 1)[1]
+            text = "" if value is None else str(value)
+            return text.split(separator)
+        if token.startswith("get:"):
+            index_raw = token.split(":", 1)[1].strip()
+            if isinstance(value, (list, tuple)):
+                try:
+                    return value[int(index_raw)]
+                except (ValueError, IndexError):
+                    return None
+            return None
+        if token == "int":
+            try:
+                return int(float(value))
+            except (TypeError, ValueError):
+                return 0
+        if token == "float":
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return 0.0
+        if token.startswith("round:"):
+            precision_raw = token.split(":", 1)[1].strip()
+            try:
+                precision = int(precision_raw)
+            except ValueError:
+                precision = 0
+            try:
+                return round(float(value), precision)
+            except (TypeError, ValueError):
+                return 0
+        if token.startswith("default:"):
+            fallback = transform.split(":", 1)[1]
+            if value in {None, "", [], {}, ()}:
+                return fallback
+            return value
+        if token.startswith("coalesce:"):
+            fallback = transform.split(":", 1)[1]
+            text_value = "" if value is None else str(value)
+            return text_value if text_value.strip() else fallback
+        if token == "text":
+            if isinstance(value, (dict, list)):
+                return json.dumps(value, ensure_ascii=True, sort_keys=True)
+            return "" if value is None else str(value)
+        return value
+
+
+    def _render_input_template(template: str, context: dict[str, Any]) -> str:
+        raw = str(template or "").strip()
+        if not raw:
+            return ""
+
+        def replace(match: re.Match[str]) -> str:
+            expression = str(match.group(1) or "").strip()
+            parts = [part.strip() for part in expression.split("|")]
+            value = _template_lookup(context, parts[0] if parts else expression)
+            for transform in parts[1:]:
+                value = _apply_template_transform(value, transform)
+            if value is None:
+                return ""
+            if isinstance(value, (dict, list)):
+                return json.dumps(value, ensure_ascii=True, sort_keys=True)
+            return str(value)
+
+        return re.sub(r"\{\{\s*([^}]+?)\s*\}\}", replace, raw)
+
+
+    def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
+        condition = str(edge.get("condition") or "").strip()
+        if not condition:
+            return False
+
+        def unwrap_parentheses(text: str) -> str:
+            raw = str(text or "").strip()
+            while raw.startswith("(") and raw.endswith(")"):
+                depth = 0
+                in_quote: str | None = None
+                escaped = False
+                balanced = True
+                for index, char in enumerate(raw):
+                    if escaped:
+                        escaped = False
+                        continue
+                    if char == "\\":
+                        escaped = True
+                        continue
+                    if char in {"'", '"'}:
+                        if in_quote == char:
+                            in_quote = None
+                        elif in_quote is None:
+                            in_quote = char
+                        continue
+                    if in_quote is not None:
+                        continue
+                    if char == "(":
+                        depth += 1
+                    elif char == ")":
+                        depth -= 1
+                        if depth == 0 and index != len(raw) - 1:
+                            balanced = False
+                            break
+                if not balanced or depth != 0:
+                    break
+                raw = raw[1:-1].strip()
+            return raw
+
+        def normalize_literal(text: str) -> str:
+            raw = str(text or "").strip()
+            if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"'", '"'}:
+                raw = raw[1:-1]
+            raw = raw.replace("\\\\", "\\")
+            raw = raw.replace('\\"', '"').replace("\\'", "'")
+            return raw
+
+        def parse_literal_list(text: str) -> list[str]:
+            raw = str(text or "").strip()
+            if not raw:
+                return []
+            parts = [part.strip() for part in re.split(r""",(?=(?:[^"'\\]|\\.|"[^"]*"|'[^']*')*$)""", raw) if part.strip()]
+            return [normalize_literal(part) for part in parts]
+
+        def parse_function_call(text: str) -> tuple[str, list[str]] | None:
+            match = re.fullmatch(r"([a-z_]+)\((.*)\)", str(text or "").strip(), flags=re.IGNORECASE)
+            if not match:
+                return None
+            name = str(match.group(1) or "").strip().lower()
+            args_raw = str(match.group(2) or "").strip()
+            if not args_raw:
+                return name, []
+            args = parse_literal_list(args_raw)
+            return name, args
+
+        def numeric_expression_value(text: str) -> float | None:
+            expression = str(text or "").strip()
+            function_call = parse_function_call(expression)
+            if function_call:
+                function_name, function_args = function_call
+                if function_name in {"count", "len"} and len(function_args) == 1:
+                    value = _template_lookup(context, function_args[0])
+                    if value is None:
+                        return 0.0
+                    if isinstance(value, (str, bytes, list, tuple, set, dict)):
+                        return float(len(value))
+                    return 0.0
+                if function_name in {"min", "max", "sum", "avg"} and len(function_args) == 1:
+                    value = _template_lookup(context, function_args[0])
+                    if not isinstance(value, (list, tuple, set)):
+                        return None
+                    numeric_items: list[float] = []
+                    for item in value:
+                        try:
+                            numeric_items.append(float(item))
+                        except (TypeError, ValueError):
+                            continue
+                    if not numeric_items:
+                        return None
+                    if function_name == "min":
+                        return min(numeric_items)
+                    if function_name == "max":
+                        return max(numeric_items)
+                    if function_name == "sum":
+                        return sum(numeric_items)
+                    return sum(numeric_items) / len(numeric_items)
+            try:
+                return float(expression)
+            except ValueError:
+                value = _template_lookup(context, expression)
+                try:
+                    return float(value)
+                except (TypeError, ValueError):
+                    return None
+
+        def split_top_level(text: str, keyword: str) -> list[str]:
+            parts: list[str] = []
+            buffer: list[str] = []
+            depth = 0
+            in_quote: str | None = None
+            escaped = False
+            index = 0
+            token = f" {keyword} "
+            raw = str(text or "")
+            token_length = len(token)
+            while index < len(raw):
+                char = raw[index]
+                if escaped:
+                    buffer.append(char)
+                    escaped = False
+                    index += 1
+                    continue
+                if char == "\\":
+                    buffer.append(char)
+                    escaped = True
+                    index += 1
+                    continue
+                if char in {"'", '"'}:
+                    if in_quote == char:
+                        in_quote = None
+                    elif in_quote is None:
+                        in_quote = char
+                    buffer.append(char)
+                    index += 1
+                    continue
+                if in_quote is None:
+                    if char == "(":
+                        depth += 1
+                    elif char == ")" and depth > 0:
+                        depth -= 1
+                    elif depth == 0 and raw[index:index + token_length].lower() == token:
+                        part = "".join(buffer).strip()
+                        if part:
+                            parts.append(part)
+                        buffer = []
+                        index += token_length
+                        continue
+                buffer.append(char)
+                index += 1
+            tail = "".join(buffer).strip()
+            if tail:
+                parts.append(tail)
+            return parts
+
+        condition = unwrap_parentheses(condition)
+        lowered = condition.lower()
+        or_parts = split_top_level(condition, "or")
+        if len(or_parts) > 1:
+            parts = [part.strip() for part in or_parts if part.strip()]
+            return any(_condition_matches({"condition": part}, context) for part in parts)
+        and_parts = split_top_level(condition, "and")
+        if len(and_parts) > 1:
+            parts = [part.strip() for part in and_parts if part.strip()]
+            return all(_condition_matches({"condition": part}, context) for part in parts)
+        function_call = parse_function_call(condition)
+        if function_call:
+            function_name, function_args = function_call
+            if function_name in {"count", "len"} and len(function_args) == 1:
+                numeric_value = numeric_expression_value(condition)
+                return bool(numeric_value)
+            if function_name in {"any", "all"} and len(function_args) >= 2:
+                function_target = function_args[0]
+                function_values = function_args[1:]
+                target_value = _template_lookup(context, function_target)
+                if not isinstance(target_value, (list, tuple, set)):
+                    target_items = [] if target_value is None else [str(target_value)]
+                else:
+                    target_items = [str(item) for item in target_value]
+                normalized_items = {item.strip().lower() for item in target_items}
+                normalized_values = [value.strip().lower() for value in function_values]
+                if function_name == "any":
+                    return any(value in normalized_items for value in normalized_values)
+                return all(value in normalized_items for value in normalized_values)
+            if function_name in {"exists", "empty"} and len(function_args) == 1:
+                function_target = function_args[0]
+                if function_name == "exists":
+                    return _condition_matches({"condition": f"exists {function_target}"}, context)
+                return _condition_matches({"condition": f"empty {function_target}"}, context)
+            if function_name in {"contains", "startswith", "endswith", "matches", "contains_cs", "startswith_cs", "endswith_cs", "matches_cs"} and len(function_args) == 2:
+                function_target, function_value = function_args
+                return _condition_matches({"condition": f'{function_target} {function_name} "{function_value}"'}, context)
+            if function_name in {"not_contains", "not_startswith", "not_endswith", "not_matches", "not_contains_cs", "not_startswith_cs", "not_endswith_cs", "not_matches_cs"} and len(function_args) == 2:
+                function_target, function_value = function_args
+                positive_name = function_name.removeprefix("not_")
+                return not _condition_matches({"condition": f'{function_target} {positive_name} "{function_value}"'}, context)
+        if lowered.startswith("not "):
+            return not _condition_matches({"condition": condition[4:].strip()}, context)
+        if lowered.startswith("exists "):
+            value = _template_lookup(context, condition[7:].strip())
+            return value is not None and value != ""
+        if lowered.startswith("empty "):
+            value = _template_lookup(context, condition[6:].strip())
+            if value is None:
+                return True
+            if isinstance(value, (str, bytes, list, tuple, set, dict)):
+                return len(value) == 0
+            return False
+        for operator in (" not in ", " in "):
+            if operator not in lowered:
+                continue
+            split_index = lowered.index(operator)
+            left = condition[:split_index].strip()
+            right = condition[split_index + len(operator):].strip()
+            value = _template_lookup(context, left)
+            options = parse_literal_list(right)
+            if isinstance(value, (list, tuple, set)):
+                actual_values = {str(item).strip().lower() for item in value}
+                matches = any(option.lower() in actual_values for option in options)
+            else:
+                actual_text = "" if value is None else str(value).strip().lower()
+                matches = actual_text in {option.lower() for option in options}
+            return (not matches) if operator.strip() == "not in" else matches
+        for operator in (" contains_cs ", " startswith_cs ", " endswith_cs ", " matches_cs ", " contains ", " startswith ", " endswith ", " matches "):
+            if operator not in lowered:
+                continue
+            split_index = lowered.index(operator)
+            left = condition[:split_index].strip()
+            right = normalize_literal(condition[split_index + len(operator):].strip())
+            value = _template_lookup(context, left)
+            case_sensitive = operator.strip().endswith("_cs")
+            base_operator = operator.strip().removesuffix("_cs")
+            if base_operator == "contains":
+                if isinstance(value, (list, tuple, set)):
+                    if case_sensitive:
+                        return right in {str(item).strip() for item in value}
+                    return right.lower() in {str(item).strip().lower() for item in value}
+                actual_text = "" if value is None else str(value)
+                if case_sensitive:
+                    return right in actual_text
+                return right.lower() in actual_text.lower()
+            actual_text = "" if value is None else str(value).strip()
+            if base_operator == "matches":
+                try:
+                    flags = 0 if case_sensitive else re.IGNORECASE
+                    return re.search(right, "" if value is None else str(value), flags=flags) is not None
+                except re.error:
+                    return False
+            expected_text = right if case_sensitive else right.lower()
+            candidate_text = actual_text if case_sensitive else actual_text.lower()
+            if base_operator == "startswith":
+                return candidate_text.startswith(expected_text)
+            if base_operator == "endswith":
+                return candidate_text.endswith(expected_text)
+            return False
+        for operator in (">=", "<=", "!=", ">", "<", "="):
+            if operator not in condition:
+                continue
+            left, expected = condition.split(operator, 1)
+            expected = normalize_literal(expected)
+            left_value = _template_lookup(context, left.strip())
+            actual_num = numeric_expression_value(left.strip())
+            expected_num = numeric_expression_value(expected.strip())
+            if actual_num is not None and expected_num is not None:
+                if operator == "=":
+                    return actual_num == expected_num
+                if operator == "!=":
+                    return actual_num != expected_num
+                if operator == ">=":
+                    return actual_num >= expected_num
+                if operator == "<=":
+                    return actual_num <= expected_num
+                if operator == ">":
+                    return actual_num > expected_num
+                if operator == "<":
+                    return actual_num < expected_num
+            if operator == "=":
+                if isinstance(left_value, (dict, list)):
+                    actual = json.dumps(left_value, ensure_ascii=True, sort_keys=True)
+                else:
+                    actual = "" if left_value is None else str(left_value)
+                return actual.strip().lower() == expected.strip().lower()
+            if actual_num is None or expected_num is None:
+                actual_text = "" if left_value is None else str(left_value).strip().lower()
+                expected_text = expected.strip().lower()
+                if operator == "!=":
+                    return actual_text != expected_text
+                return False
+            if operator == "!=":
+                return actual_num != expected_num
+            if operator == ">=":
+                return actual_num >= expected_num
+            if operator == "<=":
+                return actual_num <= expected_num
+            if operator == ">":
+                return actual_num > expected_num
+            if operator == "<":
+                return actual_num < expected_num
+            return False
+        if "=" not in condition:
+            return bool(_template_lookup(context, condition))
+        return False
 
 
     def _record_workflow_run(record: dict[str, Any], run_record: dict[str, Any], *, append: bool) -> None:
