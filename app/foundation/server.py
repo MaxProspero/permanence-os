@@ -514,6 +514,17 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
         parts = [part.strip() for part in re.split(r""",(?=(?:[^"'\\]|\\.|"[^"]*"|'[^']*')*$)""", raw) if part.strip()]
         return [normalize_literal(part) for part in parts]
 
+    def parse_function_call(text: str) -> tuple[str, list[str]] | None:
+        match = re.fullmatch(r"([a-z_]+)\((.*)\)", str(text or "").strip(), flags=re.IGNORECASE)
+        if not match:
+            return None
+        name = str(match.group(1) or "").strip().lower()
+        args_raw = str(match.group(2) or "").strip()
+        if not args_raw:
+            return name, []
+        args = parse_literal_list(args_raw)
+        return name, args
+
     def split_top_level(text: str, keyword: str) -> list[str]:
         parts: list[str] = []
         buffer: list[str] = []
@@ -573,6 +584,17 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
     if len(and_parts) > 1:
         parts = [part.strip() for part in and_parts if part.strip()]
         return all(_condition_matches({"condition": part}, context) for part in parts)
+    function_call = parse_function_call(condition)
+    if function_call:
+        function_name, function_args = function_call
+        if function_name in {"exists", "empty"} and len(function_args) == 1:
+            function_target = function_args[0]
+            if function_name == "exists":
+                return _condition_matches({"condition": f"exists {function_target}"}, context)
+            return _condition_matches({"condition": f"empty {function_target}"}, context)
+        if function_name in {"contains", "startswith", "endswith", "matches"} and len(function_args) == 2:
+            function_target, function_value = function_args
+            return _condition_matches({"condition": f'{function_target} {function_name} "{function_value}"'}, context)
     if lowered.startswith("not "):
         return not _condition_matches({"condition": condition[4:].strip()}, context)
     if lowered.startswith("exists "):
