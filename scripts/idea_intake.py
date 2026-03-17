@@ -166,6 +166,8 @@ def _default_policy() -> dict[str, Any]:
             "science.org": 9.0,
             "acm.org": 8.0,
             "ieee.org": 8.0,
+            "x.com": 8.0,
+            "twitter.com": 8.0,
         },
         "signal_weights": {
             "mcp": 18.0,

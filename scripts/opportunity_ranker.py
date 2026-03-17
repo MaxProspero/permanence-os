@@ -126,7 +126,7 @@ def _default_policy() -> dict[str, Any]:
     return {
         "max_items": max(5, MAX_ITEMS_DEFAULT),
         "min_priority_score": 18.0,
-        "include_source_types": ["social", "github", "github_trending", "ecosystem", "prediction", "portfolio"],
+        "include_source_types": ["social", "github", "github_trending", "ecosystem", "prediction", "portfolio", "bookmark"],
         "weights": {
             "social": 1.00,
             "github": 1.00,
@@ -134,6 +134,7 @@ def _default_policy() -> dict[str, Any]:
             "ecosystem": 0.95,
             "prediction": 1.15,
             "portfolio": 0.90,
+            "bookmark": 1.10,
         },
         "updated_at": _now_iso(),
     }
@@ -568,6 +569,62 @@ def _portfolio_ops(payload: dict[str, Any], source_path: Path | None, weight: fl
     return out
 
 
+def _bookmark_ops(payload: dict[str, Any], source_path: Path | None, weight: float) -> list[dict[str, Any]]:
+    rows = payload.get("top_items")
+    if not isinstance(rows, list):
+        rows = []
+
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        text = str(row.get("text") or "").strip()
+        if not text:
+            continue
+        title = text if len(text) <= 140 else (text[:137] + "...")
+        url = str(row.get("url") or "").strip()
+        handle = str(row.get("handle") or row.get("author") or "").strip()
+        topic_tags = row.get("topic_tags") if isinstance(row.get("topic_tags"), list) else []
+        signal_score = _safe_float(row.get("signal_score"), 0.0)
+        text_blob = f"{text} {' '.join(topic_tags)}".lower()
+        if any(pattern in text_blob for pattern in SOCIAL_SPAM_PATTERNS):
+            continue
+        intent_hits = [token for token in SOCIAL_INTENT_TOKENS if token in text_blob]
+        base_score = 30.0 + signal_score * 4.0 + len(topic_tags) * 3.0 + len(intent_hits) * 2.0
+        priority_score = round(base_score * max(0.1, weight), 2)
+        action = "Review this bookmark signal and identify one buildable prototype or integration opportunity."
+        out.append(
+            {
+                "opportunity_id": _opportunity_id(["bookmark", text[:80], url]),
+                "source_type": "bookmark",
+                "source_name": f"@{handle}" if handle else "x_bookmark",
+                "source_ref": str(source_path) if source_path else "none",
+                "title": title,
+                "summary": text[:500],
+                "priority_score": priority_score,
+                "priority": _priority_label(priority_score),
+                "risk_tier": "LOW",
+                "implementation_scope": "research_intelligence",
+                "proposed_action": action,
+                "expected_benefit": "Captures curated signals from personal bookmarks for systematic review.",
+                "risk_if_ignored": "Valuable bookmarked ideas may decay before evaluation.",
+                "draft_codex_task": (
+                    f"Review bookmark from @{handle}: {text[:100]}. "
+                    "Produce adopt/adapt/reject recommendation with one reversible next step."
+                ),
+                "manual_approval_required": True,
+                "evidence": [url] if url else [],
+                "metadata": {
+                    "handle": handle,
+                    "topic_tags": topic_tags[:10],
+                    "signal_score": signal_score,
+                    "intent_hits": intent_hits[:10],
+                },
+            }
+        )
+    return out
+
+
 def _dedupe(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     seen: set[str] = set()
     out: list[dict[str, Any]] = []
@@ -627,7 +684,8 @@ def _write_outputs(
             "- Source counts: "
             f"social={source_counts.get('social', 0)}, github={source_counts.get('github', 0)}, "
             f"github_trending={source_counts.get('github_trending', 0)}, ecosystem={source_counts.get('ecosystem', 0)}, "
-            f"prediction={source_counts.get('prediction', 0)}, portfolio={source_counts.get('portfolio', 0)}"
+            f"prediction={source_counts.get('prediction', 0)}, portfolio={source_counts.get('portfolio', 0)}, "
+            f"bookmark={source_counts.get('bookmark', 0)}"
         ),
         f"- Min priority score: {policy.get('min_priority_score')}",
         f"- Max items: {policy.get('max_items')}",
@@ -701,6 +759,7 @@ def main(argv: list[str] | None = None) -> int:
     ecosystem_payload, ecosystem_path = _load_tool_payload("ecosystem_research_ingest_*.json")
     prediction_payload, prediction_path = _load_tool_payload("prediction_lab_*.json")
     portfolio_payload, portfolio_path = _load_tool_payload("side_business_portfolio_*.json")
+    bookmark_payload, bookmark_path = _load_tool_payload("x_bookmark_ingest_*.json")
 
     warnings: list[str] = []
     if not social_path:
@@ -715,6 +774,8 @@ def main(argv: list[str] | None = None) -> int:
         warnings.append("No prediction_lab payload found in memory/tool.")
     if not portfolio_path:
         warnings.append("No side_business_portfolio payload found in memory/tool.")
+    if not bookmark_path:
+        warnings.append("No x_bookmark_ingest payload found in memory/tool.")
 
     rows: list[dict[str, Any]] = []
     rows.extend(_social_ops(social_payload, social_path, _safe_float(weights.get("social"), 1.0)))
@@ -729,6 +790,7 @@ def main(argv: list[str] | None = None) -> int:
     rows.extend(_ecosystem_ops(ecosystem_payload, ecosystem_path, _safe_float(weights.get("ecosystem"), 0.95)))
     rows.extend(_prediction_ops(prediction_payload, prediction_path, _safe_float(weights.get("prediction"), 1.0)))
     rows.extend(_portfolio_ops(portfolio_payload, portfolio_path, _safe_float(weights.get("portfolio"), 1.0)))
+    rows.extend(_bookmark_ops(bookmark_payload, bookmark_path, _safe_float(weights.get("bookmark"), 1.1)))
     rows = _dedupe(rows)
 
     max_items = _safe_int(args.max_items, _safe_int(policy.get("max_items"), MAX_ITEMS_DEFAULT))
@@ -747,6 +809,7 @@ def main(argv: list[str] | None = None) -> int:
         "ecosystem": sum(1 for row in ranked if row.get("source_type") == "ecosystem"),
         "prediction": sum(1 for row in ranked if row.get("source_type") == "prediction"),
         "portfolio": sum(1 for row in ranked if row.get("source_type") == "portfolio"),
+        "bookmark": sum(1 for row in ranked if row.get("source_type") == "bookmark"),
     }
     source_paths = {
         "social": str(social_path) if social_path else "none",
@@ -755,6 +818,7 @@ def main(argv: list[str] | None = None) -> int:
         "ecosystem": str(ecosystem_path) if ecosystem_path else "none",
         "prediction": str(prediction_path) if prediction_path else "none",
         "portfolio": str(portfolio_path) if portfolio_path else "none",
+        "bookmark": str(bookmark_path) if bookmark_path else "none",
     }
 
     md_path, json_path = _write_outputs(
