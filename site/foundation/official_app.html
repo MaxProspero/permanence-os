@@ -1396,7 +1396,7 @@
               </div>
               <div class="form-group">
                 <label for="workflowEdgeCondition">Edge Condition</label>
-                <input type="text" id="workflowEdgeCondition" placeholder='Optional. Example: contains(latest_output.title, "launch") and (exists(latest_output.owner) or not empty(latest_output.reviewers))'>
+                <input type="text" id="workflowEdgeCondition" placeholder='Optional. Example: contains(latest_output.title, "launch") and startswith_cs(latest_output.slug, "Alpha-")'>
               </div>
               <div class="btn-row">
                 <button class="btn btn-ghost" id="addWorkflowEdgeBtn">Add Edge</button>

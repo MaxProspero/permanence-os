@@ -592,7 +592,7 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
             if function_name == "exists":
                 return _condition_matches({"condition": f"exists {function_target}"}, context)
             return _condition_matches({"condition": f"empty {function_target}"}, context)
-        if function_name in {"contains", "startswith", "endswith", "matches"} and len(function_args) == 2:
+        if function_name in {"contains", "startswith", "endswith", "matches", "contains_cs", "startswith_cs", "endswith_cs", "matches_cs"} and len(function_args) == 2:
             function_target, function_value = function_args
             return _condition_matches({"condition": f'{function_target} {function_name} "{function_value}"'}, context)
     if lowered.startswith("not "):
@@ -622,29 +622,37 @@ def _condition_matches(edge: dict[str, Any], context: dict[str, Any]) -> bool:
             actual_text = "" if value is None else str(value).strip().lower()
             matches = actual_text in {option.lower() for option in options}
         return (not matches) if operator.strip() == "not in" else matches
-    for operator in (" contains ", " startswith ", " endswith ", " matches "):
+    for operator in (" contains_cs ", " startswith_cs ", " endswith_cs ", " matches_cs ", " contains ", " startswith ", " endswith ", " matches "):
         if operator not in lowered:
             continue
         split_index = lowered.index(operator)
         left = condition[:split_index].strip()
         right = normalize_literal(condition[split_index + len(operator):].strip())
         value = _template_lookup(context, left)
-        if operator.strip() == "contains":
+        case_sensitive = operator.strip().endswith("_cs")
+        base_operator = operator.strip().removesuffix("_cs")
+        if base_operator == "contains":
             if isinstance(value, (list, tuple, set)):
+                if case_sensitive:
+                    return right in {str(item).strip() for item in value}
                 return right.lower() in {str(item).strip().lower() for item in value}
             actual_text = "" if value is None else str(value)
+            if case_sensitive:
+                return right in actual_text
             return right.lower() in actual_text.lower()
-        actual_text = "" if value is None else str(value).strip().lower()
-        if operator.strip() == "matches":
+        actual_text = "" if value is None else str(value).strip()
+        if base_operator == "matches":
             try:
-                return re.search(right, "" if value is None else str(value), flags=re.IGNORECASE) is not None
+                flags = 0 if case_sensitive else re.IGNORECASE
+                return re.search(right, "" if value is None else str(value), flags=flags) is not None
             except re.error:
                 return False
-        expected_text = right.lower()
-        if operator.strip() == "startswith":
-            return actual_text.startswith(expected_text)
-        if operator.strip() == "endswith":
-            return actual_text.endswith(expected_text)
+        expected_text = right if case_sensitive else right.lower()
+        candidate_text = actual_text if case_sensitive else actual_text.lower()
+        if base_operator == "startswith":
+            return candidate_text.startswith(expected_text)
+        if base_operator == "endswith":
+            return candidate_text.endswith(expected_text)
         return False
     for operator in (">=", "<=", "!=", ">", "<", "="):
         if operator not in condition:
