@@ -5,8 +5,9 @@ Run this locally: python dashboard_api.py
 Then access: http://localhost:8000 or via your domain tunnel.
 
 Security model:
-  - Local only by default (127.0.0.1)
-  - No external authentication in v0 (you own the machine)
+  - Local requests (127.0.0.1) bypass auth automatically
+  - External requests require API key via X-API-Key header
+  - Rate limiting enforced per key tier (free/starter/pro)
   - All write actions (approve/reject) are logged with provenance
   - Read-only by default; mutation endpoints require explicit confirmation
 
@@ -112,6 +113,81 @@ def log_api_call(method: str, endpoint: str, payload: Optional[dict] = None, res
     os.makedirs(os.path.dirname(PATHS["api_log"]), exist_ok=True)
     with open(PATHS["api_log"], "a") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+# ─────────────────────────────────────────────
+# STRIPE BILLING BLUEPRINT
+# ─────────────────────────────────────────────
+
+try:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+    from stripe_service import stripe_bp
+    if stripe_bp:
+        app.register_blueprint(stripe_bp, url_prefix="/api/billing")
+except ImportError:
+    pass
+
+# ─────────────────────────────────────────────
+# API KEY MANAGEMENT (admin endpoints, local only)
+# ─────────────────────────────────────────────
+
+
+def _auth_service():
+    """Lazy import of api_auth module."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import api_auth
+        return api_auth
+    except ImportError:
+        return None
+
+
+@app.route("/api/keys", methods=["GET"])
+def list_keys():
+    """List all API keys (admin, local only)."""
+    if request.remote_addr not in ("127.0.0.1", "::1"):
+        return jsonify({"error": "Admin endpoints are local-only"}), 403
+    log_api_call("GET", "/api/keys")
+    auth = _auth_service()
+    if not auth:
+        return jsonify({"error": "api_auth module not available"}), 500
+    return jsonify({"keys": auth.list_api_keys()})
+
+
+@app.route("/api/keys", methods=["POST"])
+def create_key():
+    """Create a new API key (admin, local only)."""
+    if request.remote_addr not in ("127.0.0.1", "::1"):
+        return jsonify({"error": "Admin endpoints are local-only"}), 403
+    log_api_call("POST", "/api/keys")
+    auth = _auth_service()
+    if not auth:
+        return jsonify({"error": "api_auth module not available"}), 500
+    body = request.get_json(silent=True) or {}
+    owner = body.get("owner", "")
+    tier = body.get("tier", "free")
+    label = body.get("label", "")
+    if not owner:
+        return jsonify({"error": "owner is required"}), 400
+    try:
+        result = auth.create_api_key(owner, tier, label)
+        return jsonify(result), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/keys/<key_id>", methods=["DELETE"])
+def revoke_key(key_id):
+    """Revoke an API key (admin, local only)."""
+    if request.remote_addr not in ("127.0.0.1", "::1"):
+        return jsonify({"error": "Admin endpoints are local-only"}), 403
+    log_api_call("DELETE", f"/api/keys/{key_id}")
+    auth = _auth_service()
+    if not auth:
+        return jsonify({"error": "api_auth module not available"}), 500
+    if auth.revoke_api_key(key_id):
+        return jsonify({"status": "revoked", "key_id": key_id})
+    return jsonify({"error": "Key not found"}), 404
 
 
 # ─────────────────────────────────────────────
@@ -4429,8 +4505,20 @@ def api_planner_stats():
 
 
 # ─────────────────────────────────────────────
-# LIVE MARKET DATA
+# LIVE MARKET DATA (auth-protected for external access)
 # ─────────────────────────────────────────────
+
+# Import auth decorator -- local requests bypass automatically
+try:
+    from api_auth import require_api_key as _require_api_key
+    _has_auth = True
+except ImportError:
+    _has_auth = False
+    def _require_api_key(tier="free"):
+        """No-op fallback if api_auth not available."""
+        def decorator(fn):
+            return fn
+        return decorator
 
 
 def _market_service():
@@ -4444,6 +4532,7 @@ def _market_service():
 
 
 @app.route("/api/markets/snapshot", methods=["GET"])
+@_require_api_key(tier="free")
 def get_markets_snapshot():
     """Full market snapshot: equities, crypto, forex, commodities."""
     log_api_call("GET", "/api/markets/snapshot")
@@ -4458,6 +4547,7 @@ def get_markets_snapshot():
 
 
 @app.route("/api/markets/equities", methods=["GET"])
+@_require_api_key(tier="free")
 def get_markets_equities():
     """Equity watchlist quotes."""
     log_api_call("GET", "/api/markets/equities")
@@ -4474,6 +4564,7 @@ def get_markets_equities():
 
 
 @app.route("/api/markets/crypto", methods=["GET"])
+@_require_api_key(tier="free")
 def get_markets_crypto():
     """Crypto market data from CoinGecko."""
     log_api_call("GET", "/api/markets/crypto")
@@ -4488,6 +4579,7 @@ def get_markets_crypto():
 
 
 @app.route("/api/markets/forex", methods=["GET"])
+@_require_api_key(tier="free")
 def get_markets_forex():
     """Forex pair quotes."""
     log_api_call("GET", "/api/markets/forex")
@@ -4502,6 +4594,7 @@ def get_markets_forex():
 
 
 @app.route("/api/markets/commodities", methods=["GET"])
+@_require_api_key(tier="free")
 def get_markets_commodities():
     """Commodity futures quotes."""
     log_api_call("GET", "/api/markets/commodities")
@@ -4516,6 +4609,7 @@ def get_markets_commodities():
 
 
 @app.route("/api/markets/ohlcv/<symbol>", methods=["GET"])
+@_require_api_key(tier="free")
 def get_markets_ohlcv(symbol):
     """OHLCV candle data for charting. ?range=1M (1D,1W,1M,3M,6M,1Y,5Y)."""
     log_api_call("GET", f"/api/markets/ohlcv/{symbol}")
