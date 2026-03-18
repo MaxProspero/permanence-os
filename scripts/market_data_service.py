@@ -28,9 +28,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import logging
+import threading
+
 import requests
 
 BASE_DIR = Path(__file__).resolve().parents[1]
+
+log = logging.getLogger("market_data_service")
 
 
 def _load_local_env() -> None:
@@ -99,6 +104,115 @@ SYMBOL_LABELS: dict[str, str] = {
     "AUDUSD": "AUD/USD", "USDCAD": "USD/CAD", "USDCHF": "USD/CHF",
 }
 
+# -- Circuit Breaker --
+
+
+class CircuitBreaker:
+    """Prevents hammering external APIs when they are down.
+
+    States:
+        CLOSED  -- requests pass through normally
+        OPEN    -- requests are blocked (returns fallback) until cooldown expires
+        HALF    -- one probe request allowed; success closes, failure re-opens
+    """
+
+    CLOSED = "closed"
+    OPEN = "open"
+    HALF_OPEN = "half_open"
+
+    def __init__(
+        self,
+        name: str,
+        failure_threshold: int = 3,
+        cooldown_seconds: float = 60.0,
+        max_retries: int = 2,
+        backoff_base: float = 0.5,
+    ):
+        self.name = name
+        self.failure_threshold = failure_threshold
+        self.cooldown_seconds = cooldown_seconds
+        self.max_retries = max_retries
+        self.backoff_base = backoff_base
+        self._state = self.CLOSED
+        self._failures = 0
+        self._last_failure_time = 0.0
+        self._lock = threading.Lock()
+
+    @property
+    def state(self) -> str:
+        with self._lock:
+            if self._state == self.OPEN:
+                if time.time() - self._last_failure_time >= self.cooldown_seconds:
+                    self._state = self.HALF_OPEN
+            return self._state
+
+    def record_success(self) -> None:
+        with self._lock:
+            self._failures = 0
+            self._state = self.CLOSED
+
+    def record_failure(self) -> None:
+        with self._lock:
+            self._failures += 1
+            self._last_failure_time = time.time()
+            if self._failures >= self.failure_threshold:
+                self._state = self.OPEN
+                log.warning(
+                    "circuit breaker [%s] OPEN after %d failures",
+                    self.name, self._failures,
+                )
+
+    def allow_request(self) -> bool:
+        return self.state != self.OPEN
+
+    def status(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "state": self.state,
+            "failures": self._failures,
+            "last_failure": self._last_failure_time,
+        }
+
+
+# Per-API circuit breakers
+_cb_stooq = CircuitBreaker("stooq", failure_threshold=3, cooldown_seconds=60)
+_cb_coingecko = CircuitBreaker("coingecko", failure_threshold=3, cooldown_seconds=90)
+
+
+def get_circuit_status() -> list[dict[str, Any]]:
+    """Return health status of all circuit breakers."""
+    return [_cb_stooq.status(), _cb_coingecko.status()]
+
+
+def _request_with_breaker(
+    breaker: CircuitBreaker,
+    url: str,
+    headers: dict[str, str] | None = None,
+) -> requests.Response | None:
+    """Execute a GET request through a circuit breaker with retry + backoff."""
+    if not breaker.allow_request():
+        log.info("circuit breaker [%s] is OPEN -- skipping request", breaker.name)
+        return None
+    last_exc: Exception | None = None
+    for attempt in range(breaker.max_retries + 1):
+        try:
+            resp = requests.get(url, timeout=TIMEOUT, headers=headers or {})
+            resp.raise_for_status()
+            breaker.record_success()
+            return resp
+        except requests.RequestException as exc:
+            last_exc = exc
+            if attempt < breaker.max_retries:
+                delay = breaker.backoff_base * (2 ** attempt)
+                time.sleep(delay)
+    breaker.record_failure()
+    log.warning(
+        "circuit breaker [%s] request failed after %d attempts: %s",
+        breaker.name, breaker.max_retries + 1, last_exc,
+    )
+    return None
+
+
 # -- Helpers --
 
 
@@ -148,12 +262,10 @@ def _fetch_stooq_csv(symbol: str) -> list[tuple[str, float, float, float, float,
     if not clean:
         return []
     url = f"https://stooq.com/q/d/l/?s={clean}&i=d"
-    try:
-        resp = requests.get(url, timeout=TIMEOUT)
-        resp.raise_for_status()
-        text = resp.text
-    except requests.RequestException:
+    resp = _request_with_breaker(_cb_stooq, url)
+    if resp is None:
         return []
+    text = resp.text
     if text.strip().lower().startswith("no data"):
         return []
     reader = csv.reader(text.splitlines())
@@ -229,11 +341,12 @@ def _fetch_coingecko_markets() -> list[dict[str, Any]]:
         "&order=market_cap_desc&per_page=25&page=1"
         "&sparkline=false&price_change_percentage=24h,7d"
     )
+    resp = _request_with_breaker(_cb_coingecko, url, headers={"Accept": "application/json"})
+    if resp is None:
+        return []
     try:
-        resp = requests.get(url, timeout=TIMEOUT, headers={"Accept": "application/json"})
-        resp.raise_for_status()
         data = resp.json()
-    except (requests.RequestException, ValueError):
+    except ValueError:
         return []
     out: list[dict[str, Any]] = []
     for coin in data:

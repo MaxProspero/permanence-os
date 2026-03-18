@@ -3,19 +3,19 @@
   "configurations": [
     {
       "name": "Command Center",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["cli.py", "command-center", "--no-open"],
       "port": 8000
     },
     {
       "name": "Foundation Site",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["cli.py", "foundation-site", "--no-open"],
       "port": 8787
     },
     {
       "name": "Foundation API (Ophtxn Shell)",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["cli.py", "foundation-api"],
       "port": 8797
     }

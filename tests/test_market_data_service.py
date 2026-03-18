@@ -183,6 +183,80 @@ class TestSymbolLabels:
         assert len(mds.COMMODITY_SYMBOLS) > 3
 
 
+class TestCircuitBreaker:
+    def test_starts_closed(self):
+        cb = mds.CircuitBreaker("test", failure_threshold=2)
+        assert cb.state == mds.CircuitBreaker.CLOSED
+        assert cb.allow_request() is True
+
+    def test_opens_after_threshold(self):
+        cb = mds.CircuitBreaker("test", failure_threshold=2, cooldown_seconds=60)
+        cb.record_failure()
+        assert cb.state == mds.CircuitBreaker.CLOSED
+        cb.record_failure()
+        assert cb.state == mds.CircuitBreaker.OPEN
+        assert cb.allow_request() is False
+
+    def test_half_open_after_cooldown(self):
+        cb = mds.CircuitBreaker("test", failure_threshold=1, cooldown_seconds=0)
+        cb.record_failure()
+        assert cb.state != mds.CircuitBreaker.OPEN  # cooldown=0 means immediate half-open
+
+    def test_success_resets(self):
+        cb = mds.CircuitBreaker("test", failure_threshold=2)
+        cb.record_failure()
+        cb.record_failure()
+        assert cb.state == mds.CircuitBreaker.OPEN
+        # Simulate cooldown expiring
+        cb._last_failure_time = 0
+        cb._state = mds.CircuitBreaker.HALF_OPEN
+        cb.record_success()
+        assert cb.state == mds.CircuitBreaker.CLOSED
+        assert cb.allow_request() is True
+
+    def test_status_dict(self):
+        cb = mds.CircuitBreaker("test_api")
+        status = cb.status()
+        assert status["name"] == "test_api"
+        assert status["state"] == "closed"
+        assert status["failures"] == 0
+
+
+class TestCircuitStatusAPI:
+    def test_get_circuit_status(self):
+        statuses = mds.get_circuit_status()
+        assert len(statuses) == 2
+        names = [s["name"] for s in statuses]
+        assert "stooq" in names
+        assert "coingecko" in names
+
+
+class TestRequestWithBreaker:
+    def test_success_through_breaker(self):
+        mock_resp = MagicMock()
+        mock_resp.text = SAMPLE_STOOQ_CSV
+        mock_resp.raise_for_status = MagicMock()
+        cb = mds.CircuitBreaker("test", failure_threshold=3)
+        with patch("requests.get", return_value=mock_resp):
+            result = mds._request_with_breaker(cb, "https://example.com")
+            assert result is not None
+            assert cb.state == mds.CircuitBreaker.CLOSED
+
+    def test_blocked_when_open(self):
+        cb = mds.CircuitBreaker("test", failure_threshold=1, cooldown_seconds=300)
+        cb.record_failure()
+        assert cb.state == mds.CircuitBreaker.OPEN
+        result = mds._request_with_breaker(cb, "https://example.com")
+        assert result is None
+
+    def test_retries_on_failure(self):
+        cb = mds.CircuitBreaker("test", failure_threshold=5, max_retries=1, backoff_base=0.01)
+        with patch("requests.get", side_effect=mds.requests.ConnectionError("down")):
+            result = mds._request_with_breaker(cb, "https://example.com")
+            assert result is None
+            assert cb._failures == 1
+
+
 class TestCLI:
     def test_all_action(self):
         with patch.object(mds, "get_all_quotes", return_value={"equities": [], "crypto": [], "forex": [], "commodities": [], "updated_at": "now"}):

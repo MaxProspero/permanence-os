@@ -143,7 +143,29 @@ def system_status():
     latest_task = _load_latest_task_summary()
     promotion = _load_promotion_status()
 
-    return jsonify({"ok": True, "ts": utc_now().isoformat() + "Z", "version": API_VERSION})
+    # -- Market data health --
+    market_health = None
+    try:
+        mds = _market_service()
+        if mds and hasattr(mds, "get_circuit_status"):
+            market_health = mds.get_circuit_status()
+    except Exception:
+        pass
+
+    return jsonify({
+        "ok": True,
+        "ts": utc_now().isoformat() + "Z",
+        "version": API_VERSION,
+        "canon_version": canon_version,
+        "pending_approvals": pending_approvals,
+        "last_briefing": last_briefing,
+        "test_stats": test_stats,
+        "horizon_reports": horizon_reports,
+        "chronicle_last_generated": chronicle_last_generated,
+        "latest_task": latest_task,
+        "promotion": promotion,
+        "market_circuits": market_health,
+    })
 
 
 # ─────────────────────────────────────────────
