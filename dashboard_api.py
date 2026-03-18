@@ -4505,6 +4505,114 @@ def api_planner_stats():
 
 
 # ─────────────────────────────────────────────
+# CONTENT GENERATOR
+# ─────────────────────────────────────────────
+
+
+def _content_generator():
+    """Lazy import of content generator."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import content_generator as cgen
+        return cgen
+    except ImportError:
+        return None
+
+
+@app.route("/api/content/stats", methods=["GET"])
+def content_stats():
+    """Content generator statistics."""
+    log_api_call("GET", "/api/content/stats")
+    cgen = _content_generator()
+    if not cgen:
+        return jsonify({"error": "content_generator not available"}), 500
+    try:
+        return jsonify(cgen.get_stats())
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/generate/thread", methods=["POST"])
+def generate_thread_endpoint():
+    """Generate an X thread draft from topic + points."""
+    log_api_call("POST", "/api/content/generate/thread")
+    cgen = _content_generator()
+    if not cgen:
+        return jsonify({"error": "content_generator not available"}), 500
+    body = request.get_json(silent=True) or {}
+    topic = body.get("topic", "AI Governance")
+    points = body.get("points", [])
+    hook = body.get("hook", "")
+    submit = body.get("submit", False)
+    if not points:
+        return jsonify({"error": "points list is required"}), 400
+    try:
+        result = cgen.generate_thread(topic=topic, points=points, hook=hook)
+        if submit:
+            sub = cgen.submit_to_draft_queue(result)
+            result["draft_submission"] = sub
+        return jsonify(result), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/generate/from-bookmarks", methods=["POST"])
+def generate_from_bookmarks():
+    """Generate thread drafts from bookmarks."""
+    log_api_call("POST", "/api/content/generate/from-bookmarks")
+    cgen = _content_generator()
+    if not cgen:
+        return jsonify({"error": "content_generator not available"}), 500
+    body = request.get_json(silent=True) or {}
+    limit = body.get("limit", 5)
+    submit = body.get("submit", False)
+    try:
+        threads = cgen.bookmarks_to_threads(limit=limit)
+        if submit:
+            for t in threads:
+                sub = cgen.submit_to_draft_queue(t)
+                t["draft_submission"] = sub
+        return jsonify({"threads": threads, "count": len(threads)}), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/generate/newsletter", methods=["POST"])
+def generate_newsletter_endpoint():
+    """Generate a newsletter issue from bookmarks."""
+    log_api_call("POST", "/api/content/generate/newsletter")
+    cgen = _content_generator()
+    if not cgen:
+        return jsonify({"error": "content_generator not available"}), 500
+    body = request.get_json(silent=True) or {}
+    issue_number = body.get("issue", 1)
+    try:
+        result = cgen.bookmarks_to_newsletter(issue_number=issue_number)
+        return jsonify(result), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/voice-check", methods=["POST"])
+def voice_check_endpoint():
+    """Check text against brand voice rules."""
+    log_api_call("POST", "/api/content/voice-check")
+    cgen = _content_generator()
+    if not cgen:
+        return jsonify({"error": "content_generator not available"}), 500
+    body = request.get_json(silent=True) or {}
+    text = body.get("text", "")
+    if not text:
+        return jsonify({"error": "text is required"}), 400
+    violations = cgen.check_voice_compliance(text)
+    return jsonify({
+        "compliant": len(violations) == 0,
+        "violations": violations,
+        "word_count": len(text.split()),
+    })
+
+
+# ─────────────────────────────────────────────
 # LIVE MARKET DATA (auth-protected for external access)
 # ─────────────────────────────────────────────
 
