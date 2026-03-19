@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nav Test</title>
+<style>
+body { background: #060a10; color: #e7f4ff; font-family: system-ui; margin: 0; padding: 40px 20px; }
+h1 { margin-bottom: 20px; }
+.nav-links a { display: inline-block; margin: 8px; padding: 12px 24px; background: rgba(0,229,196,0.15); border: 1px solid rgba(0,229,196,0.3); border-radius: 8px; color: #00e5c4; text-decoration: none; }
+.nav-links a:hover { background: rgba(0,229,196,0.3); }
+button { padding: 12px 24px; margin: 8px; background: rgba(239,187,95,0.15); border: 1px solid rgba(239,187,95,0.3); border-radius: 8px; color: #efbb5f; cursor: pointer; font-size: 14px; }
+button:hover { background: rgba(239,187,95,0.3); }
+#result { margin-top: 20px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Navigation Test Page</h1>
+<p>If you can click the links and buttons below, navigation is working.</p>
+
+<h2>Page Links</h2>
+<div class="nav-links">
+<a href="index.html">Lobby</a>
+<a href="local_hub.html">Control Room</a>
+<a href="command_center.html">Command Center</a>
+<a href="trading_room.html">Trading Room</a>
+<a href="markets_terminal.html">Markets Terminal</a>
+<a href="night_capital.html">Night Capital</a>
+<a href="daily_planner.html">Daily Planner</a>
+<a href="ophtxn_shell.html">Terminal</a>
+<a href="rooms.html">Tower</a>
+<a href="ai_school.html">AI School</a>
+<a href="official_app.html">App Studio</a>
+<a href="agent_view.html">Agent View</a>
+<a href="comms_hub.html">Comms Hub</a>
+<a href="press_kit.html">Mind Map</a>
+</div>
+
+<h2>Button Test</h2>
+<button onclick="document.getElementById('result').textContent='Button clicked at ' + new Date().toLocaleTimeString()">Click Me</button>
+<button onclick="window.location.href='trading_room.html'">Go to Trading Room</button>
+<button onclick="window.location.href='ophtxn_shell.html'">Go to Terminal</button>
+
+<div id="result">Click a button to test interactivity</div>
+</body>
+</html>

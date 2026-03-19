@@ -1,0 +1,185 @@
+﻿X bookmarks 
+
+
+Got it! I've scrolled through all your bookmarks. Here's a summary of everything I can see, grouped roughly by topic — the newer ones at the top appear to be the ones you recently added:
+
+
+**🆕 Recent/New Additions (likely the ones you added):**
+
+
+1. **OpenRAG / Langflow** (@RoundtableSpace) — Langflow open-sourced a complete RAG platform called OpenRAG. One command: `uvx openrag`. Supports document upload, semantic search, chat with data, visual workflows, Docker.
+
+
+2. **farmOS** (@tom_doerr) — A web application for farm management and record keeping (github.com/farmOS/farmOS).
+
+
+3. **Claude Opus 4.6 + Figma Make** (@Aiden_Tech_Ai) — Building $5,000 websites in 2 hours using Claude Opus 4.6 and Figma Make.
+
+
+4. **DCF Valuation Tool** (@UrbanKaoboy) — A Discounted Cash Flow valuation tool on urbankaoberg.com with sliders for revenue growth and operating margin.
+
+
+5. **Scatter Plot / Credit Risks** (@UrbanKaoboy) — New scatter plot feature to visualize credit risks in an AI Disruption Basket.
+
+
+6. **Harvard Meditation Study** (@karlmehta) — Harvard brain scan study showing 10-20 mins of meditation/day physically grows brain tissue and shrinks the fear center.
+
+
+7. **Non-negative Kernel CCA** (@chklovskii) — A neuroscience/ML paper on biologically plausible algorithms for learning local predictive directions in nonlinear dynamical systems (Cosyne poster).
+
+
+8. **Jay Alammar / Hands-On LLMs** (@techNmak) — Jay Alammar's open-sourced codebase for his O'Reilly book "Hands-On Large Language Models."
+
+
+9. **Collab-electron "literally matrix"** (@jshguo) — A demo video of Claude building a multi-window canvas feature in an Electron app.
+
+
+10. **Trend Strategies** (@GoshawkTrades) — Excerpt from "Trading Systems And Methods" by Perry J. Kaufman on why trend strategies work.
+
+
+11. **Diffusion Models + Recurrent Depth Models** (@huskydogewoof) — ArXiv paper (2602.18428) on intersection of diffusion models and recurrent depth models.
+
+
+12. **Pedestrian Collision Avoidance** (@neural_avb) — Research showing pedestrians avoid collision using a power law based on time to future collision.
+
+
+13. **Math Areas diagram** (@zodchiii) — A circular diagram of all math areas.
+
+
+14. **Become More Professional** (@Wordofwise_) — A mindmap on productivity, finances, career, and business skills.
+
+
+15. **Market Pricing Mistakes** (@noisyb0y1) — Analysis of 100,000 trades finding pricing mistakes when liquidity is low.
+
+
+16. **Polymarket Analysis** (@de1lymoon) — Article: "I Analyzed 100,000 Polymarket Trades to See How Quant Traders Detect Mispriced Probabilities."
+
+
+17. **OpenClaw-RL / Princeton** (@hasantoxr) — Princeton's AI agent that trains itself through normal conversation.
+
+
+18. **Position Sizing + Leverage** (educational thread) — A trading thread on position sizing and leverage.
+
+
+19. **LLM Inference Hardware** (@oliviscusAI) — Google researcher paper on challenges and research directions for LLM inference hardware.
+
+
+20. **How Should AI Be Evaluated for Health?** (@thekaransinghal) — Article on evaluating AI systems for healthcare.
+
+
+21. **System Design Repo** (@DAIEvolutionHub) — A comprehensive system design course on GitHub (github.com/karanpratapsin...).
+
+
+---
+
+
+**📚 Older Bookmarks (Kirk Borne Manning Books series, Mar 11):**
+A series of ML/AI/Data Science books including: *Data for All*, *The Quick Python Book*, *Build a Text-to-Image Generator*, *Build a Large Language Model From Scratch*, *AI Agents in Action*, *Outlier Detection in Python*, *Machine Learning Refined*, *Artificial Intelligence: A Modern Approach (4th Ed.)*, *Databricks Data Engineering* books, and a Packt "Build AI Agents Over the Weekend" workshop.
+
+
+---
+
+
+Whenever you're ready for me to do deep research on any of these, just let me know which ones you want me to start with!
+Found it! The bookmarks list is in the document under the **"Concise Comparison"** tab in Tab 1. It's a compiled list of your X (Twitter) bookmarks organized by topic with **108 links** across these categories:
+
+
+---
+
+
+## 🤖 AI Tools & Agents
+- **@hanakoxbt** — Trained a bot on math research papers from quants; built a spread model
+- **@RoundtableSpace** — Giza agent deployed $884K in USDC and made $2,547/week through DeFi
+- **@dimitarangg** — Claude Code can automate your entire cold outreach system & book 30–40+ calls monthly
+- **@ihtesham2005** — Stanford PhD built Paper2Agent: turns any research paper into a working AI agent
+- **@markgadala** — Alibaba's page-agent: AI operator living in your webpage
+- **@agentcardai** — AgentCard: your agent can now buy anything (pay for APIs, DoorDash, etc.)
+- **@RoundtableSpace** — Run a completely autonomous agent with less than 5MB of RAM
+- **@moltlaunch (CashClaw)** — Open-source autonomous agent that finds work, quotes prices, does job, and gets paid
+- **@hirejuniorso (Junior)** — First AI employee for any role, with their own identity
+- **@sotoalt_** — Grove: visual workspace for ideas where you collaborate with AI agents
+- **@oliviscusAI** — AlphaXiv extracts arXiv IDs & fetches machine-readable summaries
+- **@viktoroddy** — AntiGravity built a $10,000 website using only AI
+- **@pelaseyed (homanp)** — Vibe coding an agentic OSINT/SIGINT app "Infinite Monitor" with isolated Claude Code widgets
+- **@p0 (Parallel Web Systems)** — OB-1: self-improving coding agent for full dev lifecycle
+- **@RoundtableSpace** — MiroFish: swarm of thousands of AI agents with real memories and personalities to predict the future
+
+
+---
+
+
+## 🧠 AI Research & Education
+- **@KrisAbdelmessih** — Article: "Building an option chain in your head" (options hedging)
+- **@aakashgupta** — Quoting Manthan Gupta's article on how Karpathy's Autoresearch works
+- **@manthanguptaa** — Article: "How Karpathy's Autoresearch Works And What You Can Learn From It"
+- **@karpathy (Andrej Karpathy)** — Next step for autoresearch: asynchronously massively collaborative for agents
+- **@karpathy** — Reply on "org code" patterns and how the IDE helps build, run, manage them
+- **@gkcs_** — Article on LangChain: Getting AI Agents to Reliably Complete Multi-Step Tasks
+- **@neural_avb (AVB)** — Article: "OpenClaw RL, explained clearly"
+- **@liulicheng10 (Licheng Liu)** — Article: "Using Claude Code While Writing a Research Paper"
+- **@ellen_in_sf** — Article: "Karpathy's autoresearch Quickstart" — running AI research with a single command
+- **@HiTw93 (Tw93)** — "Learn Claude Code" walks through how AI coding agents work
+- **@yiliush** — Update on his "testing something" demo — working on releasing it as a usable product
+- **@HuggingModels** — GLM-5 introduces Agent Mode
+
+
+---
+
+
+## 🔐 AI Safety & Anthropic
+*(entries in this section)*
+
+
+---
+
+
+## 🛠 Developer Tools & Open Source
+- **@dotta (Paperclip)** — Paperclip product roadmap: auto-mode, plugins, chat, cloud deployment
+- **@bridgemindai** — BridgeSpace: handoff prompts between Claude Code and Gemini CLI with full context preserved
+- **@zenorocha (Zeno Rocha)** — Resend CLI launched: 53 commands, fully open source
+- **@ephraimduncan (Duncan)** — Native Mac download manager, open source
+- **@Principal_ADE (Fernando)** — lerim-cli with story-based telemetry
+- **@mdancho84 (Matt Dancho)** — Auto-Analyst open source AI data science platform
+- **@codeitbro** — Article: "15 Git Commands to Master Your Workflow"
+
+
+---
+
+
+## 📊 Trading, Finance & Markets
+*(entries in this section)*
+
+
+---
+
+
+## 🔬 Science & Quantum | 🏛 Enterprise AI & Defense | 💡 Productivity & Thinking
+
+
+---
+
+
+## 🌐 Crypto & Web3
+- **@RoundtableSpace** — PumpFun launches automated buybacks for tokenized agents
+- **@moltlaunch** — Moltlaunch: hire AI agents, pay with ETH
+- **@hasantoxr (Hasan Toor)** — ElevenLabs Flows: chaining AI creative tools
+
+
+---
+
+
+## 🔍 Perplexity & Surveillance Commentary
+- **@Anonymoustxp** — Comment on Perplexity Computer on mobile: "You can now be surveilled on the go"
+- **@grok** — Reply on Perplexity Computer mobile cross-device sync
+
+
+---
+
+
+## 🤖 AI Agents & Automation (New) | 🧠 AI Research & Learning (New) | 📚 Free Learning Resources (New) | 📊 Trading & Prediction Markets (New) | 🛠 Developer Tools (New) | 💡 Mindset & Culture
+
+
+---
+
+
+The full list has **108 X/Twitter links** organized across 17 topic categories. The document also includes a "Who Is Moon Dev?" section at the end. Is there a specific category you'd like to dig into, or would you like me to pull out just the links for a particular topic?

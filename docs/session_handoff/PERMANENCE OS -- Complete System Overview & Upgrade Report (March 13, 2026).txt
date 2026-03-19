@@ -1,0 +1,917 @@
+﻿PERMANENCE OS -- Complete System Overview & Upgrade Report (March 13, 2026)
+This document serves two purposes: (1) a comprehensive reference for the founder, Payton Hicks, describing the entire Permanence OS system as it stands today, and (2) a structured source document for Google NotebookLM ingestion, enabling it to understand, analyze, and generate curated briefs for future Claude Code sessions.
+________________
+
+
+WHAT IS PERMANENCE OS
+Permanence OS is a governed personal intelligence operating system built by Payton Hicks, a full-time founder who completed BS and MS degrees in Finance at the University of Arkansas. The project operates under the brand names Permanence OS and Ophtxn, hosted in the private GitHub repository github.com/MaxProspero/permanence-os.
+The Problem It Solves
+Most AI-assisted development tools give agents unlimited autonomy with no memory, no governance, and no persistent context between sessions. Every conversation starts from scratch. There is no approval process for destructive actions, no spending controls, no audit trail, and no way for the human operator to maintain true authority over what the AI does.
+What Permanence OS Does Differently
+Permanence OS treats AI agents as governed employees, not autonomous actors. Every significant action passes through approval gates. All API calls are logged with provenance. Spending is gated and auditable. Memory persists across sessions through a layered architecture of chronicles, episodic logs, working memory, and zero-point state. The human operator (Payton) is always the final authority.
+Key differentiators:
+* Governed execution: Canon-based approval gates, compliance checks, and a secret scanner prevent unauthorized actions.
+* Persistent memory: Chronicle system, episodic JSONL logs, working memory, and zero-point state survive across sessions.
+* Spending controls: Budget guardrails, daily caps, timed approvals, and cost-recovery planning for API spend.
+* Audit-first: Every API call logged, all actions append-only, provenance on every mutation.
+* Local-first: Runs entirely on the operator's machine. No cloud dependency for core operations.
+* Multi-model routing: Routes tasks to Claude, OpenAI, XAI, or Ollama based on cost, capability, and task type.
+________________
+
+
+THE THREE-LAYER ARCHITECTURE
+Permanence OS uses a three-layer context architecture that governs how Claude agents interact with the codebase. This architecture reduces hallucination, keeps agents focused, and eliminates the problem of agents reading irrelevant files.
+Layer 1: CLAUDE.md (The Map)
+The root-level CLAUDE.md file is the project map. Every agent session reads this first. It defines:
+* Project identity (owner, repo, status)
+* The floor plan: every top-level directory, what it contains, and when to look there
+* Live service URLs and ports
+* All 14 site pages with file names and purposes
+* Naming conventions for commits, branches, and documents
+* Global code standards (Python, HTML/CSS, fonts, colors)
+* The "never touch" list (hard rules that must not be violated)
+* Routing instructions (how agents should approach tasks)
+* Success definition (pytest passing, secret scanner clean, pages rendering correctly)
+Layer 2: context.md (Routing Tables)
+Per-directory context.md files provide scoped instructions for each workspace. These files tell agents:
+* What files exist in this directory
+* What tasks are relevant here
+* Which files to read for specific task types
+* Which files to skip
+Context files exist in: site/foundation/, agents/, core/, scripts/, and other workspace directories. This layer dramatically reduces prompt size and keeps agents from wandering into unrelated code.
+Layer 3: Workspaces
+VS Code workspace configurations (.vscode/) and specialized directories (docs/design/, docs/workflows/) bundle related files with their own rules and templates. This layer provides:
+* IDE-level file grouping
+* Task-specific workflow templates
+* Design rules as a standalone reference document
+Why This Matters
+Traditional AI coding tools dump the entire codebase into context or rely on the AI to figure out what is relevant. The three-layer architecture means agents start with a map, drill into the relevant workspace, and only read files they actually need. This produces faster, more accurate work with fewer errors.
+________________
+
+
+LIVE SERVICES
+Service
+	URL
+	Backend
+	Purpose
+	Command Center
+	http://127.0.0.1:8000
+	dashboard_api.py (Flask)
+	Operational API and dashboard UI serving 52+ endpoints for approvals, briefings, revenue, chronicle, spending, planning, and agent management
+	Foundation Site
+	http://127.0.0.1:8787
+	scripts/foundation_site.py (static file server)
+	14 HTML pages forming the visual surface of the OS
+	Ophtxn Shell
+	http://127.0.0.1:8797/app/ophtxn
+	app/ Flask package
+	Interactive terminal-style AI interaction interface
+	Command Center API Endpoint Categories
+The Command Center exposes 52+ API endpoints organized into these categories:
+Category
+	Endpoints
+	Purpose
+	System Status
+	/api/status
+	Runtime health, version, uptime
+	Approvals
+	/api/approvals, /api/approvals/<id>/approve, /api/approvals/<id>/reject, /api/approvals/approve-all
+	Human approval gates for governed actions
+	Briefings
+	/api/briefings, /api/briefings/latest
+	Aggregated intelligence briefings
+	Revenue Operations
+	/api/revenue/latest, /api/revenue/pipeline, /api/revenue/pipeline/lead, /api/revenue/intake, /api/revenue/playbook, /api/revenue/targets, /api/revenue/action, /api/revenue/outreach, /api/revenue/deal-event, /api/revenue/deal-events, /api/revenue/site-event, /api/revenue/site-events, /api/revenue/run-loop
+	Full revenue pipeline management
+	Second Brain
+	/api/second-brain/latest
+	Life + business + side-income snapshot
+	Horizon
+	/api/horizon, /api/horizon/latest
+	Horizon scanning intelligence
+	Chronicle
+	/api/chronicle, /api/chronicle/latest
+	Historical timeline and self-improvement data
+	Canon
+	/api/canon
+	Governance rules and identity config
+	Memory
+	/api/memory/episodic
+	Episodic memory retrieval
+	Logs
+	/api/logs
+	Runtime log access
+	Agent Console
+	/api/agent-console/commands, /api/agent-console/constitution, /api/agent-console/messages, /api/agent-console/uploads, /api/agent-console/upload, /api/agent-console/send
+	Agent interaction terminal
+	Social
+	/api/social/drafts, /api/social/drafts/<id>, /api/social/drafts/<id>/approve, /api/social/drafts/<id>/reject, /api/social/drafts/<id>/published, /api/social/stats
+	Social media draft queue with approval
+	Spending
+	/api/spending/status, /api/spending/approve, /api/spending/mode, /api/spending/requests, /api/spending/approve-timed, /api/spending/approve-steps, /api/spending/approve-task, /api/spending/complete-task, /api/spending/daily-cap, /api/spending/budget-plan, /api/spending/revoke-all
+	Budget and spending controls
+	Model Judge
+	/api/judge/report, /api/judge/ranking, /api/judge/recommend
+	Model evaluation and selection
+	Planner
+	/api/planner/agenda, /api/planner/tasks, /api/planner/tasks/<id>, /api/planner/tasks/<id>/start, /api/planner/tasks/<id>/complete, /api/planner/tasks/<id>/cancel, /api/planner/plan, /api/planner/stats
+	Task planning and tracking
+	Arena
+	/api/arena/state
+	Agent arena state
+	Static Assets
+	/, /office, /manifest.json, /sw.js, /runtime.config.js, /assets/<path>, /<page>
+	Dashboard UI and file serving
+	________________
+
+
+ALL 14 SITE PAGES (Complete Inventory)
+All pages live under site/foundation/ and share a unified navigation bar, consistent design system, and the same Google Fonts link. Every page links to every other page via the File dropdown menu.
+#
+	File
+	Page Name
+	What It Shows
+	Key Features
+	Status
+	1
+	index.html
+	Home / Landing
+	System overview, pillars, timeline, signup
+	Hero section, system pillars, project timeline, call-to-action
+	Existing (updated)
+	2
+	local_hub.html
+	Local Hub (Control Room)
+	Local service health, system status dashboard
+	Service health indicators, quick-links to all services, uptime monitors
+	Existing (redesigned as mission control)
+	3
+	command_center.html
+	Command Center
+	Operational dashboard, service status
+	Real-time system metrics, approval queue, revenue ops view
+	Existing (updated)
+	4
+	trading_room.html
+	Trading Room
+	Market data, backtests, trading signals
+	Market interface panels, signal displays, backtest results
+	Existing (updated)
+	5
+	markets_terminal.html
+	Markets Terminal
+	Live market terminal, quotes, data feeds
+	Terminal-style market data, quote feeds, real-time pricing
+	Existing (updated)
+	6
+	night_capital.html
+	Night Capital
+	Venture intelligence dashboard
+	After-hours operations, overnight automation monitoring, venture analysis
+	New (this session)
+	7
+	daily_planner.html
+	Daily Planner
+	Task management, schedule, priorities
+	Day planning interface, task board, priority management
+	Existing (updated)
+	8
+	ophtxn_shell.html
+	Ophtxn Shell (Terminal)
+	Terminal-style AI interaction interface
+	Shell/REPL for agent commands, command history, output display
+	Existing (updated)
+	9
+	rooms.html
+	Tower (Rooms)
+	Workspace and room navigator
+	Collaborative workspace panels, room selection, workspace state
+	Existing (updated)
+	10
+	ai_school.html
+	AI School
+	Learning resources, training modules
+	Education interface, training content, learning paths
+	Existing (updated)
+	11
+	official_app.html
+	App Studio (Official App)
+	App download, feature showcase
+	Application interface, feature display, download options
+	Existing (updated)
+	12
+	agent_view.html
+	Agent View
+	Agent roster, department structure, status
+	FaceTime-like agent interface, department org chart, agent status indicators
+	New (this session)
+	13
+	comms_hub.html
+	Comms Hub
+	Unified Discord/Telegram/WhatsApp chat
+	Communications dashboard, multi-platform message aggregation
+	New (this session)
+	14
+	press_kit.html
+	Mind Map (Press Kit)
+	Mind mapping, brand assets, media resources
+	Brand assets display, media resources, public information
+	Existing (updated)
+	________________
+
+
+BACKEND ARCHITECTURE
+dashboard_api.py -- 52+ API Endpoints
+The Flask backend API serves as the nerve center of Permanence OS. It runs locally at port 8000 with CORS configured for local development and production domains. All write actions are logged with provenance. The API follows the Canon principle: "No autonomy without audit."
+See the endpoint table in the Live Services section above for the complete categorized list.
+Agent System -- 12 Core Agents + 9 Department Agents + 6 Special Agents
+Core Agents (agents/)
+Agent
+	File
+	Role
+	Planner
+	planner.py
+	Task decomposition and sequencing
+	Researcher
+	researcher.py
+	Source ingestion, document analysis, web search
+	Executor
+	executor.py
+	Task execution with spec-bound output
+	Reviewer
+	reviewer.py
+	Evidence coverage checks, source dominance detection
+	Conciliator
+	conciliator.py
+	Conflict resolution between agents
+	Compliance Gate
+	compliance_gate.py
+	Canon compliance enforcement
+	Synthesis Agent
+	synthesis_agent.py
+	Multi-source synthesis and brief generation
+	Identity Agent
+	identity.py
+	Identity and brand voice enforcement
+	King Bot
+	king_bot.py
+	High-level orchestration
+	Base Agent
+	base.py
+	Shared agent foundation
+	Researcher Adapters
+	researcher_adapters.py
+	URL fetch, web search (Tavily), document ingestion adapters
+	Agent Utilities
+	utils.py
+	Shared helpers for all agents
+	Department Agents (agents/departments/)
+Agent
+	File
+	Role
+	Briefing Agent
+	briefing_agent.py
+	Aggregated intelligence briefings (email, health, social, system)
+	Device Agent
+	device_agent.py
+	Device control and Mac Mini management
+	Email Agent
+	email_agent.py
+	Gmail read-only triage and report
+	Health Agent
+	health_agent.py
+	System health summary and reporting
+	HR Agent (The Shepherd)
+	hr_agent.py
+	Weekly health reporting, family covenant
+	Reception Agent
+	reception_agent.py
+	Interface intake gateway with sanitization
+	Social Agent
+	social_agent.py
+	Social media draft queue and summary
+	Therapist Agent
+	therapist_agent.py
+	Behavioral and wellness support
+	Trainer Agent
+	trainer_agent.py
+	Agent training and capability development
+	Special Agents (special/)
+Agent
+	File
+	Role
+	Arcana Engine
+	arcana_engine.py
+	3-6-9 heuristic scan and looking-glass branch projection
+	Arch Evolution Agent
+	arch_evolution_agent.py
+	Architecture evolution planning
+	Chimera Builder
+	chimera_builder.py
+	Composite agent construction
+	Digital Twin
+	digital_twin.py
+	Project timeline and twin simulation
+	Muse Agent
+	muse_agent.py
+	Creative and ideation support
+	Practice Squad
+	practice_squad.py
+	Scrimmage and hyper-sim training modules
+	Core Modules (core/)
+Module
+	File
+	Purpose
+	Memory
+	memory.py
+	Episodic JSONL logger, memory read/write
+	Model Router
+	model_router.py
+	Routes tasks to optimal model (Claude, OpenAI, XAI, Ollama)
+	Spending Gate
+	spending_gate.py
+	Budget guardrails, daily caps, approval workflows
+	Cost Tracker
+	cost_tracker.py
+	API spend tracking and cost-recovery metrics
+	Device Control
+	device_control.py
+	Mac/device management operations
+	Interface Agent
+	interface_agent.py
+	Intake gateway with sanitization and ticket IDs
+	Model Judge
+	model_judge.py
+	Model evaluation, ranking, and recommendation
+	Polemarch
+	polemarch.py
+	Governor agent, risk assessment, intake routing
+	Storage
+	storage.py
+	Data persistence layer with LaCie-aware fallback
+	Synthesis DB
+	synthesis_db.py
+	Synthesis database for compiled outputs
+	Task Planner
+	task_planner.py
+	Task decomposition and scheduling
+	137 Python Scripts (scripts/)
+The scripts directory contains the main execution layer of the system, organized by function:
+Category
+	Scripts
+	Examples
+	Revenue Operations
+	13 scripts
+	revenue_action_queue.py, revenue_execution_board.py, revenue_outreach_pack.py, revenue_playbook.py, revenue_targets.py, sales_pipeline.py, money_first_gate.py
+	Chronicle System
+	8 scripts
+	chronicle_backfill.py, chronicle_capture.py, chronicle_report.py, chronicle_publish.py, chronicle_approve.py, chronicle_control.py
+	Communications
+	7 scripts
+	comms_status.py, comms_doctor.py, comms_digest.py, comms_automation.py, discord_telegram_relay.py, telegram_control.py
+	Second Brain
+	5 scripts
+	second_brain_init.py, second_brain_report.py, life_os_brief.py, side_business_portfolio.py, prediction_lab.py
+	Ophtxn Operations
+	6 scripts
+	ophtxn_brain.py, ophtxn_completion.py, ophtxn_daily_ops.py, ophtxn_launchpad.py, ophtxn_ops_pack.py, ophtxn_production_ops.py
+	Market Intelligence
+	4 scripts
+	market_backtest_queue.py, market_focus_brief.py, world_watch_ingest.py, world_watch_alerts.py
+	Security and Compliance
+	3 scripts
+	secret_scan.py, anthropic_keychain.py, connector_keychain.py
+	Ingestion Pipeline
+	7 scripts
+	ingest_sources.py, ingest_documents.py, ingest_drive_all.py, github_research_ingest.py, social_research_ingest.py, ecosystem_research_ingest.py
+	Automation Loops
+	6 shell scripts
+	run_money_loop.sh, run_second_brain_loop.sh, run_comms_loop.sh, run_completion_loop.sh, run_self_improvement_loop.sh, run_telegram_chat_loop.sh
+	Infrastructure
+	8 scripts
+	operator_surface.py, foundation_site.py, command_center.py, remote_ready.py, dell_remote.py, mac_mini_remote.py, setup_desktop_launchers.py
+	Promotion and Memory
+	5 scripts
+	promote_memory.py, promotion_queue.py, promotion_review.py, promotion_daily.py
+	Evaluation and Gates
+	5 scripts
+	eval_harness.py, phase_gate.py, reliability_gate.py, reliability_watch.py, logos_gate.py
+	Reporting
+	6 scripts
+	dashboard_report.py, status.py, status_glance.py, health_summary.py, system_snapshot.py, automation_daily_report.py
+	Other
+	Remaining scripts
+	Agent ops, file organization, email triage, social drafts, clean artifacts, Git automation, etc.
+	________________
+
+
+DESIGN SYSTEM
+Font Stack
+Usage
+	Font Family
+	Weights
+	CSS Variable
+	Body text
+	Sora
+	400, 600, 700, 800
+	var(--sans)
+	Code / monospace
+	IBM Plex Mono
+	400, 600
+	var(--mono)
+	Display / headings
+	Orbitron
+	700, 900
+	var(--game)
+	Labels / small mono
+	DM Mono
+	400, 500
+	var(--mono)
+	Forbidden fonts: Inter, Roboto, Arial, Space Grotesk. These must never be used as primary display fonts.
+Color Palette
+Name
+	Hex
+	CSS Variable
+	Usage
+	Teal
+	#00e5c4
+	var(--c1)
+	Primary accent, live indicators, links
+	Gold
+	#efbb5f
+	var(--c2)
+	Secondary accent, status labels, highlights
+	Blue
+	#73b8ff
+	var(--c3)
+	Tertiary accent, informational
+	Rose
+	#ff5c8a
+	var(--rose)
+	Alerts, errors, destructive actions
+	Violet
+	#7b6fff
+	var(--violet)
+	Special highlights, progress bars
+	Ink
+	#e7f4ff
+	var(--ink)
+	Primary text
+	Muted
+	#7b96af
+	var(--muted)
+	Secondary text
+	Dim
+	#3a5068
+	var(--dim)
+	Tertiary text, disabled states
+	Background
+	#060a10
+	var(--bg)
+	Page background
+	Card BG
+	rgba(10,18,30,0.72)
+	var(--bg-card)
+	Card backgrounds
+	Glass
+	rgba(12,22,38,0.58)
+	var(--glass)
+	Glassmorphism panels
+	Line
+	rgba(146,188,214,0.14)
+	var(--line)
+	Default borders
+	Line Highlight
+	rgba(0,229,196,0.25)
+	var(--line-hi)
+	Active/hover borders
+	CSS Custom Properties (Full List)
+All pages define these tokens in :root:
+--bg, --bg-card, --glass
+--line, --line-hi
+--ink, --muted, --dim
+--c1, --c2, --c3, --rose, --violet
+--radius (16px)
+--mono, --sans, --game
+--f-rgb, --f (film grain overlay)
+
+
+Glassmorphism Pattern
+The default card style across all pages:
+* Background: var(--bg-card) with backdrop-filter: blur(18px)
+* Border: 1px solid var(--line) transitioning to var(--line-hi) on hover
+* Border radius: var(--radius) (16px)
+* Padding: 24px (reducing to 16px on mobile)
+* Requires -webkit-backdrop-filter prefix for Safari
+Theme Variants
+The system supports 10 visual theme contexts across the site pages:
+1. Default Dark -- Standard dark glassmorphism (index, local_hub, rooms)
+2. Command -- Mission control density with status grids (command_center)
+3. Terminal -- Monospace-heavy, shell-like interface (ophtxn_shell)
+4. Trading -- Data-dense, market-focused layout (trading_room, markets_terminal)
+5. Night -- Darker variant for after-hours operations (night_capital)
+6. Planner -- Task-oriented, calendar-friendly (daily_planner)
+7. Agent -- FaceTime-inspired card layout (agent_view)
+8. Comms -- Message-centric, chat-style (comms_hub)
+9. Education -- Learning module layout (ai_school)
+10. Showcase -- Feature presentation style (official_app, press_kit)
+Responsive Breakpoints
+Breakpoint
+	Target
+	Default
+	1440px desktop
+	max-width: 900px
+	Tablet
+	max-width: 600px
+	Mobile (375px)
+	Key responsive rules:
+* Grid layouts collapse to single column below 900px
+* Font sizes reduce by 1-2px on mobile
+* Padding reduces from 24px to 16px on mobile
+* Menubar remains fixed on all viewports
+* Cards stack vertically on mobile
+General Design Rules
+* NO emojis anywhere -- use text labels, CSS shapes, or SVG icons
+* Always use CSS custom properties, never hardcoded hex in component styles
+* All images must have alt text
+* Page title format: PageName | Permanence OS
+* Meta theme-color: #0a1118
+* Staggered animations via .animate:nth-child with fadeUp keyframes
+* Film grain overlay on body::before at 0.03 opacity
+* Corner bracket decorations using ::before / ::after pseudo-elements
+* Menubar: fixed position, z-index: 1000, rgba(10,18,30,0.95) background with backdrop blur
+________________
+
+
+WHAT WAS UPGRADED THIS SESSION (March 13, 2026)
+New Pages Created (3)
+1. Night Capital (night_capital.html) -- Venture intelligence dashboard for after-hours operations and overnight automation monitoring.
+2. Agent View (agent_view.html) -- FaceTime-like agent interface showing agent roster, department structure, and real-time status.
+3. Comms Hub (comms_hub.html) -- Unified communications dashboard aggregating Discord, Telegram, WhatsApp, and email.
+Control Room Redesign
+* local_hub.html redesigned as a mission control surface with service health indicators, quick-links, and uptime monitors.
+Emoji Removal
+* All emojis removed from every HTML page across the entire Foundation Site. Text labels, CSS shapes, and SVG icons used as replacements.
+Font Standardization
+* Standardized all 14 pages to the approved font stack: Sora, IBM Plex Mono, Orbitron, DM Mono.
+* Removed all legacy font references: Syne, DM Sans, Instrument Sans, Playfair Display.
+* Every page now uses the same Google Fonts link.
+CSS Variable Unification
+* Unified CSS variable naming across all pages to the canonical set: --c1, --c2, --c3, --rose, --violet.
+* Eliminated 4 inconsistent CSS variable naming conventions.
+Navigation Completeness
+* Every page now links to every other page via the File dropdown menu in the menubar.
+* Consistent menubar structure across all 14 pages.
+Three-Layer Architecture Implemented
+* CLAUDE.md restructured as the project map (Layer 1).
+* context.md routing files created in 6 directories: site/foundation/, agents/, core/, scripts/, and others (Layer 2).
+* VS Code workspace configuration created in .vscode/ (Layer 3).
+Python Backend Fixes
+* dashboard_api.py: 5 try/except fixes for error handling hardening.
+* scripts/foundation_site.py: Foundation API root now returns a JSON endpoint list instead of a 404.
+* scripts/operator_surface.py: Process cleanup with atexit, killpg, no zombie processes.
+VS Code Workspace Configuration
+* .vscode/settings.json, .vscode/launch.json, .vscode/extensions.json created for standardized development environment.
+Context Files Created
+* context.md routing tables created in 6 directories to enable Layer 2 of the three-layer architecture.
+Design Rules Documented
+* design/rules.md created with complete CSS custom properties, font stack, color palette, component patterns (glassmorphism cards, corner brackets, menubar, film grain), responsive breakpoints, and general rules.
+Workflow Templates
+* Workflow templates created for common tasks (new page creation, style fixes, navigation updates).
+________________
+
+
+WHAT EXISTS VS WHAT IS PLANNED
+Current State -- What Works Right Now
+Area
+	Status
+	Foundation Site
+	14 HTML pages, all rendered, all cross-linked, consistent design system
+	Command Center API
+	52+ endpoints, locally accessible, CORS configured
+	Ophtxn Shell
+	Interactive terminal interface at port 8797
+	Agent System
+	27 agents (12 core + 9 department + 6 special)
+	Test Suite
+	772+ tests across 163 test files, all passing
+	Automation
+	16 launchd-managed scheduled services
+	Revenue Pipeline
+	Full lead management, outreach drafts, deal events, targets
+	Chronicle System
+	Backfill, capture, report, publish pipeline
+	Second Brain
+	Life OS + business + side-income snapshot with cost-recovery metrics
+	Communications
+	Discord/Telegram relay, comms doctor, escalation digest
+	Security
+	Secret scanner, keychain management, pre-push hooks
+	Memory
+	Episodic JSONL, chronicle, working memory, zero-point state, proposal queue
+	Model Routing
+	Claude, OpenAI, XAI, Ollama with model judge and cost tracking
+	CLI
+	100+ commands via cli.py
+	Next Phase Ideas
+These are features the founder has discussed for future sessions:
+Feature
+	Description
+	NotebookLM Integration Page
+	Dedicated page for managing Google NotebookLM sync, viewing curated briefs, and feeding context back to Claude
+	Email Extension/Viewer
+	In-app email viewer with triage, tagging, and reply drafting
+	Notes Page
+	Obsidian-like note-taking surface with linked references and graph visualization
+	Browser/Search with Tabs
+	Built-in browser with tabbed search using Chrome agent access for research
+	Agent Status Indicators
+	Real-time OpenClaw and MoltBot status indicators on dashboard pages
+	Builder/Workshop Area
+	Visual workspace for constructing agents, workflows, and automation chains
+	Apple-Style Menubar Enhancements
+	Extended dropdown menus (Edit, Tools, Help) with contextual actions per page
+	________________
+
+
+HOW TO FEED THIS BACK TO CLAUDE
+Step 1: Upload to Google NotebookLM
+1. Open NotebookLM.
+2. Create a new notebook titled "Permanence OS -- March 2026".
+3. Upload this document (docs/session_2026_03_13_upgrade_report.md) as a source.
+4. Optionally also upload CLAUDE.md, CHANGELOG.md, and design/rules.md as additional sources for cross-referencing.
+Step 2: Have NotebookLM Compare Upgrades vs Current State
+Ask NotebookLM questions like:
+* "What changed in the March 13, 2026 session versus the prior state?"
+* "What are the key architectural decisions and why do they matter?"
+* "What is the complete file map of the project?"
+* "Summarize the agent system -- how many agents exist and what does each do?"
+* "What are the design rules that must be followed?"
+Step 3: Generate a Curated Brief
+Ask NotebookLM to generate a document with this prompt:
+"Create a concise project brief for Permanence OS that a new Claude Code session could read to understand the entire system in under 2000 words. Include: what the project is, the three-layer architecture, the live services, the agent hierarchy, the design system rules, the never-touch list, and the current priorities. Format it as a CLAUDE.md-compatible markdown file."
+Step 4: Feed the Brief Back to Claude Code
+1. Copy the NotebookLM-generated brief.
+2. In a new Claude Code session, paste it as context at the start of the conversation.
+3. Alternatively, save it as a file (e.g., docs/notebooklm_brief_2026_03.md) and reference it in CLAUDE.md under a new "External Briefs" section.
+Step 5: What Claude Needs to Know to Continue
+For seamless continuation, any future Claude Code session needs:
+* The current CLAUDE.md (always read first)
+* The relevant context.md for the workspace being edited
+* The design/rules.md for any site work
+* Knowledge of the three-layer architecture so it routes itself correctly
+* The "never touch" list so it does not violate hard constraints
+* The current test count (772+) so it knows the passing baseline
+* The approved font stack and color palette
+________________
+
+
+FILE MAP (For NotebookLM Reference)
+Root-Level Files
+CLAUDE.md                  -- Project map (Layer 1)
+README.md                  -- Project overview and quick start
+CHANGELOG.md               -- Version history and change log
+CONTRIBUTING.md            -- Contribution guidelines
+cli.py                     -- Unified CLI entrypoint (100+ commands)
+dashboard_api.py           -- Flask backend API (52+ endpoints)
+dashboard_index.html       -- Command Center UI
+horizon_agent.py           -- Horizon scanning agent
+context_loader.py          -- Context assembly for agent runs
+run_task.py                -- Task execution entry point
+setup_integrations.py      -- Integration bootstrapping
+codex_build_package.py     -- Codex build packaging
+pytest.ini                 -- Test configuration
+requirements.txt           -- Python dependencies
+.env.example               -- Environment variable template
+
+
+Site Pages (site/foundation/)
+index.html                 -- Home / Landing
+local_hub.html             -- Local Hub (Control Room)
+command_center.html        -- Command Center
+trading_room.html          -- Trading Room
+markets_terminal.html      -- Markets Terminal
+night_capital.html         -- Night Capital
+daily_planner.html         -- Daily Planner
+ophtxn_shell.html          -- Ophtxn Shell (Terminal)
+rooms.html                 -- Tower (Rooms)
+ai_school.html             -- AI School
+official_app.html          -- App Studio
+agent_view.html            -- Agent View
+comms_hub.html             -- Comms Hub
+press_kit.html             -- Mind Map (Press Kit)
+context.md                 -- Layer 2 routing for site work
+
+
+Agents (agents/)
+base.py                    -- Shared agent foundation
+planner.py                 -- Task planning and decomposition
+researcher.py              -- Source ingestion and analysis
+researcher_adapters.py     -- URL fetch, web search, document adapters
+executor.py                -- Task execution
+reviewer.py                -- Evidence and quality review
+conciliator.py             -- Conflict resolution
+compliance_gate.py         -- Canon compliance enforcement
+synthesis_agent.py         -- Multi-source synthesis
+identity.py                -- Identity and brand voice
+king_bot.py                -- High-level orchestration
+utils.py                   -- Agent utilities
+context.md                 -- Layer 2 routing for agent work
+
+
+Department Agents (agents/departments/)
+briefing_agent.py          -- Intelligence briefing aggregation
+device_agent.py            -- Device management
+email_agent.py             -- Email triage
+health_agent.py            -- System health
+hr_agent.py                -- HR reporting (The Shepherd)
+reception_agent.py         -- Intake gateway
+social_agent.py            -- Social media management
+therapist_agent.py         -- Behavioral support
+trainer_agent.py           -- Agent training
+
+
+Special Agents (special/)
+arcana_engine.py           -- 3-6-9 heuristic scan
+arch_evolution_agent.py    -- Architecture evolution
+chimera_builder.py         -- Composite agent construction
+digital_twin.py            -- Project timeline / twin simulation
+muse_agent.py              -- Creative and ideation
+practice_squad.py          -- Scrimmage and training
+
+
+Core Modules (core/)
+memory.py                  -- Episodic memory logger
+model_router.py            -- Multi-model routing
+spending_gate.py           -- Budget guardrails
+cost_tracker.py            -- API cost tracking
+device_control.py          -- Device operations
+interface_agent.py         -- Intake gateway
+model_judge.py             -- Model evaluation
+polemarch.py               -- Governor agent
+storage.py                 -- Data persistence
+synthesis_db.py            -- Synthesis database
+synthesis_db_compat.py     -- DB compatibility layer
+task_planner.py            -- Task scheduling
+context.md                 -- Layer 2 routing for core work
+
+
+Scripts (scripts/) -- 137 Python Files
+See the categorized table in the Backend Architecture section above. Major categories: Revenue Operations, Chronicle System, Communications, Second Brain, Ophtxn Operations, Market Intelligence, Security, Ingestion Pipeline, Automation Loops, Infrastructure, Promotion/Memory, Evaluation/Gates, Reporting.
+Memory (memory/)
+chronicle/                 -- Timeline events and shared publish outputs
+episodic/                  -- Session-level memory logs (JSONL)
+inbox/                     -- Incoming items queue
+tool/                      -- Tool output payloads
+working/                   -- Active working state files
+zero_point.py              -- Zero-point state manager
+zero_point_store.json      -- Persistent zero-point state
+proposal_queue.py          -- Governed proposal queue
+approvals.json             -- Approval records (referenced from memory/)
+
+
+Models (models/)
+base.py                    -- Model base class
+claude.py                  -- Anthropic Claude adapter
+openai_model.py            -- OpenAI adapter
+xai.py                     -- XAI (Grok) adapter
+ollama.py                  -- Ollama local model adapter
+registry.py                -- Model registry and selection
+
+
+Canon (canon/)
+base_canon.yaml            -- Core governance rules
+brand_identity.yaml        -- Brand voice and identity (CA-013)
+dna.yaml                   -- System DNA and design identity
+
+
+Documentation (docs/)
+README.md                  -- Docs index
+architecture.md            -- System architecture
+cli_reference.md           -- CLI command reference
+memory_system.md           -- Memory architecture docs
+ophtxn_governance_operating_model.md
+ophtxn_operator_command_guide.md
+compression_framework.md
+agent_specs.md
+brand/                     -- Brand reference documents
+research/                  -- Research documents
+sales/                     -- Sales documents
+archive/                   -- Archived documents
+(40+ additional docs)
+
+
+Automation (automation/) -- 33 Files
+setup_automation.sh                        -- Master automation setup
+run_briefing.sh                            -- Briefing run script
+run_revenue_ops_maintenance.sh             -- Revenue ops maintenance
+healthcheck.py                             -- Health check utility
+setup_*/disable_* pairs for:
+  - money_loop, second_brain, revenue_ops, operator_surface
+  - comms_loop, comms_digest, comms_doctor, comms_escalation_digest
+  - completion, self_improvement, telegram_chat
+  - reliability_watch, secret_scan_hook, dell
+dell_wsl_helpers.ps1                       -- PowerShell Dell helpers
+
+
+Other Directories
+app/                       -- Flask web application (Foundation API package)
+codex/                     -- Codex integration docs
+examples/                  -- Example workflows
+knowledge_graph/           -- Knowledge representation (graph.json)
+launchd/                   -- macOS launchd plist files (6 plists)
+logs/                      -- Runtime logs
+outputs/                   -- Generated artifacts and briefings
+permanence_storage/        -- Data storage layer (permanence.db, archives)
+tunnel/                    -- Cloudflare tunnel config
+tests/                     -- 163 test files, 772+ tests
+.vscode/                   -- VS Code workspace configuration
+design/                    -- Design rules and visual philosophy
+
+
+________________
+
+
+TECH STACK
+Layer
+	Technology
+	Purpose
+	Backend Language
+	Python 3
+	All core logic, CLI, agents, scripts
+	Web Framework
+	Flask + Flask-CORS
+	Dashboard API, Foundation server, Ophtxn shell
+	Frontend
+	HTML5 / CSS3 / Vanilla JS
+	14 Foundation Site pages with glassmorphism design
+	CSS Architecture
+	CSS Custom Properties
+	Themeable, consistent design tokens across all pages
+	CSS Animations
+	CSS @keyframes, staggered nth-child
+	Smooth fade-up entry animations
+	Automation
+	macOS launchd
+	16 scheduled services for briefings, money loop, second brain, comms, etc.
+	Remote Access
+	Tailscale
+	Secure Mac Mini remote access
+	Testing
+	pytest
+	772+ tests across 163 files
+	Version Control
+	Git / GitHub
+	Private repo, feature branches, PR workflow
+	AI Models
+	Anthropic (Claude)
+	Primary LLM for agent execution
+	AI Models
+	OpenAI (GPT)
+	Secondary LLM, used via model router
+	AI Models
+	XAI (Grok)
+	Tertiary LLM option
+	AI Models
+	Ollama
+	Local model execution
+	AI Models
+	Google (Gemini)
+	Additional model option
+	Knowledge
+	Google NotebookLM
+	Document synthesis and context generation
+	Communication
+	Notion API
+	Ledger integration, structured data
+	Database
+	SQLite (permanence.db)
+	Local persistence layer
+	Security
+	macOS Keychain
+	Secure API key storage
+	Security
+	Secret Scanner
+	Pre-push hook, staged file scanning
+	Document Ingestion
+	Google Drive API, Google Docs API
+	Source document ingestion
+	Email
+	Gmail API (read-only OAuth)
+	Email triage and briefing
+	PDF
+	pypdf
+	PDF text extraction for document ingestion
+	Social
+	X (Twitter) API (read-only)
+	Social research ingestion
+	Messaging
+	Discord, Telegram, WhatsApp
+	Multi-platform communication relay
+	Search
+	Tavily
+	Web search adapter for Researcher agent
+	________________
+
+
+This document was generated on March 13, 2026, as part of the Permanence OS session upgrade process. It reflects the complete state of the system at the time of writing.

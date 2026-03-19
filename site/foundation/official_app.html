@@ -12,7 +12,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@700;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -32,15 +32,12 @@
       --border-hi: rgba(0,229,196,0.25);
       --ink: #e8f0ff;
       --muted: #6a7fa0;
-      --c1: #00e5c4;
-      --c2: #f8c842;
-      --violet: #7b6fff;
-      --rose: #ff5c8a;
+      --c-teal: #00e5c4;
+      --c-gold: #f8c842;
+      --c-violet: #7b6fff;
+      --c-rose: #ff5c8a;
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
-      --sans: "Sora", system-ui, sans-serif;
-      --mono: "IBM Plex Mono", "DM Mono", monospace;
-      --game: "Orbitron", monospace;
     }
 
     html {
@@ -50,7 +47,7 @@
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: var(--sans);
+      font-family: 'Syne', sans-serif;
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
@@ -109,11 +106,11 @@
     }
 
     .nav-brand {
-      font-family: var(--sans);
+      font-family: 'Syne', sans-serif;
       font-weight: 800;
       font-size: 13px;
       letter-spacing: 0.14em;
-      color: var(--c1);
+      color: var(--c-teal);
       text-decoration: none;
       white-space: nowrap;
       text-transform: uppercase;
@@ -127,7 +124,7 @@
     }
 
     .nav-pill {
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 11.5px;
       font-weight: 500;
       letter-spacing: 0.06em;
@@ -150,7 +147,7 @@
 
     /* ── Hero ── */
     .hero {
-      padding: 92px 0 68px;
+      padding: 88px 0 64px;
       opacity: 0;
       transform: translateY(24px);
       animation: fadeUp 0.6s ease forwards;
@@ -158,12 +155,12 @@
     }
 
     .eyebrow {
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--c1);
+      color: var(--c-teal);
       margin-bottom: 16px;
       display: flex;
       align-items: center;
@@ -175,12 +172,12 @@
       display: block;
       width: 24px;
       height: 1px;
-      background: var(--c1);
+      background: var(--c-teal);
       opacity: 0.6;
     }
 
     .hero-h1 {
-      font-family: var(--sans);
+      font-family: 'Syne', sans-serif;
       font-size: clamp(32px, 5vw, 56px);
       font-weight: 800;
       line-height: 1.1;
@@ -191,13 +188,12 @@
     }
 
     .hero-sub {
-      font-family: var(--sans);
+      font-family: 'Syne', sans-serif;
       font-size: 17px;
       font-weight: 400;
       color: var(--muted);
       max-width: 560px;
       line-height: 1.65;
-      margin-bottom: 0;
     }
 
     /* ── Glass card ── */
@@ -209,70 +205,14 @@
       border-radius: var(--r);
       box-shadow: var(--shadow);
       padding: 32px;
-      transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
-    }
-
-    .glass-card:hover {
-      border-color: var(--border-hi);
-      transform: translateY(-1px);
-      box-shadow: 0 22px 48px rgba(0,0,0,.24);
     }
 
     .glass-card.teal-accent {
-      border-left: 3px solid var(--c1);
-    }
-
-    .liquid-panel {
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-    }
-
-    .liquid-panel::before,
-    .liquid-panel::after {
-      content: "";
-      position: absolute;
-      inset: auto;
-      pointer-events: none;
-      z-index: 0;
-      filter: blur(8px);
-      opacity: 0.55;
-    }
-
-    .liquid-panel::before {
-      top: -18%;
-      right: -10%;
-      width: 240px;
-      height: 240px;
-      border-radius: 44% 56% 61% 39% / 42% 41% 59% 58%;
-      background: radial-gradient(circle at 30% 30%, rgba(0,229,196,0.24), rgba(0,229,196,0.03) 68%, transparent 74%);
-      animation: liquidFloat 16s ease-in-out infinite;
-    }
-
-    .liquid-panel::after {
-      left: -8%;
-      bottom: -22%;
-      width: 220px;
-      height: 220px;
-      border-radius: 63% 37% 46% 54% / 53% 58% 42% 47%;
-      background: radial-gradient(circle at 60% 40%, rgba(248,200,66,0.18), rgba(123,111,255,0.06) 58%, transparent 72%);
-      animation: liquidFloat 19s ease-in-out infinite reverse;
-    }
-
-    .liquid-panel > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    @keyframes liquidFloat {
-      0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-      33% { transform: translate3d(-10px, 16px, 0) scale(1.08) rotate(10deg); }
-      66% { transform: translate3d(14px, -12px, 0) scale(0.94) rotate(-8deg); }
-      100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+      border-left: 3px solid var(--c-teal);
     }
 
     .card-title {
-      font-family: var(--sans);
+      font-family: 'Syne', sans-serif;
       font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -290,8 +230,8 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--c1);
-      box-shadow: 0 0 8px var(--c1);
+      background: var(--c-teal);
+      box-shadow: 0 0 8px var(--c-teal);
     }
 
     /* ── Main grid ── */
@@ -317,7 +257,7 @@
 
     label {
       display: block;
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.12em;
@@ -335,7 +275,7 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       color: var(--ink);
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 13px;
       padding: 10px 14px;
       outline: none;
@@ -380,7 +320,7 @@
     }
 
     .btn {
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.08em;
@@ -388,7 +328,7 @@
       border-radius: 100px;
       border: none;
       cursor: pointer;
-      transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, border-color .2s ease, background .2s ease, color .2s ease;
+      transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
       white-space: nowrap;
       text-transform: uppercase;
     }
@@ -404,9 +344,8 @@
     }
 
     .btn-primary {
-      background: var(--c1);
+      background: var(--c-teal);
       color: #080d13;
-      box-shadow: 0 10px 22px rgba(var(--f-rgb),0.18);
     }
 
     .btn-ghost {
@@ -421,9 +360,8 @@
     }
 
     .btn-violet {
-      background: var(--violet);
+      background: var(--c-violet);
       color: #fff;
-      box-shadow: 0 10px 22px rgba(123,111,255,0.16);
     }
 
     .btn-sm {
@@ -438,291 +376,6 @@
       animation: fadeUp 0.6s ease forwards;
       animation-delay: 0.4s;
       margin-bottom: 24px;
-    }
-
-    .workspace-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 24px;
-      margin-bottom: 24px;
-      opacity: 0;
-      transform: translateY(24px);
-      animation: fadeUp 0.6s ease forwards;
-      animation-delay: 0.25s;
-    }
-
-    .workspace-stack {
-      display: grid;
-      gap: 24px;
-    }
-
-    .stack-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .mini-note {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 18px;
-    }
-
-    .workspace-list {
-      display: grid;
-      gap: 12px;
-      max-height: 380px;
-      overflow: auto;
-      padding-right: 4px;
-    }
-
-    .workspace-item {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.22);
-      padding: 14px 16px;
-      cursor: pointer;
-      transition: border-color .18s ease, background .18s ease, transform .18s ease;
-    }
-
-    .workspace-item:hover {
-      border-color: var(--border-hi);
-      transform: translateY(-1px);
-    }
-
-    .workspace-item.active {
-      border-color: var(--border-hi);
-      background: rgba(var(--f-rgb), 0.08);
-    }
-
-    .workspace-item-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .workspace-item-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .workspace-item-meta {
-      font-family: var(--mono);
-      font-size: 10.5px;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .workspace-item-copy {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(var(--f-rgb), 0.06);
-      color: var(--ink);
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .workspace-empty {
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 12px;
-      line-height: 1.7;
-      background: rgba(255, 255, 255, 0.015);
-    }
-
-    .inspector-grid {
-      display: grid;
-      gap: 14px;
-    }
-
-    .inspector-row {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      background: rgba(0, 0, 0, 0.22);
-    }
-
-    .inspector-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .inspector-value {
-      font-size: 13px;
-      color: var(--ink);
-      line-height: 1.6;
-    }
-
-    .review-shell {
-      display: grid;
-      gap: 16px;
-    }
-
-    .review-meta {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .suggestion-list {
-      display: grid;
-      gap: 10px;
-      max-height: 240px;
-      overflow: auto;
-    }
-
-    .suggestion-item {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      background: rgba(0,0,0,.18);
-    }
-
-    .suggestion-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-      align-items: center;
-    }
-
-    .suggestion-text {
-      font-size: 12.5px;
-      line-height: 1.6;
-      color: var(--ink);
-    }
-
-    .workflow-canvas {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background:
-        linear-gradient(rgba(var(--f-rgb),.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--f-rgb),.03) 1px, transparent 1px),
-        rgba(0,0,0,.18);
-      background-size: 28px 28px;
-      padding: 16px;
-      min-height: 220px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .workflow-node {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(10, 18, 30, 0.72);
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .workflow-node-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .workflow-node-meta {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .run-log {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 340px;
-      overflow: auto;
-    }
-
-    .run-step {
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.03);
-    }
-
-    .run-step-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .run-step-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .run-step-copy {
-      font-size: 12px;
-      line-height: 1.5;
-      color: var(--muted);
-      white-space: pre-wrap;
-    }
-
-    .run-summary {
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.03);
-      margin-bottom: 16px;
-    }
-
-    .run-summary-copy {
-      font-size: 12px;
-      line-height: 1.5;
-      color: var(--muted);
-      white-space: pre-wrap;
-    }
-
-    .run-step-block {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .run-step-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--c1);
-      margin-bottom: 6px;
     }
 
     .output-header {
@@ -745,19 +398,18 @@
     }
 
     #outputBlock {
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 12.5px;
       background: rgba(0, 0, 0, 0.35);
-      border-left: 3px solid var(--c1);
+      border-left: 3px solid var(--c-teal);
       padding: 16px;
       border-radius: 8px;
       min-height: 120px;
       overflow-x: auto;
-      color: var(--c1);
+      color: var(--c-teal);
       line-height: 1.7;
       white-space: pre;
       tab-size: 2;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
     }
 
     /* Override hljs to keep our teal base color while still showing syntax */
@@ -765,7 +417,7 @@
       background: rgba(0,0,0,0.35);
       padding: 16px;
       border-radius: 0;
-      color: var(--c1);
+      color: var(--c-teal);
     }
 
     /* ── Quick links ── */
@@ -778,7 +430,7 @@
     }
 
     .section-label {
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 10.5px;
       font-weight: 500;
       letter-spacing: 0.18em;
@@ -794,7 +446,7 @@
     }
 
     .quick-link {
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 12px;
       font-weight: 500;
       color: var(--muted);
@@ -807,7 +459,7 @@
     }
 
     .quick-link:hover {
-      color: var(--c1);
+      color: var(--c-teal);
       border-color: var(--border-hi);
       background: rgba(var(--f-rgb),0.06);
     }
@@ -822,9 +474,9 @@
       border: 1px solid var(--border-hi);
       border-radius: 10px;
       padding: 12px 20px;
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 12px;
-      color: var(--c1);
+      color: var(--c-teal);
       box-shadow: var(--shadow);
       opacity: 0;
       transform: translateY(10px);
@@ -879,7 +531,7 @@
     .modal-backdrop.open .modal-box { transform: translateY(0); }
 
     .modal-title {
-      font-family: var(--sans);
+      font-family: 'Syne', sans-serif;
       font-size: 15px; font-weight: 700;
       margin-bottom: 20px; color: var(--ink);
       display: flex; align-items: center; gap: 8px;
@@ -895,16 +547,16 @@
     .modal-close:hover { color: var(--ink); }
 
     .modal-label {
-      font-family: var(--mono); font-size: 10px;
+      font-family: 'DM Mono', monospace; font-size: 10px;
       letter-spacing: .14em; text-transform: uppercase;
       color: var(--muted); margin-bottom: 8px;
     }
 
     .modal-json {
-      font-family: var(--mono); font-size: 11.5px;
+      font-family: 'DM Mono', monospace; font-size: 11.5px;
       background: rgba(0,0,0,.4);
       border: 1px solid var(--border); border-radius: 10px;
-      padding: 14px; color: var(--c1);
+      padding: 14px; color: var(--c-teal);
       max-height: 200px; overflow-y: auto;
       white-space: pre-wrap; word-break: break-all;
       line-height: 1.6; margin-bottom: 16px;
@@ -918,7 +570,7 @@
       flex: 1;
       background: rgba(0,0,0,.3); border: 1px solid var(--border);
       border-radius: 10px; color: var(--muted);
-      font-family: var(--mono); font-size: 11px;
+      font-family: 'DM Mono', monospace; font-size: 11px;
       padding: 9px 12px; outline: none;
       overflow: hidden; white-space: nowrap;
     }
@@ -1010,18 +662,18 @@
     }
     .brand-reticle {
       width: 26px; height: 26px; flex-shrink: 0;
-      color: var(--c2);
+      color: var(--c-gold);
     }
     .arc-eyebrow {
       display: block;
-      font-family: var(--mono);
+      font-family: 'DM Mono', monospace;
       font-size: 10px; letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--c2); opacity: .4;
+      color: var(--c-gold); opacity: .4;
       margin-bottom: 10px;
     }
   /* ═══════════════ OS MENUBAR ═══════════════ */
-  :root { --f-rgb: 191,90,242; --f: rgb(var(--f-rgb)); }
+  :root { --f-rgb: 0,229,196; --f: rgb(var(--f-rgb)); --sans: var(--font-sans); --mono: 'DM Mono', monospace; }
   body { padding-top: 28px; }
   .os-menubar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
@@ -1037,7 +689,7 @@
   .mb-left { display: flex; align-items: center; gap: 0; }
   .mb-logo {
     display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; text-decoration: none; color: var(--c1, var(--c1));
+    width: 28px; height: 28px; text-decoration: none; color: var(--c1, var(--c-teal));
     transition: color .2s;
   }
   .mb-logo:hover { color: var(--ink); }
@@ -1127,7 +779,7 @@
     transition: all .15s; padding: 0; font-size: 12px;
   }
   .dd-bright-btn:hover { border-color: var(--border-hi); color: var(--ink); }
-  .dd-bright-btn.active { border-color: var(--c1, var(--c1)); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+  .dd-bright-btn.active { border-color: var(--c1, var(--c-teal)); background: rgba(var(--f-rgb),.1); color: var(--ink); }
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
   /* -- MENUBAR RESPONSIVE -- */
   @media(max-width:768px){
@@ -1141,36 +793,36 @@
 /* -- FAB BOT -- */
 .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
 .fab-bot:hover{box-shadow:0 0 36px rgba(var(--f-rgb),0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
-.fab-bot svg{color:var(--c1);pointer-events:none}
+.fab-bot svg{color:var(--c-teal);pointer-events:none}
 .fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid rgba(var(--f-rgb),0.25);border-radius:14px;padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(var(--f-rgb),0.08)}
 .fab-popup.open{display:block;animation:fabIn 200ms both}
 @keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(146,188,214,0.14);border-radius:8px;color:#e7f4ff;font-family:"DM Mono",monospace;font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
-.fab-popup input:focus{border-color:var(--c1)}
+.fab-popup input:focus{border-color:var(--c-teal)}
 .fab-popup input::placeholder{color:#7b96af}
 .fab-popup-label{font-size:11px;color:#7b96af;margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
     /* ── THEME: COPPER ─── */
-    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--violet:#e8a87c;--rose:#ff6b6b;--c1:#ffb347;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--dim:#3a2810;--c-teal:#ffb347;--c-gold:#ffd700;--c-violet:#e8a87c;--c-rose:#ff6b6b;--c1:#ffb347;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: VOID ───── */
-    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c1:#d0d0d0;--c2:#bbb;--violet:#999;--rose:#888;--c1:#d0d0d0;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--dim:#333;--c-teal:#d0d0d0;--c-gold:#bbb;--c-violet:#999;--c-rose:#888;--c1:#d0d0d0;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: OCEAN ───── */
-    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--violet:#6eb8ff;--rose:#ff5c8a;--c1:#4a9eff;--f-rgb:74,158,255}
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--dim:#304868;--c-teal:#4a9eff;--c-gold:#00d4ff;--c-violet:#6eb8ff;--c-rose:#ff5c8a;--c1:#4a9eff;--f-rgb:74,158,255}
     /* ── THEME: ROSE ────── */
-    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--violet:#d06fff;--rose:#ff5c8a;--c1:#ff5c8a;--f-rgb:255,92,138}
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--dim:#683040;--c-teal:#ff5c8a;--c-gold:#ff8fab;--c-violet:#d06fff;--c-rose:#ff5c8a;--c1:#ff5c8a;--f-rgb:255,92,138}
     /* ── THEME: VIOLET ──── */
-    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--violet:#9b6dff;--rose:#ff5c8a;--c1:#9b6dff;--f-rgb:155,109,255}
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--dim:#483068;--c-teal:#9b6dff;--c-gold:#d06fff;--c-violet:#9b6dff;--c-rose:#ff5c8a;--c1:#9b6dff;--f-rgb:155,109,255}
     /* ── THEME: FOREST ──── */
-    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--violet:#72efb2;--rose:#ff5c8a;--c1:#3ddc84;--f-rgb:61,220,132}
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--dim:#286838;--c-teal:#3ddc84;--c-gold:#00bfa5;--c-violet:#72efb2;--c-rose:#ff5c8a;--c1:#3ddc84;--f-rgb:61,220,132}
     /* ── THEME: SOLAR ───── */
-    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c1:#ffd700;--c2:#ffb347;--violet:#ffe066;--rose:#ff5c8a;--c1:#ffd700;--f-rgb:255,215,0}
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--dim:#685828;--c-teal:#ffd700;--c-gold:#ffb347;--c-violet:#ffe066;--c-rose:#ff5c8a;--c1:#ffd700;--f-rgb:255,215,0}
     /* ── THEME: CRIMSON ─── */
-    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--violet:#d06fff;--rose:#ff4444;--c1:#ff4444;--f-rgb:255,68,68}
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--dim:#683030;--c-teal:#ff4444;--c-gold:#ff6b3d;--c-violet:#d06fff;--c-rose:#ff4444;--c1:#ff4444;--f-rgb:255,68,68}
     /* ── THEME: FROST ───── */
-    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--violet:#a0e0f8;--rose:#ff5c8a;--c1:#88d8f5;--f-rgb:136,216,245}
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--dim:#305058;--c-teal:#88d8f5;--c-gold:#b8e8ff;--c-violet:#a0e0f8;--c-rose:#ff5c8a;--c1:#88d8f5;--f-rgb:136,216,245}
     /* ── BRIGHTNESS: LIGHT ── */
     [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
     [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--surface:#fffaf4;--lift:#f8f0e4;--ink:#2a1e10;--muted:#8a7a60}
-    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--surface:#fff;--lift:#f5f5f5;--ink:#111;--muted:#888;--c1:#333;--c1:#333;--violet:#666}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--bg-card:rgba(255,255,255,0.72);--surface:#fff;--lift:#f5f5f5;--ink:#111;--muted:#888;--c-teal:#333;--c1:#333;--c-violet:#666}
     [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--bg-card:rgba(240,248,255,0.72);--surface:#fff;--lift:#f0f4fa;--ink:#0a1e3a;--muted:#5070a0}
     [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--bg-card:rgba(255,240,245,0.72);--surface:#fff;--lift:#faf0f4;--ink:#3a0a1e;--muted:#a05070}
     [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--bg-card:rgba(245,240,255,0.72);--surface:#fff;--lift:#f4f0fa;--ink:#1e0a3a;--muted:#7050a0}
@@ -1230,21 +882,16 @@
   <div class="mb-dropdown" id="ddFile" style="left:72px">
     <div class="dd-label">Ophtxn OS</div>
     <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
-    <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
+    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
     <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
-    <a href="markets_terminal.html"><span class="dd-icon">&#9638;</span> Markets Terminal</a>
-    <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
     <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
     <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
+    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
     <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
     <div class="dd-sep"></div>
     <div class="dd-label">Permanence Platform</div>
     <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
     <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
-    <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
-    <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
-    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
   </div>
 
   <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -1294,324 +941,106 @@
     <section class="hero">
       <span class="arc-eyebrow">A-KWJ-0368 // APP STUDIO</span>
       <div class="eyebrow">APP STUDIO</div>
-      <h1 class="hero-h1">Build projects with agents, routes, and governed workspace objects.</h1>
-      <p class="hero-sub">App Studio is now the first real workspace surface for projects, tasks, documents, and model-routing decisions inside the Ophtxn runtime.</p>
+      <h1 class="hero-h1">Build and run your operator commands.</h1>
+      <p class="hero-sub">Configure your profile, design command flows, and push to Telegram.</p>
     </section>
 
-    <div class="workspace-grid">
-      <div class="workspace-stack">
-        <div class="glass-card teal-accent">
-          <div class="card-title">Create Project</div>
-          <p class="mini-note">Projects are the top-level workspace objects. Use them to hold goals, assigned agents, documents, tasks, and later workflows.</p>
-          <div class="form-group">
-            <label for="projectName">Project Name</label>
-            <input type="text" id="projectName" placeholder="e.g. Legendary OS Launch">
-          </div>
-          <div class="form-group">
-            <label for="projectSummary">Summary</label>
-            <textarea id="projectSummary" placeholder="One clear sentence for what this project is trying to achieve."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="projectGoals">Goals</label>
-            <input type="text" id="projectGoals" placeholder="comma,separated,goals">
-          </div>
-          <div class="form-group">
-            <label for="projectAgents">Agent Team</label>
-            <input type="text" id="projectAgents" placeholder="planner,researcher,builder,reviewer">
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-primary" id="createProjectBtn">Create Project</button>
-            <button class="btn btn-ghost" id="refreshWorkspaceBtn">Refresh Workspace</button>
-          </div>
+    <!-- Profile + Command Builder -->
+    <div class="main-grid">
+
+      <!-- Profile Card -->
+      <div class="glass-card">
+        <div class="card-title">Operator Profile</div>
+
+        <div class="form-group">
+          <label for="profileName">Name</label>
+          <input type="text" id="profileName" placeholder="Your name">
         </div>
 
-        <div class="stack-2">
-          <div class="glass-card">
-            <div class="card-title">Create Task</div>
-            <div class="form-group">
-              <label for="taskProject">Project</label>
-              <select id="taskProject"><option value="">No project selected</option></select>
-            </div>
-            <div class="form-group">
-              <label for="taskTitle">Task Title</label>
-              <input type="text" id="taskTitle" placeholder="e.g. define router UI spec">
-            </div>
-            <div class="form-group">
-              <label for="taskAssignee">Assignee</label>
-              <input type="text" id="taskAssignee" placeholder="builder or reviewer">
-            </div>
-            <div class="form-group">
-              <label for="taskRisk">Risk Tier</label>
-              <select id="taskRisk">
-                <option value="low">low</option>
-                <option value="medium" selected>medium</option>
-                <option value="high">high</option>
-              </select>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-primary" id="createTaskBtn">Add Task</button>
-            </div>
-          </div>
-
-          <div class="glass-card">
-            <div class="card-title">Create Document</div>
-            <div class="form-group">
-              <label for="documentProject">Project</label>
-              <select id="documentProject"><option value="">No project selected</option></select>
-            </div>
-            <div class="form-group">
-              <label for="documentTitle">Document Title</label>
-              <input type="text" id="documentTitle" placeholder="e.g. model router product memo">
-            </div>
-            <div class="form-group">
-              <label for="documentBody">Opening Body</label>
-              <textarea id="documentBody" placeholder="Start the document with a draft that agents and users can keep improving."></textarea>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-primary" id="createDocumentBtn">Create Document</button>
-            </div>
-          </div>
+        <div class="form-group">
+          <label for="profileEmail">Email</label>
+          <input type="email" id="profileEmail" placeholder="you@domain.com">
         </div>
 
-        <div class="glass-card liquid-panel">
-          <div class="card-title">Workflow Builder</div>
-          <p class="mini-note">Start with a compact graph instead of a full no-code platform. Nodes and edges are stored as workflow JSON and can later compile into governed execution specs.</p>
-          <div class="stack-2">
-            <div>
-              <div class="form-group">
-                <label for="workflowProject">Project</label>
-                <select id="workflowProject"><option value="">No project selected</option></select>
-              </div>
-              <div class="form-group">
-                <label for="workflowName">Workflow Name</label>
-                <input type="text" id="workflowName" placeholder="e.g. launch-site-research-flow">
-              </div>
-              <div class="form-group">
-                <label for="workflowNodeType">Node Type</label>
-                <select id="workflowNodeType">
-                  <option value="start">start</option>
-                  <option value="task">task</option>
-                  <option value="agent">agent</option>
-                  <option value="model_route">model_route</option>
-                  <option value="research">research</option>
-                  <option value="approval">approval</option>
-                  <option value="review">review</option>
-                  <option value="end">end</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="workflowNodeLabel">Node Label</label>
-                <input type="text" id="workflowNodeLabel" placeholder="e.g. Research competitor set">
-              </div>
-              <div class="form-group">
-                <label for="workflowNodeInputTemplate">Node Input Template</label>
-                <textarea id="workflowNodeInputTemplate" placeholder='Optional. Example: {{latest_output|json}} or {{latest_output.title|strip}} or {{latest_output.tags|split:|}}'></textarea>
-              </div>
-              <div class="btn-row">
-                <button class="btn btn-primary" id="addWorkflowNodeBtn">Add Node</button>
-              </div>
-            </div>
-            <div>
-              <div class="form-group">
-                <label for="workflowEdgeFrom">From Node</label>
-                <select id="workflowEdgeFrom"><option value="">Select node</option></select>
-              </div>
-              <div class="form-group">
-                <label for="workflowEdgeTo">To Node</label>
-                <select id="workflowEdgeTo"><option value="">Select node</option></select>
-              </div>
-              <div class="form-group">
-                <label for="workflowEdgeLabel">Edge Label</label>
-                <input type="text" id="workflowEdgeLabel" placeholder="e.g. on success">
-              </div>
-              <div class="form-group">
-                <label for="workflowEdgeCondition">Edge Condition</label>
-                <input type="text" id="workflowEdgeCondition" placeholder='Optional. Example: any(latest_output.tags, "launch","urgent") and avg(latest_output.scores)>=0.85'>
-              </div>
-              <div class="btn-row">
-                <button class="btn btn-ghost" id="addWorkflowEdgeBtn">Add Edge</button>
-                <button class="btn btn-primary" id="saveWorkflowBtn">Save Workflow</button>
-              </div>
-            </div>
-          </div>
-          <div class="workflow-canvas" id="workflowCanvas">
-            <div class="workspace-empty">No workflow nodes yet.</div>
-          </div>
+        <div class="form-group">
+          <label for="profileWorkflow">Workflow Focus</label>
+          <input type="text" id="profileWorkflow" placeholder="e.g. autonomous ops, research">
         </div>
 
-        <div class="output-section">
-          <div class="glass-card teal-accent">
-            <div class="output-header">
-              <div class="card-title">Workspace Activity</div>
-              <div class="output-actions">
-                <button class="btn btn-ghost btn-sm" id="copyActivityBtn">Copy Activity</button>
-              </div>
-            </div>
-            <pre id="outputBlock">Waiting for authenticated workspace bootstrap…</pre>
-          </div>
+        <div class="form-group">
+          <label for="profileModel">Model Preference</label>
+          <select id="profileModel">
+            <option value="claude-opus-4-6">claude-opus-4-6</option>
+            <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
+            <option value="claude-haiku-4-5">claude-haiku-4-5</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="profileRuntime">Runtime Mode</label>
+          <select id="profileRuntime">
+            <option value="no-spend-local">No-spend local</option>
+            <option value="low-cost">Low-cost</option>
+            <option value="standard">Standard</option>
+          </select>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="saveProfileBtn">Save Profile</button>
+          <button class="btn btn-ghost" id="resetProfileBtn">Reset Profile</button>
         </div>
       </div>
 
-      <div class="workspace-stack">
-        <div class="glass-card liquid-panel">
-          <div class="card-title">Workspace Objects</div>
-          <div class="inspector-grid">
-            <div class="inspector-row">
-              <div class="inspector-label">Projects</div>
-              <div class="inspector-value" id="projectCount">0</div>
-            </div>
-            <div class="inspector-row">
-              <div class="inspector-label">Tasks</div>
-              <div class="inspector-value" id="taskCount">0</div>
-            </div>
-            <div class="inspector-row">
-              <div class="inspector-label">Documents</div>
-              <div class="inspector-value" id="documentCount">0</div>
-            </div>
-            <div class="inspector-row">
-              <div class="inspector-label">Session</div>
-              <div class="inspector-value" id="sessionState">Booting local auth…</div>
-            </div>
+      <!-- Command Builder Card -->
+      <div class="glass-card">
+        <div class="card-title">Command Builder</div>
+
+        <div class="form-group">
+          <label for="commandPreset">Preset Commands</label>
+          <select id="commandPreset">
+            <option value="" disabled selected>Select a preset…</option>
+            <option value="operator-surface --run-horizon">operator-surface --run-horizon — Start all runtimes</option>
+            <option value="comms-status">comms-status — Check communications health</option>
+            <option value="no-spend-audit --strict">no-spend-audit --strict — Audit spend controls</option>
+            <option value="ophtxn-ops-pack --action run">ophtxn-ops-pack --action run — Run daily ops pack</option>
+            <option value="telegram-control --action poll --enable-commands">telegram-control --action poll --enable-commands — Poll Telegram</option>
+            <option value="approval-triage">approval-triage — Review pending approvals</option>
+            <option value="secret-scan --staged">secret-scan --staged — Scan for secrets</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="commandTextarea">Command</label>
+          <textarea id="commandTextarea" placeholder="python cli.py operator-surface --run-horizon"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="copyCommandBtn">Copy Command</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Output Card -->
+    <div class="output-section">
+      <div class="glass-card teal-accent">
+        <div class="output-header">
+          <div class="card-title">Command Output</div>
+          <div class="output-actions">
+            <button class="btn btn-ghost btn-sm" id="shareAgentBtn">Share Agent</button>
+          <button class="btn btn-ghost btn-sm" id="copyToTelegramBtn">Copy to Telegram</button>
+            <button class="btn btn-violet btn-sm" id="copyOutputBtn">Copy to Clipboard</button>
           </div>
         </div>
 
-        <div class="glass-card liquid-panel">
-          <div class="card-title">Router Inspector</div>
-          <p class="mini-note">This exposes the route rationale layer directly in the product. Start with one task and inspect how Ophtxn would choose local vs hosted intelligence.</p>
-          <div class="form-group">
-            <label for="routeTaskType">Task Type</label>
-            <select id="routeTaskType">
-              <option value="planning">planning</option>
-              <option value="research_synthesis">research_synthesis</option>
-              <option value="code_generation">code_generation</option>
-              <option value="classification">classification</option>
-              <option value="summarization">summarization</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="routeContext">Route Context</label>
-            <textarea id="routeContext">{"local_only": true, "requires_approval": false}</textarea>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-primary" id="explainRouteBtn">Explain Route</button>
-          </div>
-          <div class="inspector-grid" style="margin-top:18px">
-            <div class="inspector-row">
-              <div class="inspector-label">Provider</div>
-              <div class="inspector-value" id="routeProvider">-</div>
-            </div>
-            <div class="inspector-row">
-              <div class="inspector-label">Model</div>
-              <div class="inspector-value" id="routeModel">-</div>
-            </div>
-            <div class="inspector-row">
-              <div class="inspector-label">Reasons</div>
-              <div class="inspector-value" id="routeReasons">No route explanation yet.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-card liquid-panel">
-          <div class="card-title">Projects</div>
-          <div class="workspace-list" id="projectList">
-            <div class="workspace-empty">No projects yet.</div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">Tasks</div>
-          <div class="workspace-list" id="taskList">
-            <div class="workspace-empty">No tasks yet.</div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">Documents</div>
-          <div class="workspace-list" id="documentList">
-            <div class="workspace-empty">No documents yet.</div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">Workflows</div>
-          <div class="workspace-list" id="workflowList">
-            <div class="workspace-empty">No workflows yet.</div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">Workflow Execution</div>
-          <div class="review-shell">
-            <div class="review-meta" id="selectedWorkflowMeta">No workflow selected</div>
-            <div class="btn-row">
-              <button class="btn btn-primary" id="runWorkflowBtn">Run Workflow</button>
-              <button class="btn btn-ghost" id="approveWorkflowBtn" style="display:none">Approve</button>
-              <button class="btn btn-ghost" id="rejectWorkflowBtn" style="display:none">Reject</button>
-              <button class="btn btn-ghost" id="successWorkflowBtn" style="display:none">Mark Success</button>
-              <button class="btn btn-ghost" id="reviewWorkflowBtn" style="display:none">Needs Review</button>
-            </div>
-            <div class="inspector-grid" style="margin-bottom:16px">
-              <div class="inspector-row">
-                <div class="inspector-label">Run State</div>
-                <div class="inspector-value" id="workflowRunState">No run selected</div>
-              </div>
-              <div class="inspector-row">
-                <div class="inspector-label">Recent Runs</div>
-                <div class="inspector-value" id="workflowRunHistory">No run history</div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="workflowRunSelect">Selected Run</label>
-              <select id="workflowRunSelect"><option value="">Latest run</option></select>
-            </div>
-            <div class="run-summary" id="workflowRunSummary">
-              <div class="run-summary-copy">No workflow execution summary yet.</div>
-            </div>
-            <div class="form-group">
-              <label>Latest Execution</label>
-              <div class="run-log" id="workflowRunLog">
-                <div class="workspace-empty">No workflow execution yet.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">Document Review</div>
-          <div class="review-shell">
-            <div class="review-meta" id="selectedDocumentMeta">No document selected</div>
-            <div class="form-group">
-              <label for="reviewDocumentTitle">Title</label>
-              <input type="text" id="reviewDocumentTitle" placeholder="Select a document first">
-            </div>
-            <div class="form-group">
-              <label for="reviewDocumentBody">Body</label>
-              <textarea id="reviewDocumentBody" placeholder="The selected document body will appear here."></textarea>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-primary" id="saveDocumentRevisionBtn">Save Revision</button>
-            </div>
-            <div class="form-group">
-              <label for="suggestionText">Agent / Reviewer Suggestion</label>
-              <textarea id="suggestionText" placeholder="Propose a document change or critique here."></textarea>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-ghost" id="addSuggestionBtn">Add Suggestion</button>
-            </div>
-            <div class="inspector-grid">
-              <div class="inspector-row">
-                <div class="inspector-label">Recent Revisions</div>
-                <div class="inspector-value" id="revisionSummary">No revisions loaded.</div>
-              </div>
-            </div>
-            <div>
-              <div class="inspector-label" style="margin-bottom:10px">Suggestions</div>
-              <div class="suggestion-list" id="suggestionList">
-                <div class="workspace-empty">No suggestions yet.</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <pre id="outputBlock">$ python cli.py operator-surface --run-horizon
+[ops] Starting operator surface...
+[runtime] Command Center: http://127.0.0.1:8000 ✓
+[runtime] Foundation Site: http://127.0.0.1:8787 ✓
+[runtime] Ophtxn Shell: http://127.0.0.1:8797 ✓
+[horizon] Starting Horizon agent...
+[horizon] Observation cycle complete. 3 signals collected.
+[ops] All runtimes live. Governance active.</pre>
       </div>
     </div>
 
@@ -1632,711 +1061,299 @@
   <!-- Toast notification -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <!-- Agent Share Modal -->
+  <div class="modal-backdrop" id="shareModal" role="dialog" aria-modal="true" aria-label="Share Agent">
+    <div class="modal-box">
+      <button class="modal-close" id="closeModalBtn" aria-label="Close">×</button>
+      <div class="modal-title">Share Agent Config</div>
+
+      <p class="modal-label">JSON payload</p>
+      <pre class="modal-json" id="shareJson"></pre>
+
+      <p class="modal-label">Shareable link</p>
+      <div class="modal-url-row">
+        <input class="modal-url" id="shareUrl" type="text" readonly>
+        <button class="btn btn-ghost btn-sm" id="copyUrlBtn">Copy Link</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary btn-sm" id="copyJsonBtn">Copy JSON</button>
+        <button class="btn btn-ghost btn-sm" id="closeModalBtn2">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>(function(){var rt=window.__OPHTXN_RUNTIME||{};var el;el=document.getElementById("ql-link-cc");if(el&&(rt.commandCenterUrl||rt.apiBase))el.href=rt.commandCenterUrl||rt.apiBase;})();</script>
   <script>
     (function () {
       'use strict';
-      const toast = document.getElementById('toast');
-      const outputBlock = document.getElementById('outputBlock');
-      const sessionState = document.getElementById('sessionState');
-      const projectCount = document.getElementById('projectCount');
-      const taskCount = document.getElementById('taskCount');
-      const documentCount = document.getElementById('documentCount');
-      const projectList = document.getElementById('projectList');
-      const taskList = document.getElementById('taskList');
-      const documentList = document.getElementById('documentList');
-      const workflowList = document.getElementById('workflowList');
-      const taskProject = document.getElementById('taskProject');
-      const documentProject = document.getElementById('documentProject');
-      const workflowProject = document.getElementById('workflowProject');
-      const workflowCanvas = document.getElementById('workflowCanvas');
-      const workflowEdgeFrom = document.getElementById('workflowEdgeFrom');
-      const workflowEdgeTo = document.getElementById('workflowEdgeTo');
-      const routeProvider = document.getElementById('routeProvider');
-      const routeModel = document.getElementById('routeModel');
-      const routeReasons = document.getElementById('routeReasons');
-      const selectedWorkflowMeta = document.getElementById('selectedWorkflowMeta');
-      const workflowRunLog = document.getElementById('workflowRunLog');
-      const workflowRunSelect = document.getElementById('workflowRunSelect');
-      const workflowRunSummary = document.getElementById('workflowRunSummary');
-      const approveWorkflowBtn = document.getElementById('approveWorkflowBtn');
-      const rejectWorkflowBtn = document.getElementById('rejectWorkflowBtn');
-      const successWorkflowBtn = document.getElementById('successWorkflowBtn');
-      const reviewWorkflowBtn = document.getElementById('reviewWorkflowBtn');
-      const workflowRunState = document.getElementById('workflowRunState');
-      const workflowRunHistory = document.getElementById('workflowRunHistory');
-      const selectedDocumentMeta = document.getElementById('selectedDocumentMeta');
-      const reviewDocumentTitle = document.getElementById('reviewDocumentTitle');
-      const reviewDocumentBody = document.getElementById('reviewDocumentBody');
-      const revisionSummary = document.getElementById('revisionSummary');
-      const suggestionList = document.getElementById('suggestionList');
-      const apiBase = (window.__OPHTXN_RUNTIME && window.__OPHTXN_RUNTIME.apiBase)
-        || (window.location.origin.indexOf('8797') !== -1 ? window.location.origin : 'http://127.0.0.1:8797');
-      const state = {
-        token: '',
-        projects: [],
-        tasks: [],
-        documents: [],
-        workflows: [],
-        activity: [],
-        selectedDocumentId: '',
-        selectedDocumentDetail: null,
-        selectedWorkflowId: '',
-        selectedWorkflowDetail: null,
-        selectedWorkflowRunId: '',
-        builderWorkflow: { id: '', nodes: [], edges: [] }
+
+      // ── Constants ──────────────────────────────────────────────────────────
+      const STORAGE_KEY = 'ophtxn_profile';
+
+      const PRESET_COMMANDS = {
+        'operator-surface --run-horizon':
+          'operator-surface --run-horizon',
+        'comms-status':
+          'comms-status',
+        'no-spend-audit --strict':
+          'no-spend-audit --strict',
+        'ophtxn-ops-pack --action run':
+          'ophtxn-ops-pack --action run',
+        'telegram-control --action poll --enable-commands':
+          'telegram-control --action poll --enable-commands',
+        'approval-triage':
+          'approval-triage',
+        'secret-scan --staged':
+          'secret-scan --staged',
       };
 
+      // ── Element references ─────────────────────────────────────────────────
+      const profileName     = document.getElementById('profileName');
+      const profileEmail    = document.getElementById('profileEmail');
+      const profileWorkflow = document.getElementById('profileWorkflow');
+      const profileModel    = document.getElementById('profileModel');
+      const profileRuntime  = document.getElementById('profileRuntime');
+      const saveProfileBtn  = document.getElementById('saveProfileBtn');
+      const resetProfileBtn = document.getElementById('resetProfileBtn');
+
+      const commandPreset   = document.getElementById('commandPreset');
+      const commandTextarea = document.getElementById('commandTextarea');
+      const copyCommandBtn  = document.getElementById('copyCommandBtn');
+
+      const copyToTelegramBtn = document.getElementById('copyToTelegramBtn');
+      const copyOutputBtn     = document.getElementById('copyOutputBtn');
+      const outputBlock       = document.getElementById('outputBlock');
+      const toast             = document.getElementById('toast');
+
+      // ── Toast ──────────────────────────────────────────────────────────────
       let toastTimer = null;
+
       function showToast(msg) {
         clearTimeout(toastTimer);
         toast.textContent = msg;
         toast.classList.add('show');
-        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2400);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2800);
       }
 
+      // ── Clipboard helper ───────────────────────────────────────────────────
       function copyText(text, successMsg) {
-        if (!navigator.clipboard) return showToast('Clipboard unavailable');
-        navigator.clipboard.writeText(text).then(function () {
-          showToast(successMsg);
-        }).catch(function () {
-          showToast('Copy failed');
-        });
-      }
-
-      function escapeHtml(value) {
-        return String(value == null ? '' : value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
-      }
-
-      async function api(path, options) {
-        const init = Object.assign({ headers: {} }, options || {});
-        init.headers = Object.assign({}, init.headers, { 'Content-Type': 'application/json' });
-        if (state.token) init.headers['X-Session-Token'] = state.token;
-        const response = await fetch(apiBase + path, init);
-        const payload = await response.json().catch(function () { return {}; });
-        if (!response.ok || payload.ok === false) throw new Error(payload.error || 'request_failed');
-        return payload;
-      }
-
-      function renderSelectOptions() {
-        const options = state.projects.map(function (project) {
-          return '<option value="' + project.id + '">' + project.name + '</option>';
-        }).join('');
-        taskProject.innerHTML = '<option value="">No project selected</option>' + options;
-        documentProject.innerHTML = '<option value="">No project selected</option>' + options;
-        workflowProject.innerHTML = '<option value="">No project selected</option>' + options;
-      }
-
-      function renderList(target, rows, renderer, emptyText) {
-        if (!rows.length) {
-          target.innerHTML = '<div class="workspace-empty">' + emptyText + '</div>';
-          return;
-        }
-        target.innerHTML = rows.map(renderer).join('');
-      }
-
-      function renderWorkspace() {
-        projectCount.textContent = String(state.projects.length);
-        taskCount.textContent = String(state.tasks.length);
-        documentCount.textContent = String(state.documents.length);
-        renderSelectOptions();
-        renderList(projectList, state.projects, function (project) {
-          return '<div class="workspace-item"><div class="workspace-item-head"><div class="workspace-item-title">'
-            + project.name + '</div><span class="status-pill">' + (project.status || 'active')
-            + '</span></div><div class="workspace-item-meta">' + project.id
-            + '</div><div class="workspace-item-copy">' + (project.summary || 'No summary yet.')
-            + '</div></div>';
-        }, 'No projects yet.');
-        renderList(taskList, state.tasks, function (task) {
-          var taskOutput = '';
-          if (task.output && typeof task.output === 'object') {
-            try {
-              taskOutput = JSON.stringify(task.output);
-            } catch (err) {
-              taskOutput = '';
-            }
-          } else if (task.output) {
-            taskOutput = String(task.output);
-          }
-          return '<div class="workspace-item"><div class="workspace-item-head"><div class="workspace-item-title">'
-            + task.title + '</div><span class="status-pill">' + (task.status || 'queued')
-            + '</span></div><div class="workspace-item-meta">' + (task.assignee || 'unassigned')
-            + ' // ' + (task.risk_tier || 'medium') + '</div><div class="workspace-item-copy">Project: '
-            + (task.project_id || 'none') + (task.result ? (' // Result: ' + task.result) : '') + '</div>'
-            + '<textarea class="surface-input" data-task-output-id="' + task.id + '" rows="3" placeholder=\'Task output JSON or text\' style="margin-top:10px">' + taskOutput + '</textarea>'
-            + '<div class="btn-row" style="margin-top:10px">'
-            + '<button class="btn btn-ghost btn-sm" data-task-status="completed" data-task-result="completed" data-task-id="' + task.id + '">Complete</button>'
-            + '<button class="btn btn-ghost btn-sm" data-task-status="completed" data-task-result="success" data-task-id="' + task.id + '">Success</button>'
-            + '<button class="btn btn-ghost btn-sm" data-task-status="failed" data-task-result="needs_review" data-task-id="' + task.id + '">Needs Review</button>'
-            + '<button class="btn btn-ghost btn-sm" data-task-status="failed" data-task-result="failed" data-task-id="' + task.id + '">Fail</button>'
-            + '</div></div>';
-        }, 'No tasks yet.');
-        renderList(documentList, state.documents, function (documentRow) {
-          return '<div class="workspace-item' + (state.selectedDocumentId === documentRow.id ? ' active' : '') + '" data-document-id="' + documentRow.id + '"><div class="workspace-item-head"><div class="workspace-item-title">'
-            + documentRow.title + '</div><span class="status-pill">' + (documentRow.status || 'draft')
-            + '</span></div><div class="workspace-item-meta">' + (documentRow.project_id || 'no-project')
-            + '</div><div class="workspace-item-copy">' + (documentRow.body_path || 'No body path')
-            + '</div></div>';
-        }, 'No documents yet.');
-        renderList(workflowList, state.workflows, function (workflowRow) {
-          return '<div class="workspace-item' + (state.selectedWorkflowId === workflowRow.id ? ' active' : '') + '" data-workflow-id="' + workflowRow.id + '"><div class="workspace-item-head"><div class="workspace-item-title">'
-            + workflowRow.name + '</div><span class="status-pill">' + (workflowRow.status || 'draft')
-            + '</span></div><div class="workspace-item-meta">' + (workflowRow.project_id || 'no-project')
-            + '</div><div class="workspace-item-copy">' + ((workflowRow.nodes || []).length) + ' nodes // ' + ((workflowRow.edges || []).length) + ' edges'
-            + '</div></div>';
-        }, 'No workflows yet.');
-        renderWorkflowBuilder();
-        bindDocumentSelection();
-        bindWorkflowSelection();
-        bindTaskActions();
-        outputBlock.textContent = state.activity.length
-          ? state.activity.map(function (row) { return '[' + row.timestamp + '] ' + row.event_type + ' :: ' + JSON.stringify(row); }).join('\n')
-          : 'No workspace activity yet.';
-        if (window.hljs) {
-          outputBlock.removeAttribute('data-highlighted');
-          outputBlock.classList.add('language-json');
-          window.hljs.highlightElement(outputBlock);
-        }
-      }
-
-      function renderWorkflowBuilder() {
-        var nodes = state.builderWorkflow.nodes || [];
-        if (!nodes.length) {
-          workflowCanvas.innerHTML = '<div class="workspace-empty">No workflow nodes yet.</div>';
-        } else {
-          workflowCanvas.innerHTML = nodes.map(function (node) {
-            var outgoing = (state.builderWorkflow.edges || []).filter(function (edge) { return edge.from === node.id; }).map(function (edge) {
-              var parts = [edge.to];
-              if (edge.label) parts.push('(' + edge.label + ')');
-              if (edge.condition) parts.push('{' + edge.condition + '}');
-              return parts.join(' ');
-            }).join(', ');
-            return '<div class="workflow-node"><div><div class="workflow-node-title">' + node.label + '</div><div class="workflow-node-meta">' + node.id + ' // ' + node.type + '</div><div class="workflow-node-meta">' + (node.input_template || 'no input template') + '</div></div><div class="workflow-node-meta">' + (outgoing || 'terminal') + '</div></div>';
-          }).join('');
-        }
-        var options = '<option value="">Select node</option>' + nodes.map(function (node) {
-          return '<option value="' + node.id + '">' + node.label + '</option>';
-        }).join('');
-        workflowEdgeFrom.innerHTML = options;
-        workflowEdgeTo.innerHTML = options;
-      }
-
-      function renderDocumentDetail() {
-        const detail = state.selectedDocumentDetail;
-        if (!detail || !detail.document) {
-          selectedDocumentMeta.textContent = 'No document selected';
-          reviewDocumentTitle.value = '';
-          reviewDocumentBody.value = '';
-          revisionSummary.textContent = 'No revisions loaded.';
-          suggestionList.innerHTML = '<div class="workspace-empty">No suggestions yet.</div>';
-          return;
-        }
-        selectedDocumentMeta.textContent = (detail.document.id || '') + ' // ' + (detail.document.project_id || 'no-project');
-        reviewDocumentTitle.value = detail.document.title || '';
-        reviewDocumentBody.value = detail.body || '';
-        const revisions = detail.revisions || [];
-        revisionSummary.textContent = revisions.length
-          ? revisions.slice(-3).reverse().map(function (row) { return (row.kind || 'edit') + ' by ' + (row.author || 'unknown') + ' at ' + (row.timestamp || ''); }).join(' | ')
-          : 'No revisions loaded.';
-        const suggestions = detail.suggestions || [];
-        if (!suggestions.length) {
-          suggestionList.innerHTML = '<div class="workspace-empty">No suggestions yet.</div>';
-          return;
-        }
-        suggestionList.innerHTML = suggestions.slice().reverse().map(function (row) {
-          return '<div class="suggestion-item">'
-            + '<div class="suggestion-head"><div class="workspace-item-meta">' + (row.author || 'agent') + '</div><span class="status-pill">' + (row.status || 'proposed') + '</span></div>'
-            + '<div class="suggestion-text">' + row.text + '</div>'
-            + '<div class="btn-row" style="margin-top:10px">'
-            + '<button class="btn btn-ghost btn-sm" data-suggestion-action="accepted" data-suggestion-id="' + row.suggestion_id + '">Accept</button>'
-            + '<button class="btn btn-ghost btn-sm" data-suggestion-action="rejected" data-suggestion-id="' + row.suggestion_id + '">Reject</button>'
-            + '</div></div>';
-        }).join('');
-        bindSuggestionActions();
-      }
-
-      function renderWorkflowDetail() {
-        const detail = state.selectedWorkflowDetail;
-        if (!detail || !detail.workflow) {
-          selectedWorkflowMeta.textContent = 'No workflow selected';
-          workflowRunSelect.innerHTML = '<option value="">Latest run</option>';
-          workflowRunSummary.innerHTML = '<div class="run-summary-copy">No workflow execution summary yet.</div>';
-          workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
-          approveWorkflowBtn.style.display = 'none';
-          rejectWorkflowBtn.style.display = 'none';
-          successWorkflowBtn.style.display = 'none';
-          reviewWorkflowBtn.style.display = 'none';
-          workflowRunState.textContent = 'No run selected';
-          workflowRunHistory.textContent = 'No run history';
-          return;
-        }
-        selectedWorkflowMeta.textContent = (detail.workflow.id || '') + ' // ' + (detail.workflow.project_id || 'no-project') + ' // ' + String(detail.workflow.run_count || 0) + ' runs';
-        const runs = detail.runs || [];
-        if (!runs.length) {
-          workflowRunSelect.innerHTML = '<option value="">Latest run</option>';
-          workflowRunSummary.innerHTML = '<div class="run-summary-copy">No workflow execution summary yet.</div>';
-          workflowRunLog.innerHTML = '<div class="workspace-empty">No workflow execution yet.</div>';
-          approveWorkflowBtn.style.display = 'none';
-          rejectWorkflowBtn.style.display = 'none';
-          successWorkflowBtn.style.display = 'none';
-          reviewWorkflowBtn.style.display = 'none';
-          workflowRunState.textContent = 'No run selected';
-          workflowRunHistory.textContent = 'No run history';
-          return;
-        }
-        workflowRunSelect.innerHTML = runs.slice().reverse().map(function (run, index) {
-          var selected = '';
-          var runId = run.run_id || '';
-          if ((state.selectedWorkflowRunId && state.selectedWorkflowRunId === runId) || (!state.selectedWorkflowRunId && index === 0)) {
-            selected = ' selected';
-          }
-          return '<option value="' + runId + '"' + selected + '>' + runId + ' [' + (run.status || 'unknown') + ']</option>';
-        }).join('');
-        const latest = runs.find(function (run) {
-          return (run.run_id || '') === (workflowRunSelect.value || '');
-        }) || runs[runs.length - 1] || {};
-        state.selectedWorkflowRunId = latest.run_id || '';
-        const awaitingApproval = (latest.status || '') === 'awaiting_approval';
-        approveWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
-        rejectWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
-        successWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
-        reviewWorkflowBtn.style.display = awaitingApproval ? 'inline-flex' : 'none';
-        workflowRunState.textContent = (latest.status || 'unknown')
-          + (latest.approval_outcome ? (' // approval: ' + latest.approval_outcome) : '')
-          + (latest.task_outcome ? (' // task: ' + latest.task_outcome) : '')
-          + (latest.awaiting_task_id ? (' // pending task: ' + latest.awaiting_task_id) : '');
-        workflowRunHistory.textContent = runs.slice(-3).reverse().map(function (run) {
-          return (run.run_id || 'run') + ' [' + (run.status || 'unknown') + ']';
-        }).join(' | ');
-        var summary = [
-          'run_id=' + (latest.run_id || 'unknown'),
-          'status=' + (latest.status || 'unknown'),
-          'started_at=' + (latest.started_at || '-'),
-          'updated_at=' + (latest.updated_at || '-'),
-          'step_count=' + String(latest.step_count || 0)
-        ];
-        if (latest.completed_at) summary.push('completed_at=' + latest.completed_at);
-        if (latest.pending_node_id) summary.push('pending_node=' + latest.pending_node_id);
-        if (latest.next_node_id) summary.push('next_node=' + latest.next_node_id);
-        if (latest.awaiting_task_id) summary.push('awaiting_task_id=' + latest.awaiting_task_id);
-        if (latest.approval_outcome) summary.push('approval_outcome=' + latest.approval_outcome);
-        if (latest.task_outcome) summary.push('task_outcome=' + latest.task_outcome);
-        workflowRunSummary.innerHTML = '<div class="run-summary-copy">' + escapeHtml(summary.join('\n')) + '</div>';
-        const steps = latest.steps || [];
-        if (!steps.length) {
-          workflowRunLog.innerHTML = '<div class="workspace-empty">No steps recorded.</div>';
-          return;
-        }
-        workflowRunLog.innerHTML = steps.map(function (step) {
-          var copy = '';
-          if (step.generated_task) {
-            copy = 'Generated task ' + step.generated_task.id + ' // ' + step.generated_task.status;
-          } else if (step.route) {
-            copy = (step.route.provider || '-') + ' // ' + (step.route.model_assigned || '-') + ' // ' + ((step.route.route_reasons || []).join(' | ') || 'no-route-reasons');
-          } else if (step.agent) {
-            copy = step.agent.matched ? ('Matched agent ' + (step.agent.agent_id || '') + ' // ' + ((step.agent.model_preferences || []).join(', ') || 'no-model-prefs')) : 'No matching agent found for this label.';
-          } else {
-            copy = step.message || 'Completed.';
-          }
-          if (step.task_feedback) {
-            copy += (copy ? '\n' : '') + 'feedback=' + (step.task_feedback.status || 'unknown');
-            if (step.task_feedback.result) {
-              copy += ' // result=' + step.task_feedback.result;
-            }
-            if (typeof step.task_feedback.output !== 'undefined' && step.task_feedback.output !== null && step.task_feedback.output !== '') {
-              try {
-                copy += ' // output=' + JSON.stringify(step.task_feedback.output);
-              } catch (err) {
-                copy += ' // output=' + String(step.task_feedback.output);
-              }
-            }
-            if (step.task_feedback.notes) {
-              copy += ' // ' + step.task_feedback.notes;
-            }
-          }
-          if (step.input_template) {
-            copy += (copy ? '\n' : '') + 'template=' + step.input_template;
-          }
-          if (step.resolved_input) {
-            copy += (copy ? '\n' : '') + 'resolved_input=' + step.resolved_input;
-          }
-          if (step.execution_policy) {
-            var policy = step.execution_policy;
-            var policyParts = [
-              'perm=' + (policy.required_permission || 'read'),
-              'agent=' + (policy.selected_agent_name || 'unassigned')
-            ];
-            if ((policy.preferred_models || []).length) {
-              policyParts.push('models=' + policy.preferred_models.join(', '));
-            }
-            copy += (copy ? '\n' : '') + policyParts.join(' // ');
-          }
-          if (step.context) {
-            var contextParts = [];
-            if (typeof step.context.task_output_count !== 'undefined') {
-              contextParts.push('task_outputs=' + step.context.task_output_count);
-            }
-            if (typeof step.context.latest_output !== 'undefined' && step.context.latest_output !== null && step.context.latest_output !== '') {
-              try {
-                contextParts.push('latest_output=' + JSON.stringify(step.context.latest_output));
-              } catch (err) {
-                contextParts.push('latest_output=' + String(step.context.latest_output));
-              }
-            }
-            if (step.context.resolved_input) {
-              contextParts.push('context_input=' + step.context.resolved_input);
-            }
-            if (contextParts.length) {
-              copy += (copy ? '\n' : '') + contextParts.join(' // ');
-            }
-          }
-          var extraBlocks = '';
-          if (step.task_feedback && typeof step.task_feedback.output !== 'undefined' && step.task_feedback.output !== null && step.task_feedback.output !== '') {
-            var outputCopy = '';
-            try {
-              outputCopy = JSON.stringify(step.task_feedback.output, null, 2);
-            } catch (err) {
-              outputCopy = String(step.task_feedback.output);
-            }
-            extraBlocks += '<div class="run-step-block"><div class="run-step-label">Task Output</div><div class="run-step-copy">' + escapeHtml(outputCopy) + '</div></div>';
-          }
-          if (step.context && typeof step.context.latest_output !== 'undefined' && step.context.latest_output !== null && step.context.latest_output !== '') {
-            var latestOutputCopy = '';
-            try {
-              latestOutputCopy = JSON.stringify(step.context.latest_output, null, 2);
-            } catch (err) {
-              latestOutputCopy = String(step.context.latest_output);
-            }
-            extraBlocks += '<div class="run-step-block"><div class="run-step-label">Latest Output</div><div class="run-step-copy">' + escapeHtml(latestOutputCopy) + '</div></div>';
-          }
-          return '<div class="run-step"><div class="run-step-head"><div class="run-step-title">'
-            + escapeHtml(step.label) + '</div><span class="status-pill">' + escapeHtml(step.type || 'step')
-            + '</span></div><div class="run-step-copy">' + escapeHtml(copy) + '</div>' + extraBlocks + '</div>';
-        }).join('');
-      }
-
-      function bindDocumentSelection() {
-        document.querySelectorAll('[data-document-id]').forEach(function (node) {
-          node.addEventListener('click', function () {
-            var documentId = node.getAttribute('data-document-id');
-            loadDocumentDetail(documentId).catch(function (err) { showToast(err.message); });
-          });
-        });
-      }
-
-      function bindSuggestionActions() {
-        suggestionList.querySelectorAll('[data-suggestion-action]').forEach(function (button) {
-          button.addEventListener('click', function () {
-            updateSuggestionStatus(
-              state.selectedDocumentId,
-              button.getAttribute('data-suggestion-id'),
-              button.getAttribute('data-suggestion-action')
-            ).catch(function (err) { showToast(err.message); });
-          });
-        });
-      }
-
-      function bindWorkflowSelection() {
-        workflowList.querySelectorAll('[data-workflow-id]').forEach(function (item) {
-          item.addEventListener('click', function () {
-            loadWorkflowDetail(item.getAttribute('data-workflow-id')).catch(function (err) { showToast(err.message); });
-          });
-        });
-      }
-
-      function bindTaskActions() {
-        taskList.querySelectorAll('[data-task-id][data-task-status]').forEach(function (button) {
-          button.addEventListener('click', function () {
-            updateTaskStatus(
-              button.getAttribute('data-task-id'),
-              button.getAttribute('data-task-status') || button.getAttribute('data-task-action'),
-              button.getAttribute('data-task-result') || button.getAttribute('data-task-action')
-            ).catch(function (err) { showToast(err.message); });
-          });
-        });
-      }
-
-      async function bootstrapSession() {
-        const response = await fetch(apiBase + '/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: 'local-operator', name: 'Local Operator', ttl_minutes: 720 })
-        });
-        const payload = await response.json().catch(function () { return {}; });
-        if (!response.ok || payload.ok === false) throw new Error(payload.error || 'session_failed');
-        state.token = payload.token;
-        sessionState.textContent = 'Authenticated as ' + payload.user_id;
-      }
-
-      async function loadWorkspace() {
-        const payload = await api('/api/workspace/bootstrap');
-        state.projects = payload.projects || [];
-        state.tasks = payload.tasks || [];
-        state.documents = payload.documents || [];
-        state.workflows = payload.workflows || [];
-        state.activity = payload.activity || [];
-        renderWorkspace();
-      }
-
-      async function createProject() {
-        const name = document.getElementById('projectName').value.trim();
-        if (!name) return showToast('Project name required');
-        await api('/api/projects', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: name,
-            summary: document.getElementById('projectSummary').value.trim(),
-            goals: document.getElementById('projectGoals').value.trim(),
-            agents: document.getElementById('projectAgents').value.trim()
-          })
-        });
-        showToast('Project created');
-        await loadWorkspace();
-      }
-
-      async function createTask() {
-        const title = document.getElementById('taskTitle').value.trim();
-        if (!title) return showToast('Task title required');
-        await api('/api/tasks', {
-          method: 'POST',
-          body: JSON.stringify({
-            title: title,
-            project_id: taskProject.value,
-            assignee: document.getElementById('taskAssignee').value.trim(),
-            risk_tier: document.getElementById('taskRisk').value
-          })
-        });
-        showToast('Task added');
-        await loadWorkspace();
-      }
-
-      async function updateTaskStatus(taskId, status, result) {
-        var outputNode = taskList.querySelector('[data-task-output-id="' + taskId + '"]');
-        var outputValue = outputNode ? outputNode.value.trim() : '';
-        var outputPayload = null;
-        if (outputValue) {
+        if (!navigator.clipboard) {
+          // Fallback for older browsers
           try {
-            outputPayload = JSON.parse(outputValue);
+            const el = document.createElement('textarea');
+            el.value = text;
+            el.style.position = 'fixed';
+            el.style.opacity = '0';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(successMsg || 'Copied!');
           } catch (err) {
-            outputPayload = { text: outputValue };
+            showToast('Copy failed — try again.');
+          }
+          return;
+        }
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg || 'Copied!');
+        }).catch(() => {
+          showToast('Copy failed — check browser permissions.');
+        });
+      }
+
+      // ── Profile: load ──────────────────────────────────────────────────────
+      function loadProfile() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          if (data.name !== undefined)     profileName.value     = data.name;
+          if (data.email !== undefined)    profileEmail.value    = data.email;
+          if (data.workflow !== undefined) profileWorkflow.value = data.workflow;
+          if (data.model !== undefined)    profileModel.value    = data.model;
+          if (data.runtime !== undefined)  profileRuntime.value  = data.runtime;
+        } catch (err) {
+          console.warn('[App Studio] Could not load profile:', err);
+        }
+      }
+
+      // ── Profile: save ──────────────────────────────────────────────────────
+      function saveProfile() {
+        const data = {
+          name:     profileName.value.trim(),
+          email:    profileEmail.value.trim(),
+          workflow: profileWorkflow.value.trim(),
+          model:    profileModel.value,
+          runtime:  profileRuntime.value,
+        };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          showToast('Profile saved.');
+        } catch (err) {
+          console.warn('[App Studio] Could not save profile:', err);
+          showToast('Save failed — storage may be full.');
+        }
+      }
+
+      // ── Profile: reset ─────────────────────────────────────────────────────
+      function resetProfile() {
+        const confirmed = window.confirm(
+          'Reset all profile fields? This cannot be undone.'
+        );
+        if (!confirmed) return;
+
+        profileName.value     = '';
+        profileEmail.value    = '';
+        profileWorkflow.value = '';
+        profileModel.value    = 'claude-opus-4-6';
+        profileRuntime.value  = 'no-spend-local';
+
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (err) {
+          console.warn('[App Studio] Could not remove profile key:', err);
+        }
+        showToast('Profile reset.');
+      }
+
+      // ── Command builder: preset select ────────────────────────────────────
+      function onPresetChange() {
+        const val = commandPreset.value;
+        if (val && PRESET_COMMANDS[val] !== undefined) {
+          commandTextarea.value = 'python cli.py ' + PRESET_COMMANDS[val];
+        }
+      }
+
+      // ── Copy command ───────────────────────────────────────────────────────
+      function copyCommand() {
+        const cmd = commandTextarea.value.trim();
+        if (!cmd) {
+          showToast('Nothing to copy — write a command first.');
+          return;
+        }
+        copyText(cmd, 'Command copied!');
+      }
+
+      // ── Copy to Telegram ───────────────────────────────────────────────────
+      function openTelegram() {
+        const cmd = commandTextarea.value.trim();
+        const payload = cmd || 'python cli.py';
+        const url = 'https://t.me/share/url?text=' + encodeURIComponent(payload);
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      // ── Copy output block ──────────────────────────────────────────────────
+      function copyOutput() {
+        const text = outputBlock.innerText || outputBlock.textContent;
+        copyText(text.trim(), 'Output copied!');
+      }
+
+      // ── Syntax highlight the output block ──────────────────────────────────
+      function initHighlight() {
+        if (typeof hljs !== 'undefined') {
+          try {
+            hljs.highlightElement(outputBlock);
+          } catch (err) {
+            console.warn('[App Studio] hljs error:', err);
           }
         }
-        await api('/api/tasks/' + encodeURIComponent(taskId), {
-          method: 'PATCH',
-          body: JSON.stringify({ status: status, result: result, output: outputPayload })
-        });
-        showToast('Task marked ' + (result || status));
-        await loadWorkspace();
-        if (state.selectedWorkflowId) await loadWorkflowDetail(state.selectedWorkflowId);
       }
 
-      async function createDocument() {
-        const title = document.getElementById('documentTitle').value.trim();
-        if (!title) return showToast('Document title required');
-        await api('/api/documents', {
-          method: 'POST',
-          body: JSON.stringify({
-            title: title,
-            project_id: documentProject.value,
-            body: document.getElementById('documentBody').value
-          })
-        });
-        showToast('Document created');
-        await loadWorkspace();
+      // ── Agent sharing ──────────────────────────────────────────────────────
+      const shareModal   = document.getElementById('shareModal');
+      const shareJsonEl  = document.getElementById('shareJson');
+      const shareUrlEl   = document.getElementById('shareUrl');
+      const shareAgentBtn  = document.getElementById('shareAgentBtn');
+      const copyJsonBtn    = document.getElementById('copyJsonBtn');
+      const copyUrlBtn     = document.getElementById('copyUrlBtn');
+      const closeModalBtn  = document.getElementById('closeModalBtn');
+      const closeModalBtn2 = document.getElementById('closeModalBtn2');
+
+      function buildAgentConfig() {
+        return {
+          agent:    'ophtxn-operator',
+          version:  '1.0',
+          exported: new Date().toISOString(),
+          profile: {
+            name:     profileName.value.trim()     || null,
+            workflow: profileWorkflow.value.trim() || null,
+            model:    profileModel.value,
+            runtime:  profileRuntime.value,
+          },
+          command: commandTextarea.value.trim() || null,
+        };
       }
 
-      async function loadDocumentDetail(documentId) {
-        if (!documentId) return;
-        const payload = await api('/api/documents/' + encodeURIComponent(documentId));
-        state.selectedDocumentId = documentId;
-        state.selectedDocumentDetail = payload;
-        renderWorkspace();
-        renderDocumentDetail();
+      function openShareModal() {
+        const config    = buildAgentConfig();
+        const json      = JSON.stringify(config, null, 2);
+        const encoded   = btoa(unescape(encodeURIComponent(json)));
+        const shareLink = location.origin + location.pathname + '#agent=' + encoded;
+
+        shareJsonEl.textContent = json;
+        shareUrlEl.value        = shareLink;
+        shareModal.classList.add('open');
       }
 
-      async function loadWorkflowDetail(workflowId) {
-        if (!workflowId) return;
-        const payload = await api('/api/workflows/' + encodeURIComponent(workflowId));
-        state.selectedWorkflowId = workflowId;
-        state.selectedWorkflowDetail = payload;
-        state.selectedWorkflowRunId = '';
-        renderWorkspace();
-        renderWorkflowDetail();
+      function closeShareModal() {
+        shareModal.classList.remove('open');
       }
 
-      async function saveDocumentRevision() {
-        if (!state.selectedDocumentId) return showToast('Select a document first');
-        await api('/api/documents/' + encodeURIComponent(state.selectedDocumentId), {
-          method: 'PATCH',
-          body: JSON.stringify({
-            title: reviewDocumentTitle.value.trim(),
-            body: reviewDocumentBody.value
-          })
-        });
-        showToast('Revision saved');
-        await loadWorkspace();
-        await loadDocumentDetail(state.selectedDocumentId);
-      }
-
-      function addWorkflowNode() {
-        var label = document.getElementById('workflowNodeLabel').value.trim();
-        if (!label) return showToast('Node label required');
-        var type = document.getElementById('workflowNodeType').value;
-        var inputTemplate = document.getElementById('workflowNodeInputTemplate').value.trim();
-        var nodeId = 'n' + String((state.builderWorkflow.nodes || []).length + 1).padStart(2, '0');
-        state.builderWorkflow.nodes.push({ id: nodeId, type: type, label: label, input_template: inputTemplate });
-        document.getElementById('workflowNodeLabel').value = '';
-        document.getElementById('workflowNodeInputTemplate').value = '';
-        renderWorkflowBuilder();
-        showToast('Node added');
-      }
-
-      function addWorkflowEdge() {
-        var from = workflowEdgeFrom.value;
-        var to = workflowEdgeTo.value;
-        if (!from || !to) return showToast('Select source and target');
-        state.builderWorkflow.edges.push({
-          id: 'e' + String((state.builderWorkflow.edges || []).length + 1).padStart(2, '0'),
-          from: from,
-          to: to,
-          label: document.getElementById('workflowEdgeLabel').value.trim(),
-          condition: document.getElementById('workflowEdgeCondition').value.trim()
-        });
-        document.getElementById('workflowEdgeLabel').value = '';
-        document.getElementById('workflowEdgeCondition').value = '';
-        renderWorkflowBuilder();
-        showToast('Edge added');
-      }
-
-      async function saveWorkflow() {
-        var name = document.getElementById('workflowName').value.trim();
-        if (!name) return showToast('Workflow name required');
-        if (!(state.builderWorkflow.nodes || []).length) return showToast('Add at least one node');
-        await api('/api/workflows', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: name,
-            project_id: workflowProject.value,
-            nodes: state.builderWorkflow.nodes,
-            edges: state.builderWorkflow.edges
-          })
-        });
-        state.builderWorkflow = { id: '', nodes: [], edges: [] };
-        document.getElementById('workflowName').value = '';
-        renderWorkflowBuilder();
-        showToast('Workflow saved');
-        await loadWorkspace();
-      }
-
-      async function executeWorkflow() {
-        if (!state.selectedWorkflowId) return showToast('Select a workflow first');
-        await api('/api/workflows/' + encodeURIComponent(state.selectedWorkflowId) + '/execute', {
-          method: 'POST',
-          body: JSON.stringify({})
-        });
-        showToast('Workflow executed');
-        await loadWorkspace();
-        await loadWorkflowDetail(state.selectedWorkflowId);
-      }
-
-      async function resumeWorkflow(outcome) {
-        if (!state.selectedWorkflowId) return showToast('Select a workflow first');
-        const detail = state.selectedWorkflowDetail || {};
-        const runs = detail.runs || [];
-        const latest = runs[runs.length - 1] || {};
-        if (!latest.run_id) return showToast('No workflow run selected');
-        await api('/api/workflows/' + encodeURIComponent(state.selectedWorkflowId) + '/runs/' + encodeURIComponent(latest.run_id) + '/resume', {
-          method: 'POST',
-          body: JSON.stringify({ outcome: outcome })
-        });
-        showToast('Workflow resumed: ' + outcome);
-        await loadWorkspace();
-        await loadWorkflowDetail(state.selectedWorkflowId);
-      }
-
-      async function addSuggestion() {
-        if (!state.selectedDocumentId) return showToast('Select a document first');
-        const text = document.getElementById('suggestionText').value.trim();
-        if (!text) return showToast('Suggestion text required');
-        await api('/api/documents/' + encodeURIComponent(state.selectedDocumentId) + '/suggestions', {
-          method: 'POST',
-          body: JSON.stringify({ text: text, author: 'reviewer' })
-        });
-        document.getElementById('suggestionText').value = '';
-        showToast('Suggestion added');
-        await loadWorkspace();
-        await loadDocumentDetail(state.selectedDocumentId);
-      }
-
-      async function updateSuggestionStatus(documentId, suggestionId, status) {
-        await api('/api/documents/' + encodeURIComponent(documentId) + '/suggestions/' + encodeURIComponent(suggestionId), {
-          method: 'PATCH',
-          body: JSON.stringify({ status: status })
-        });
-        showToast('Suggestion ' + status);
-        await loadWorkspace();
-        await loadDocumentDetail(documentId);
-      }
-
-      async function explainRoute() {
-        let context = {};
-        const raw = document.getElementById('routeContext').value.trim();
-        if (raw) {
-          try { context = JSON.parse(raw); } catch (_) { return showToast('Route context must be valid JSON'); }
+      // Auto-import from URL hash (#agent=BASE64)
+      function checkImportHash() {
+        const match = location.hash.match(/^#agent=(.+)$/);
+        if (!match) return;
+        try {
+          const json   = decodeURIComponent(escape(atob(match[1])));
+          const config = JSON.parse(json);
+          if (config.profile) {
+            if (config.profile.name)     profileName.value     = config.profile.name;
+            if (config.profile.workflow) profileWorkflow.value = config.profile.workflow;
+            if (config.profile.model)    profileModel.value    = config.profile.model;
+            if (config.profile.runtime)  profileRuntime.value  = config.profile.runtime;
+          }
+          if (config.command) commandTextarea.value = config.command;
+          showToast('Agent config imported from link.');
+          history.replaceState(null, '', location.pathname);
+        } catch (_) {
+          showToast('Could not parse agent link.');
         }
-        const payload = await api('/api/router/explain', {
-          method: 'POST',
-          body: JSON.stringify({ task_type: document.getElementById('routeTaskType').value, context: context })
-        });
-        const decision = payload.decision || {};
-        routeProvider.textContent = decision.provider || '-';
-        routeModel.textContent = decision.model_assigned || '-';
-        routeReasons.textContent = (decision.route_reasons || []).join(' | ') || 'No route explanation yet.';
       }
 
+      shareAgentBtn.addEventListener('click',  openShareModal);
+      closeModalBtn.addEventListener('click',  closeShareModal);
+      closeModalBtn2.addEventListener('click', closeShareModal);
+      shareModal.addEventListener('click', e => { if (e.target === shareModal) closeShareModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShareModal(); });
+
+      copyJsonBtn.addEventListener('click', () => copyText(shareJsonEl.textContent, 'JSON copied!'));
+      copyUrlBtn.addEventListener('click',  () => copyText(shareUrlEl.value, 'Link copied!'));
+
+      // ── Mark active nav link ────────────────────────────────────────────────
       function markActiveNav() {
         const current = location.pathname.split('/').pop();
-        document.querySelectorAll('.nav-pill').forEach(function (link) {
+        document.querySelectorAll('.nav-pill').forEach(link => {
           const href = link.getAttribute('href').split('/').pop();
           if (href === current) link.classList.add('active');
         });
       }
 
-      document.getElementById('createProjectBtn').addEventListener('click', function () { createProject().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('refreshWorkspaceBtn').addEventListener('click', function () { loadWorkspace().then(function(){ showToast('Workspace refreshed'); }).catch(function (err) { showToast(err.message); }); });
-      document.getElementById('createTaskBtn').addEventListener('click', function () { createTask().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('createDocumentBtn').addEventListener('click', function () { createDocument().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('copyActivityBtn').addEventListener('click', function () { copyText(outputBlock.textContent, 'Activity copied'); });
-      document.getElementById('explainRouteBtn').addEventListener('click', function () { explainRoute().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('saveDocumentRevisionBtn').addEventListener('click', function () { saveDocumentRevision().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('addSuggestionBtn').addEventListener('click', function () { addSuggestion().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('addWorkflowNodeBtn').addEventListener('click', addWorkflowNode);
-      document.getElementById('addWorkflowEdgeBtn').addEventListener('click', addWorkflowEdge);
-      document.getElementById('saveWorkflowBtn').addEventListener('click', function () { saveWorkflow().catch(function (err) { showToast(err.message); }); });
-      document.getElementById('runWorkflowBtn').addEventListener('click', function () { executeWorkflow().catch(function (err) { showToast(err.message); }); });
-      workflowRunSelect.addEventListener('change', function () {
-        state.selectedWorkflowRunId = workflowRunSelect.value || '';
-        renderWorkflowDetail();
-      });
-      approveWorkflowBtn.addEventListener('click', function () { resumeWorkflow('approved').catch(function (err) { showToast(err.message); }); });
-      rejectWorkflowBtn.addEventListener('click', function () { resumeWorkflow('rejected').catch(function (err) { showToast(err.message); }); });
-      successWorkflowBtn.addEventListener('click', function () { resumeWorkflow('success').catch(function (err) { showToast(err.message); }); });
-      reviewWorkflowBtn.addEventListener('click', function () { resumeWorkflow('needs_review').catch(function (err) { showToast(err.message); }); });
+      // ── Event listeners ────────────────────────────────────────────────────
+      saveProfileBtn.addEventListener('click', saveProfile);
+      resetProfileBtn.addEventListener('click', resetProfile);
+      commandPreset.addEventListener('change', onPresetChange);
+      copyCommandBtn.addEventListener('click', copyCommand);
+      copyToTelegramBtn.addEventListener('click', openTelegram);
+      copyOutputBtn.addEventListener('click', copyOutput);
 
-      bootstrapSession()
-        .then(loadWorkspace)
-        .then(function () { renderDocumentDetail(); renderWorkflowDetail(); })
-        .then(markActiveNav)
-        .catch(function (err) {
-          sessionState.textContent = 'Session bootstrap failed';
-          outputBlock.textContent = 'Workspace bootstrap failed: ' + err.message;
-          showToast(err.message);
-        });
+      // ── Init ───────────────────────────────────────────────────────────────
+      loadProfile();
+      initHighlight();
+      markActiveNav();
+      checkImportHash();
 
     })();
   </script>
@@ -2426,7 +1443,7 @@
       var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
       var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
       var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
-      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose: var(--accent-rose);--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
       '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--bg-card:rgba(255,255,255,0.72);--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
       var ci=document.getElementById('ddCustomColor');
       if(ci)ci.value=hex;
@@ -2478,7 +1495,6 @@
 })();
 </script>
 
-  <script src="surface-system.js"></script>
-  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

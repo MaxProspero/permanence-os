@@ -28,9 +28,8 @@
     const token = String(href || "").trim();
     if (!token) return token;
     if (/^https?:\/\//i.test(token) || token.startsWith("#") || token.startsWith("mailto:") || token.startsWith("tel:")) return token;
-    const clean = token.replace(/^\.\//, "").split("?")[0].split("#")[0];
-    const mapped = legacyRouteMap[clean.toLowerCase()];
-    return mapped ? `${appBase}${mapped}` : token;
+    // Return the local HTML filename as-is -- do not rewrite to appBase/8797
+    return token;
   };
 
   const page = (() => {
@@ -856,8 +855,7 @@
   window.setTimeout(decorateNavIcons, 120);
   window.setTimeout(decorateNavIcons, 480);
 
-  const navObserver = new MutationObserver(() => decorateNavIcons());
-  navObserver.observe(document.body, { childList: true, subtree: true });
+  // MutationObserver removed -- decorateNavIcons already runs on load + two timeouts
 
   const buildClockDropdown = () => {
     const clock = document.getElementById("mbClock");
@@ -989,11 +987,8 @@
     .join("");
   document.body.appendChild(dock);
 
-  document.querySelectorAll('a[href]').forEach((link) => {
-    const raw = link.getAttribute("href");
-    const next = appHref(raw);
-    if (next && next !== raw) link.setAttribute("href", next);
-  });
+  // Link rewriting removed -- static site links must stay on port 8787
+  // The appHref() function is still used by the runtime dock actions above
 
   const setState = (id, state, text) => {
     const dot = document.getElementById(`ops-dot-${id}`);

@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Clear Cache</title></head>
+<body style="background:#060a10;color:#e7f4ff;font-family:system-ui;padding:40px;">
+<h1>Clearing service worker and cache...</h1>
+<pre id="log"></pre>
+<script>
+var log = document.getElementById('log');
+function msg(text) { log.textContent += text + '\n'; }
+
+// Unregister all service workers
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    msg('Found ' + regs.length + ' service worker(s)');
+    regs.forEach(function(reg) {
+      reg.unregister().then(function() {
+        msg('Unregistered: ' + reg.scope);
+      });
+    });
+  });
+} else {
+  msg('No service worker support');
+}
+
+// Delete all caches
+if ('caches' in window) {
+  caches.keys().then(function(names) {
+    msg('Found ' + names.length + ' cache(s)');
+    names.forEach(function(name) {
+      caches.delete(name).then(function() {
+        msg('Deleted cache: ' + name);
+      });
+    });
+  });
+}
+
+setTimeout(function() {
+  msg('\nDone! Click the link below to load the site fresh.');
+  var a = document.createElement('a');
+  a.href = '/index.html';
+  a.textContent = 'Go to Lobby (fresh load)';
+  a.style.cssText = 'display:inline-block;margin-top:20px;padding:12px 24px;background:rgba(0,229,196,0.15);border:1px solid rgba(0,229,196,0.3);border-radius:8px;color:#00e5c4;text-decoration:none;font-size:16px;';
+  document.body.appendChild(a);
+}, 2000);
+</script>
+</body>
+</html>

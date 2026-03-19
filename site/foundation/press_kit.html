@@ -30,7 +30,7 @@
       --c-rose: #ff5c8a;
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
-      --sans: 'DM Sans', sans-serif;
+      --sans: var(--font-sans);
       --mono: 'DM Mono', monospace;
     }
 
@@ -142,7 +142,7 @@
       100%{ transform: translate(0,0) }
     }
   /* ═══════════════ OS MENUBAR ═══════════════ */
-  :root { --f-rgb: 255,188,0; --f: rgb(var(--f-rgb)); --sans: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace; }
+  :root { --f-rgb: 0,229,196; --f: rgb(var(--f-rgb)); --sans: var(--font-sans); --mono: 'DM Mono', monospace; }
   body { padding-top: 28px; }
   .os-menubar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
@@ -271,23 +271,23 @@
 .fab-popup input::placeholder{color:#7b96af}
 .fab-popup-label{font-size:11px;color:#7b96af;margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
     /* ── THEME: COPPER ─── */
-    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--c3:#e8a87c;--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--c-teal:#ffb347;--c-gold:#ffd700;--c-violet:#e8a87c;--c-rose:#ff6b6b;--rose:#ff6b6b;--violet:#e8a87c;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    [data-theme="copper"]{--bg:#0c0906;--bg-card:rgba(24,16,8,0.72);--glass:rgba(20,14,8,0.58);--line:rgba(255,180,100,0.14);--line-hi:rgba(255,179,71,0.25);--dim:#3a2810;--c1:#ffb347;--c2:#ffd700;--c3:#e8a87c;--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--c-teal:#ffb347;--c-gold:#ffd700;--c-violet:#e8a87c;--c-rose:#ff6b6b;--rose:#ff6b6b;--violet:#e8a87c;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: VOID ───── */
-    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--dim:#333;--c1:#d0d0d0;--c2:#bbb;--c3:#999;--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--c-teal:#d0d0d0;--c-gold:#bbb;--c-violet:#999;--c-rose:#888;--rose:#888;--violet:#999;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    [data-theme="void"]{--bg:#000;--bg-card:rgba(10,10,10,0.72);--glass:rgba(8,8,8,0.58);--line:rgba(255,255,255,0.04);--line-hi:rgba(255,255,255,0.08);--dim:#333;--c1:#d0d0d0;--c2:#bbb;--c3:#999;--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--c-teal:#d0d0d0;--c-gold:#bbb;--c-violet:#999;--c-rose:#888;--rose:#888;--violet:#999;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: OCEAN ───── */
-    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--c3:#6eb8ff;--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--c-teal:#4a9eff;--c-gold:#00d4ff;--c-violet:#6eb8ff;--c-rose:#ff5c8a;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:74,158,255;--f:rgb(var(--f-rgb))}
+    [data-theme="ocean"]{--bg:#060810;--bg-card:rgba(8,14,30,0.72);--glass:rgba(10,18,40,0.58);--line:rgba(74,158,255,0.14);--line-hi:rgba(74,158,255,0.25);--dim:#304868;--c1:#4a9eff;--c2:#00d4ff;--c3:#6eb8ff;--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--c-teal:#4a9eff;--c-gold:#00d4ff;--c-violet:#6eb8ff;--c-rose:#ff5c8a;--rose: var(--accent-rose);--violet: var(--accent-violet);--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: ROSE ────── */
-    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--c3:#ffb6c9;--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--c-teal:#ff5c8a;--c-gold:#ff8fab;--c-violet:#d06fff;--c-rose:#ff5c8a;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,92,138;--f:rgb(var(--f-rgb))}
+    [data-theme="rose"]{--bg:#100608;--bg-card:rgba(24,10,14,0.72);--glass:rgba(20,8,12,0.58);--line:rgba(255,92,138,0.14);--line-hi:rgba(255,92,138,0.25);--dim:#683040;--c1:#ff5c8a;--c2:#ff8fab;--c3:#ffb6c9;--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--c-teal:#ff5c8a;--c-gold:#ff8fab;--c-violet:#d06fff;--c-rose:#ff5c8a;--rose: var(--accent-rose);--violet:#d06fff;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: VIOLET ──── */
-    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--c3:#b088ff;--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--c-teal:#9b6dff;--c-gold:#d06fff;--c-violet:#9b6dff;--c-rose:#ff5c8a;--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:155,109,255;--f:rgb(var(--f-rgb))}
+    [data-theme="violet"]{--bg:#0a0610;--bg-card:rgba(16,10,28,0.72);--glass:rgba(14,8,24,0.58);--line:rgba(155,109,255,0.14);--line-hi:rgba(155,109,255,0.25);--dim:#483068;--c1:#9b6dff;--c2:#d06fff;--c3:#b088ff;--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--c-teal:#9b6dff;--c-gold:#d06fff;--c-violet:#9b6dff;--c-rose:#ff5c8a;--rose: var(--accent-rose);--violet:#9b6dff;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: FOREST ──── */
-    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--c3:#72efb2;--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--c-teal:#3ddc84;--c-gold:#00bfa5;--c-violet:#72efb2;--c-rose:#ff5c8a;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:61,220,132;--f:rgb(var(--f-rgb))}
+    [data-theme="forest"]{--bg:#061008;--bg-card:rgba(10,22,14,0.72);--glass:rgba(8,18,12,0.58);--line:rgba(61,220,132,0.14);--line-hi:rgba(61,220,132,0.25);--dim:#286838;--c1:#3ddc84;--c2:#00bfa5;--c3:#72efb2;--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--c-teal:#3ddc84;--c-gold:#00bfa5;--c-violet:#72efb2;--c-rose:#ff5c8a;--rose: var(--accent-rose);--violet: var(--accent-violet);--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: SOLAR ───── */
-    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--dim:#685828;--c1:#ffd700;--c2:#ffb347;--c3:#ffe066;--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--c-teal:#ffd700;--c-gold:#ffb347;--c-violet:#ffe066;--c-rose:#ff5c8a;--rose:#ff5c8a;--violet:#d06fff;--f-rgb:255,215,0;--f:rgb(var(--f-rgb))}
+    [data-theme="solar"]{--bg:#100e06;--bg-card:rgba(24,20,8,0.72);--glass:rgba(20,16,8,0.58);--line:rgba(255,215,0,0.14);--line-hi:rgba(255,215,0,0.25);--dim:#685828;--c1:#ffd700;--c2:#ffb347;--c3:#ffe066;--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--c-teal:#ffd700;--c-gold:#ffb347;--c-violet:#ffe066;--c-rose:#ff5c8a;--rose: var(--accent-rose);--violet:#d06fff;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: CRIMSON ─── */
-    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--c3:#ff8888;--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--c-teal:#ff4444;--c-gold:#ff6b3d;--c-violet:#d06fff;--c-rose:#ff4444;--rose:#ff4444;--violet:#d06fff;--f-rgb:255,68,68;--f:rgb(var(--f-rgb))}
+    [data-theme="crimson"]{--bg:#100606;--bg-card:rgba(24,10,10,0.72);--glass:rgba(20,8,8,0.58);--line:rgba(255,68,68,0.14);--line-hi:rgba(255,68,68,0.25);--dim:#683030;--c1:#ff4444;--c2:#ff6b3d;--c3:#ff8888;--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--c-teal:#ff4444;--c-gold:#ff6b3d;--c-violet:#d06fff;--c-rose:#ff4444;--rose:#ff4444;--violet:#d06fff;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: FROST ───── */
-    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--c3:#a0e0f8;--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--c-teal:#88d8f5;--c-gold:#b8e8ff;--c-violet:#a0e0f8;--c-rose:#ff5c8a;--rose:#ff5c8a;--violet:#7b6fff;--f-rgb:136,216,245;--f:rgb(var(--f-rgb))}
+    [data-theme="frost"]{--bg:#060e10;--bg-card:rgba(10,20,24,0.72);--glass:rgba(8,16,20,0.58);--line:rgba(136,216,245,0.14);--line-hi:rgba(136,216,245,0.25);--dim:#305058;--c1:#88d8f5;--c2:#b8e8ff;--c3:#a0e0f8;--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--c-teal:#88d8f5;--c-gold:#b8e8ff;--c-violet:#a0e0f8;--c-rose:#ff5c8a;--rose: var(--accent-rose);--violet: var(--accent-violet);--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── BRIGHTNESS: LIGHT ── */
     [data-brightness="light"]{--bg:#f6f4f0;--bg-card:rgba(255,255,255,0.72);--glass:rgba(255,255,255,0.58);--line:rgba(0,0,0,0.08);--line-hi:rgba(0,0,0,0.15);--dim:#c0c0c8;--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a}
     [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--bg-card:rgba(255,250,244,0.72);--surface:#fffaf4;--lift:#f8f0e4;--ink:#2a1e10;--muted:#8a7a60}
@@ -336,11 +336,11 @@
         <button class="mb-mi" id="mbFile">File</button>
         <button class="mb-mi" id="mbView">View</button>
         <button class="mb-mi" id="mbGo">Go</button>
-        <button class="mb-hamburger" id="mbHamburger">Menu</button>
+        <button class="mb-hamburger" id="mbHamburger">☰</button>
       </div>
       <div class="mb-center"><span class="mb-tagline">A-KWJ-0368 // MIND MAP</span></div>
       <div class="mb-right">
-        <span class="mb-ext" id="mbTheme" title="Toggle dark/light">Dark</span>
+        <span class="mb-ext" id="mbTheme" title="Toggle dark/light">☾</span>
         <span class="mb-clock" id="mbClock"></span>
         <span class="mb-date" id="mbDate"></span>
       </div>
@@ -349,22 +349,17 @@
     <!-- MENUBAR DROPDOWNS -->
     <div class="mb-dropdown" id="ddFile" style="left:72px">
       <div class="dd-label">Ophtxn OS</div>
-      <a href="index.html"><span class="dd-icon"></span> Lobby</a>
-      <a href="local_hub.html"><span class="dd-icon"></span> Control Room</a>
-      <a href="command_center.html"><span class="dd-icon"></span> Command Center</a>
-      <a href="trading_room.html"><span class="dd-icon"></span> Trading Room</a>
-      <a href="markets_terminal.html"><span class="dd-icon"></span> Markets Terminal</a>
-      <a href="night_capital.html"><span class="dd-icon"></span> Night Capital</a>
-      <a href="daily_planner.html"><span class="dd-icon"></span> Daily Planner</a>
-      <a href="ophtxn_shell.html"><span class="dd-icon"></span> Terminal</a>
-      <a href="rooms.html"><span class="dd-icon"></span> Tower</a>
+      <a href="index.html"><span class="dd-icon">⌂</span> Lobby</a>
+      <a href="press_kit.html"><span class="dd-icon">◆</span> Mind Map</a>
+      <a href="trading_room.html"><span class="dd-icon">△</span> Trading Room</a>
+      <a href="daily_planner.html"><span class="dd-icon">▣</span> Daily Planner</a>
+      <a href="ophtxn_shell.html"><span class="dd-icon">▸</span> Terminal</a>
+      <a href="local_hub.html"><span class="dd-icon">◉</span> Control Room</a>
+      <a href="rooms.html"><span class="dd-icon">▲</span> Tower</a>
       <div class="dd-sep"></div>
       <div class="dd-label">Permanence Platform</div>
-      <a href="ai_school.html"><span class="dd-icon"></span> AI School</a>
-      <a href="official_app.html"><span class="dd-icon"></span> App Studio</a>
-      <a href="agent_view.html"><span class="dd-icon"></span> Agent View</a>
-      <a href="comms_hub.html"><span class="dd-icon"></span> Comms Hub</a>
-      <a href="press_kit.html"><span class="dd-icon"></span> Mind Map</a>
+      <a href="ai_school.html"><span class="dd-icon">◈</span> AI School</a>
+      <a href="official_app.html"><span class="dd-icon">⬡</span> App Studio</a>
     </div>
 
     <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -388,20 +383,20 @@
       <div class="dd-theme-row">
         <span class="dd-theme-label">Mode</span>
         <div class="dd-bright-btns" id="ddThemeBright">
-          <button class="dd-bright-btn" data-bright="dark" title="Dark">Dark</button>
-          <button class="dd-bright-btn" data-bright="light" title="Light">Light</button>
-          <button class="dd-bright-btn" data-bright="system" title="System"></button>
+          <button class="dd-bright-btn" data-bright="dark" title="Dark">☾</button>
+          <button class="dd-bright-btn" data-bright="light" title="Light">☀</button>
+          <button class="dd-bright-btn" data-bright="system" title="System">⊡</button>
         </div>
       </div>
     </div>
 
     <div class="mb-dropdown" id="ddGo" style="left:150px">
       <div class="dd-label">Quick Nav</div>
-      <a href="rooms.html"><span class="dd-icon"></span> Tower Overview</a>
-      <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon"></span> Command Center</a>
-      <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon"></span> Live Shell</a>
+      <a href="rooms.html"><span class="dd-icon">▲</span> Tower Overview</a>
+      <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">⚙</span> Command Center</a>
+      <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">▸</span> Live Shell</a>
       <div class="dd-sep"></div>
-      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon"></span> GitHub</a>
+      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">⌘</span> GitHub</a>
     </div>
 
     <div class="mb-powered">Permanence OS</div>
@@ -656,7 +651,7 @@
     }
   });
 
-  /* Double click &gt; edit */
+  /* Double click → edit */
   wrap.addEventListener('dblclick',function(e){
     var nodeEl=e.target.closest('.mm-node');
     if(nodeEl){openEdit(nodeEl.dataset.id);return;}
@@ -805,7 +800,7 @@
       var next=cur==='dark'?'light':'dark';
       try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
       document.body.dataset.brightness=next;
-      tg.textContent=next==='dark'?'Dark':'Light';
+      tg.textContent=next==='dark'?'☾':'☀';
       applyTheme();
     });
   })();
@@ -827,7 +822,7 @@
       var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
       var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
       var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
-      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose:#ff5c8a;--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb));--surface:rgb('+sR+','+sG+','+sB+');--c-teal:'+hex+';--c-gold:'+hex+';--c-violet:'+hex+';--c-rose:#ff5c8a}'+
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--bg-card:rgba('+sR+','+sG+','+sB+',0.72);--glass:rgba('+sR+','+sG+','+sB+',0.58);--line:rgba('+rgb+',0.14);--line-hi:rgba('+rgb+',0.25);--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--c1:'+hex+';--c2:'+hex+';--c3:'+hex+';--rose: var(--accent-rose);--violet:#9b6dff;--f-rgb:'+rgb+';--f:rgb(var(--f-rgb));--surface:rgb('+sR+','+sG+','+sB+');--c-teal:'+hex+';--c-gold:'+hex+';--c-violet:'+hex+';--c-rose:#ff5c8a}'+
       '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--bg-card:rgba(255,255,255,0.72);--surface:#fff;--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
       var ci=document.getElementById('ddCustomColor');
       if(ci)ci.value=hex;
@@ -841,7 +836,7 @@
       document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
       document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
       var tgEl=document.getElementById('mbTheme');
-      if(tgEl)tgEl.textContent=b==='light'?'Light':'Dark';
+      if(tgEl)tgEl.textContent=b==='light'?'☀':'☾';
     }
     applyTheme=apply;
     apply();
@@ -879,7 +874,6 @@
 })();
 </script>
 
-  <script src="surface-system.js"></script>
-  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

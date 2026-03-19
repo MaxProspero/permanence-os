@@ -12,7 +12,7 @@
   <meta name="description" content="Your knowledge, continuously organized. Research agents scan Twitter bookmarks, school documents, and Notebook LM to synthesize courses, articles, and research briefs.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@700;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #080d13;
@@ -22,16 +22,15 @@
       --border-hi: rgba(0,229,196,0.25);
       --ink: #e8f0ff;
       --muted: #6a7fa0;
-      --c1: #00e5c4;
-      --c2: #f8c842;
-      --violet: #7b6fff;
-      --rose: #ff5c8a;
+      --c-teal: #00e5c4;
+      --c-gold: #f8c842;
+      --c-violet: #7b6fff;
+      --c-rose: #ff5c8a;
       --r: 16px;
       --shadow: 0 20px 48px rgba(0,0,0,0.4);
       --sidebar-w: 260px;
-      --sans: "Sora", system-ui, sans-serif;
-      --mono: "IBM Plex Mono", "DM Mono", monospace;
-      --game: "Orbitron", monospace;
+      --sans: "Instrument Sans", system-ui, sans-serif;
+      --mono: "DM Mono", monospace;
       --dim: rgba(255,255,255,0.2);
     }
 
@@ -46,7 +45,7 @@
     body {
       background-color: var(--bg);
       color: var(--ink);
-      font-family: var(--sans);
+      font-family: "Instrument Sans", system-ui, sans-serif;
       font-weight: 400;
       line-height: 1.55;
       position: relative;
@@ -94,7 +93,7 @@
     .nav-brand {
       text-decoration: none;
       color: var(--ink);
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-weight: 600;
       font-size: 13px;
       letter-spacing: 0.08em;
@@ -114,7 +113,7 @@
       border-radius: 999px;
       padding: 6px 14px;
       font-size: 13px;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       background: rgba(255,255,255,0.03);
       transition: color 0.2s, border-color 0.2s, background 0.2s;
     }
@@ -152,8 +151,8 @@
 
     .eyebrow {
       margin: 0 0 12px;
-      color: var(--c2);
-      font-family: var(--mono);
+      color: var(--c-gold);
+      font-family: "Instrument Sans", monospace;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       font-size: 11px;
@@ -162,7 +161,7 @@
 
     .hero h1 {
       margin: 0 0 14px;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-weight: 400;
       font-size: clamp(38px, 6.5vw, 74px);
@@ -192,7 +191,7 @@
       align-items: center;
       gap: 6px;
       text-decoration: none;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-weight: 600;
       font-size: 14px;
       border-radius: 10px;
@@ -206,7 +205,7 @@
     .btn:active { transform: translateY(0); }
 
     .btn-primary {
-      background: var(--c1);
+      background: var(--c-teal);
       color: #04201a;
     }
 
@@ -241,7 +240,7 @@
       border: 1px solid var(--border);
       border-radius: 999px;
       color: var(--muted);
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 13px;
       font-weight: 600;
       padding: 7px 16px;
@@ -255,9 +254,9 @@
     }
 
     .filter-btn.active {
-      background: var(--c1);
+      background: var(--c-teal);
       color: #04201a;
-      border-color: var(--c1);
+      border-color: var(--c-teal);
     }
 
     /* -- SKILL CARDS -- */
@@ -277,7 +276,7 @@
     }
 
     .skill-card:hover {
-      border-left-color: var(--c1);
+      border-left-color: var(--c-teal);
       border-color: var(--border-hi);
       box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(var(--f-rgb),0.12);
       transform: translateY(-2px);
@@ -322,7 +321,7 @@
 
     .skill-card h3 {
       margin: 0;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-weight: 400;
       font-size: 20px;
@@ -346,7 +345,7 @@
       align-items: center;
       gap: 5px;
       text-decoration: none;
-      color: var(--c1);
+      color: var(--c-teal);
       font-size: 13px;
       font-weight: 600;
       margin-top: 4px;
@@ -369,19 +368,19 @@
 
     .badge-beginner {
       background: rgba(var(--f-rgb),0.12);
-      color: var(--c1);
+      color: var(--c-teal);
       border: 1px solid rgba(var(--f-rgb),0.25);
     }
 
     .badge-intermediate {
       background: rgba(248,200,66,0.12);
-      color: var(--c2);
+      color: var(--c-gold);
       border: 1px solid rgba(248,200,66,0.25);
     }
 
     .badge-advanced {
       background: rgba(255,92,138,0.12);
-      color: var(--rose);
+      color: var(--c-rose);
       border: 1px solid rgba(255,92,138,0.25);
     }
 
@@ -400,7 +399,7 @@
       animation: fadeIn 300ms both;
     }
 
-    .skill-card.open .skill-link { color: var(--c2); }
+    .skill-card.open .skill-link { color: var(--c-gold); }
 
     .skill-detail-text {
       margin: 0 0 12px;
@@ -431,10 +430,10 @@
     }
 
     .code-block .cm { color: var(--muted); }
-    .code-block .ck { color: var(--c1); }
-    .code-block .cs { color: var(--c2); }
-    .code-block .cv { color: var(--violet); }
-    .code-block .cr { color: var(--rose); }
+    .code-block .ck { color: var(--c-teal); }
+    .code-block .cs { color: var(--c-gold); }
+    .code-block .cv { color: var(--c-violet); }
+    .code-block .cr { color: var(--c-rose); }
 
     .code-lang {
       position: absolute;
@@ -457,7 +456,7 @@
       color: var(--muted);
     }
 
-    .skill-tip strong { color: var(--c1); font-weight: 600; }
+    .skill-tip strong { color: var(--c-teal); font-weight: 600; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-6px); }
@@ -467,7 +466,7 @@
     /* -- ROUTE MAP -- */
     .section-label {
       margin: 0 0 20px;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-weight: 600;
       font-size: 11px;
       letter-spacing: 0.12em;
@@ -487,7 +486,7 @@
 
     .route-map-title {
       margin: 0 0 24px;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-size: 22px;
       color: var(--ink);
@@ -510,7 +509,7 @@
       right: 15%;
       height: 2px;
       background: linear-gradient(90deg,
-        var(--c1), var(--violet) 50%, var(--rose));
+        var(--c-teal), var(--c-violet) 50%, var(--c-rose));
       opacity: 0.3;
       z-index: 0;
     }
@@ -561,7 +560,7 @@
     .route-node:nth-child(1) .route-orb {
       background: rgba(var(--f-rgb),0.12);
       border: 2px solid rgba(var(--f-rgb),0.5);
-      color: var(--c1);
+      color: var(--c-teal);
       box-shadow: 0 0 20px rgba(var(--f-rgb),0.15);
     }
 
@@ -570,7 +569,7 @@
     .route-node:nth-child(2) .route-orb {
       background: rgba(123,111,255,0.12);
       border: 2px solid rgba(123,111,255,0.5);
-      color: var(--violet);
+      color: var(--c-violet);
       box-shadow: 0 0 20px rgba(123,111,255,0.15);
     }
 
@@ -579,7 +578,7 @@
     .route-node:nth-child(3) .route-orb {
       background: rgba(255,92,138,0.12);
       border: 2px solid rgba(255,92,138,0.5);
-      color: var(--rose);
+      color: var(--c-rose);
       box-shadow: 0 0 20px rgba(255,92,138,0.15);
     }
 
@@ -601,7 +600,7 @@
 
     .route-skill {
       margin: 0;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-size: 15px;
       color: var(--ink);
@@ -650,7 +649,7 @@
 
     .resources-header h2 {
       margin: 0;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-weight: 400;
       font-size: 26px;
@@ -660,7 +659,7 @@
     .resources-header .shimmer-line {
       flex: 1;
       height: 1px;
-      background: linear-gradient(90deg, var(--c1), var(--violet), var(--rose), var(--c2), var(--c1));
+      background: linear-gradient(90deg, var(--c-teal), var(--c-violet), var(--c-rose), var(--c-gold), var(--c-teal));
       background-size: 200% 100%;
       animation: shimmer 4s linear infinite;
       opacity: 0.5;
@@ -711,9 +710,9 @@
       flex-shrink: 0;
     }
     .res-card.cat-github h3 { color: var(--ink); }
-    .res-card.cat-social h3 { color: var(--violet); }
-    .res-card.cat-docs h3 { color: var(--c2); }
-    .res-card.cat-sources h3 { color: var(--rose); }
+    .res-card.cat-social h3 { color: var(--c-violet); }
+    .res-card.cat-docs h3 { color: var(--c-gold); }
+    .res-card.cat-sources h3 { color: var(--c-rose); }
 
     .resource-list {
       list-style: none;
@@ -734,7 +733,7 @@
       transition: color 0.2s;
     }
 
-    .resource-list a:hover { color: var(--c1); }
+    .resource-list a:hover { color: var(--c-teal); }
 
     .resource-icon {
       font-size: 11px;
@@ -766,7 +765,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      color: var(--rose);
+      color: var(--c-rose);
       font-size: 13px;
       font-weight: 600;
       margin-top: 8px;
@@ -775,7 +774,7 @@
       background: none;
       border: none;
       padding: 0;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
     }
 
     .sources-cta:hover { gap: 8px; }
@@ -812,7 +811,7 @@
 
     .sources-modal h2 {
       margin: 0 0 6px;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-weight: 400;
       font-size: 22px;
@@ -857,7 +856,7 @@
       transition: color 0.2s;
     }
 
-    .sources-modal .source-section a:hover { color: var(--c1); }
+    .sources-modal .source-section a:hover { color: var(--c-teal); }
 
     .sources-close {
       position: absolute;
@@ -928,7 +927,7 @@
     }
 
     .library-sidebar .sb-title {
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-size: 20px;
       color: var(--ink);
@@ -1018,7 +1017,7 @@
     }
 
     .sb-nav a:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
-    .sb-nav a.active { background: rgba(var(--f-rgb),0.08); color: var(--c1); }
+    .sb-nav a.active { background: rgba(var(--f-rgb),0.08); color: var(--c-teal); }
 
     .sb-nav .sb-icon {
       width: 16px;
@@ -1058,7 +1057,7 @@
       border-radius: 6px;
       background: rgba(var(--f-rgb),0.12);
       border: 1px solid rgba(var(--f-rgb),0.25);
-      color: var(--c1);
+      color: var(--c-teal);
       font-size: 10px;
       font-weight: 600;
       display: flex;
@@ -1082,7 +1081,7 @@
       cursor: pointer;
     }
 
-    .sb-request-link:hover { border-color: var(--c1); color: var(--c1); }
+    .sb-request-link:hover { border-color: var(--c-teal); color: var(--c-teal); }
 
     .sb-quick-ask {
       display: flex;
@@ -1102,9 +1101,9 @@
       transition: border-color 0.2s;
     }
 
-    .sb-qa-input-wrap:focus-within { border-color: var(--c1); }
+    .sb-qa-input-wrap:focus-within { border-color: var(--c-teal); }
 
-    .sb-qa-icon { color: var(--c1); flex-shrink: 0; opacity: 0.6; }
+    .sb-qa-icon { color: var(--c-teal); flex-shrink: 0; opacity: 0.6; }
 
     .sb-qa-input {
       flex: 1;
@@ -1127,7 +1126,7 @@
       border-radius: 8px;
       background: rgba(var(--f-rgb),0.08);
       border: 1px solid rgba(var(--f-rgb),0.2);
-      color: var(--c1);
+      color: var(--c-teal);
       transition: background 0.2s, border-color 0.2s;
       flex-shrink: 0;
     }
@@ -1150,8 +1149,8 @@
       border-radius: 10px;
       background: rgba(var(--f-rgb),0.08);
       border: 1px solid rgba(var(--f-rgb),0.2);
-      color: var(--c1);
-      font-family: var(--sans);
+      color: var(--c-teal);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -1221,7 +1220,7 @@
 
     .motion-quote blockquote {
       margin: 0;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-size: 22px;
       line-height: 1.4;
@@ -1231,7 +1230,7 @@
     .motion-quote cite {
       display: block;
       margin-top: 12px;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-style: normal;
       font-size: 13px;
       color: var(--muted);
@@ -1257,13 +1256,13 @@
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--c1);
+      color: var(--c-teal);
       margin: 0 0 4px;
     }
 
     .course-title {
       margin: 0 0 4px;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-size: 24px;
       color: var(--ink);
@@ -1296,7 +1295,7 @@
 
     .progress-fill {
       height: 100%;
-      background: var(--c1);
+      background: var(--c-teal);
       border-radius: 3px;
       transition: width 0.4s ease;
     }
@@ -1331,7 +1330,7 @@
     }
 
     .level-section-header .lsh-label {
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.1em;
@@ -1339,12 +1338,12 @@
       flex: 1;
     }
 
-    .level-section[data-level="beginner"] .lsh-label { color: var(--c1); }
-    .level-section[data-level="beginner"] .lsh-icon { color: var(--c1); }
-    .level-section[data-level="intermediate"] .lsh-label { color: var(--c2); }
-    .level-section[data-level="intermediate"] .lsh-icon { color: var(--c2); }
-    .level-section[data-level="advanced"] .lsh-label { color: var(--rose); }
-    .level-section[data-level="advanced"] .lsh-icon { color: var(--rose); }
+    .level-section[data-level="beginner"] .lsh-label { color: var(--c-teal); }
+    .level-section[data-level="beginner"] .lsh-icon { color: var(--c-teal); }
+    .level-section[data-level="intermediate"] .lsh-label { color: var(--c-gold); }
+    .level-section[data-level="intermediate"] .lsh-icon { color: var(--c-gold); }
+    .level-section[data-level="advanced"] .lsh-label { color: var(--c-rose); }
+    .level-section[data-level="advanced"] .lsh-icon { color: var(--c-rose); }
 
     .lsh-count {
       font-size: 11px;
@@ -1389,7 +1388,7 @@
 
     .request-section h3 {
       margin: 0 0 4px;
-      font-family: var(--sans);
+      font-family: "Instrument Serif", Georgia, serif;
       font-style: italic;
       font-size: 20px;
       color: var(--ink);
@@ -1429,7 +1428,7 @@
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--muted);
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 13px;
       cursor: pointer;
       transition: all 0.2s;
@@ -1442,8 +1441,8 @@
     }
     .cc-subject-pill.active {
       background: rgba(var(--f-rgb),0.12);
-      border-color: var(--c1);
-      color: var(--c1);
+      border-color: var(--c-teal);
+      color: var(--c-teal);
       font-weight: 600;
     }
 
@@ -1486,7 +1485,7 @@
       background: none;
       border: none;
       color: var(--ink);
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 14px;
       outline: none;
       resize: none;
@@ -1497,9 +1496,9 @@
     .req-submit {
       padding: 10px 20px;
       border-radius: 10px;
-      background: var(--c1);
+      background: var(--c-teal);
       color: #04201a;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 13px;
       font-weight: 600;
       border: none;
@@ -1538,13 +1537,13 @@
     .rf-icon {
       width: 16px;
       height: 16px;
-      color: var(--c1);
+      color: var(--c-teal);
     }
     .rf-live-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--c1);
+      background: var(--c-teal);
       animation: rf-pulse 2s ease-in-out infinite;
     }
     @keyframes rf-pulse {
@@ -1554,7 +1553,7 @@
     .rf-live-label {
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--c1);
+      color: var(--c-teal);
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
@@ -1618,10 +1617,10 @@
       letter-spacing: 0.05em;
       width: fit-content;
     }
-    .rf-tag-signal { background: rgba(0,229,196,0.15); color: var(--c1); }
-    .rf-tag-brief { background: rgba(123,111,255,0.15); color: var(--violet); }
-    .rf-tag-course { background: rgba(248,200,66,0.15); color: var(--c2); }
-    .rf-tag-alert { background: rgba(255,92,138,0.15); color: var(--rose); }
+    .rf-tag-signal { background: rgba(0,229,196,0.15); color: var(--c-teal); }
+    .rf-tag-brief { background: rgba(123,111,255,0.15); color: var(--c-violet); }
+    .rf-tag-course { background: rgba(248,200,66,0.15); color: var(--c-gold); }
+    .rf-tag-alert { background: rgba(255,92,138,0.15); color: var(--c-rose); }
 
     /* -- DATA SOURCES PANEL -- */
     .data-sources-panel {
@@ -1688,7 +1687,7 @@
       flex-shrink: 0;
     }
     .ds-connected {
-      background: var(--c1);
+      background: var(--c-teal);
       box-shadow: 0 0 6px rgba(0,229,196,0.4);
     }
     .ds-stat {
@@ -1708,15 +1707,15 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       background: rgba(0,229,196,0.12);
-      color: var(--c1);
+      color: var(--c-teal);
     }
 
     /* -- NEW SOURCE-BASED BADGES -- */
-    .badge-twitter { background: rgba(0,229,196,0.12); color: var(--c1); }
-    .badge-school { background: rgba(123,111,255,0.12); color: var(--violet); }
-    .badge-notebook { background: rgba(248,200,66,0.12); color: var(--c2); }
-    .badge-agent { background: rgba(255,92,138,0.12); color: var(--rose); }
-    .badge-course { background: rgba(0,229,196,0.12); color: var(--c1); }
+    .badge-twitter { background: rgba(0,229,196,0.12); color: var(--c-teal); }
+    .badge-school { background: rgba(123,111,255,0.12); color: var(--c-violet); }
+    .badge-notebook { background: rgba(248,200,66,0.12); color: var(--c-gold); }
+    .badge-agent { background: rgba(255,92,138,0.12); color: var(--c-rose); }
+    .badge-course { background: rgba(0,229,196,0.12); color: var(--c-teal); }
 
     /* Suggestion bar */
     .suggest-bar {
@@ -1751,7 +1750,7 @@
       transition: all 0.2s;
     }
     .suggest-pill:hover {
-      border-color: var(--c1);
+      border-color: var(--c-teal);
       color: var(--ink);
       background: rgba(var(--f-rgb),0.06);
     }
@@ -1770,7 +1769,7 @@
       width: calc(100% - 16px);
       margin: 0 8px;
       border-radius: 8px;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       transition: background 0.15s, color 0.15s;
       text-align: left;
     }
@@ -1799,9 +1798,9 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--c1);
+      background: var(--c-teal);
       color: #04201a;
-      font-family: var(--sans);
+      font-family: "Instrument Sans", sans-serif;
       font-size: 13px;
       font-weight: 600;
       padding: 10px 20px;
@@ -1880,7 +1879,7 @@
       box-shadow: 0 0 36px rgba(var(--f-rgb),0.35), 0 8px 32px rgba(0,0,0,0.4);
       transform: scale(1.05);
     }
-    .fab-bot svg { color: var(--c1); pointer-events: none; }
+    .fab-bot svg { color: var(--c-teal); pointer-events: none; }
     .fab-popup {
       display: none;
       position: fixed;
@@ -1907,7 +1906,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    .fab-popup input:focus { border-color: var(--c1); }
+    .fab-popup input:focus { border-color: var(--c-teal); }
     .fab-popup input::placeholder { color: var(--muted); }
     .fab-popup-label {
       font-size: 11px; color: var(--muted); margin: 0 0 8px;
@@ -2000,18 +1999,18 @@
     }
     .brand-reticle {
       width: 26px; height: 26px; flex-shrink: 0;
-      color: var(--c2);
+      color: var(--c-gold);
     }
     .arc-eyebrow {
       display: block;
       font-family: monospace;
       font-size: 10px; letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--c2); opacity: .4;
+      color: var(--c-gold); opacity: .4;
       margin-bottom: 10px;
     }
   /* ═══════════════ OS MENUBAR ═══════════════ */
-  :root { --f-rgb: 90,200,250; --f: rgb(var(--f-rgb)); }
+  :root { --f-rgb: 0,229,196; --f: rgb(var(--f-rgb)); }
   body { padding-top: 28px; }
   .os-menubar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
@@ -2027,7 +2026,7 @@
   .mb-left { display: flex; align-items: center; gap: 0; }
   .mb-logo {
     display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; text-decoration: none; color: var(--c1);
+    width: 28px; height: 28px; text-decoration: none; color: var(--c-teal);
     transition: color .2s;
   }
   .mb-logo:hover { color: var(--ink); }
@@ -2117,7 +2116,7 @@
     transition: all .15s; padding: 0; font-size: 12px;
   }
   .dd-bright-btn:hover { border-color: var(--border-hi); color: var(--ink); }
-  .dd-bright-btn.active { border-color: var(--c1); background: rgba(var(--f-rgb),.1); color: var(--ink); }
+  .dd-bright-btn.active { border-color: var(--c-teal); background: rgba(var(--f-rgb),.1); color: var(--ink); }
   /* -- MENUBAR RESPONSIVE -- */
   @media(max-width:768px){
     .mb-center{display:none}
@@ -2128,27 +2127,27 @@
   .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
     /* ── THEME: COPPER ─── */
-    [data-theme="copper"]{--bg:#0c0906;--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--c1:#ffb347;--c2:#ffd700;--violet:#e8a87c;--rose:#ff6b6b;--f-rgb:255,179,71;--f:rgb(var(--f-rgb))}
+    [data-theme="copper"]{--bg:#0c0906;--surface:#130e09;--lift:#1c1510;--border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);--ink:#fff0d8;--muted:#7a5f40;--c-teal:#ffb347;--c-gold:#ffd700;--c-violet:#e8a87c;--c-rose:#ff6b6b;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: VOID ───── */
-    [data-theme="void"]{--bg:#000;--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--c1:#d0d0d0;--c2:#bbb;--violet:#999;--rose:#888;--f-rgb:180,180,180;--f:rgb(var(--f-rgb))}
+    [data-theme="void"]{--bg:#000;--surface:#080808;--lift:#101010;--border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);--ink:#c0c0c0;--muted:#555;--c-teal:#d0d0d0;--c-gold:#bbb;--c-violet:#999;--c-rose:#888;--f-rgb: 0,229,196;--f:rgb(var(--f-rgb))}
     /* ── THEME: OCEAN ───── */
-    [data-theme="ocean"]{--bg:#030610;--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--c1:#4a9eff;--c2:#00d4ff;--violet:#6eb8ff;--rose:#ff5c8a;--f-rgb:74,158,255}
+    [data-theme="ocean"]{--bg:#030610;--surface:#080c18;--lift:#0c1020;--ink:#e0f0ff;--muted:#6088b0;--c-teal:#4a9eff;--c-gold:#00d4ff;--c-violet:#6eb8ff;--c-rose:#ff5c8a;--f-rgb:74,158,255}
     /* ── THEME: ROSE ────── */
-    [data-theme="rose"]{--bg:#0a0306;--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--c1:#ff5c8a;--c2:#ff8fab;--violet:#d06fff;--rose:#ff5c8a;--f-rgb:255,92,138}
+    [data-theme="rose"]{--bg:#0a0306;--surface:#140810;--lift:#1c0c18;--ink:#ffe7ef;--muted:#b05870;--c-teal:#ff5c8a;--c-gold:#ff8fab;--c-violet:#d06fff;--c-rose:#ff5c8a;--f-rgb:255,92,138}
     /* ── THEME: VIOLET ──── */
-    [data-theme="violet"]{--bg:#060310;--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--c1:#9b6dff;--c2:#d06fff;--violet:#9b6dff;--rose:#ff5c8a;--f-rgb:155,109,255}
+    [data-theme="violet"]{--bg:#060310;--surface:#0c0818;--lift:#120c20;--ink:#f0e7ff;--muted:#7860a0;--c-teal:#9b6dff;--c-gold:#d06fff;--c-violet:#9b6dff;--c-rose:#ff5c8a;--f-rgb:155,109,255}
     /* ── THEME: FOREST ──── */
-    [data-theme="forest"]{--bg:#030a06;--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--c1:#3ddc84;--c2:#00bfa5;--violet:#72efb2;--rose:#ff5c8a;--f-rgb:61,220,132}
+    [data-theme="forest"]{--bg:#030a06;--surface:#081410;--lift:#0c1c14;--ink:#e0ffe7;--muted:#508860;--c-teal:#3ddc84;--c-gold:#00bfa5;--c-violet:#72efb2;--c-rose:#ff5c8a;--f-rgb:61,220,132}
     /* ── THEME: SOLAR ───── */
-    [data-theme="solar"]{--bg:#0a0803;--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--c1:#ffd700;--c2:#ffb347;--violet:#ffe066;--rose:#ff5c8a;--f-rgb:255,215,0}
+    [data-theme="solar"]{--bg:#0a0803;--surface:#141008;--lift:#1c160c;--ink:#fff8e0;--muted:#a09050;--c-teal:#ffd700;--c-gold:#ffb347;--c-violet:#ffe066;--c-rose:#ff5c8a;--f-rgb:255,215,0}
     /* ── THEME: CRIMSON ─── */
-    [data-theme="crimson"]{--bg:#0a0303;--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--c1:#ff4444;--c2:#ff6b3d;--violet:#d06fff;--rose:#ff4444;--f-rgb:255,68,68}
+    [data-theme="crimson"]{--bg:#0a0303;--surface:#140808;--lift:#1c0c0c;--ink:#ffe0e0;--muted:#b05050;--c-teal:#ff4444;--c-gold:#ff6b3d;--c-violet:#d06fff;--c-rose:#ff4444;--f-rgb:255,68,68}
     /* ── THEME: FROST ───── */
-    [data-theme="frost"]{--bg:#03080a;--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--c1:#88d8f5;--c2:#b8e8ff;--violet:#a0e0f8;--rose:#ff5c8a;--f-rgb:136,216,245}
+    [data-theme="frost"]{--bg:#03080a;--surface:#081014;--lift:#0c181c;--ink:#e8f8ff;--muted:#608888;--c-teal:#88d8f5;--c-gold:#b8e8ff;--c-violet:#a0e0f8;--c-rose:#ff5c8a;--f-rgb:136,216,245}
     /* ── BRIGHTNESS: LIGHT ── */
     [data-brightness="light"]{--bg:#f6f4f0;--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a}
     [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--surface:#fffaf4;--lift:#f8f0e4;--ink:#2a1e10;--muted:#8a7a60}
-    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--surface:#fff;--lift:#f5f5f5;--ink:#111;--muted:#888;--c1:#333;--violet:#666}
+    [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--surface:#fff;--lift:#f5f5f5;--ink:#111;--muted:#888;--c-teal:#333;--c-violet:#666}
     [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--surface:#fff;--lift:#f0f4fa;--ink:#0a1e3a;--muted:#5070a0}
     [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--surface:#fff;--lift:#faf0f4;--ink:#3a0a1e;--muted:#a05070}
     [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--surface:#fff;--lift:#f4f0fa;--ink:#1e0a3a;--muted:#7050a0}
@@ -2204,21 +2203,16 @@
     <div class="mb-dropdown" id="ddFile" style="left:72px">
       <div class="dd-label">Ophtxn OS</div>
       <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-      <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
-      <a href="command_center.html"><span class="dd-icon">&#9881;</span> Command Center</a>
+      <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
       <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
-      <a href="markets_terminal.html"><span class="dd-icon">&#9638;</span> Markets Terminal</a>
-      <a href="night_capital.html"><span class="dd-icon">&#9683;</span> Night Capital</a>
       <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
       <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
+      <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
       <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
       <div class="dd-sep"></div>
       <div class="dd-label">Permanence Platform</div>
       <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
       <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
-      <a href="agent_view.html"><span class="dd-icon">&#9671;</span> Agent View</a>
-      <a href="comms_hub.html"><span class="dd-icon">&#9993;</span> Comms Hub</a>
-      <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
     </div>
 
     <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -2272,19 +2266,12 @@
 
       <div class="sb-section-label">Navigate</div>
       <nav class="sb-nav">
-        <a href="index.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Lobby</a>
-        <a href="local_hub.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Control Room</a>
-        <a href="command_center.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Command Center</a>
-        <a href="trading_room.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Trading Room</a>
-        <a href="markets_terminal.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Markets Terminal</a>
-        <a href="night_capital.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>Night Capital</a>
-        <a href="daily_planner.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Planner</a>
-        <a href="ophtxn_shell.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal</a>
+        <a href="index.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</a>
         <a href="rooms.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Tower</a>
-        <a href="ai_school.html" class="active"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>AI School</a>
+        <a href="ai_school.html" class="active"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Library</a>
         <a href="official_app.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>App Studio</a>
-        <a href="agent_view.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Agent View</a>
-        <a href="comms_hub.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Comms Hub</a>
+        <a href="command_center.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Control Room</a>
+        <a href="ophtxn_shell.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal</a>
         <a href="press_kit.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mind Map</a>
       </nav>
 
@@ -2386,16 +2373,16 @@
           <line class="edge-flow" x1="280" y1="160" x2="320" y2="100" stroke="rgba(255,92,138,0.2)" stroke-width="1"/>
           <line class="edge-flow" x1="200" y1="60" x2="160" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
           <line class="edge-flow" x1="200" y1="60" x2="280" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
-          <circle class="node-pulse" cx="80" cy="100" r="8" fill="rgba(0,229,196,0.2)" stroke="var(--c1)" stroke-width="1.5"/>
-          <circle class="node-pulse" cx="200" cy="60" r="10" fill="rgba(123,111,255,0.2)" stroke="var(--violet)" stroke-width="1.5"/>
-          <circle class="node-pulse" cx="320" cy="100" r="8" fill="rgba(255,92,138,0.2)" stroke="var(--rose)" stroke-width="1.5"/>
-          <circle class="node-pulse" cx="160" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c2)" stroke-width="1"/>
-          <circle class="node-pulse" cx="280" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c2)" stroke-width="1"/>
-          <circle cx="80" cy="100" r="3" fill="var(--c1)"/>
-          <circle cx="200" cy="60" r="4" fill="var(--violet)"/>
-          <circle cx="320" cy="100" r="3" fill="var(--rose)"/>
-          <circle cx="160" cy="160" r="2.5" fill="var(--c2)"/>
-          <circle cx="280" cy="160" r="2.5" fill="var(--c2)"/>
+          <circle class="node-pulse" cx="80" cy="100" r="8" fill="rgba(0,229,196,0.2)" stroke="var(--c-teal)" stroke-width="1.5"/>
+          <circle class="node-pulse" cx="200" cy="60" r="10" fill="rgba(123,111,255,0.2)" stroke="var(--c-violet)" stroke-width="1.5"/>
+          <circle class="node-pulse" cx="320" cy="100" r="8" fill="rgba(255,92,138,0.2)" stroke="var(--c-rose)" stroke-width="1.5"/>
+          <circle class="node-pulse" cx="160" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
+          <circle class="node-pulse" cx="280" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
+          <circle cx="80" cy="100" r="3" fill="var(--c-teal)"/>
+          <circle cx="200" cy="60" r="4" fill="var(--c-violet)"/>
+          <circle cx="320" cy="100" r="3" fill="var(--c-rose)"/>
+          <circle cx="160" cy="160" r="2.5" fill="var(--c-gold)"/>
+          <circle cx="280" cy="160" r="2.5" fill="var(--c-gold)"/>
         </svg>
       </div>
       <div class="motion-quote">
@@ -2423,7 +2410,7 @@
       <div class="ds-grid">
         <div class="ds-card" style="animation-delay:60ms">
           <div class="ds-card-header">
-            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c1)" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-teal)" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
             <span class="ds-name">Twitter Bookmarks</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
@@ -2432,7 +2419,7 @@
         </div>
         <div class="ds-card" style="animation-delay:120ms">
           <div class="ds-card-header">
-            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             <span class="ds-name">School Documents</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
@@ -2441,7 +2428,7 @@
         </div>
         <div class="ds-card" style="animation-delay:180ms">
           <div class="ds-card-header">
-            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c2)" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-gold)" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             <span class="ds-name">Notebook LM</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
@@ -2450,7 +2437,7 @@
         </div>
         <div class="ds-card" style="animation-delay:240ms">
           <div class="ds-card-header">
-            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-rose)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             <span class="ds-name">Research Agents</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
@@ -2593,7 +2580,7 @@
           title: 'Market Intelligence',
           category: 'twitter',
           desc: 'Financial signals, market trends, and trading insights extracted from Twitter bookmarks and agent analysis.',
-          color: '--c1',
+          color: '--c-teal',
           icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
           skills: [
             {
@@ -2648,7 +2635,7 @@
           title: 'AI &amp; Technology',
           category: 'twitter',
           desc: 'Cutting-edge AI research, model releases, and technology trends from bookmarked sources.',
-          color: '--violet',
+          color: '--c-violet',
           icon: 'M12 12m-3 0a3 3 0 106 0 3 3 0 10-6 0z M12 1v4 M12 19v4 M4.22 4.22l2.83 2.83 M16.95 16.95l2.83 2.83 M1 12h4 M19 12h4 M4.22 19.78l2.83-2.83 M16.95 7.05l2.83-2.83',
           skills: [
             {
@@ -2707,7 +2694,7 @@
           title: 'Academic Research',
           category: 'school',
           desc: 'Coursework, thesis papers, and quantitative research from school documents and academic sources.',
-          color: '--c2',
+          color: '--c-gold',
           icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z',
           skills: [
             {
@@ -2762,7 +2749,7 @@
           title: 'Agent Operations',
           category: 'agent',
           desc: 'Operational guides for running Permanence research agents, from Notebook LM integration to agent logs.',
-          color: '--rose',
+          color: '--c-rose',
           icon: 'M12 12m-10 0a10 10 0 1020 0 10 10 0 10-20 0z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z',
           skills: [
             {
@@ -2819,7 +2806,7 @@
           title: 'Trading Strategies',
           category: 'course',
           desc: 'Synthesized trading frameworks combining school finance, Twitter signals, and agent backtesting.',
-          color: '--c2',
+          color: '--c-gold',
           icon: 'M18 20V10 M12 20V4 M6 20v-6',
           skills: [
             {
@@ -2878,7 +2865,7 @@
           title: 'Knowledge Synthesis',
           category: 'course',
           desc: 'Cross-source research briefs that connect dots across Twitter, school documents, Notebook LM, and agent outputs.',
-          color: '--c1',
+          color: '--c-teal',
           icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
           skills: [
             {
@@ -3534,7 +3521,7 @@
             title: title,
             category: category,
             desc: desc || 'Research topic submitted to agents.',
-            color: '--c1',
+            color: '--c-teal',
             icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
             skills: [],
             route: {},
@@ -3837,7 +3824,7 @@
       var lR=Math.round(r*0.08),lG=Math.round(g*0.08),lB=Math.round(b*0.08);
       var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
       var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
-      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--surface:rgb('+sR+','+sG+','+sB+');--lift:rgb('+lR+','+lG+','+lB+');--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--c1:'+hex+';--c2:'+hex+';--violet:'+hex+';--rose:#ff5c8a;--f-rgb:'+rgb+'}'+
+      el.textContent='[data-theme="custom"]{--bg:rgb('+bgR+','+bgG+','+bgB+');--surface:rgb('+sR+','+sG+','+sB+');--lift:rgb('+lR+','+lG+','+lB+');--ink:rgb('+iR+','+iG+','+iB+');--muted:rgb('+mR+','+mG+','+mB+');--c-teal:'+hex+';--c-gold:'+hex+';--c-violet:'+hex+';--c-rose:#ff5c8a;--f-rgb:'+rgb+'}'+
       '[data-brightness="light"][data-theme="custom"]{--bg:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--surface:#fff;--lift:rgb('+Math.min(255,240+Math.round(r*0.06))+','+Math.min(255,240+Math.round(g*0.06))+','+Math.min(255,240+Math.round(b*0.06))+');--ink:rgb('+Math.round(r*0.12)+','+Math.round(g*0.12)+','+Math.round(b*0.12)+');--muted:rgb('+Math.round(r*0.35+60)+','+Math.round(g*0.35+60)+','+Math.round(b*0.35+60)+')}';
       var ci=document.getElementById('ddCustomColor');if(ci)ci.value=hex;
       var cd=document.querySelector('.dd-color-custom');if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
@@ -3868,7 +3855,6 @@
     window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
   })();
   </script>
-  <script src="surface-system.js"></script>
-  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
 </body>
 </html>

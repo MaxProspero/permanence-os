@@ -11,7 +11,7 @@
 <title>Ophtxn &middot; The Office</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@700;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;600&family=Syne:wght@400;700;800&family=Orbitron:wght@700;900&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════
    RESET + BASE
@@ -36,9 +36,9 @@
   --muted:#5a6a8a;
   --dim:#2e3d5c;
   --accent:#00e5c4;
-  --violet:#7b6fff;
-  --c2:#f8c842;
-  --rose:#ff5c8a;
+  --accent-2:#7b6fff;
+  --accent-warm:#f8c842;
+  --accent-rose:#ff5c8a;
   --good:#54df9e;
   --warn:#f7bf5e;
   --bad:#ff7f7f;
@@ -49,20 +49,21 @@
 
   /* Brass / warm accent */
   --brass:#c8a84e;
-  --c2-dim:rgba(200,168,78,0.08);
-  --c2-border:rgba(200,168,78,0.15);
+  --brass-dim:rgba(200,168,78,0.08);
+  --brass-border:rgba(200,168,78,0.15);
 
   --r:14px;
   --r-sm:10px;
   --r-xs:6px;
 
   /* Fonts */
-  --sans:"Sora",system-ui,sans-serif;
-  --mono:"IBM Plex Mono","DM Mono",monospace;
-  --game:"Orbitron",monospace;
+  --sans:"DM Sans",system-ui,sans-serif;
+  --display:"Syne",system-ui,sans-serif;
+  --serif:"Playfair Display",Georgia,serif;
+  --mono:"DM Mono",monospace;
 
   /* Tower HUD */
-  --f-rgb:200,168,78;
+  --f-rgb: 0,229,196;
   --f:rgb(var(--f-rgb));
 }
 
@@ -72,11 +73,11 @@
   --surface:#181008;--surface-hi:#201810;
   --border:rgba(255,180,100,0.08);--border-hi:rgba(255,180,100,0.16);
   --ink:#fff0d8;--ink-2:#d4c0a0;--muted:#7a5f40;--dim:#3d2e1e;
-  --accent:#ffb347;--violet:#e8a87c;--c2:#ffd700;--rose:#ff6b6b;
+  --accent:#ffb347;--accent-2:#e8a87c;--accent-warm:#ffd700;--accent-rose:#ff6b6b;
   --good:#80b860;--warn:#ff9500;--bad:#e06848;
-  --brass:#e0a030;--c2-dim:rgba(224,160,48,0.08);--c2-border:rgba(224,160,48,0.15);
+  --brass:#e0a030;--brass-dim:rgba(224,160,48,0.08);--brass-border:rgba(224,160,48,0.15);
   --glass:rgba(20,14,8,0.75);--glass-border:rgba(255,200,120,0.08);
-  --f-rgb:255,179,71;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── VOID ───────────────────────────────────────────── */
@@ -85,11 +86,11 @@
   --surface:#0a0a0a;--surface-hi:#141414;
   --border:rgba(255,255,255,0.04);--border-hi:rgba(255,255,255,0.08);
   --ink:#c0c0c0;--ink-2:#888;--muted:#555;--dim:#333;
-  --accent:#d0d0d0;--violet:#999;--c2:#bbb;--rose:#888;
+  --accent:#d0d0d0;--accent-2:#999;--accent-warm:#bbb;--accent-rose:#888;
   --good:#7a7a7a;--warn:#999;--bad:#666;
-  --brass:#aaa;--c2-dim:rgba(170,170,170,0.06);--c2-border:rgba(170,170,170,0.1);
+  --brass:#aaa;--brass-dim:rgba(170,170,170,0.06);--brass-border:rgba(170,170,170,0.1);
   --glass:rgba(8,8,8,0.75);--glass-border:rgba(255,255,255,0.04);
-  --f-rgb:180,180,180;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── OCEAN ──────────────────────────────────────────── */
@@ -98,11 +99,11 @@
   --surface:#0c1428;--surface-hi:#122040;
   --border:rgba(74,158,255,0.08);--border-hi:rgba(74,158,255,0.16);
   --ink:#e0f0ff;--ink-2:#a0c8f0;--muted:#406090;--dim:#203050;
-  --accent:#4a9eff;--violet:#00d4ff;--c2:#80c0ff;--rose:#5090d0;
+  --accent:#4a9eff;--accent-2:#00d4ff;--accent-warm:#80c0ff;--accent-rose:#5090d0;
   --good:#4ac0ff;--warn:#80b0e0;--bad:#4070a0;
-  --brass:#4a9eff;--c2-dim:rgba(74,158,255,0.08);--c2-border:rgba(74,158,255,0.15);
+  --brass:#4a9eff;--brass-dim:rgba(74,158,255,0.08);--brass-border:rgba(74,158,255,0.15);
   --glass:rgba(6,8,16,0.75);--glass-border:rgba(74,158,255,0.08);
-  --f-rgb:74,158,255;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── ROSE ───────────────────────────────────────────── */
@@ -111,11 +112,11 @@
   --surface:#1c0c14;--surface-hi:#28121e;
   --border:rgba(255,92,138,0.08);--border-hi:rgba(255,92,138,0.16);
   --ink:#ffe7ef;--ink-2:#e0a0b8;--muted:#905060;--dim:#502030;
-  --accent:#ff5c8a;--violet:#ff8fab;--c2:#ffb0c8;--rose:#ff5c8a;
+  --accent:#ff5c8a;--accent-2:#ff8fab;--accent-warm:#ffb0c8;--accent-rose:#ff5c8a;
   --good:#ff8fab;--warn:#e0809a;--bad:#a04060;
-  --brass:#ff5c8a;--c2-dim:rgba(255,92,138,0.08);--c2-border:rgba(255,92,138,0.15);
+  --brass:#ff5c8a;--brass-dim:rgba(255,92,138,0.08);--brass-border:rgba(255,92,138,0.15);
   --glass:rgba(16,6,8,0.75);--glass-border:rgba(255,92,138,0.08);
-  --f-rgb:255,92,138;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── VIOLET ─────────────────────────────────────────── */
@@ -124,11 +125,11 @@
   --surface:#140c22;--surface-hi:#1e1234;
   --border:rgba(155,109,255,0.08);--border-hi:rgba(155,109,255,0.16);
   --ink:#f0e7ff;--ink-2:#c0a8e0;--muted:#6a5090;--dim:#3a2060;
-  --accent:#9b6dff;--violet:#ff6fff;--c2:#c0a0ff;--rose:#a070d0;
+  --accent:#9b6dff;--accent-2:#ff6fff;--accent-warm:#c0a0ff;--accent-rose:#a070d0;
   --good:#a080ff;--warn:#9080c0;--bad:#604090;
-  --brass:#9b6dff;--c2-dim:rgba(155,109,255,0.08);--c2-border:rgba(155,109,255,0.15);
+  --brass:#9b6dff;--brass-dim:rgba(155,109,255,0.08);--brass-border:rgba(155,109,255,0.15);
   --glass:rgba(10,6,16,0.75);--glass-border:rgba(155,109,255,0.08);
-  --f-rgb:155,109,255;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── FOREST ─────────────────────────────────────────── */
@@ -137,11 +138,11 @@
   --surface:#0c1e10;--surface-hi:#122e1a;
   --border:rgba(61,220,132,0.08);--border-hi:rgba(61,220,132,0.16);
   --ink:#e0ffe7;--ink-2:#90d0a0;--muted:#408060;--dim:#205030;
-  --accent:#3ddc84;--violet:#00bfa5;--c2:#70e0a0;--rose:#40b070;
+  --accent:#3ddc84;--accent-2:#00bfa5;--accent-warm:#70e0a0;--accent-rose:#40b070;
   --good:#3ddc84;--warn:#70c080;--bad:#308050;
-  --brass:#3ddc84;--c2-dim:rgba(61,220,132,0.08);--c2-border:rgba(61,220,132,0.15);
+  --brass:#3ddc84;--brass-dim:rgba(61,220,132,0.08);--brass-border:rgba(61,220,132,0.15);
   --glass:rgba(6,16,8,0.75);--glass-border:rgba(61,220,132,0.08);
-  --f-rgb:61,220,132;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── SOLAR ──────────────────────────────────────────── */
@@ -150,11 +151,11 @@
   --surface:#201a0c;--surface-hi:#302814;
   --border:rgba(255,215,0,0.08);--border-hi:rgba(255,215,0,0.16);
   --ink:#fff8e0;--ink-2:#d0c080;--muted:#907840;--dim:#605020;
-  --accent:#ffd700;--violet:#ffb347;--c2:#ffe060;--rose:#d0a020;
+  --accent:#ffd700;--accent-2:#ffb347;--accent-warm:#ffe060;--accent-rose:#d0a020;
   --good:#ffd700;--warn:#e0c040;--bad:#a08020;
-  --brass:#ffd700;--c2-dim:rgba(255,215,0,0.08);--c2-border:rgba(255,215,0,0.15);
+  --brass:#ffd700;--brass-dim:rgba(255,215,0,0.08);--brass-border:rgba(255,215,0,0.15);
   --glass:rgba(16,14,6,0.75);--glass-border:rgba(255,215,0,0.08);
-  --f-rgb:255,215,0;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── CRIMSON ────────────────────────────────────────── */
@@ -163,11 +164,11 @@
   --surface:#1e0c0c;--surface-hi:#2e1414;
   --border:rgba(255,68,68,0.08);--border-hi:rgba(255,68,68,0.16);
   --ink:#ffe0e0;--ink-2:#e0a0a0;--muted:#905050;--dim:#503030;
-  --accent:#ff4444;--violet:#ff6b3d;--c2:#ff8080;--rose:#ff4444;
+  --accent:#ff4444;--accent-2:#ff6b3d;--accent-warm:#ff8080;--accent-rose:#ff4444;
   --good:#ff6060;--warn:#e07070;--bad:#a04040;
-  --brass:#ff4444;--c2-dim:rgba(255,68,68,0.08);--c2-border:rgba(255,68,68,0.15);
+  --brass:#ff4444;--brass-dim:rgba(255,68,68,0.08);--brass-border:rgba(255,68,68,0.15);
   --glass:rgba(16,6,6,0.75);--glass-border:rgba(255,68,68,0.08);
-  --f-rgb:255,68,68;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── FROST ──────────────────────────────────────────── */
@@ -176,11 +177,11 @@
   --surface:#0c1a20;--surface-hi:#12262e;
   --border:rgba(136,216,245,0.08);--border-hi:rgba(136,216,245,0.16);
   --ink:#e8f8ff;--ink-2:#a0d0e0;--muted:#507080;--dim:#304850;
-  --accent:#88d8f5;--violet:#b8e8ff;--c2:#a0e0f0;--rose:#60b0d0;
+  --accent:#88d8f5;--accent-2:#b8e8ff;--accent-warm:#a0e0f0;--accent-rose:#60b0d0;
   --good:#88d8f5;--warn:#80c0d8;--bad:#408090;
-  --brass:#88d8f5;--c2-dim:rgba(136,216,245,0.08);--c2-border:rgba(136,216,245,0.15);
+  --brass:#88d8f5;--brass-dim:rgba(136,216,245,0.08);--brass-border:rgba(136,216,245,0.15);
   --glass:rgba(6,14,16,0.75);--glass-border:rgba(136,216,245,0.08);
-  --f-rgb:136,216,245;--f:rgb(var(--f-rgb));
+  --f-rgb: 0,229,196;--f:rgb(var(--f-rgb));
 }
 
 /* ── LIGHT MODE ─────────────────────────────────────── */
@@ -201,7 +202,7 @@
   --bg-0:#f0f0f0;--bg-1:#e8e8e8;--bg-2:#e0e0e0;
   --surface:#ffffff;--surface-hi:#f5f5f5;
   --ink:#111;--ink-2:#444;--muted:#888;
-  --accent:#333;--violet:#666;
+  --accent:#333;--accent-2:#666;
   --brass:#666;--glass:rgba(255,255,255,0.85);--glass-border:rgba(0,0,0,0.05);
 }
 [data-brightness="light"][data-theme="ocean"]{
@@ -306,7 +307,7 @@ body::after{
 .mb-mi{background:none;border:none;cursor:pointer;color:var(--dim);font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 10px;border-radius:4px;transition:background .15s,color .15s}
 .mb-mi:hover,.mb-mi.open{background:rgba(var(--f-rgb),.12);color:var(--ink)}
 .mb-center{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
-.mb-tagline{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.mb-tagline{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
 .mb-right{display:flex;align-items:center;gap:10px}
 .mb-ext{color:var(--dim);cursor:pointer;font-size:13px;display:flex;align-items:center;transition:color .2s}
 .mb-ext:hover{color:var(--ink)}
@@ -388,17 +389,16 @@ body::after{
   border:1px solid var(--glass-border);
   border-radius:var(--rad);
   display:flex;flex-direction:column;overflow:hidden;
-  transition:border-color .22s ease,background .22s ease,transform .22s ease,box-shadow .22s ease;
+  transition:border-color .3s,background .3s;
 }
-.pnl:hover{border-color:rgba(var(--f-rgb),.16);transform:translateY(-1px);box-shadow:0 18px 46px rgba(0,0,0,.22)}
+.pnl:hover{border-color:rgba(var(--f-rgb),.12)}
 
 /* panel header — serif for "office" feel */
 .ph{
   padding:10px 14px;border-bottom:1px solid var(--glass-border);
-  font-family:var(--sans);font-size:12px;font-weight:600;
+  font-family:var(--serif);font-size:12px;font-weight:600;
   color:var(--brass);letter-spacing:.5px;
   display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));
 }
 .ph-sub{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);font-weight:400}
 
@@ -419,7 +419,7 @@ body::after{
   transition:background .18s ease;
 }
 .arow:last-child{border:none}
-.arow:hover{background:var(--c2-dim)}
+.arow:hover{background:var(--brass-dim)}
 .adot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .adot.pulse{animation:dotpulse 2.2s infinite}
 @keyframes dotpulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -495,21 +495,19 @@ body::after{
 #pc{grid-row:1;grid-column:2;display:flex;flex-direction:column}
 
 .tabbar{
-  display:flex;padding:8px;gap:6px;
+  display:flex;padding:6px;gap:4px;
   border-bottom:1px solid var(--glass-border);flex-shrink:0;
-  background:rgba(255,255,255,.015);
 }
 .tab{
-  flex:1;padding:8px 12px;font-size:9px;letter-spacing:1.5px;color:var(--muted);
+  flex:1;padding:6px 12px;font-size:9px;letter-spacing:1.5px;color:var(--muted);
   cursor:pointer;border-radius:8px;transition:all .2s ease;text-align:center;
   font-family:var(--mono);font-weight:500;
 }
 .tab.on{
-  background:var(--c2-dim);color:var(--brass);
-  border:1px solid var(--c2-border);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 8px 18px rgba(0,0,0,.12);
+  background:var(--brass-dim);color:var(--brass);
+  border:1px solid var(--brass-border);
 }
-.tab:hover:not(.on){background:var(--c2-dim);color:var(--ink-2)}
+.tab:hover:not(.on){background:var(--brass-dim);color:var(--ink-2)}
 .tpane{display:none;flex:1;overflow:hidden}
 .tpane.on{display:flex;flex-direction:column}
 
@@ -529,10 +527,9 @@ body::after{
 @keyframes blink{50%{opacity:0}}
 
 .cmd-input-wrap{
-  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  display:flex;align-items:center;gap:8px;padding:10px 16px;
   border-top:1px solid var(--glass-border);flex-shrink:0;
   font-family:var(--mono);font-size:12px;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01));
 }
 .cmd-input-wrap span{color:var(--brass);flex-shrink:0}
 .cmd-input{
@@ -608,7 +605,7 @@ body::after{
   padding:8px 4px;border-bottom:1px solid var(--border);cursor:default;
   transition:background .15s ease;
 }
-.lrow:hover{background:var(--c2-dim)}
+.lrow:hover{background:var(--brass-dim)}
 .lrow:last-child{border:none}
 .lno{font-size:9px;color:var(--brass);font-family:var(--mono);letter-spacing:.5px;margin-bottom:2px}
 .lcls{font-size:11px;color:var(--ink);font-weight:600;letter-spacing:.3px}
@@ -618,7 +615,7 @@ body::after{
 .ls-ok{background:rgba(84,223,158,.1);color:var(--good);border:1px solid rgba(84,223,158,.2)}
 .ls-warn{background:rgba(247,191,94,.08);color:var(--warn);border:1px solid rgba(247,191,94,.2)}
 .ls-err{background:rgba(255,127,127,.08);color:var(--bad);border:1px solid rgba(255,127,127,.2)}
-.ls-info{background:var(--c2-dim);color:var(--brass);border:1px solid var(--c2-border)}
+.ls-info{background:var(--brass-dim);color:var(--brass);border:1px solid var(--brass-border)}
 
 /* New entry flash animation */
 .ls-new{animation:ledgerFlash .6s ease-out}
@@ -647,13 +644,13 @@ body::after{
   padding:3px 8px;font-family:var(--mono);font-size:8px;letter-spacing:1px;
   color:var(--muted);cursor:pointer;transition:all .2s;
 }
-.foot-theme-btn.on{color:var(--brass);border-color:var(--c2-border);background:var(--c2-dim)}
+.foot-theme-btn.on{color:var(--brass);border-color:var(--brass-border);background:var(--brass-dim)}
 .foot-theme-btn:hover:not(.on){color:var(--ink-2);border-color:var(--border-hi)}
 .foot-r{display:flex;align-items:center;gap:12px}
 .shell-link{
   display:inline-flex;align-items:center;gap:6px;
   padding:5px 14px;border-radius:999px;
-  background:var(--c2-dim);border:1px solid var(--c2-border);
+  background:var(--brass-dim);border:1px solid var(--brass-border);
   color:var(--brass);font-size:9px;letter-spacing:1.5px;
   font-family:var(--mono);text-decoration:none;cursor:pointer;
   transition:all .25s ease;
@@ -668,7 +665,7 @@ body::after{
   padding:3px 8px;font-family:var(--mono);font-size:8px;letter-spacing:1px;
   color:var(--muted);cursor:pointer;transition:all .2s;
 }
-.kb-toggle.on{color:var(--brass);border-color:var(--c2-border)}
+.kb-toggle.on{color:var(--brass);border-color:var(--brass-border)}
 .kb-toggle:hover{color:var(--ink-2)}
 
 /* ═══════════════════════════════════════════════════════
@@ -693,9 +690,9 @@ body::after{
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   transition:all .07s ease;
 }
-.key:hover{background:var(--c2-dim);border-color:var(--c2-border);color:var(--ink)}
+.key:hover{background:var(--brass-dim);border-color:var(--brass-border);color:var(--ink)}
 .key.kdown{
-  background:var(--c2-dim);border-color:var(--brass);color:var(--brass);
+  background:var(--brass-dim);border-color:var(--brass);color:var(--brass);
   box-shadow:0 0 10px rgba(var(--f-rgb),.2);transform:translateY(1px);
 }
 .key.klit{
@@ -993,12 +990,12 @@ body::after{
     <button class="mb-mi" id="mbFile">File</button>
     <button class="mb-mi" id="mbView">View</button>
     <button class="mb-mi" id="mbGo">Go</button>
-    <button class="mb-hamburger" id="mbHamburger">Menu</button>
+    <button class="mb-hamburger" id="mbHamburger">☰</button>
   </div>
   <div class="mb-center"><span class="mb-tagline">THE OFFICE // COMMAND CENTER</span></div>
   <div class="mb-right">
     <span class="th-conn"><span class="th-dot" id="connDot"></span><span id="connLabel">offline</span></span>
-    <span class="mb-ext" id="mbTheme" title="Toggle dark/light">Dark</span>
+    <span class="mb-ext" id="mbTheme" title="Toggle dark/light">☾</span>
     <span class="mb-clock" id="mbClock"></span>
     <span class="mb-date" id="mbDate"></span>
   </div>
@@ -1007,22 +1004,17 @@ body::after{
 <!-- MENUBAR DROPDOWNS -->
 <div class="mb-dropdown" id="ddFile" style="left:72px">
   <div class="dd-label">Ophtxn OS</div>
-  <a href="index.html"><span class="dd-icon"></span> Lobby</a>
-  <a href="local_hub.html"><span class="dd-icon"></span> Control Room</a>
-  <a href="command_center.html"><span class="dd-icon"></span> Command Center</a>
-  <a href="trading_room.html"><span class="dd-icon"></span> Trading Room</a>
-  <a href="markets_terminal.html"><span class="dd-icon"></span> Markets Terminal</a>
-  <a href="night_capital.html"><span class="dd-icon"></span> Night Capital</a>
-  <a href="daily_planner.html"><span class="dd-icon"></span> Daily Planner</a>
-  <a href="ophtxn_shell.html"><span class="dd-icon"></span> Terminal</a>
-  <a href="rooms.html"><span class="dd-icon"></span> Tower</a>
+  <a href="index.html"><span class="dd-icon">⌂</span> Lobby</a>
+  <a href="press_kit.html"><span class="dd-icon">◆</span> Mind Map</a>
+  <a href="trading_room.html"><span class="dd-icon">△</span> Trading Room</a>
+  <a href="daily_planner.html"><span class="dd-icon">▣</span> Daily Planner</a>
+  <a href="ophtxn_shell.html"><span class="dd-icon">▸</span> Terminal</a>
+  <a href="local_hub.html"><span class="dd-icon">◉</span> Control Room</a>
+  <a href="rooms.html"><span class="dd-icon">▲</span> Tower</a>
   <div class="dd-sep"></div>
   <div class="dd-label">Permanence Platform</div>
-  <a href="ai_school.html"><span class="dd-icon"></span> AI School</a>
-  <a href="official_app.html"><span class="dd-icon"></span> App Studio</a>
-  <a href="agent_view.html"><span class="dd-icon"></span> Agent View</a>
-  <a href="comms_hub.html"><span class="dd-icon"></span> Comms Hub</a>
-  <a href="press_kit.html"><span class="dd-icon"></span> Mind Map</a>
+  <a href="ai_school.html"><span class="dd-icon">◈</span> AI School</a>
+  <a href="official_app.html"><span class="dd-icon">⬡</span> App Studio</a>
 </div>
 
 <div class="mb-dropdown" id="ddView" style="left:112px">
@@ -1046,20 +1038,20 @@ body::after{
   <div class="dd-theme-row">
     <span class="dd-theme-label">Mode</span>
     <div class="dd-bright-btns" id="ddThemeBright">
-      <button class="dd-bright-btn" data-bright="dark" title="Dark">Dark</button>
-      <button class="dd-bright-btn" data-bright="light" title="Light">Light</button>
-      <button class="dd-bright-btn" data-bright="system" title="System"></button>
+      <button class="dd-bright-btn" data-bright="dark" title="Dark">☾</button>
+      <button class="dd-bright-btn" data-bright="light" title="Light">☀</button>
+      <button class="dd-bright-btn" data-bright="system" title="System">⊡</button>
     </div>
   </div>
 </div>
 
 <div class="mb-dropdown" id="ddGo" style="left:150px">
   <div class="dd-label">Quick Nav</div>
-  <a href="rooms.html"><span class="dd-icon"></span> Tower Overview</a>
-  <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon"></span> Command Center</a>
-  <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon"></span> Live Shell</a>
+  <a href="rooms.html"><span class="dd-icon">▲</span> Tower Overview</a>
+  <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">⚙</span> Command Center</a>
+  <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">▸</span> Live Shell</a>
   <div class="dd-sep"></div>
-  <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon"></span> GitHub</a>
+  <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">⌘</span> GitHub</a>
 </div>
 
 <div class="mb-powered">Powered by Permanence Systems</div>
@@ -1091,16 +1083,16 @@ body::after{
   <!-- CENTER: TABS -->
   <div class="pnl" id="pc">
     <div class="tabbar">
-      <div class="tab on" data-t="cmd">"COMMAND"</div>
-      <div class="tab" data-t="construct">"OPS"</div>
-      <div class="tab" data-t="net">"INTEL"</div>
-      <div class="tab" data-t="grid">"ARENA"</div>
+      <div class="tab on" data-t="cmd">COMMAND</div>
+      <div class="tab" data-t="construct">CONSTRUCT</div>
+      <div class="tab" data-t="net">NETWORK</div>
+      <div class="tab" data-t="grid">GRID</div>
     </div>
     <div class="tpane on" id="tp-cmd">
       <div class="cmd-out" id="cmdOut"></div>
       <div class="cmd-input-wrap">
         <span>ophtxn $</span>
-        <input class="cmd-input" id="cmdInput" placeholder="route a governed command..." autocomplete="off" spellcheck="false">
+        <input class="cmd-input" id="cmdInput" placeholder="type a command..." autocomplete="off" spellcheck="false">
       </div>
     </div>
     <div class="tpane" id="tp-construct"></div>
@@ -1111,7 +1103,7 @@ body::after{
   <!-- RIGHT: THE LEDGER -->
   <div class="pnl" id="pr">
     <div class="ph" style="color:var(--brass)">
-      <span>"CAPITAL" LEDGER</span>
+      <span>The Ledger</span>
       <span class="ph-sub">LIVE</span>
     </div>
     <div class="pb" id="ledgerList"></div>
@@ -1128,7 +1120,7 @@ body::after{
       <button class="kb-toggle" id="kbToggle">KEYBOARD</button>
     </div>
     <div class="foot-r">
-      <a href="ophtxn_shell.html" class="shell-link">OPEN OPERATOR SHELL &middot; FLOOR 05</a>
+      <a href="ophtxn_shell.html" class="shell-link">OPEN SHELL &middot; FLOOR 05</a>
     </div>
   </div>
 
@@ -1174,12 +1166,12 @@ var kbVisible = false;
    BOOT (short — opening the office, not booting a mainframe)
    ═══════════════════════════════════════════════════════ */
 var BOOT_LINES = [
-  "Verifying review queue integrity...",
-  "Loading governed fleet...",
-  "Connecting command surfaces...",
+  "Verifying ledger integrity...",
+  "Loading agent roster...",
+  "Connecting mesh topology...",
   "Mounting PERMANENCE_FS...",
-  "Audit trail online.",
-  "Welcome to Command Center.",
+  "Cognitive overlay ready.",
+  "Welcome to The Office.",
 ];
 
 async function runBoot() {
@@ -1964,7 +1956,7 @@ function sparkPath(history, w, h, pad) {
   var points = history.map(function(v, i) {
     return { x: pad + i * stepX, y: h - pad - (v / 100) * (h - pad * 2) };
   });
-  // Smooth catmull-rom &gt; cubic bezier
+  // Smooth catmull-rom → cubic bezier
   var line = "M" + points[0].x.toFixed(1) + "," + points[0].y.toFixed(1);
   for (var i = 0; i < points.length - 1; i++) {
     var p0 = points[Math.max(i - 1, 0)];
@@ -2338,7 +2330,6 @@ document.addEventListener("click", function(e) {
 runBoot();
 </script>
 <script src="runtime.config.js"></script>
-<script src="surface-system.js"></script>
 <script>
 if (window.__OPHTXN_RUNTIME) {
   var rt = window.__OPHTXN_RUNTIME;
@@ -2408,7 +2399,7 @@ if (window.__OPHTXN_RUNTIME) {
     var next=cur==='dark'?'light':'dark';
     try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
     document.body.dataset.brightness=next;
-    tg.textContent=next==='dark'?'Dark':'Light';
+    tg.textContent=next==='dark'?'☾':'☀';
     applyTheme();
   });
 })();
@@ -2430,7 +2421,7 @@ var applyTheme;
     var sR=Math.round(r*0.06),sG=Math.round(g*0.06),sB=Math.round(b*0.06);
     var mR=Math.round(r*0.45+80),mG=Math.round(g*0.45+80),mB=Math.round(b*0.45+80);
     var iR=Math.min(255,Math.round(r*0.15+220)),iG=Math.min(255,Math.round(g*0.15+220)),iB=Math.min(255,Math.round(b*0.15+220));
-    el.textContent='[data-theme="custom"]{--bg-0:rgb('+bgR+','+bgG+','+bgB+');--bg-1:rgba('+sR+','+sG+','+sB+',0.72);--bg-2:rgba('+sR+','+sG+','+sB+',0.58);--surface:rgba('+sR+','+sG+','+sB+',0.72);--surface-hi:rgba('+sR+','+sG+','+sB+',0.9);--border:rgba('+rgb+',0.08);--border-hi:rgba('+rgb+',0.16);--ink:rgb('+iR+','+iG+','+iB+');--ink-2:#b0c4de;--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--accent:'+hex+';--violet:'+hex+';--c2:'+hex+';--rose:#ff5c8a;--good:'+hex+';--warn:'+hex+';--bad:'+hex+';--brass:'+hex+';--c2-dim:rgba('+rgb+',0.08);--c2-border:rgba('+rgb+',0.15);--glass:rgba('+Math.round(r*.03)+','+Math.round(g*.03)+','+Math.round(b*.03)+',0.75);--glass-border:rgba('+rgb+',0.08);--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
+    el.textContent='[data-theme="custom"]{--bg-0:rgb('+bgR+','+bgG+','+bgB+');--bg-1:rgba('+sR+','+sG+','+sB+',0.72);--bg-2:rgba('+sR+','+sG+','+sB+',0.58);--surface:rgba('+sR+','+sG+','+sB+',0.72);--surface-hi:rgba('+sR+','+sG+','+sB+',0.9);--border:rgba('+rgb+',0.08);--border-hi:rgba('+rgb+',0.16);--ink:rgb('+iR+','+iG+','+iB+');--ink-2:#b0c4de;--muted:rgb('+mR+','+mG+','+mB+');--dim:rgb('+Math.round(mR*0.5)+','+Math.round(mG*0.5)+','+Math.round(mB*0.5)+');--accent:'+hex+';--accent-2:'+hex+';--accent-warm:'+hex+';--accent-rose:#ff5c8a;--good:'+hex+';--warn:'+hex+';--bad:'+hex+';--brass:'+hex+';--brass-dim:rgba('+rgb+',0.08);--brass-border:rgba('+rgb+',0.15);--glass:rgba('+Math.round(r*.03)+','+Math.round(g*.03)+','+Math.round(b*.03)+',0.75);--glass-border:rgba('+rgb+',0.08);--f-rgb:'+rgb+';--f:rgb(var(--f-rgb))}'+
     '[data-brightness="light"][data-theme="custom"]{--bg-0:#f6f4f0;--bg-1:#edeae4;--bg-2:#e4e0d8;--surface:#fff;--surface-hi:#f5f3ef;--ink:#1a1a2e;--ink-2:#4a4a6a;--muted:#8a8a9a;--glass:rgba(255,255,255,0.85)}';
     var ci=document.getElementById('ddCustomColor');if(ci)ci.value=hex;
     var cd=document.querySelector('.dd-color-custom');if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
@@ -2442,7 +2433,7 @@ var applyTheme;
     document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
     document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
     var tgEl=document.getElementById('mbTheme');
-    if(tgEl)tgEl.textContent=b==='light'?'Light':'Dark';
+    if(tgEl)tgEl.textContent=b==='light'?'☀':'☾';
   }
   applyTheme=apply;
   apply();

@@ -1,0 +1,115 @@
+﻿Personal Agentic OS: Final Assembly Master Plan
+1. Executive System Architecture: The 'Jarvis' Central Orchestrator
+The Personal Agentic OS is engineered using the  Orchestrator Pattern , positioning  Claude 4.6  as the Primary Reasoning Engine and CEO-level Orchestrator. The fundamental challenge of autonomous agents is their "daily amnesia"—the tendency for sub-agents to lose track of architecture and standards across sessions. To mitigate this, the Orchestrator serves as the persistent management layer, governing the  Agentic Storage  layer to ensure state persistence and architectural integrity.The Orchestrator utilizes the  Model Context Protocol (MCP)  as its primary connective tissue, allowing it to interface directly with local file systems, databases, and third-party APIs. By acting as a central router, the Orchestrator delegates specialized work to a fleet of 19 specialized models, ensuring that high-reasoning tokens are reserved for management while cost-efficient models handle atomic execution.
+Multi-Model Delegation Strategy
+Specialist Model,Primary Role,System Task Mapping
+Claude 4.6,CEO / Orchestrator,"High-level orchestration, state management, and multi-agent auditing."
+Claude Opus,Senior Lead Dev,"Complex algorithmic logic, deep debugging, and architectural refactoring."
+Gemini 1.5 Flash,Fast Processor,"Low-latency data retrieval, long-context document analysis, and RAG preprocessing."
+Nano Banana,Creative Specialist,"Generation of visual assets, UI/UX design mockups, and image-to-code analysis."
+GPT-4o Mini,Chat/Summarizer,"Real-time user interaction, basic text classification, and automation logging."
+2. Local Infrastructure & Privacy Layer
+To adhere to the core principles of security and data sovereignty, the system implements a  Local Privacy Layer  via Dockerized Ollama. Sensitive operations—including the processing of private financial data or proprietary logic—are routed through local Llama instances to prevent data leakage to commercial provider logs.
+Technical Specifications & Safety
+* Runtime Environment:  Bun (Primary) or Node.js v22.17+ for high-performance I/O.
+* Isolated Execution:  Sub-agents operate in containerized, isolated environments to prevent accidental system-level destruction.
+* Safety Guardrails:  A mandatory  Confirmation Step  is required for any sensitive system action (e.g., mass file deletion). The system maintains an immutable  Audit Log  for all autonomous activity and includes a hardware-level  Kill Switch .
+Required Environment Variables
+Configure your .env file with the following keys:
+SUPABASE_URL="your-project-url"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+OLLAMA_HOST="http://localhost:11434"
+CLICKUP_API_TOKEN="pk_your_token"
+GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+
+
+Supabase Fact-Memory Schema (Agentic Storage)
+We utilize the  pgvector  extension to enable semantic search over persistent facts.
+-- Enable the vector extension for RAG
+CREATE EXTENSION IF NOT EXISTS vector;
+
+
+-- Core Memory and State Tables
+CREATE TABLE automation_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    agent_id TEXT NOT NULL,
+    action_taken TEXT,
+    result TEXT
+);
+
+
+CREATE TABLE memory_facts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    fact_category TEXT, -- e.g., 'User Preference', 'Tech Stack'
+    content TEXT NOT NULL,
+    embedding VECTOR(1536) -- Optimized for OpenAI/Gemini embeddings
+);
+
+
+CREATE TABLE task_status (
+    task_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    feature_name TEXT,
+    status TEXT CHECK (status IN ('Pending', 'In Progress', 'Completed', 'Failed')),
+    recap_link TEXT,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+3. The Workspace Architecture: Folder-as-Operating-System
+The system treats the file directory as the OS itself. This  Three-Layer Context  methodology ensures the agent maintains spatial awareness within the project without relying solely on a stateless chat history.
+1. Layer 1: The Map (  claude.md  ) : The global floor plan. It defines global standards, naming conventions, and project-wide routing instructions. Every agent reads this first.
+2. Layer 2: The Context (Room/Router) : Folder-specific Markdown files (e.g., writing_room.md) that act as a  Router . These files tell the AI exactly which sub-folders and "Skills" are relevant to the current "room" and which to ignore.
+3. Layer 3: The Workspace (Execution) : The active file system where agents read and write code, scripts, or content.
+Naming Convention Protocol
+Architecturally, we bypass traditional database queries for context retrieval by utilizing standard file system commands (ls, grep). This reduces token costs and increases speed.
+* Protocol:  YYYY-MM-DD_TaskName_Status.md
+* Example:  2025-05-20_AuthModule_Implemented.md
+4. Development Workflow: Spec-Driven Development (SDD)
+SDD shifts the human role from "coder" to "architect." Every feature must be defined by a  Technical Contract  (the AI Spec) before execution begins.
+Final Assembly Workflow Flowchart
+Phase 1: Analyze (Generate Mission/Roadmap) ↓ Phase 2: Create Spec (Develop technical contract & constraints) ↓ Phase 3: Create Tasks (Breakdown into atomic, trackable units) ↓ Phase 4: Execute Tasks (Implementation via sub-agents + TDD) ↓ Phase 5: Recap & Commit (Context persistence & Git sync)
+AI Spec vs. PRD
+While a PRD is for human stakeholders to understand business value, the  AI Spec  is an execution document. It is a  Technical Contract  containing strict constraints (e.g., "Do not use external libraries," "Use only Tailwind classes") that the sub-agents must adhere to without deviation.
+5. Mission Control: React-Based Dashboard Integration
+The frontend provides a visual control surface for the agentic backend.
+* Technical Stack:  Bun, React, Tailwind CSS, Shadcn UI.
+* Proxy Configuration:  In vite.config.ts, we implement a proxy to bypass  CORS issues  when the frontend interacts with the Node.js/Express agent backend.
+// vite.config.ts
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      }
+    }
+  }
+})
+
+
+Core Dashboard Components
+* Command Center:  Real-time metrics showing pipeline value and active task counts.
+* Workflow Map:  A visual, node-based control surface. Editing a node on the map translates directly to moving or modifying files in the folder-OS.
+* AI Assistant Panel:  Natural language interface to query the Supabase memory_facts and task_status tables.
+6. System Governance & Self-Improvement Loops
+To ensure the "junior agents" do not drift from quality standards, the system employs the  Mango Committee .
+The Governance Layer
+The  Mango Committee  is a Supervisor Agent layer that audits every file modification. It compares the output of sub-agents against the project’s standards/ folder (covering Tech Stack, Code Style, and Best Practices). If the output fails the audit, it is rejected and sent back for refactoring.
+The Karpathy Self-Improvement Loop
+The system utilizes a  Reflective Loop  based on "Recap Documents."
+* Failure Analysis:  If a task fails or requires human intervention, the system reflects on the failure.
+* Standards Update:  The Orchestrator automatically updates the relevant file in the standards/ folder (e.g., code_style.md or database_rules.md) to prevent the error from repeating in future sessions.
+7. Technical Reference
+Glossary of Core Concepts
+* Tokens:  Smallest unit of data processed by the LLM.
+* Context Window:  The finite "memory" of an active session.
+* RAG (Retrieval-Augmented Generation):  A technique for pulling facts from a vector database.
+* Agentic Storage:  Persistent, file-based memory (Agent-owned) that provides long-term state across sessions, distinct from temporary RAG.
+* MCP (Model Context Protocol):  The standard protocol for enabling LLMs to interact with local system tools.
+System Initialization Checklist
+1.   Base Installation:  Run bun init and git init in the home directory.
+2.   Project Setup:  Execute setup-project.sh to copy global standards/ and instructions/ to the local repository.
+3.   Product Planning:  Run the plan-product command to generate the mission.md and roadmap.md.
+4.   Infrastructure:  Boot Docker containers for Ollama and verify Supabase connectivity.
+5.   Dashboard:  Launch the React frontend and verify the Vite proxy is routing to the Express agent.

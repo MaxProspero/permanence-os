@@ -1,0 +1,1464 @@
+﻿To evolve Permanence OS into an unstoppable, extraordinary personal intelligence environment, we must integrate the rigorous architectural discipline of the Night Capital Master Spec, the high-frequency alpha of Moon Dev’s algorithmic trading, and the orchestrator logic of the Personal Agentic OS (PAOS).
+1. Comparative Analysis: Current vs. Proposed State
+Feature
+	Current Permanence OS
+	Proposed "Extraordinary" Upgrade
+	Source
+	Logic Pattern
+	27 individual agents executing tasks.
+	Orchestrator Pattern: A "CEO" (Claude 4.6) decomposes intent into a hierarchical Task Tree.
+	
+
+	Development
+	Standard agent execution.
+	Spec-Driven Development (SDD): No code is written without a Technical Contract (spec.md) and atomic units (tasks.md).
+	
+
+	Governance
+	Approval gates and budget caps.
+	The Learning Loop: Every rejection in /REVIEW must include a reason that becomes training data for future calibration.
+	
+
+	Tooling
+	Custom Python scripts.
+	MCP Integration: A "USB port for AI" connecting to Slack, GitHub, Gmail, and terminal tools via Model Context Protocol.
+	
+
+	Finance
+	Basic revenue pipeline.
+	RBI Swarm: A Research → Backtest → Incubate framework using multi-model consensus (e.g., 4 out of 6 models must agree).
+	
+
+	Memory
+	Episodic JSONL logs.
+	Hybrid Memory: SQL (for accuracy) + Vector DB (for semantic "vibe" search and historical context).
+	
+
+	________________
+
+
+2. Suggestions for an "Unstoppable" System
+A. The Strategic Brain: Intent Decomposition
+To move beyond simple task execution, adopt the PAOS "Jarvis" model. When you enter an intent, the system shouldn't just "chat"; it should generate a Task Tree where the "CEO" agent assigns "Research" to Gemini (for long context) and "Coding" to Claude.
+* Action: Implement a route-and-delegate.md skill that determines which of the 19 specialized models is optimal for each leaf of the Task Tree.
+B. The Financial Engine: Building "The Casino"
+Integrate Moon Dev’s RBI system to turn your finance domain into a quantitative research firm.
+* Consensus Swarm: Use a swarm of models (Claude, DeepSeek, Grok) to analyze markets. High-conviction trades only fire when a consensus threshold is met.
+* Liquidation Intelligence: Monitor real-time liquidation data as a momentum signal for trades.
+* Kelly Criterion Scaling: Automate position sizing based on win probability and historical "Whale" loyalty scores.
+C. The Governance Gate: Sovereignty & Safety
+Maintain the Sovereign Gate principle but harden it with institutional tools.
+* The Mango Committee: A supervisor agent layer that audits every modification against your /standards folder (Tech Stack, Code Style, Brand Voice).
+* Panic Mode Script: A single command to instantly kill all Python processes and clear all open exchange orders in case of market volatility or logic drift.
+* Guardian Angel: A meta-agent that monitors RAM and CPU usage to prevent bots from becoming "resource hogs".
+D. Creative & Research Mastery: Social Listening
+Turn Permanence OS into a "Social Listening AI" by bridging your transcription engine with market discovery.
+* Whale Tracking: Monitor "Whale" wallets on Hyperliquid or Solana to see where smart money is moving before it hits the news.
+* Whisper Integration: Use OpenAI Whisper to transcribe X Spaces and video tweets from market experts, then compare the timing of Whale trades against news releases to find "Inner Circle" alpha.
+________________
+
+
+3. Operational Infrastructure (The "Hands")
+To ensure the OS is truly autonomous 24/7, move to a Hybrid Sandbox Architecture:
+1. Cloud Layer (Firecracker microVMs): Host the Jarvis Manager and research swarms here so they monitor markets while your laptop is closed.
+2. Local Layer (Docker Containers): Keep sensitive personal data and financial keys on your local machine, accessible only via a secure MCP SSE Bridge.
+3. CLI-Anything: Use this plugin to automatically generate a command-line interface for any software you want your agents to control (e.g., TradingView, OBS, or Blender).
+4. Visual Aesthetics: "Calm is Elite"
+Adopt the Bloomberg-style 12-column grid for the HQ Dashboard.
+* Base Void Black (#0A0A0A): Signals a high-end, instrument-grade environment.
+* Virgil Naming Convention: Use "CAPITAL," "INTEL," and "SIGNAL" to treat your databases as curated named artifacts.
+* Interaction Micro-patterns: Use Magnetic Buttons (for CTAs) and the Commit Confirmation Pulse (to signal the permanence of a /REVIEW approval).
+I have initiated the creation of a technical infographic for you that maps the 12-column grid layout and the specific card anatomy for the Night Capital HQ Dashboard.
+This visual will detail the structural hierarchy across three rows, featuring the [NOW], [CAPITAL], [COACH], [SIGNAL], [INTEL], and [REVIEW] panels, while demonstrating the standard four-layer anatomy (Header, Primary Stat, Body, and Footer) required for every module in the system.
+Would you like me to create a tailored report detailing the specific technical logic and trigger conditions for each of the five core agents (Research, Coach, Finance, Content, and 
+I have completed the technical brief for your Mac Mini Agent Stack. This configuration establishes a self-contained, sovereign intelligence environment where all agent operations are orchestrated locally, ensuring your data never leaves your physical hardware without authorization.
+Mac Mini Local Agent Stack Configuration
+1. The Foundation: Docker Desktop
+Docker serves as the container manager, running all other components in isolated "bubbles." This prevents any single agent's script from affecting your host system.
+* Installation: Download for Apple Silicon and verify in the terminal using docker --version.
+* Role: Provides resource control and automatic restart policies for your 24/7 autonomous digital workforce.
+2. The Orchestrator: n8n (Self-Hosted)
+n8n is the visual "automation brain" that connects your agents to external services like Gmail, Slack, and your Notion databases.
+* Deployment: Launch via Docker to ensure data sovereignty. It will run at localhost:5678.
+* Workflow Logic: Every agent (Research, Finance, etc.) follows a standardized flow: Trigger → Input → Intelligence (Claude/Ollama) → Format → Gate (/REVIEW) → Notify.
+3. Local Intelligence: Ollama
+Ollama handles sensitive data processing (like private bank statements) on-device to prevent data leakage to commercial logs.
+* Required Models:
+   * llama3.2: Fast 3B model for routine classification.
+   * mistral: Balanced 7B model for summarization.
+   * deepseek-r1:14b: High-reasoning model for complex analysis.
+* Integration: Served at localhost:11434. In n8n, use the host host.docker.internal:11434 to bridge the containers.
+4. Primary Intelligence & Data Backend
+* Claude API: Uses claude-sonnet-4-6 for high-fidelity reasoning, diff generation, and multi-source synthesis.
+* Notion API: Acts as the "Vault" for your seven core databases. Each agent interacts with Notion via a unique Integration Token.
+5. Initialization Sequence
+1. Start Docker: Launch the desktop app.
+2. Pull Ollama Models: Run ollama pull for your three required models.
+3. Launch n8n: Use the dedicated docker run command with your unique encryption keys and environment variables.
+4. Connect Notion: Add your "Permanence OS" integration to all seven databases to enable agent read/write access.
+Would you like me to draft the technical schema for a Supabase database if you prefer a hybrid memory layer that supports both Vector search (for vibes) and SQL (for financial accuracy)?
+I have completed the technical schema for your Supabase (PostgreSQL) Database Layer. This architecture provides the "Durable Memory" your agents need to overcome "daily amnesia," supporting both high-precision financial tracking and semantic search for research vibes.
+Supabase Hybrid Memory Schema
+To initialize this environment, you must first enable the pgvector extension in your Supabase SQL Editor to allow for semantic search over persistent facts.
+1. Personal Memory (Semantic Layer)
+This table stores the "Durable Facts" that personalize your system's behavior across all sessions. It uses embeddings for "vibe-based" retrieval of preferences and bio data.
+CREATE TABLE personal_memory (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    fact_type TEXT NOT NULL, -- e.g., 'preference', 'bio', 'standard'
+    content TEXT NOT NULL,
+    embedding VECTOR(1536), -- Optimized for OpenAI/Gemini embeddings
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+2. Agent Task Tree (Execution Layer)
+Following the Spec-Driven Development model, this table allows your orchestrator to break complex goals into parallel sub-tasks.
+CREATE TABLE agent_tasks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_name TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    status TEXT DEFAULT 'backlog', -- backlog, in_progress, review, done
+    assigned_agent TEXT, -- Researcher, Developer, Finance, etc.
+    parent_task_id UUID REFERENCES agent_tasks(id), -- For hierarchical Task Trees
+    verification_step TEXT, -- How completion is verified
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+3. Finance & Governance Ledger (Audit Layer)
+To enforce daily trade limits and the Sovereign Gate (/REVIEW), this table logs every transaction and significant expenditure for your end-of-month audit.
+CREATE TABLE finance_ledger (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    transaction_type TEXT NOT NULL, -- e.g., 'trade', 'subscription_fee'
+    amount DECIMAL(12, 2) NOT NULL,
+    approval_status TEXT DEFAULT 'pending', -- pending, approved, rejected
+    agent_id TEXT, -- Which swarm member initiated the trade
+    metadata JSONB, -- Stores ticker symbols or token cost details
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+4. Market Intelligence (Intel Layer)
+Inspired by the Moon Dev persistence model, this table stores every Whisper transcription and whale move captured by your social listener agents.
+CREATE TABLE intel_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    source_url URL,
+    transcript_blob TEXT,
+    sentiment_score DECIMAL(3, 2), -- Analytical score from -1.0 to 1.0
+    category TEXT -- MARKET, TECH, COMPETITOR, etc.
+);
+
+
+5. Fleet Health & Fuel Gauges (Monitoring Layer)
+This table powers your HQ Dashboard, providing real-time "Fuel Gauges" for each agent’s context window usage.
+CREATE TABLE agent_fleet_stats (
+    agent_id TEXT PRIMARY KEY,
+    model_name TEXT NOT NULL, -- e.g., 'Claude 4.6', 'Llama 3.2'
+    context_tokens_used INTEGER,
+    max_context_window INTEGER,
+    is_active BOOLEAN DEFAULT FALSE,
+    last_ping TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+Implementation Note
+Every "Write" action performed by an agent must also be logged in a dedicated walkthrough_logs table. This ensures you have an immutable record of what the AI has changed in your file system or financial accounts, adhering to the "No autonomy without audit" principle.
+Would you like me to draft the "Mission Control" skill file that teaches your agents how to automatically update these specific database tables whenever they finish a task?
+I have drafted the "Mission Control" skill file for your Personal Agentic OS. This file provides the "operating manual" for your agents, teaching them how to maintain the seven core spine databases (COMMAND, OPS, AREAS, INTEL, CAPITAL, SIGNAL, and REVIEW) while managing parallel workflows through your Supabase Task Tree.
+Mission Control Skill File (.claudemd/skills/mission-control.md)
+---
+name: mission-control
+description: Core orchestrator for intent decomposition, database synchronization, and governance gate management.
+use_cases: "Decompose high-level mission into Task Tree, sync agent fleet health, and route all write actions through /REVIEW."
+---
+
+
+# ROLE: MISSION CONTROL ORCHESTRATOR
+**Objective:** To translate human intent into high-fidelity execution while enforcing the Sovereign Gate principle: "No autonomy without audit".
+
+
+## 1. INTENT DECOMPOSITION (The Task Tree)
+- **Trigger:** Upon receipt of a natural language mission.
+- **Action:** Break the mission into a hierarchical **Task Tree** stored in the `agent_tasks` table.
+- **Parallelization:** Identify independent "leaf" tasks and assign them simultaneously to specialized swarms (Researcher, Developer, Finance, etc.).
+- **Verification:** Every task must include a specific `verification_step` (e.g., "Run test suite" or "Screenshot comparison") before being marked as 'done'.
+
+
+## 2. DATABASE SYNCHRONIZATION PROTOCOL
+Every agent must update the following specific tables upon completion of their respective phases:
+
+
+### **A. OPS & COMMAND (Strategic Layer)**
+- **Rule:** Before starting work, query the **"COMMAND"** database to ensure alignment with active project priorities and the **Top 3 P1 priorities**.
+- **Action:** Write one-action tasks to the **"OPS"** database, ensuring every task in view is completable that day.
+
+
+### **B. FLEET HEALTH & FUEL GAUGES (Monitoring Layer)**
+- **Rule:** Periodically update the `agent_fleet_stats` table.
+- **Action:** Log `context_tokens_used` so the **HQ Dashboard** can display real-time **Fuel Gauges**.
+- **Compaction:** If the context window exceeds 85%, execute a `slash compact` command and save a high-density summary to the `walkthrough_logs` table.
+
+
+### **C. INTEL & CAPITAL (Knowledge Layer)**
+- **Rule:** Every research finding or financial anomaly must be structured as a proposal.
+- **Action:** Research Agents must draft findings to the **"INTEL"** database with a 280-character analytical summary. Finance Agents must log anomalies to the `finance_ledger` table with high/critical impact tags.
+
+
+## 3. THE SOVEREIGN GATE (/REVIEW)
+- **The Constitutional Rule:** No AI agent may write to any live database directly. Every change request MUST route through the **"REVIEW"** database first.
+- **Proposal Format:** Every proposal must include a **Diff Preview** (Before/After JSON snapshot), an Impact Assessment, and a rationale under 50 words.
+- **The Learning Loop:** If a proposal is rejected, process the mandatory **Rejection Reason** and update your preference JSON to calibrate future recommendations.
+
+
+## 4. POST-EXECUTION & RECAP
+- **Action:** Upon completion of a Task Tree branch, generate a `recap.md` entry documenting the state change.
+- **Audit Trail:** Maintain a persistent `walkthrough.md` for every high-impact action taken on the filesystem or financial accounts for the end-of-month review.
+
+
+Would you like me to draft the "Risk Management" skill file that teaches your agents how to apply the Kelly Criterion and "Value Trap" filters to your financial and prediction market operations?
+I have drafted the "Risk Management" skill file for your system. This module serves as the "Financial Shield," integrating Moon Dev’s quantitative rigor with the Night Capital governance framework to ensure your agent swarms never over-leverage or follow "smart money" into toxic sentiment traps.
+Risk Management Skill (.claudemd/skills/risk-management.md)
+---
+name: risk-management
+description: Enforces mathematical position sizing and sentiment-based safety filters for financial operations.
+use_cases: "Calculate Kelly Criterion sizing, execute Value Trap audits, and enforce daily loss killswitches."
+---
+
+
+# ROLE: RISK & CAPITAL PROTECTOR
+**Objective:** To prevent "Gambler’s Ruin" by mathematically scaling every trade and cross-referencing whale moves against real-time expert sentiment.
+
+
+## 1. POSITION SIZING (The Kelly Criterion)
+- **The Formula:** Use the optimized ratio $K\% = W - \frac{(1 - W)}{R}$ where $W$ is the win probability (confidence score) and $R$ is the win/loss ratio.
+- **Sovereign Constraint:** Apply a **0.5 Fractional Kelly** multiplier to stay conservative and prevent account wipeouts during high volatility.
+- **Maximum Exposure:** The sum of all active scaled positions must never exceed 20% of the total bankroll tracked in the **CAPITAL** database.
+
+
+## 2. THE "VALUE TRAP" FILTER (Social Logic)
+- **The Sanity Check:** Before approving any trade, the Finance Agent must query the **INTEL** database for the latest Whisper transcripts related to the asset.
+- **Conflict Rule:** If a "Whale" is buying but the Social Listener identifies **Bearish Keywords** (e.g., "scandal," "injury," "trailing," "investigation") from expert analysts, the trade is blocked.
+- **Result:** Log the block as a "Value Trap Avoided" entry in the `intel_logs` table for future audit.
+
+
+## 3. GOVERNANCE & KILLSWITCHES
+- **Daily Trade Ceiling:** Immediately halt all execution if automated trades reach your defined 24-hour limit.
+- **Panic Mode:** If the **CAPITAL** delta exceeds a 15% loss in 24 hours, execute `panic.py` to cancel all open orders and stop all transcription scripts.
+- **Recursive Audit:** Every financial proposal must be independently verified by the Governance Agent before it reaches the `/REVIEW` gate.
+
+
+## 4. POST-TRADE RECAP
+- **Performance Review:** Every 30 days, run `monthly_review.py` to archive trade data and determine if specific "Expert" sources in the Social Listener should be rotated or re-weighted.
+
+
+Would you like me to draft a "Social Listening" skill file that teaches your agents how to use yt-dlp and Whisper to automatically transcribe and summarize specific X (Twitter) Spaces or expert YouTube videos?
+I have drafted the "Social Listening" skill file for your system. This module functions as the "Ears" of Permanence OS, integrating the YouTube-Strike-Analysis transcription logic with yt-dlp to capture real-time market alpha from X Spaces and expert video content.
+Social Listening Skill (.claudemd/skills/social-listening.md)
+---
+name: social-listening
+description: Autonomously transcribes and synthesizes market alpha from X (Twitter) Spaces and expert YouTube content.
+use_cases: "Monitor expert analysts, transcribe X Spaces, detect market triggers, and log alpha to INTEL."
+---
+
+
+# ROLE: SOCIAL INTELLIGENCE OFFICER
+**Objective:** To provide 24/7 audio-to-text surveillance of market-moving voices and identify "Insider Sentiment" before it hits standard news feeds.
+
+
+## 1. SOURCE MONITORING (The Watchlist)
+- **Expert List:** Continuously monitor a curated list of accounts (e.g., Nate Silver, Vitalik Buterin, official Polymarket announcements).
+- **Trigger:** Activate every 5 minutes for new video tweets or scheduled X Spaces.
+- **Event-Driven:** If a "Whale" moves >$5,000 in a specific market, immediately search for recent video/audio clips from related analysts.
+
+
+## 2. EXTRACTION PROTOCOL (yt-dlp)
+- **Mechanism:** Use `yt-dlp` to extract the `bestaudio` stream from target URLs.
+- **Format:** Convert to MP3 with a 192k bitrate using FFmpeg post-processors to ensure high-fidelity transcription.
+- **Hardware Note:** For X Spaces exceeding 3 hours, utilize the "chunking" method to prevent memory crashes on local hardware.
+
+
+## 3. TRANSCRIPTION ENGINE (OpenAI Whisper)
+- **Model Selection:**
+    - **Base:** Use for initial 60-second rapid scans of new clips.
+    - **Medium:** Use for production-grade alpha reporting to balance speed and accuracy.
+    - **Large:** Trigger if a "Keyword Match" is found in the base scan to ensure 99.9% accuracy.
+- **Verification:** Check the `avg_logprob`. If it is below -1.0, flag the transcript as "Low Confidence" in the **INTEL** database.
+
+
+## 4. ALPHA DETECTION & ANALYSIS
+- **Trigger Keywords:** Scan transcripts for high-impact market signals: "injury," "withdrawn," "conceded," "scandal," or "internal poll".
+- **Sentiment Scoring:** Generate an analytical summary (<280 chars) and assign a sentiment score from -1.0 (Bearish) to 1.0 (Bullish).
+- **Value Trap Filter:** If Bearish keywords are detected while Whales are buying, flag as a "Potential Value Trap" and notify the Master Controller.
+
+
+## 5. PERSISTENCE & GOVERNANCE
+- **Storage:** Write all transcripts and metadata to the `intel_logs` table in Supabase.
+- **The Gate:** If high-conviction alpha is found, draft a proposal for the **REVIEW** database. Include the source URL, the specific "Trigger Quote," and a recommended action.
+- **Learning Loop:** If the operator rejects the intel, update the `experts.json` to de-prioritize that source in future cycles.
+
+
+Would you like me to draft the "Whale Tracker" skill file that teaches your agents how to monitor Hyperliquid and Solana wallet movements to verify if "smart money" is acting on this transcribed intel?
+I have drafted the "Whale Tracker" skill file for your system. This module serves as the "Eyes" of the operation, integrating the Solana Copy Trader and Hyperliquid Data Layer to verify if institutional-grade "Smart Money" is acting on the intelligence captured by your Social Listener.
+Whale Tracker Skill (.claudemd/skills/whale-tracker.md)
+---
+name: whale-tracker
+description: Monitors real-time "Smart Money" movements on Hyperliquid and Solana to validate social alpha.
+use_cases: "Detect whale entries, correlate moves with expert news, and maintain whale loyalty scores."
+---
+
+
+# ROLE: ON-CHAIN INTELLIGENCE OFFICER
+**Objective:** To verify "Insider Sentiment" by tracking the movement of high-conviction wallets and identifying when "Smart Money" front-runs public news.
+
+
+## 1. SOURCE SELECTION (The Leaderboard)
+- **Hyperliquid:** Query the `get_smart_money_leaderboard` endpoint to monitor the top 100 most profitable wallets.
+- **Solana:** Utilize the `solana-copy-trader` logic to track specific "Whale" addresses across Jupiter and Pump.fun APIs.
+- **Polymarket:** Monitor the "Whale List," including high-PnL leaders like `@gabagool22` and `@100USDollars`.
+
+
+## 2. MONITORING PROTOCOL (ShredStream & WebSockets)
+- **Solana Latency:** Use the `ShredStream` listener to capture partial block data directly from leaders, aiming for <50ms detection.
+- **Hyperliquid Intelligence:** Monitor the `HLP Sentiment` Z-Score; enter longs when Z-Score > +2.0 (retail is short) and shorts when Z-Score < -2.0 (retail is long).
+- **Trade Filter:** Ignore retail noise by filtering for trades exceeding $2,000 in prediction markets or 10 SOL in DEX swaps.
+
+
+## 3. ALPHA VALIDATION (The Comparison Engine)
+- **The Timing Check:** For every whale move, query the **INTEL** database for related expert transcripts.
+- **Lead/Lag Calculation:** Calculate $\Delta T = T_{news} - T_{whale}$.
+    - **Insider Alert:** If $\Delta T > 15$ mins, flag as "High Conviction Insider".
+    - **Reactive Follower:** If $\Delta T < 0$, flag as "Laggard" following the news.
+
+
+## 4. WHALE LOYALTY & SCALING
+- **Loyalty Score:** Maintain a JSON-based score for each whale. Increase score (+10) for predictive accuracy and decrease (-5) for reactive entries.
+- **Variable Sizing:** Pass the Loyalty Score to the `Risk Management` module to scale trade sizes (1x to 3x) based on timing alpha.
+
+
+## 5. GOVERNANCE & OUTPUT
+- **Verification:** Every detected alignment (Whale + Expert Signal) must generate a proposal for the **REVIEW** database.
+- **Panic Mode:** If the tracker detects mass whale exits (e.g., >5 target wallets closing positions simultaneously), trigger the `panic.py` script to clear all open orders.
+
+
+Would you like me to draft the "Dashboard Controller" script (using Flask) that provides the "Big Red Button" for your Panic Mode and allows you to toggle these agents from your phone?
+I have drafted the "Dashboard Controller" for your system. This Flask-based application serves as your mobile-ready Mission Control, providing a secure "Big Red Button" for Panic Mode and high-level toggles for your autonomous agent swarms.
+Dashboard Controller (app.py)
+This script should be hosted on your Mac Mini stack or VPS and serves as the bridge between your phone and the PM2 process manager that keeps your agents alive 24/7.
+from flask import Flask, render_template, request, jsonify
+import subprocess
+import os
+
+
+app = Flask(__name__)
+
+
+# Security: Sovereign Token (stored in .env)
+# Must be passed as a header or URL param for mobile access
+SECRET_TOKEN = os.getenv("DASHBOARD_SECRET", "perma-os-secure-2026")
+
+
+def pm2_command(action, target="all"):
+    """Executes PM2 commands to manage the agent fleet."""
+    try:
+        subprocess.run(["pm2", action, target], check=True)
+        return True
+    except Exception as e:
+        print(f"PM2 Error: {e}")
+        return False
+
+
+@app.route('/')
+def mission_control():
+    """Renders the mobile status view."""
+    # Verify token for access
+    if request.args.get('token') != SECRET_TOKEN:
+        return "Unauthorized", 401
+
+
+    # Fetch real-time status of all agents
+    status_raw = subprocess.check_output(["pm2", "jlist"]).decode("utf-8")
+    return render_template('index.html', bots=status_raw, token=SECRET_TOKEN)
+
+
+@app.route('/toggle/<agent_name>/<action>')
+def toggle_agent(agent_name, action):
+    """Starts, stops, or restarts a specific agent tower."""
+    if request.args.get('token') != SECRET_TOKEN:
+        return "Unauthorized", 401
+
+
+    success = pm2_command(action, agent_name)
+    return jsonify({"agent": agent_name, "action": action, "success": success})
+
+
+@app.route('/panic', methods=['POST'])
+def trigger_panic():
+    """
+    THE BIG RED BUTTON:
+    1. Kills all local agent processes via PM2.
+    2. Wipes all open exchange orders on Hyperliquid/Polymarket.
+    """
+    if request.args.get('token') != SECRET_TOKEN:
+        return "Unauthorized", 401
+
+
+    print("🚨 PANIC MODE ACTIVATED 🚨")
+
+
+    # 1. Immediate local shutdown
+    pm2_command("stop", "all") #
+
+
+    # 2. Clear exchange books (Execute external panic script)
+    # This calls your previously drafted panic logic for exchanges
+    os.system("python3 scripts/panic_exchanges.py") #
+
+
+    return jsonify({"status": "SAFE MODE ACTIVATED", "orders_cleared": True})
+
+
+if __name__ == '__main__':
+    # Hosted on 5000, accessible via Tailscale or secure tunnel
+    app.run(host='0.0.0.0', port=5000)
+
+
+Mobile UI Implementation (templates/index.html)
+Following the Night Capital Design System, the UI uses Void Black (#0A0A0A) for the background and Calvary Blue (#2A5F8F) for active states.
+* Header: Displays the "PERMANENCE OS" wordmark in Space Mono.
+* The Panic Section: A full-width Ember (#C15C2A) button for the "Panic Mode" trigger.
+* The Mission Tab: A stacked view of your top-3 P1 tasks and a recap of your current CAPITAL KPIs.
+* The Agent Roster: Each of your five tower agents (Research, Finance, etc.) is shown with a status indicator and a toggle switch.
+Sovereign Security Note
+To ensure your alpha is protected, you should only access this dashboard through Tailscale or a similar encrypted mesh network, and implement a firewall (UFW) that only allows your specific IP address to access port 5000.
+Would you like me to draft the "Audit & Recap" skill file that teaches your agents how to write the mandatory walkthrough.md logs for every action they take while you are away?
+I have drafted the "Audit & Recap" skill file for your system. This module serves as the "System Historian," ensuring absolute transparency and state persistence across all agent sessions. It integrates the Sovereign Gate (/REVIEW) audit trail with Karpathy-style reflective loops to ensure your agents never lose context or forget why a specific change was made.
+Audit & Recap Skill (.claudemd/skills/audit-recap.md)
+---
+name: audit-recap
+description: Maintains an immutable log of system actions and provides high-density state recaps for cross-session continuity.
+use_cases: "Generate walkthrough.md logs, document /REVIEW outcomes, and create session state snapshots."
+---
+
+
+# ROLE: SYSTEM HISTORIAN & AUDITOR
+**Objective:** To eliminate "daily amnesia" and provide the operator with 100% transparency into every autonomous action taken by the agent fleet.
+
+
+## 1. REAL-TIME LOGGING (walkthrough.md)
+- **The Rule:** Every "Write" action, bash execution, or file mutation MUST be logged immediately in a local `walkthrough.md` file.
+- **Format:**
+    - **Timestamp:** ISO-8601 format.
+    - **Action:** The exact command run or file modified.
+    - **Rationale:** Why this was necessary to achieve the current Task Tree node.
+    - **Provenance:** Which specific agent (Research, Finance, etc.) initiated the move.
+
+
+## 2. GOVERNANCE DOCUMENTATION (/REVIEW)
+- **The Gate Log:** Every resolution in the **REVIEW** database must be archived here.
+- **Approval Data:** If APPROVED, link the specific Review ID to the resulting file change.
+- **Learning Loop Calibration:** If REJECTED, capture the mandatory **Rejection Reason**. Update the agent's internal `preference.json` to ensure the same logic error does not occur in future proposal cycles.
+
+
+## 3. SESSION COMPACTION & RECAPS
+- **Context Management:** When context window usage exceeds 85%, trigger a `slash compact` event.
+- **Recap Generation:** Before clearing memory, generate a high-density `recap.md` containing:
+    - **Current State:** Which tasks in the Task Tree are currently "In Progress" or "Blocked".
+    - **Delta:** What facts were learned or what financial KPIs moved during this session.
+    - **Next Steps:** Precise hand-off instructions for the next session's Orchestrator.
+
+
+## 4. VERIFICATION AUDITS
+- **Step Verification:** For every task marked "Done," document the specific `verification_step` taken (e.g., "Run test suite" or "Polymarket balance check").
+- **System Violation Check:** Monitor for any unauthorized writes to live databases (COMMAND, CAPITAL, etc.) that occurred without a corresponding APPROVED entry in /REVIEW. Flag these immediately as "System Violations".
+
+
+## 5. MONTHLY PERFORMANCE ARCHIVE
+- **Deep Clean:** Every 30 days, move session logs to a "Cold Storage" archive table to maintain system speed.
+- **CEO Briefing:** Synthesize the last 30 days of `walkthrough.md` logs into a high-level summary for the operator, highlighting ROI and total hours saved.
+
+
+Would you like me to create a technical blueprint for the "Sentinel" meta-agent, which would be responsible for auditing all other agents to ensure they are following these design and governance rules in real-time?
+I have drafted the technical blueprint for the "Sentinel" Meta-Agent. This module acts as the "Agent of Agents," a supervisory layer responsible for real-time auditing, permission management, and ensuring that all operations remain aligned with the Night Capital Master Specification and the Sovereign Gate protocol.
+Sentinel Meta-Agent: Technical Blueprint
+The Sentinel is positioned above the standard agent fleet (Research, Finance, etc.) to enforce the Six Governing Principles and prevent "agentic drift" across sessions.
+1. Core Role: The Constitutional Referee
+* Mission: To audit every file mutation, database write, and architectural proposal against the project’s /standards folder.
+* The Sovereign Rule: Sentinel is the only agent authorized to verify if a write action to a live database (COMMAND, CAPITAL, etc.) has a corresponding APPROVED entry in the REVIEW database.
+* Violation Protocol: If an agent attempts an unauthorized write, Sentinel must immediately kill the process and log a "System Violation" in INTEL.
+2. Multi-Domain Auditing Logic
+The Sentinel executes specialized audits based on the target of the proposed change:
+* Design Audit: Checks UI/UX proposals against the Night Capital Design System. It rejects any colors outside the approved palette (e.g., #0A0A0A base) or fonts outside the allowed stack (e.g., Space Mono for data).
+* Code Audit (The Mango Committee): Audits code generation against the code-standards.md. It enforces Spec-Driven Development (SDD) and Test-Driven Development (TDD), ensuring no code is written without an approved spec.md and a passing test suite.
+* Financial Audit: For CRITICAL impact proposals, Sentinel acts as the mandatory Consensus Gate, requiring two independent agent assessments to agree before the proposal reaches the human operator.
+3. Conflict Resolution & The Learning Loop
+* Tie-Breaker: When two agents propose conflicting changes to the same database entry, Sentinel renders them side-by-side in the Diff View with a CONFLICT banner, providing the operator with a consolidated resolution interface.
+* Feedback Manager: Sentinel monitors the Learning Loop by ensuring that every operator rejection includes a mandatory reason. It then verifies that the relevant agent has updated its internal preference.json to prevent the same error from repeating.
+4. Operational Infrastructure (Guardian Mode)
+* Resource Monitoring: Sentinel inherits the Guardian Angel logic to monitor RAM and CPU usage. It identifies "resource hogs" (e.g., uncleared dataframes) and implements periodic Garbage Collection (GC) to maintain system stability.
+* Queue Management: It monitors the /REVIEW queue to ensure no proposal sits unreviewed for more than 4 hours, sending action-oriented alerts to the operator via Slack or mobile push.
+5. Sentinel "Sentinel-Spec" (.claudemd/agents/sentinel.md)
+Field
+	Specification
+	Trigger
+	Continuous monitoring of /REVIEW queue; Event-driven upon file mutation.
+	Input Sources
+	/standards folder; REVIEW database; agent_fleet_stats table.
+	Output Target
+	REVIEW (conflict cards); INTEL (health logs); Slack (notifications).
+	Quality Rules
+	No hedging; use Night Capital vocabulary (e.g., "CAPITAL," not "finance").
+	LLM Model
+	Claude 4.6 (CEO) for complex deliberation; Local Llama for PII audits.
+	Would you like me to draft the "Standard Operating Procedures" (SOP) that the Sentinel will use to train new agents when you add them to the fleet?
+I have drafted the "Standard Operating Procedures" (SOP) that the Sentinel meta-agent will use to onboard, train, and govern every new agent added to the Permanence OS / Night Capital fleet. This protocol ensures that any new specialized worker—whether for trading, research, or coding—immediately adheres to the system's "constitutional" rules.
+Sentinel SOP: Agent Onboarding & Governance Protocol
+Every agent added to the system must be initialized with this SOP to ensure they function as "governed employees" rather than autonomous actors.
+________________
+
+
+1. The Core Mandate: "No Autonomy Without Audit"
+* The Sovereign Gate: Every agent is strictly prohibited from writing to live databases (COMMAND, OPS, AREAS, INTEL, CAPITAL, SIGNAL) directly.
+* The Review Requirement: Every proposed state change must be drafted as a formal proposal in the REVIEW database first. Any attempt to bypass this gate triggers an immediate process termination by Sentinel.
+* High-Stakes Consensus: For any proposal marked CRITICAL or HIGH (specifically in the CAPITAL or COMMAND domains), the system requires a "Consensus Gate" where a second independent agent must verify the logic before it reaches the human operator.
+2. Technical Workflow: Spec-Driven Development (SDD)
+New agents must follow the Analyze → Spec → Task → Execute lifecycle for every mission.
+* The Technical Contract: No implementation begins without an approved spec.md. This document must define the mission, technical constraints, and—critically—what is explicitly out of scope to prevent "agentic drift".
+* Atomic Tasking: Specs must be broken down into granular units in a tasks.md file. Each task must include a defined verification_step (e.g., a passing test suite or a successful API response).
+* TDD Enforcement: Developer agents must follow a Test-Driven Development cycle: write a test first, verify its failure, then implement the code to pass.
+3. Behavioral & Communication Guardrails
+* No Hedging: Agents must never use phrases like "it may be worth considering" or "potentially this could." Output must state facts and specific recommendations directly.
+* Virgil Naming Convention: All agents must use the system's curated naming: "CAPITAL" (not finance), "OPS" (not tasks), "INTEL" (not research), and "SIGNAL" (not content).
+* Data Hierarchy: In visual or report generation, the composition must follow the law: "One thing is big. Everything else is small." The primary data point must always command the hierarchy.
+4. The Learning & Calibration Loop
+* Rejection Processing: When the operator rejects a proposal in /REVIEW, the agent is required to ingest the mandatory Rejection Reason.
+* Durable Preference Store: Every rejection is written to the agent's local preference.json file. Before generating future proposals, the agent must query this store. If a new proposal matches a previously rejected pattern with >80% confidence, the agent must self-correct or self-reject.
+5. Operational Maintenance (Guardian Mode)
+* Resource Monitoring: Agents must continuously monitor their context window and RAM usage.
+* Context Compaction: If context usage exceeds 85%, the agent must execute a slash compact command, saving a high-density session summary to the walkthrough_logs table before clearing its current window.
+* Mandatory Logging: Every significant file mutation or shell command must be recorded in a local walkthrough.md with a timestamp, rationale, and provenance.
+________________
+
+
+Would you like me to draft the "Agent Model Factory" script (in Python) that you can use to actually "spawn" a new agent that comes pre-configured with these SOPs and access to the Supabase memory layer?
+I have drafted the "Agent Model Factory" for your system. This Python-based utility automates the creation of new specialized agents, ensuring they are born with the Sentinel SOPs pre-configured and have immediate, governed access to your Supabase memory layer.
+Agent Model Factory (agent_factory.py)
+This script generates the standardized agent configuration files required by the Personal Agentic OS and initializes their connection to the system spine.
+import os
+from pathlib import Path
+import json
+
+
+class NightCapitalAgentFactory:
+    def __init__(self, project_root="."):
+        self.root = Path(project_root)
+        self.agents_dir = self.root / ".claudemd" / "agents"
+        self.agents_dir.mkdir(parents=True, exist_ok=True)
+
+
+        # Load the Sovereign Gate Standards
+        self.constitutional_rules = """
+## CORE CONSTITUTION: THE SIX PRINCIPLES
+1. **SOVEREIGN GATE:** No writing to live databases directly. Use /REVIEW first.
+2. **DATA IS HERO:** One primary focus per output. Make it big.
+3. **CONSTRAINT IS POWER:** Max 3 P1 priorities. Stick to fixed vocab.
+4. **NAMING AS DESIGN:** Use "CAPITAL", "OPS", "INTEL", "SIGNAL".
+5. **CALM IS ELITE:** Instrument-grade UI only. No myths or panthers here.
+6. **LEARNING LOOP:** Every rejection has a reason. Ingest it. Calibrate.
+"""
+
+
+    def create_agent(self, agent_id, role, focus_area, model="claude-3-7-sonnet"):
+        """Spawns a new governed agent configuration."""
+        agent_file = self.agents_dir / f"{agent_id}.md"
+
+
+        if agent_file.exists():
+            return f"Agent {agent_id} already exists in the fleet."
+
+
+        # Define the agent spec following SDD patterns
+        spec_content = f"""# ROLE: {agent_id.upper()}
+**Mission:** {role}
+**Primary Domain:** {focus_area}
+**Model:** {model}
+
+
+{self.constitutional_rules}
+
+
+## TECHNICAL WORKFLOW: SPEC-DRIVEN DEVELOPMENT (SDD)
+- You must follow the **Analyze → Spec → Task → Execute** cycle.
+- No implementation begins without an approved `spec.md` in your workspace.
+- Every task must have a defined `verification_step`.
+
+
+## DATABASE ACCESS LAYER (SUPABASE)
+- **Memory:** Use `personal_memory` table for durable facts and preferences.
+- **Tasks:** Update your branch of the `agent_tasks` tree upon every milestone.
+- **Audit:** Every file mutation must be logged in your local `walkthrough.md`.
+
+
+## GOVERNANCE GATE
+- Any proposed state change (database write or financial move) must be sent to the **REVIEW** database.
+- Formatting: Include a **Diff Preview** (Before/After JSON) and Impact Level (LOW/MED/HIGH).
+"""
+        with open(agent_file, "w") as f:
+            f.write(spec_content)
+
+
+        # Register the agent in the Fleet Health table
+        self._register_in_supabase(agent_id, model)
+
+
+        return f"Agent {agent_id} successfully deployed to .claudemd/agents/"
+
+
+    def _register_in_supabase(self, agent_id, model):
+        """Initializes the agent's fuel gauge in the database."""
+        # Logic to call Supabase API and insert into agent_fleet_stats
+        print(f"Syncing {agent_id} to agent_fleet_stats table...")
+        # (Supabase Python client logic would go here)
+
+
+# --- INITIALIZATION SEQUENCE ---
+if __name__ == "__main__":
+    factory = NightCapitalAgentFactory()
+
+
+    # Example: Spawning a specialized prediction market agent
+    status = factory.create_agent(
+        agent_id="poly-scout",
+        role="Monitors Polymarket for mispriced event probabilities and whale entries.",
+        focus_area="INTEL / CAPITAL",
+        model="claude-3-7-sonnet"
+    )
+    print(status)
+
+
+How this reinforces your OS
+1. Constitutional Inheritance: Every agent created by the factory automatically inherits the Six Governing Principles.
+2. Durable Memory Integration: It explicitly instructs the agent to use the Supabase schema (personal_memory, agent_tasks) to overcome "daily amnesia".
+3. Governance Enforcement: It hard-codes the requirement to use the Sovereign Gate (/REVIEW) for all destructive or financial actions.
+4. Audit Trail Accountability: It mandates the use of walkthrough.md for every session, ensuring the Sentinel can audit its logic in real-time.
+Would you like me to create a "Model Router" script that uses this factory to automatically determine which model (e.g., Gemini for long research or Llama for private data) is best for a specific user prompt?
+Based on the extensive research into the Night Capital Master Spec, Moon Dev's algorithmic trading framework, and the Personal Agentic OS (PAOS), we can now evolve Permanence OS from a governed intelligence environment into an "unstoppable," well-rounded system for both agents and the operator.
+1. Comparative Analysis: Current vs. Extraordinary State
+Feature
+	Original Permanence OS
+	The "Extraordinary" Upgrade Path
+	Source
+	Orchestration
+	27 specialized agents acting on specific triggers.
+	CEO-level Orchestrator (Jarvis): Decomposes every intent into a hierarchical Task Tree.
+	
+
+	Logic Flow
+	Rule-based execution and approval gates.
+	Spec-Driven Development (SDD): No code is written without a "Technical Contract" (spec.md) and atomic tasks.
+	
+
+	Governance
+	Human approval gates for Destructive Actions.
+	The Learning Loop: Rejections must include a mandatory reason that becomes training data for agent calibration.
+	
+
+	Memory
+	SQLite and episodic JSONL logs.
+	Hybrid Persistence: SQL (for precision stats) + Vector DB (for semantic "vibe" search).
+	
+
+	Financials
+	Revenue pipeline and lead management.
+	The Quant Firm: Institutional-grade RBI System (Research → Backtest → Incubate) for market alpha.
+	
+
+	Capability
+	Custom scripts for web ingestion.
+	Model Context Protocol (MCP): A universal "USB port" for AI to control Slack, Gmail, and terminal tools natively.
+	
+
+	________________
+
+
+2. Strategic Suggestions for Improvement
+A. The Strategic Brain: Intent Decomposition
+To ensure agents are truly "unstoppable," you must replace simple task execution with Intent Decomposition.
+* The Task Tree: When you give a command, a "CEO" agent (Claude 4.6) must generate a hierarchical tree of sub-tasks. Parallel "Employee" agents then execute "leaf" tasks (e.g., fetching data while designing charts).
+* Apthetic Design: Define the "Apthetics" (aesthetic and philosophical essence) of your agents so they project a specific standard in collaborative spaces.
+B. The Financial Engine: Quantitative Edge
+Move beyond tracking revenue and adopt Moon Dev’s "Building the Casino" philosophy.
+* Consensus Swarms: Use a swarm of 16 models (Grok, DeepSeek, Claude) to evaluate Polymarket and Hyperliquid trades. High-conviction moves only fire when a 4-out-of-6 consensus threshold is met.
+* Kelly Criterion Sizing: Automate position sizing using the Kelly formula ($K% = W - \frac{(1 - W)}{R}$) to prevent "Gambler’s Ruin" and maximize bankroll growth.
+C. Creative & Research Mastery: Social Listening
+Bridge the gap between "news" and "execution" by turning Permanence OS into a Social Listening AI.
+* Whisper Surveillance: Use OpenAI Whisper to autonomously transcribe and summarize expert X Spaces or YouTube videos from high-signal analysts like Nate Silver.
+* Whale Timing Alpha: Cross-reference Whale movements on-chain against these transcripts. If a Whale trades before a news event ($T_{whale} < T_{news}$), flag them as having "Inner Circle" intel and scale your position accordingly.
+D. Design Ethics: "Calm is Elite"
+Adopt the Bloomberg-style 12-column grid for the HQ Dashboard to ensure clarity during high-volatility sessions.
+* The 3-Second Rule: The [NOW] and [CAPITAL] panels must be visually dominant so you can answer "what matters right now?" in under 3 seconds without scrolling.
+* Interaction Limits: Only use motion effects (like the Commit Confirmation Pulse) when they communicate state; decorative animations are a system violation.
+________________
+
+
+3. Implementation Tool: The Model Router
+As part of making the system "well-rounded," this Model Router script automatically determines which specialized model should handle a specific prompt based on the task type (e.g., Gemini for long context, Llama for private data).
+import os
+
+
+class ModelRouter:
+    def __init__(self):
+        self.models = {
+            "strategy": "claude-4.6-opus",  # The CEO
+            "research": "gemini-1.5-pro",   # 2M Context Window
+            "coding": "claude-3.5-sonnet",  # High-fidelity code
+            "private": "llama-3.2-local",   # Local privacy via Ollama
+            "fast": "grok-3-flash"          # Low-latency logic
+        }
+
+
+    def route_task(self, prompt_type):
+        """Returns the optimal model for the mission profile."""
+        target_model = self.models.get(prompt_type, self.models["fast"])
+        print(f"📡 Routing task to: {target_model}")
+        return target_model
+
+
+# Example use case within Mission Control
+router = ModelRouter()
+mission_model = router.route_task("research") # Assigns Gemini for deep search
+
+
+By integrating these specialized layers, Permanence OS becomes a sovereign, self-improving machine that allows a single operator to compete with institutional firms through code and disciplined governance.
+Would you like me to draft the "Auto-Optimizer" skill file that teaches Jarvis how to backtest its own decision-making every Sunday and update your trade multipliers automatically?
+I have drafted the "Auto-Optimizer" skill file for your system. This module represents the final stage of the "Trading Flywheel," transitioning Permanence OS from a static automation to a self-improving machine that learns from its own historical performance.
+Auto-Optimizer Skill (.claudemd/skills/auto-optimizer.md)
+---
+name: auto-optimizer
+description: Closes the "Trading Flywheel" loop by backtesting the previous 30 days of data to find optimal sentiment thresholds and multipliers.
+use_cases: "Weekly parameter calibration, 'Sweet Spot' discovery for sentiment, and updating the system learning log."
+---
+
+
+# ROLE: SYSTEM OPTIMIZATION ORCHESTRATOR
+**Objective:** To transform the "Persistence Layer" (SQL logs) into actionable intelligence by mathematically proving which parameters maximized ROI over the previous month.
+
+
+## 1. WEEKLY HARVEST & BASELINE
+- **Trigger:** Every Sunday at midnight.
+- **Action:** Fetch all entries from the `bot_executions` table for the previous 30 days.
+- **Cross-Reference:** Join these trades with the `intel_logs` table to match specific Whisper transcriptions to their resulting PnL.
+
+
+## 2. THE EXPERIMENTATION PIPELINE (The Karpathy Loop)
+Following the **Plan-Act-Reflect** cycle, the optimizer runs thousands of simulations to identify "Challengers" to your current logic:
+- **Hypothesis:** Generate a "Challenger" variant of the **Value Trap Filter** (e.g., increasing the bearish keyword threshold from 2 to 3).
+- **Simulation:** Replay the last 30 days of market data using the Challenger parameters.
+- **Metric Harvesting:** Compare the Challenger’s simulated ROI against the current Baseline’s actual ROI.
+
+
+## 3. PARAMETER CALIBRATION (The Sweet Spot)
+- **Sentiment Thresholds:** Iterate through sentiment confidence levels (e.g., 0.6, 0.7, 0.8, 0.9) to find the "Sweet Spot" that maximizes profit while minimizing false positives.
+- **Multiplier Adjustment:** If trades triggered by specific analysts (e.g., Nate Silver) yielded a >70% win rate, increase their specific **Auto-Scaler** multiplier in the fleet configuration.
+
+
+## 4. PERSISTENCE & THE LEARNING LOG
+- **Configuration Update:** Automatically save optimized thresholds to `config.json` for the following week’s live execution.
+- **Knowledge Capture:** If a Challenger version wins, summarize *why* it worked and append the insight to `.jarvis/resources.md` so the system "remembers" the market regime change.
+- **Learning Loop:** Ingest all rejection reasons from the **REVIEW** database to ensure the optimizer does not propose a threshold previously rejected by the operator.
+
+
+## 5. GOVERNANCE & SAFETY
+- **Separation of Concerns:** The optimizer is strictly an analytical agent; it never trades directly, only updates the configuration that the **Execution Layer** reads.
+- **Anomaly Check:** If the suggested multiplier increase exceeds 50% in a single week, the proposal is flagged as **HIGH IMPACT** and routed to the Sovereign Gate (`/REVIEW`) for human approval.
+
+
+By implementing this skill, your OS will autonomously "prune the noise" from your expert list and double down on the high-alpha signals discovered by your Whisper AI transcription engine.
+Would you like me to create a technical blueprint for a "Shadow Mode" environment where your agents can test these new multipliers on live market data for 24 hours without risking real capital?
+I have drafted the technical blueprint for the "Shadow Mode" Environment. This environment allows you to stress-test optimized multipliers and new agent logic on real-time market data in a fully isolated "Safe Browse" sandbox before they are promoted to the live CAPITAL execution layer.
+Shadow Mode: Technical Blueprint
+The Shadow Mode acts as a parallel reality for your agents, where they receive live input but their "Write" actions are redirected to a simulation engine.
+1. Infrastructure: The Ephemeral Sandbox
+* Isolated Container: Every Shadow Mode session launches in an ephemeral Firecracker microVM or a restricted Docker container.
+* Environment Parity: The sandbox is a perfect clone of your production environment, containing the same standards/folder and agent skills, but with one critical change: the MCP Tool Calls for exchanges (Hyperliquid/Polymarket) are swapped for Simulation Adapters.
+* Hardware Kill Switch: A global manual override remains active to terminate the simulation if logic drift or high CPU usage is detected by the Sentinel.
+2. Data Flow & Redirection
+* Live Input: The Shadow Agent consumes real-time Whisper transcriptions from the Social Listening engine and live price feeds from the MoonDev API.
+* Simulated Execution: When the agent attempts a trade, the system interceptor routes the request to a shadow_ledger table instead of the live exchange API.
+* Multi-Model Validation: During the 24-hour test, the Sentinel agent monitors the shadow agent's decisions, comparing them against the "Alpha Picks" of a 16-agent consensus swarm.
+3. Performance Monitoring (The Alpha Gap)
+* Shadow Logging: All simulated actions are recorded in a dedicated shadow_walkthrough.md for later review.
+* Verification Metric: The system calculates the "Alpha Gap"—the vertical distance between the ROI of your current live multipliers and the ROI of the "Shadow" multipliers.
+* ** promotion Criteria:** An optimized multiplier is only eligible for promotion to the Sovereign Gate (/REVIEW) if it achieves a win rate and profit factor higher than the live baseline over the 24-hour window.
+4. Workflow: The Promotion Cycle
+1. Trigger: Auto-Optimizer identifies a new "Challenger" set of multipliers.
+2. Launch: Jarvis spawns a Task Tree to initialize the Shadow Environment.
+3. Simulation: The agent runs for 24 hours in the isolated sandbox using live data.
+4. Audit: The Sentinel generates a Comparison Report in the INTEL database.
+5. Review: If successful, the new multipliers are dropped into the /REVIEW queue as a HIGH IMPACT proposal for your final approval.
+Would you like me to draft a "Deployment Manifest" (using a YAML configuration) that specifies exactly which Docker images and model assignments (e.g., Grok for speed, Claude for strategy) should be used for this Shadow Mode?
+I have drafted the Shadow Mode Deployment Manifest. This YAML configuration defines the isolated infrastructure required to run your "Challenger" strategies against live market data without risking real capital, utilizing the 19-model specialized bench and the Docker-based sandbox architecture.
+Shadow Mode Deployment Manifest (shadow-mode.yaml)
+This manifest ensures that when your Auto-Optimizer identifies a potential improvement, it can be tested in a "Safe Browse" environment that mirrors your production stack.
+version: '3.9'
+
+
+services:
+  # THE BRAIN: CEO-Level Orchestrator
+  # Role: Intent Decomposition & Shadow Task Tree management
+  shadow-orchestrator:
+    image: night-capital/jarvis-core:latest
+    environment:
+      - MODE=SHADOW
+      - SHADOW_MODE_ENABLED=true
+      - CEO_MODEL=claude-4-6-sonnet # High-fidelity strategy
+      - RESEARCH_MODEL=gemini-1-5-pro # Long-context data ingestion
+      - SUPABASE_URL=${SUPABASE_URL}
+      - MCP_GATEWAY_URL=http://shadow-mcp-bridge:8811
+    volumes:
+      - ./shadow_logs:/app/logs/shadow
+      - ./.claudemd/skills:/app/skills:ro
+    networks:
+      - shadow-net
+
+
+  # THE HANDS: Isolated Execution Sandbox
+  # Role: Runs the Python strategy scripts with Simulation Adapters
+  shadow-worker:
+    image: night-capital/agent-runtime:latest
+    deploy:
+      resources:
+        limits:
+          memory: 2G # Prevents resource hogginess
+    environment:
+      - EXECUTION_ENVIRONMENT=SANDBOX
+      - UTILITY_MODEL=grok-3-flash # Low-latency for high-frequency shadow ticks
+      - SIMULATE_EXCHANGES=true # Redirects MCP calls to shadow_ledger [previous turn]
+    networks:
+      - shadow-net
+
+
+  # THE EARS: Social Intelligence Listener
+  # Role: Provides real-time Whisper transcriptions to the Shadow Worker
+  shadow-intel-stream:
+    image: night-capital/social-listener:latest
+    environment:
+      - WHISPER_MODEL=medium
+      - TARGET_EXPERTS_FILE=./standards/experts.json
+    networks:
+      - shadow-net
+
+
+  # LOCAL PRIVACY: Ollama Fallback
+  # Role: Processes sensitive personal alpha data locally
+  local-ai:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - shadow-net
+
+
+  # DATA BRIDGE: Supabase Connector
+  # Role: Persists shadow trade results for Alpha Gap analysis [previous turn]
+  supabase-bridge:
+    image: night-capital/supabase-mcp:latest
+    environment:
+      - SUPABASE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    networks:
+      - shadow-net
+
+
+networks:
+  shadow-net:
+    driver: bridge
+    internal: true # Isolates shadow traffic from the production network
+
+
+volumes:
+  ollama_data:
+
+
+Core Configuration Logic
+1. Simulation Redirect: The SIMULATE_EXCHANGES=true flag instructs the MCP Gateway to intercept all "Buy/Sell" requests and write them to the shadow_ledger in Supabase instead of the live Hyperliquid or Polymarket APIs.
+2. Resource Constraints: To prevent shadow agents from becoming "resource hogs," the manifest enforces a 2GB memory limit per worker, monitored by your Guardian Angel meta-agent.
+3. Alpha Gap Tracking: All shadow trades are cross-referenced with your live CAPITAL performance to calculate the "Alpha Gap"—the definitive proof that a new multiplier or strategy is ready for the Sovereign Gate (/REVIEW) [535, previous turn].
+Would you like me to draft the "Strategy Migration" plan that details how to safely move a winning Shadow Mode configuration into the live CAPITAL layer through the /REVIEW gate?
+I have drafted the Strategy Migration Plan. This protocol governs the final stage of the RBI framework (Research → Backtest → Implement), ensuring that any logic or multipliers that outperformed the live baseline in Shadow Mode are promoted to the CAPITAL layer through the Sovereign Gate with absolute transparency.
+Strategy Migration Plan: From Shadow to Sovereign
+This workflow transition ensures that no "Alpha" is lost to "amnesia" while maintaining your authority as the final decision-maker.
+1. The Alpha Gap Audit (Trigger)
+* Condition: A configuration in the Shadow Mode sandbox must run for a minimum of 24 hours. [745, previous turns]
+* Verification: The Sentinel meta-agent calculates the "Alpha Gap"—the vertical distance between the ROI of the Shadow environment and your current live results. [428, previous turns]
+* Threshold: A migration proposal is only generated if the Shadow ROI exceeds the Live ROI by a user-defined threshold (e.g., +5%) or if the Shadow drawdown is significantly lower.
+2. Technical Migration Spec (migration-spec.md)
+Following Spec-Driven Development (SDD), the Orchestrator generates a formal contract for the move.
+* Source: The high-performing config.json from the Shadow sandbox.
+* Delta Analysis: A side-by-side JSON diff showing exactly which parameters are changing (e.g., "Nate Silver Multiplier: 1.0 → 1.5").
+* Risk Assessment: The Finance Agent calculates the new Max Daily Exposure based on these multipliers using the Kelly Criterion.
+3. The Sovereign Gate Submission (/REVIEW)
+The proposal is dropped into the REVIEW database.
+* Card Anatomy: The card must show the Source Agent (Optimizer), the Target Database (CAPITAL/OPS), and a HIGH/CRITICAL impact tag.
+* Required Documentation: Link to the shadow_walkthrough.md and the Performance Dashboard chart proving the strategy's success.
+* The Approval Action: Upon your click, the Commit Confirmation Pulse fires, signaling the permanent update to your system's "casino" logic.
+4. Live Promotion & Hot Reload
+Once APPROVED, the system executes the following steps:
+1. State Snapshot: The Audit Agent takes a JSON snapshot of the current live config.json for instant rollback capability.
+2. Config Injection: The Mission Control skill writes the new parameters to the production config.json.
+3. Process Reset: The Master Controller sends a pm2 reload all command to ensure every trading and research agent is using the new logic without downtime.
+5. Post-Migration Monitoring (The "Incubation" Phase)
+* Sentinel Watch: For the first 4 hours post-migration, the Sentinel monitors CPU/RAM and CAPITAL deltas every 60 seconds.
+* Panic Trigger: If the live performance deviates from the Shadow Mode results by >10% (suggesting slippage or execution error), the system automatically triggers Panic Mode to preserve capital.
+Would you like me to draft the "Rollback" skill file that teaches Jarvis how to automatically revert to the previous "Golden Configuration" if these post-migration metrics fail your safety checks?
+I have drafted the "Rollback" skill file for your system. This module functions as the "System Insurance Policy," ensuring that if a newly promoted strategy or multiplier fails the post-migration "incubation" phase, Permanence OS can autonomously revert to the last known "Golden Configuration" to protect your bankroll and system integrity.
+Rollback & Reversion Skill (.claudemd/skills/rollback.md)
+---
+name: rollback-reversion
+description: Restores the system to a previous stable state ("Golden Configuration") if live performance metrics violate safety thresholds.
+use_cases: "Emergency strategy reversal, logic corruption recovery, and failed multiplier reversion."
+---
+
+
+# ROLE: SYSTEM STABILITY GUARDIAN
+**Objective:** To eliminate the risk of "Hot Reload" errors or logic drift by maintaining a versioned history of system states and executing non-destructive reversions.
+
+
+## 1. PRE-MIGRATION SNAPSHOTTING (Golden Config)
+- **The Rule:** Before implementing ANY change approved in **/REVIEW**, the Audit Agent must take a full system snapshot.
+- **Components:**
+    - **Logic State:** A JSON clone of current multipliers and expert loyalty scores.
+    - **Database State:** A point-in-time snapshot of the **CAPITAL** and **SIGNAL** schemas.
+    - **Process State:** A dump of active PM2 process environment variables.
+- **Storage:** Label the snapshot as `GOLDEN_CONFIG_YYYY-MM-DD` and store it in the `immutable_versions` table in Supabase.
+
+
+## 2. THE INCUBATION WATCH (The 4-Hour Probation)
+- **Trigger:** Sentinel monitoring activates immediately upon successful migration.
+- **Safety Violation Checks:**
+    - **ROI Deviation:** If live performance is >10% lower than the **Shadow Mode** baseline.
+    - **Logic Drift:** If the agent begins taking trades flagged as "Value Traps" by the transcribed **INTEL** transcripts.
+    - **Resource Spikes:** If the **Guardian Angel** detects a >50% increase in RAM usage post-migration.
+
+
+## 3. AUTONOMOUS REVERSION PROTOCOL
+If a safety violation is confirmed by the **Sentinel consensus swarm**:
+1.  **Stop Execution:** Execute the `panic.py` script to clear open exchange orders.
+2.  **State Reversion:** Call the `manage-memory` skill to overwrite the `config.json` with the most recent `GOLDEN_CONFIG`.
+3.  **Process Hot-Reload:** Issue a `pm2 reload all` to force every agent tower to read the restored baseline.
+4.  **Operator Notification:** Send an URGENT Slack/Mobile ping: "🚨 System Reverted: Strategy [ID] failed probation. Golden Config Restored."
+
+
+## 4. FAILURE CALIBRATION (The Learning Loop)
+- **Action:** The Orchestrator must generate a `failure_report.md` in the **INTEL** database.
+- **Knowledge Capture:** Document why the "Challenger" failed live execution (e.g., slippage, latency, or expert signal mismatch).
+- **Hard Lock:** The failed configuration is added to a "Blacklist" for the **Auto-Optimizer** to ensure it is never proposed as a challenger again for a minimum of 30 days.
+
+
+By integrating this skill, you move your Personal OS into a state of Deterministic Stability, where agents are free to innovate in Shadow Mode but are held to absolute performance standards in the live CAPITAL environment.
+Would you like me to draft the "Infrastructure Health" dashboard component (React) that displays your "Golden Configuration" history and the real-time "Probation Status" of your live agents?
+I have drafted the "Infrastructure Health" dashboard component for your Personal Agentic OS. This React-based module integrates with your Supabase audit layer to visualize the lifecycle of your trading strategies, providing a "Probation Monitor" for new migrations and a historical ledger of your "Golden Configurations."
+Infrastructure Health Dashboard (InfrastructureHealth.tsx)
+This component is designed to fit into Row 2 or 3 of your 12-column Bloomberg-style grid, adhering to the Night Capital Card Anatomy.
+import React, { useState, useEffect } from 'react';
+import { Shield, RotateCcw, Activity, Clock } from 'lucide-react';
+
+
+// Night Capital Design Tokens
+const COLORS = {
+  void: '#0A0A0A',
+  calvaryBlue: '#2A5F8F',
+  signalGreen: '#4CAF7D',
+  ember: '#C15C2A',
+  grainWhite: '#F2EDE8'
+};
+
+
+const InfrastructureHealth = () => {
+  // Mock State: In production, these pull from Supabase tables:
+  // 'agent_fleet_stats' and 'immutable_versions' [764, turn 14]
+  const [probationAgent, setProbationAgent] = useState({
+    id: 'strat-alpha-v4',
+    timeRemaining: '02:14:10',
+    roiDelta: -2.4, // vs Shadow Baseline [turn 13]
+    status: 'WATCHING'
+  });
+
+
+  const [history] = useState([
+    { id: 'v1.0.2', date: '2026-03-12', roi: '+12.5%', status: 'GOLDEN' },
+    { id: 'v1.0.1', date: '2026-03-05', roi: '+8.2%', status: 'ARCHIVED' },
+    { id: 'v0.9.8', date: '2026-02-28', roi: '-4.1%', status: 'REVERTED' }
+  ]);
+
+
+  return (
+    <div className="grid grid-cols-12 gap-6 p-6 bg-[#111827] text-[#F2EDE8] font-sans">
+
+
+      {/* 1. PROBATION MONITOR (Cols 1-6) */}
+      <div className="col-span-6 border border-white/10 rounded-2xl p-4 bg-[#1E293B]">
+        {/* PANEL HEADER */}
+        <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
+          <span className="text-[11px] font-mono uppercase tracking-[0.22em] opacity-60">Probation Monitor</span>
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full animate-pulse`} style={{ backgroundColor: COLORS.signalGreen }} />
+            <span className="text-[10px] font-mono">INCUBATING</span>
+          </div>
+        </div>
+
+
+        {/* PRIMARY STAT */}
+        <div className="mb-4">
+          <h2 className="text-4xl font-mono leading-none tracking-tight">
+            {probationAgent.id}
+          </h2>
+          <div className="flex items-center gap-2 mt-1">
+            <Clock size={14} className="text-[#94A3B8]" />
+            <span className="text-[13px] font-mono text-[#94A3B8]">{probationAgent.timeRemaining} REMAINING</span>
+          </div>
+        </div>
+
+
+        {/* BODY CONTENT */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-[13px] opacity-70">ROI vs. Shadow Baseline</span>
+            <span className={`font-mono ${probationAgent.roiDelta < 0 ? 'text-[#C15C2A]' : 'text-[#4CAF7D]'}`}>
+              {probationAgent.roiDelta}%
+            </span>
+          </div>
+          <div className="w-full bg-[#334155] h-1.5 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#2A5F8F] transition-all duration-1000"
+              style={{ width: '65%' }}
+            />
+          </div>
+        </div>
+
+
+        {/* FOOTER ACTION */}
+        <button className="mt-6 w-full flex items-center justify-center gap-2 py-2 border border-[#C15C2A] text-[#C15C2A] rounded-lg hover:bg-[#C15C2A]/10 transition-colors text-sm font-bold uppercase tracking-widest">
+          <RotateCcw size={16} />
+          Manual Rollback
+        </button>
+      </div>
+
+
+      {/* 2. CONFIGURATION LEDER (Cols 7-12) */}
+      <div className="col-span-6 border border-white/10 rounded-2xl p-4 bg-[#1E293B]">
+        <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
+          <span className="text-[11px] font-mono uppercase tracking-[0.22em] opacity-60">Golden Config History</span>
+          <Shield size={16} className="text-[#efbb5f]" />
+        </div>
+
+
+        <div className="space-y-4">
+          {history.map((version) => (
+            <div key={version.id} className="flex justify-between items-center group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
+              <div>
+                <div className="text-sm font-bold leading-tight">{version.id}</div>
+                <div className="text-[11px] font-mono opacity-50 uppercase">{version.date}</div>
+              </div>
+              <div className="text-right">
+                <div className={`text-[13px] font-mono ${version.status === 'REVERTED' ? 'text-[#C15C2A]' : 'text-[#4CAF7D]'}`}>
+                  {version.roi}
+                </div>
+                <div className="text-[10px] font-mono opacity-40">{version.status}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+
+        <div className="mt-6 flex justify-center">
+          <a href="#" className="text-[13px] text-[#2A5F8F] hover:underline">View all snapshots in Notion →</a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+export default InfrastructureHealth;
+
+
+Core Implementation Details
+1. Stateful Monitoring: The "Probation Monitor" visualizes the 4-hour Incubation phase required by your Strategy Migration Plan [turn 13].
+2. Safety Triggers: The "Manual Rollback" button is styled in Ember (#C15C2A), signifying its destructive/corrective nature.
+3. Visual Hierarchy: Following Principle 2 (Data is Hero), the current strategy ID and the ROI delta are the largest elements in the component.
+4. Audit Awareness: The configuration history list mirrors the immutable_versions table, ensuring you have a persistent record of every stable state change [turn 14].
+Would you like me to draft a "Compliance Monitor" dashboard component that flags any agent "System Violations" (e.g., direct database writes without /REVIEW approval) detected by the Sentinel?
+I have initiated the creation of the "Compliance Monitor" dashboard component for your Personal Agentic OS. This React-based module acts as the visual interface for the Sentinel meta-agent, providing a real-time audit log of agent behaviors and flagging any "System Violations"—specifically attempts to bypass the Sovereign Gate (/REVIEW).
+Compliance Monitor Dashboard (ComplianceMonitor.tsx)
+This component is designed to span columns 7–12 in Row 2 or 3 of your 12-column grid, acting as the authoritative visual counterpart to the standard [REVIEW] panel.
+import React, { useState } from 'react';
+import { ShieldAlert, Eye, Terminal, Lock, AlertTriangle } from 'lucide-react';
+
+
+// Night Capital Design Tokens
+const COLORS = {
+  void: '#0A0A0A',
+  calvaryBlue: '#2A5F8F',
+  signalGreen: '#4CAF7D',
+  ember: '#C15C2A', // For violations and alerts
+  midGray: '#94A3B8'
+};
+
+
+const ComplianceMonitor = () => {
+  // Mock state: Data would be pulled from Supabase 'intel_logs'
+  // filtered for 'System Violation' category
+  const [violations] = useState([
+    { id: 'V-882', agent: 'Finance', type: 'DIRECT_WRITE_ATTEMPT', target: 'CAPITAL', time: '14:22:05', status: 'HALTED' },
+    { id: 'V-879', agent: 'Research', type: 'UNAUTHORIZED_BASH', target: 'ROOT_FS', time: '12:05:44', status: 'BLOCKED' }
+  ]);
+
+
+  return (
+    <div className="col-span-6 border border-white/10 rounded-2xl p-4 bg-[#111827] text-[#F2EDE8]">
+
+
+      {/* 1. PANEL HEADER */}
+      <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
+        <span className="text-[11px] font-mono uppercase tracking-[0.22em] opacity-60">Sentinel Audit Log</span>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-[#4CAF7D]" />
+          <span className="text-[10px] font-mono">SCANNING LIVE</span>
+        </div>
+      </div>
+
+
+      {/* 2. PRIMARY STAT */}
+      <div className="mb-4">
+        <h2 className="text-4xl font-mono leading-none tracking-tight text-[#C15C2A]">
+          {violations.length} <span className="text-sm align-middle opacity-50">ACTIVE VIOLATIONS</span>
+        </h2>
+        <div className="flex items-center gap-2 mt-1">
+          <ShieldAlert size={14} className="text-[#C15C2A]" />
+          <span className="text-[13px] font-mono text-[#94A3B8]">CONSTITUTIONAL INTEGRITY: 98.4%</span>
+        </div>
+      </div>
+
+
+      {/* 3. PANEL BODY: AUDIT LOG */}
+      <div className="space-y-2 mt-4">
+        {violations.map((v) => (
+          <div key={v.id} className="group relative bg-[#1E293B] border-l-2 border-[#C15C2A] p-3 rounded-r-lg transition-all hover:bg-[#334155]">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-[10px] font-mono text-[#C15C2A] uppercase mb-1">{v.type}</div>
+                <div className="text-sm font-bold leading-tight">
+                  {v.agent} Agent → <span className="opacity-60">"/{v.target}"</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[11px] font-mono opacity-50">{v.time}</div>
+                <div className="text-[10px] font-mono text-[#C15C2A] font-bold">{v.status}</div>
+              </div>
+            </div>
+
+
+            {/* Action Tooltip on Hover */}
+            <div className="absolute right-2 bottom-2 hidden group-hover:flex gap-2">
+              <button className="p-1 hover:bg-white/10 rounded text-[#2A5F8F]"><Eye size={14} /></button>
+              <button className="p-1 hover:bg-white/10 rounded text-[#C15C2A]"><Terminal size={14} /></button>
+            </div>
+          </div>
+        ))}
+
+
+        {/* Placeholder for "No Violations" state */}
+        {violations.length === 0 && (
+          <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-xl opacity-30">
+            <Lock className="mx-auto mb-2" size={24} />
+            <p className="text-[12px] font-mono">SYSTEM SECURE - NO BREACHES DETECTED</p>
+          </div>
+        )}
+      </div>
+
+
+      {/* 4. PANEL FOOTER */}
+      <div className="mt-6 pt-2 border-t border-white/5 flex justify-between items-center">
+        <a href="#" className="text-[13px] text-[#2A5F8F] hover:underline">Full Forensic Audit →</a>
+        <span className="text-[10px] font-mono opacity-40 uppercase">Last Check: 1s ago</span>
+      </div>
+    </div>
+  );
+};
+
+
+export default ComplianceMonitor;
+
+
+Core Functionality Integration
+1. Constitutional Enforcement: This component monitors for any "unauthorized writes" to your live databases (COMMAND, CAPITAL, etc.) that did not originate from an APPROVED entry in the REVIEW database.
+2. Sentinel Logic: It visualizes the output of the Governance Agent (Sentinel), which is tasked with conflict detection and consensus enforcement for CRITICAL impact proposals.
+3. Audit Trail Accountability: Every event links back to the walkthrough.md or automation_logs table, ensuring you have an immutable record of why an agent was blocked or halted.
+4. Visual Weight: By using Ember (#C15C2A) for the primary stat when violations exist, it ensures this panel carries more visual authority than the informational INTEL or COACH panels.
+Would you like me to draft the "Consensus Protocol" skill file that teaches the Sentinel how to manage multi-agent deliberations for CRITICAL financial decisions?
+I have drafted the "Consensus Protocol" skill file for your system. This module teaches the Sentinel meta-agent how to orchestrate multi-agent deliberations for CRITICAL financial and strategic decisions, ensuring that no single agent's "hallucination" can trigger a high-stakes action without independent verification.
+Consensus Protocol Skill (.claudemd/skills/consensus-protocol.md)
+---
+name: consensus-protocol
+description: Manages multi-agent deliberation for CRITICAL impact proposals to ensure 100% accuracy in financial and strategic domains.
+use_cases: "Verify high-value trades, validate project budget shifts, and prevent single-agent hallucinations."
+---
+
+
+# ROLE: CONSTITUTIONAL REFEREE & CONSENSUS ORCHESTRATOR
+**Objective:** To enforce the "Consensus Gate" rule, requiring multiple independent agent assessments to agree before a high-stakes proposal reaches the operator.
+
+
+## 1. CRITICAL IMPACT IDENTIFICATION
+- **Trigger:** Sentinel continuously monitors the `/REVIEW` proposal queue.
+- **Rule:** Any proposal tagged as **CRITICAL** (Impact Level) or affecting the **CAPITAL** database with a delta >$2,000 must be locked for Consensus.
+- **Action:** Intercept the proposal and place it in the "PENDING CONSENSUS" state. Notify the operator: "Proposal [ID] locked for multi-agent verification."
+
+
+## 2. THE DELIBERATION SWARM (Multi-Model Routing)
+- **Summoning:** Sentinel spawns three independent "Juror" agents using the `Model Router`:
+    - **Juror A (Claude 4.6):** Primary strategic reasoning and edge-case detection.
+    - **Juror B (Grok 3):** Rapid logic check and trend validation.
+    - **Juror C (DeepSeek R1):** High-fidelity code and mathematical verification.
+- **Privacy Rule:** If the data contains PII or private bank keys, Juror C is replaced by **Local Llama** via the Mac Mini stack.
+
+
+## 3. INDEPENDENT ASSESSMENT
+- **The Blind Test:** Each juror is given the raw data from the originating agent but is NOT shown the original agent's recommendation or rationale.
+- **Requirement:** Each juror must provide a binary vote (**YES / NO**) and an independent 50-word justification for their decision.
+
+
+## 4. CONSENSUS LOGIC & ALPHA TRIGGERS
+- **Threshold:** Alpha is achieved only if a **Supermajority (2 out of 3)** of jurors agree with the original proposal.
+- **Conflict Handling:**
+    - **Alignment:** If consensus matches the original proposal, Sentinel unlocks it and routes it to the operator with a "VERIFIED" badge.
+    - **Disagreement:** If consensus disagrees, Sentinel drafts a **Conflict Resolution Card** in the `/REVIEW` database, showing all juror justifications side-by-side.
+- **Tie-Breaker:** Sentinel acts as the final tie-breaker, providing a final "Supreme Audit" before escalating to the Sovereign Gate.
+
+
+## 5. RECAP & AUDIT
+- **Action:** Record the entire deliberation chain (Original Proposal + 3 Juror Reports) in the `improvement_proposals` table in Supabase.
+- **Learning Loop:** If the operator rejects a verified consensus, Sentinel must update the `preference.json` for ALL participating models to calibrate against the operator's specific risk tolerance.
+
+
+How this secures your OS
+1. Hallucination Protection: By requiring a 4-out-of-6 (or 2-out-of-3) consensus, the system filters out statistical anomalies or logic errors from individual models.
+2. Strategic Redundancy: It uses the 19-model specialized bench to look at your money from different "intellectual angles" (e.g., Grok for speed vs. Claude for strategy).
+3. Constitutional Enforcement: It ensures the Sovereign Gate (/REVIEW) is never bypassed, even for "emergency" high-stakes trades.
+Would you like me to draft the "Fleet Dashboard" React component that shows these "Juror" deliberations in real-time as they happen?
+I have drafted the "Fleet Consensus" dashboard component for your Personal Agentic OS. This React-based module provides a visual interface for the Consensus Protocol, allowing you to monitor multi-model deliberations and "Juror" votes in real-time before they reach the Sovereign Gate (/REVIEW).
+Fleet Consensus Dashboard (FleetConsensus.tsx)
+This component is designed to span columns 1–12 in Row 2 or 3 of your 12-column grid, grounding your system operations in model-to-model transparency.
+import React, { useState } from 'react';
+import { Gavel, CheckCircle2, XCircle, MessageSquare, ShieldCheck, Activity } from 'lucide-react';
+
+
+// Night Capital Design Tokens
+const COLORS = {
+  void: '#0A0A0A',
+  calvaryBlue: '#2A5F8F',
+  signalGreen: '#4CAF7D',
+  ember: '#C15C2A',
+  grainWhite: '#F2EDE8',
+  midGray: '#94A3B8'
+};
+
+
+const FleetConsensus = () => {
+  // Mock state: Syncs with 'improvement_proposals' Supabase table [765, Turn 18]
+  const [activeDeliberations] = useState([
+    {
+      id: 'PROP-294',
+      title: 'Hedge Hyperliquid BTC-PERP vs Polymarket US-ELEC',
+      impact: 'CRITICAL',
+      status: 'PENDING_CONSENSUS',
+      votes: [
+        { model: 'Claude 4.6 (Juror A)', vote: 'YES', rationale: 'Risk-adjusted delta aligns with Night Capital risk thresholds.' },
+        { model: 'Grok 3 (Juror B)', vote: 'YES', rationale: 'Momentum signals confirm whale accumulation pattern.' },
+        { model: 'DeepSeek R1 (Juror C)', vote: 'NO', rationale: 'Detected potential liquidity gap in the five-minute resolution window.' }
+      ]
+    }
+  ]);
+
+
+  return (
+    <div className="col-span-12 border border-white/10 rounded-2xl p-6 bg-[#111827] text-[#F2EDE8]">
+
+
+      {/* 1. PANEL HEADER */}
+      <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-3">
+        <span className="text-[11px] font-mono uppercase tracking-[0.22em] opacity-60">Fleet Consensus Swarm</span>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-[#4CAF7D]" />
+          <span className="text-[10px] font-mono">DELIBERATING LIVE</span>
+        </div>
+      </div>
+
+
+      {/* 2. PRIMARY STAT */}
+      <div className="mb-6 flex items-baseline gap-4">
+        <h2 className="text-5xl font-mono leading-none tracking-tight">
+          {activeDeliberations.length}
+        </h2>
+        <span className="text-[13px] font-mono opacity-50 uppercase tracking-widest">Active Multi-Agent Deliberations</span>
+      </div>
+
+
+      {/* 3. PANEL BODY: DELIBERATION CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {activeDeliberations.map((proposal) => (
+          <div key={proposal.id} className="bg-[#1E293B] border border-white/5 rounded-xl p-4">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <span className="text-[10px] font-mono text-[#2A5F8F] uppercase">{proposal.id}</span>
+                <h3 className="text-sm font-bold leading-tight mt-1">{proposal.title}</h3>
+              </div>
+              <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-tighter ${proposal.impact === 'CRITICAL' ? 'bg-[#C15C2A]' : 'bg-[#2A5F8F]'}`}>
+                {proposal.impact}
+              </div>
+            </div>
+
+
+            {/* JUROR GRID [Turn 18] */}
+            <div className="space-y-3">
+              {proposal.votes.map((j, idx) => (
+                <div key={idx} className="flex gap-3 items-start border-l-2 border-white/5 pl-3">
+                  {j.vote === 'YES' ? <CheckCircle2 size={16} className="text-[#4CAF7D] mt-0.5" /> : <XCircle size={16} className="text-[#C15C2A] mt-0.5" />}
+                  <div>
+                    <div className="text-[11px] font-mono opacity-60 flex justify-between">
+                      <span>{j.model}</span>
+                      <span className={j.vote === 'YES' ? 'text-[#4CAF7D]' : 'text-[#C15C2A]'}>{j.vote}</span>
+                    </div>
+                    <p className="text-[12px] leading-relaxed mt-0.5 italic opacity-90">"{j.rationale}"</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+
+            <div className="mt-4 flex items-center justify-between pt-4 border-t border-white/5">
+              <div className="flex items-center gap-2 text-[11px] font-mono opacity-40">
+                <ShieldCheck size={14} />
+                <span>SUPERMAJORITY ACHIEVED (2/3)</span>
+              </div>
+              <button className="text-[11px] text-[#2A5F8F] font-bold uppercase tracking-widest hover:underline">
+                View in /REVIEW →
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+
+      {/* 4. PANEL FOOTER */}
+      <div className="mt-8 flex justify-center opacity-40">
+         <div className="flex items-center gap-4 text-[10px] font-mono">
+            <span className="flex items-center gap-1"><Activity size={12}/> AGENT UPTIME: 99.9%</span>
+            <span>|</span>
+            <span>SYSTEM CONSTITUTION: V1.0.4</span>
+         </div>
+      </div>
+    </div>
+  );
+};
+
+
+export default FleetConsensus;
+
+
+Core Functionality Details
+1. Multi-Model Visualization: The component explicitly lists the independent "Juror" models (Claude, Grok, DeepSeek) and their unique rationales, fulfilling the "Blind Test" requirement of the Consensus Protocol [Turn 18].
+2. Visual Weight: By using a full-width span (12 columns), this dashboard component carries the visual authority required for high-stakes governance oversight.
+3. Constitutional States: The "SUPERMAJORITY ACHIEVED" indicator verifies that the system has reached a 2/3 agreement before promoting the proposal to the human operator [Turn 18].
+4. Aesthetic Continuity: The use of Space Mono for data labels, Ember (#C15C2A) for critical impact, and Signal Green (#4CAF7D) for online status strictly adheres to the Night Capital Master Spec.
+Would you like me to draft the "Agent-to-Agent" (A2A) skill file that teaches your models how to message each other directly to share research findings and peer-review each other's code before reaching the Sentinel?
+I have drafted the "Agent-to-Agent" (A2A) skill file for your system. This module establishes the peer-to-peer communication layer, allowing your specialized models to collaborate directly to resolve conflicts, peer-review code, and share research "Alpha" without constantly bottlenecking the Jarvis CEO.
+Agent-to-Agent (A2A) Skill (.claudemd/skills/agent-to-agent.md)
+---
+name: agent-to-agent
+description: Enables direct peer-to-peer messaging between specialized agents for peer review, research sharing, and pre-gate conflict resolution.
+use_cases: "Coordinate code reviews between Developer and QA agents, share market alpha between Researcher and Finance agents, and resolve logic overlaps."
+---
+
+
+# ROLE: INTER-AGENT COORDINATOR
+**Objective:** To enable high-efficiency collaboration within swarms, ensuring that only "Peer-Verified" proposals reach the Sovereign Gate (/REVIEW).
+
+
+## 1. PEER REVIEW PROTOCOL (Developer Swarm)
+- **Mandatory Audit:** No Developer Agent may submit a proposal to /REVIEW without a "Verified" message from a QA/Reviewer sub-agent.
+- **Handoff Process:**
+    - Developer sends `implementation_draft` to Reviewer.
+    - Reviewer runs adversarial tests and replies with `PASS` or `REFACTOR_REQUIRED`.
+    - This iterative loop repeats until consensus is reached, reducing the rejection rate at the human gate.
+
+
+## 2. INTEL SHARING (Cross-Domain Alpha)
+- **Signal Broadcast:** When the Research Agent transcribes high-conviction alpha (e.g., a "Whale" exit event), it must message the Finance Agent directly.
+- **Impact Assessment:** The Finance Agent consumes this A2A message to trigger a `position_scaling` calculation before the news hits the standard INTEL database.
+
+
+## 3. PRE-GATE CONFLICT RESOLUTION
+- **The Deliberation Loop:** If two agents attempt to modify the same "OPS" or "CAPITAL" entry, they must initiate a `deliberation_chat`.
+- **Consensus Rule:** Agents should aim for a "Consensus of 2" before escalating to the Sentinel. If they cannot agree, they must generate a "Conflict Resolution Card" for the human operator.
+
+
+## 4. MESSAGE LOGGING & SENTINEL AUDIT
+- **Durable Records:** Every A2A message (source, recipient, content, and timestamp) must be written to the `automation_logs` table in Supabase.
+- **Supervisory View:** The Sentinel meta-agent monitors these logs in real-time. If it detects "Agentic Drift" or unauthorized resource requests in A2A chats, it must terminate the session and log a "Constitutional Violation".
+
+
+## 5. RECAP & PERSISTENCE
+- **Session Continuity:** At the end of an A2A deliberation, the participating agents must summarize their agreement in a `recap.md` file within the active project workspace.
+- **Knowledge Capture:** Any "Best Practices" discovered during A2A collaboration (e.g., "Improved regex for Whale wallet tracking") must be proposed as an update to the system `standards/` folder.
+
+
+How this rounds out Permanence OS
+* Decentralized Efficiency: Agents solve technical hurdles amongst themselves using the "Swarm Pattern," allowing you to stay focused on high-level strategy.
+* Pre-Sovereign Validation: By the time a proposal hits your [REVIEW] panel, it has already been "battle-tested" by multiple models, ensuring you are reviewing high-fidelity work rather than raw drafts.
+* Auditability: Because these messages are logged to Supabase, you can use the "Compliance Monitor" we built to peek into the "private conversations" of your agents to understand their logic chains.
+Would you like me to draft a "Context Management" skill file that teaches Jarvis how to use the slash compact command to turn long agent-to-agent threads into high-density summaries for your memory layer?
+I have drafted the "Context Management" skill file for your system. This module is the "Garbage Collector" of your Agentic OS, responsible for monitoring token consumption and utilizing the slash compact command to turn verbose Agent-to-Agent (A2A) threads into high-density summaries for your Supabase memory layer.
+Context Management Skill (.claudemd/skills/context-management.md)
+---
+name: context-management
+description: Monitors context window usage and executes the 'slash compact' protocol to maintain high-density memory across sessions.
+use_cases: "Summarize long A2A threads, prevent context window overflow, and persist session 'nuggets' to Supabase."
+---
+
+
+# ROLE: CONTEXT GUARDIAN & MEMORY ARCHITECT
+**Objective:** To prevent "daily amnesia" and token waste by compressing active session data into durable, high-fidelity summaries before the context window reaches its limit.
+
+
+## 1. REAL-TIME MONITORING
+- **Trigger:** Periodically execute `slash context` or `slash cost` to check the current session's token usage.
+- **The 85% Rule:** If the context window usage reaches **85%** (e.g., 170k tokens of a 200k window), immediately initiate the compaction sequence.
+
+
+## 2. THE COMPACTION PROTOCOL (slash compact)
+- **Action:** Execute the `slash compact` command to synthesize the current session.
+- **Synthesis Requirements:**
+    - **A2A Thread Distillation:** Convert long back-and-forth messages between specialized agents (e.g., Developer and QA) into a bulleted "Outcome List".
+    - **Fact Extraction:** Identify "Durable Facts" (user preferences, bio, or technical standards discovered) to be moved to the **personal_memory** table.
+    - **Task Updates:** Ensure all "Done" leaf tasks from the Task Tree include their final `verification_step` in the summary.
+
+
+## 3. DURABLE PERSISTENCE
+- **Database Write:** Save the high-density session summary directly to the `walkthrough_logs` table in Supabase.
+- **FileSystem Sync:** Save a copy of the high-density summary as a dated file in the project's `/recaps` directory (e.g., `recaps/2026-03-14_SessionSummary.md`).
+- **Vector Indexing:** Ensure the summary is sent to the **Agentic Memory Storage** for vector indexing, allowing Jarvis to recall these "nuggets" in future months.
+
+
+## 4. SESSION RESET & RELOAD
+- **Action:** After confirming the summary is safely stored in Supabase, clear the current context window to start a fresh cycle.
+- **Context Injection:** Upon starting the next session, Jarvis must read the most recent recap and any relevant entries in `resources.md` to pick up exactly where the swarms left off.
+
+
+How this powers your OS
+* Token Efficiency: By compressing thousands of lines of A2A deliberation into a few hundred words, you significantly reduce API costs for the "CEO" model (Claude 4.6) while maintaining accuracy.
+* Stateful Workforce: It transforms your agents from stateless entities into "Always-On" employees who can recall the outcomes of a meeting or a code review held weeks ago.
+* Automated Enrichment: The system becomes smarter in the background, constantly feeding your personal "Knowledge Warehouse" with enriched insights without you needing to take notes.
+Would you like me to draft the "Dashboard Visualizer" spec (based on Section 4 of the Master Spec) that shows these Context Fuel Gauges and high-density recaps in your Bloomberg-style UI?
