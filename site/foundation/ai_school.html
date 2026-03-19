@@ -1867,64 +1867,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* -- FAB BOT -- */
-    .fab-bot {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      z-index: 9500;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(var(--f-rgb),0.2), rgba(var(--f-rgb),0.08));
-      border: 1px solid rgba(var(--f-rgb),0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 24px rgba(var(--f-rgb),0.2), 0 8px 32px rgba(0,0,0,0.4);
-      transition: box-shadow 0.3s, transform 0.2s;
-      user-select: none;
-      touch-action: none;
-    }
-    .fab-bot:hover {
-      box-shadow: 0 0 36px rgba(var(--f-rgb),0.35), 0 8px 32px rgba(0,0,0,0.4);
-      transform: scale(1.05);
-    }
-    .fab-bot svg { color: var(--c-teal); pointer-events: none; }
-    .fab-popup {
-      display: none;
-      position: fixed;
-      bottom: 96px;
-      right: 28px;
-      z-index: 9501;
-      background: var(--surface);
-      border: 1px solid var(--border-hi);
-      border-radius: var(--r);
-      padding: 14px;
-      width: 280px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 32px rgba(var(--f-rgb),0.08);
-    }
-    .fab-popup.open { display: block; animation: fadeIn 200ms both; }
-    .fab-popup input {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--ink);
-      font-family: "DM Mono", monospace;
-      font-size: 13px;
-      padding: 10px 12px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .fab-popup input:focus { border-color: var(--c-teal); }
-    .fab-popup input::placeholder { color: var(--muted); }
-    .fab-popup-label {
-      font-size: 11px; color: var(--muted); margin: 0 0 8px;
-      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-    }
-
     /* -- RESPONSIVE -- */
     @media (max-width: 768px) {
       .library-sidebar .sb-close { display: block; }
@@ -1979,8 +1921,6 @@
         grid-template-columns: 1fr;
       }
 
-      .fab-popup { right: 16px; width: 260px; }
-      .fab-bot { bottom: 20px; right: 20px; }
     }
 
     @media (max-width: 900px) and (min-width: 769px) {
@@ -2325,14 +2265,6 @@
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
-  <!-- FAB BOT -->
-  <div class="fab-bot" id="fabBot" title="Ask Ophtxn">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-  </div>
-  <div class="fab-popup" id="fabPopup">
-    <p class="fab-popup-label">Ask Ophtxn</p>
-    <input type="text" id="fabInput" placeholder="Type a question&hellip;" autocomplete="off">
-  </div>
   <script>
     (function () {
       'use strict';
@@ -3355,108 +3287,6 @@
       }
 
       /* ================================================================
-         FAB BOT
-         ================================================================ */
-      var fabBot = document.getElementById('fabBot');
-      var fabPopup = document.getElementById('fabPopup');
-      var fabInput = document.getElementById('fabInput');
-      var fabDragging = false;
-      var fabDragStart = { x: 0, y: 0 };
-      var fabPos = { x: 0, y: 0 };
-
-      /* Restore position */
-      try {
-        var savedPos = JSON.parse(localStorage.getItem('ophtxn_fab_pos'));
-        if (savedPos && typeof savedPos.right === 'number') {
-          fabBot.style.right = savedPos.right + 'px';
-          fabBot.style.bottom = savedPos.bottom + 'px';
-          fabPopup.style.right = savedPos.right + 'px';
-          fabPopup.style.bottom = (savedPos.bottom + 68) + 'px';
-        }
-      } catch (_e) {}
-
-      if (fabBot) {
-        /* Click toggle */
-        fabBot.addEventListener('click', function () {
-          if (fabDragging) return;
-          if (fabPopup) {
-            fabPopup.classList.toggle('open');
-            if (fabPopup.classList.contains('open') && fabInput) {
-              setTimeout(function () { fabInput.focus(); }, 100);
-            }
-          }
-        });
-
-        /* Drag support */
-        var startDrag = function (startX, startY) {
-          fabDragging = false;
-          var rect = fabBot.getBoundingClientRect();
-          fabDragStart = { x: startX, y: startY };
-          fabPos = { right: window.innerWidth - rect.right, bottom: window.innerHeight - rect.bottom };
-
-          var moved = function (mx, my) {
-            var dx = mx - fabDragStart.x;
-            var dy = my - fabDragStart.y;
-            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) fabDragging = true;
-            if (!fabDragging) return;
-            var newRight = fabPos.right - dx;
-            var newBottom = fabPos.bottom - dy;
-            newRight = Math.max(8, Math.min(newRight, window.innerWidth - 64));
-            newBottom = Math.max(8, Math.min(newBottom, window.innerHeight - 64));
-            fabBot.style.right = newRight + 'px';
-            fabBot.style.bottom = newBottom + 'px';
-            fabPopup.style.right = newRight + 'px';
-            fabPopup.style.bottom = (newBottom + 68) + 'px';
-          };
-
-          var endDrag = function () {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', endDrag);
-            document.removeEventListener('touchmove', onTouchMove);
-            document.removeEventListener('touchend', endDrag);
-            if (fabDragging) {
-              try {
-                localStorage.setItem('ophtxn_fab_pos', JSON.stringify({
-                  right: parseInt(fabBot.style.right),
-                  bottom: parseInt(fabBot.style.bottom)
-                }));
-              } catch (_e) {}
-              setTimeout(function () { fabDragging = false; }, 50);
-            }
-          };
-
-          var onMouseMove = function (e) { moved(e.clientX, e.clientY); };
-          var onTouchMove = function (e) {
-            if (e.touches.length === 1) {
-              moved(e.touches[0].clientX, e.touches[0].clientY);
-              e.preventDefault();
-            }
-          };
-
-          document.addEventListener('mousemove', onMouseMove);
-          document.addEventListener('mouseup', endDrag);
-          document.addEventListener('touchmove', onTouchMove, { passive: false });
-          document.addEventListener('touchend', endDrag);
-        };
-
-        fabBot.addEventListener('mousedown', function (e) { startDrag(e.clientX, e.clientY); });
-        fabBot.addEventListener('touchstart', function (e) {
-          if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
-      }
-
-      if (fabInput) {
-        fabInput.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            var q = fabInput.value.trim();
-            if (q) {
-              window.location.href = 'ophtxn_shell.html?q=' + encodeURIComponent(q);
-            }
-          }
-        });
-      }
-
-      /* ================================================================
          RESEARCH FEED
          ================================================================ */
       var RF_KEY = 'ophtxn_research_feed';
@@ -3556,25 +3386,9 @@
       var t=gt(),b=gb();
       document.body.dataset.theme=t;document.body.dataset.brightness=b;
       if(t==='custom')applyCustom(gc());
-      document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
-      document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
-      var tgEl=document.getElementById('mbTheme');
-      if(tgEl)tgEl.textContent=b==='light'?'\u2600':'\u263E';
     }
     applyTheme=apply;
     apply();
-    var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
-    if(cE)cE.addEventListener('click',function(e){
-      var btn=e.target.closest('.dd-color-dot');
-      if(!btn||!btn.dataset.color)return;
-      if(btn.dataset.color==='custom')return;
-      try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
-    });
-    var ci=document.getElementById('ddCustomColor');
-    if(ci)ci.addEventListener('input',function(e){
-      try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
-    });
-    if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
     window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
   })();
   </script>
