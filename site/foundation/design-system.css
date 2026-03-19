@@ -128,9 +128,9 @@
   --sp-25:   100px;
 
   /* ---- Layout ---- */
-  --content-max:     980px;
-  --content-narrow:  768px;
-  --content-wide:    1200px;
+  --content-max:     1140px;
+  --content-narrow:  860px;
+  --content-wide:    1400px;
   --nav-height:      44px;
 
   /* ---- Border Radius ---- */
@@ -1682,7 +1682,15 @@ tbody tr:hover {
 
 @media (min-width: 1441px) {
   :root {
-    --content-max: 1100px;
+    --content-max: 1280px;
+    --content-wide: 1520px;
+  }
+}
+
+@media (min-width: 1921px) {
+  :root {
+    --content-max: 1440px;
+    --content-wide: 1680px;
   }
 }
 

@@ -79,7 +79,17 @@
   } catch (e) { /* */ }
 
   function applyZoom() {
-    document.documentElement.style.fontSize = zoomLevel + "%";
+    var scale = zoomLevel / 100;
+    var main = document.querySelector("main") || document.querySelector(".page") || document.body;
+    if (zoomLevel === 100) {
+      main.style.transform = "";
+      main.style.transformOrigin = "";
+      main.style.width = "";
+    } else {
+      main.style.transform = "scale(" + scale + ")";
+      main.style.transformOrigin = "top center";
+      main.style.width = (100 / scale) + "%";
+    }
     try { localStorage.setItem(zoomKey, String(zoomLevel)); } catch (e) { /* */ }
     var el = document.getElementById("nav-zoom-range");
     if (el) el.value = zoomLevel;
