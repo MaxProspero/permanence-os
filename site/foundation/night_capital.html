@@ -768,48 +768,40 @@
         <div class="port-stats">
           <div class="port-stat">
             <div class="port-stat-label">Total Value</div>
-            <div class="port-stat-val" style="color:var(--c1)" id="totalValue">$2,480,000</div>
-            <div class="port-stat-sub">Across 8 positions</div>
+            <div class="port-stat-val" style="color:var(--c1)" id="totalValue">--</div>
+            <div class="port-stat-sub">Enter positions to calculate</div>
           </div>
           <div class="port-stat">
             <div class="port-stat-label">Deployed Capital</div>
-            <div class="port-stat-val" style="color:var(--c2)" id="deployedCap">$1,850,000</div>
-            <div class="port-stat-sub">74.6% of fund</div>
+            <div class="port-stat-val" style="color:var(--c2)" id="deployedCap">--</div>
+            <div class="port-stat-sub">0% deployed</div>
           </div>
           <div class="port-stat">
             <div class="port-stat-label">Dry Powder</div>
-            <div class="port-stat-val" style="color:var(--c3)" id="dryPowder">$630,000</div>
-            <div class="port-stat-sub">25.4% reserves</div>
+            <div class="port-stat-val" style="color:var(--c3)" id="dryPowder">--</div>
+            <div class="port-stat-sub">Set fund size to calculate</div>
           </div>
           <div class="port-stat">
             <div class="port-stat-label">MOIC</div>
-            <div class="port-stat-val" style="color:var(--c1)" id="moicVal">1.34x</div>
+            <div class="port-stat-val" style="color:var(--c1)" id="moicVal">0.00x</div>
             <div class="port-stat-sub">Since inception</div>
           </div>
           <div class="port-stat">
             <div class="port-stat-label">IRR</div>
-            <div class="port-stat-val" style="color:var(--c2)" id="irrVal">28.4%</div>
+            <div class="port-stat-val" style="color:var(--c2)" id="irrVal">0.0%</div>
             <div class="port-stat-sub">Net to LP</div>
           </div>
           <div class="port-stat">
             <div class="port-stat-label">Unrealized Gain</div>
-            <div class="port-stat-val" style="color:var(--c1)" id="unrealGain">+$630,000</div>
-            <div class="port-stat-sub">34.1% mark-up</div>
+            <div class="port-stat-val" style="color:var(--c1)" id="unrealGain">$0</div>
+            <div class="port-stat-sub">0% mark-up</div>
           </div>
         </div>
-        <div class="alloc-bar">
-          <div class="alloc-seg" style="width:32%;background:var(--c1)" title="AI/ML"></div>
-          <div class="alloc-seg" style="width:22%;background:var(--c2)" title="Fintech"></div>
-          <div class="alloc-seg" style="width:18%;background:var(--c3)" title="Infrastructure"></div>
-          <div class="alloc-seg" style="width:14%;background:var(--violet)" title="Climate"></div>
-          <div class="alloc-seg" style="width:14%;background:var(--rose)" title="Consumer"></div>
+        <div class="alloc-bar" id="allocBar">
+          <div class="alloc-seg" style="width:100%;background:var(--bg-surface-2, #1A1A24)" title="No allocations"></div>
         </div>
-        <div class="alloc-legend">
-          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--c1)"></div>AI/ML 32%</div>
-          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--c2)"></div>Fintech 22%</div>
-          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--c3)"></div>Infra 18%</div>
-          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--violet)"></div>Climate 14%</div>
-          <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:var(--rose)"></div>Consumer 14%</div>
+        <div class="alloc-legend" id="allocLegend">
+          <div class="alloc-legend-item" style="color:var(--text-secondary, #7B96AF)">Add positions to see allocation breakdown</div>
         </div>
       </div>
 
@@ -820,78 +812,30 @@
         <div class="pipeline-cols">
           <!-- Prospects -->
           <div class="pipeline-col">
-            <div class="pipeline-col-header">Prospects <span class="pipeline-count">4</span></div>
-            <div class="deal-card">
-              <div class="deal-name">Helix Robotics</div>
-              <div class="deal-sector">AI / Robotics</div>
-              <div class="deal-amount">Seed &mdash; $500K ask</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">Drift Protocol</div>
-              <div class="deal-sector">DeFi / Infrastructure</div>
-              <div class="deal-amount">Pre-seed &mdash; $250K ask</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">Verde Carbon</div>
-              <div class="deal-sector">Climate / Carbon</div>
-              <div class="deal-amount">Seed &mdash; $750K ask</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">Luma Health</div>
-              <div class="deal-sector">Health Tech</div>
-              <div class="deal-amount">Series A &mdash; $2M ask</div>
+            <div class="pipeline-col-header">Prospects <span class="pipeline-count" id="prospectsCount">0</span></div>
+            <div class="deal-card deal-empty" style="opacity:0.4;text-align:center;padding:24px 12px">
+              <div class="deal-name" style="color:var(--text-secondary, #7B96AF)">No prospects yet</div>
             </div>
           </div>
           <!-- Due Diligence -->
           <div class="pipeline-col">
-            <div class="pipeline-col-header">Due Diligence <span class="pipeline-count">3</span></div>
-            <div class="deal-card">
-              <div class="deal-name">NovaPay</div>
-              <div class="deal-sector">Fintech / Payments</div>
-              <div class="deal-amount">Seed &mdash; $400K target</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">ArcticAI</div>
-              <div class="deal-sector">AI / Enterprise</div>
-              <div class="deal-amount">Series A &mdash; $1.5M target</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">Mesh Networks</div>
-              <div class="deal-sector">Infrastructure / IoT</div>
-              <div class="deal-amount">Seed &mdash; $300K target</div>
+            <div class="pipeline-col-header">Due Diligence <span class="pipeline-count" id="ddCount">0</span></div>
+            <div class="deal-card deal-empty" style="opacity:0.4;text-align:center;padding:24px 12px">
+              <div class="deal-name" style="color:var(--text-secondary, #7B96AF)">No active DD</div>
             </div>
           </div>
           <!-- Committed -->
           <div class="pipeline-col">
-            <div class="pipeline-col-header">Committed <span class="pipeline-count">2</span></div>
-            <div class="deal-card">
-              <div class="deal-name">Cipher Labs</div>
-              <div class="deal-sector">AI / Security</div>
-              <div class="deal-amount">$350K &mdash; Closing Q1</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">Solara Energy</div>
-              <div class="deal-sector">Climate / Solar</div>
-              <div class="deal-amount">$200K &mdash; Closing Q1</div>
+            <div class="pipeline-col-header">Committed <span class="pipeline-count" id="committedCount">0</span></div>
+            <div class="deal-card deal-empty" style="opacity:0.4;text-align:center;padding:24px 12px">
+              <div class="deal-name" style="color:var(--text-secondary, #7B96AF)">No commitments</div>
             </div>
           </div>
           <!-- Deployed -->
           <div class="pipeline-col">
-            <div class="pipeline-col-header">Deployed <span class="pipeline-count">3</span></div>
-            <div class="deal-card">
-              <div class="deal-name">Axiom Intelligence</div>
-              <div class="deal-sector">AI / Agents</div>
-              <div class="deal-amount">$500K &mdash; 2.1x MOIC</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">RailPay</div>
-              <div class="deal-sector">Fintech / Rails</div>
-              <div class="deal-amount">$300K &mdash; 1.8x MOIC</div>
-            </div>
-            <div class="deal-card">
-              <div class="deal-name">TerraGrid</div>
-              <div class="deal-sector">Infrastructure</div>
-              <div class="deal-amount">$250K &mdash; 1.2x MOIC</div>
+            <div class="pipeline-col-header">Deployed <span class="pipeline-count" id="deployedCount">0</span></div>
+            <div class="deal-card deal-empty" style="opacity:0.4;text-align:center;padding:24px 12px">
+              <div class="deal-name" style="color:var(--text-secondary, #7B96AF)">No deployments</div>
             </div>
           </div>
         </div>
@@ -901,38 +845,10 @@
       <div class="panel thesis-cell">
         <div class="halftone"></div>
         <div class="sec-label"><span class="dot" style="background:var(--violet)"></span>"INTEL" THESIS BOARD</div>
-        <div class="thesis-list">
-          <div class="thesis-card">
-            <div class="thesis-header">
-              <div class="thesis-title">Agent Infrastructure Will Unbundle SaaS</div>
-              <div class="thesis-conviction" style="color:var(--c1)">94%</div>
-            </div>
-            <div class="thesis-body">Autonomous AI agents will replace point-solution SaaS by orchestrating workflows directly. Companies building the infrastructure layer (runtime, memory, governance) will capture the most value.</div>
-            <div class="conviction-bar"><div class="conviction-fill" style="width:94%;background:var(--c1)"></div></div>
-          </div>
-          <div class="thesis-card">
-            <div class="thesis-header">
-              <div class="thesis-title">Embedded Finance Eats the Payment Stack</div>
-              <div class="thesis-conviction" style="color:var(--c2)">82%</div>
-            </div>
-            <div class="thesis-body">Every vertical software company becomes a fintech company. API-first payment rails and banking-as-a-service will power the next generation of commerce.</div>
-            <div class="conviction-bar"><div class="conviction-fill" style="width:82%;background:var(--c2)"></div></div>
-          </div>
-          <div class="thesis-card">
-            <div class="thesis-header">
-              <div class="thesis-title">Carbon Markets Become Liquid + Programmable</div>
-              <div class="thesis-conviction" style="color:var(--c3)">71%</div>
-            </div>
-            <div class="thesis-body">Voluntary carbon markets will be tokenized and traded with the same sophistication as financial derivatives. MRV (Measurement, Reporting, Verification) tech is the unlock.</div>
-            <div class="conviction-bar"><div class="conviction-fill" style="width:71%;background:var(--c3)"></div></div>
-          </div>
-          <div class="thesis-card">
-            <div class="thesis-header">
-              <div class="thesis-title">Personal Intelligence Replaces Apps</div>
-              <div class="thesis-conviction" style="color:var(--violet)">88%</div>
-            </div>
-            <div class="thesis-body">Users will shift from app-switching to governed personal OS systems that consolidate memory, context, and action across all domains. The interface becomes conversational and ambient.</div>
-            <div class="conviction-bar"><div class="conviction-fill" style="width:88%;background:var(--violet)"></div></div>
+        <div class="thesis-list" id="thesisList">
+          <div class="thesis-card deal-empty" style="opacity:0.5;text-align:center;padding:32px 16px">
+            <div class="thesis-title" style="color:var(--text-secondary, #7B96AF)">Add your first investment thesis</div>
+            <div class="thesis-body" style="color:var(--text-tertiary);font-size:13px;margin-top:8px">Theses drive deal flow scoring and conviction tracking</div>
           </div>
         </div>
       </div>
@@ -942,54 +858,15 @@
         <div class="halftone"></div>
         <div class="sec-label"><span class="dot" style="background:var(--rose)"></span>NIGHT WATCH</div>
         <div class="watch-list" id="watchList">
-          <div class="watch-item">
-            <div class="watch-severity critical"></div>
+          <div class="watch-item" style="opacity:0.5">
+            <div class="watch-severity" style="background:var(--text-tertiary)"></div>
             <div class="watch-body">
-              <div class="watch-title">Axiom Intelligence &mdash; Runway Alert</div>
-              <div class="watch-desc">Burn rate increased 22% M/M. Runway dropped to 9 months. Founder call scheduled for Thursday.</div>
-              <div class="watch-time" id="watchTime1">--</div>
+              <div class="watch-title" style="color:var(--text-secondary, #7B96AF)">No active alerts</div>
+              <div class="watch-desc" style="color:var(--text-tertiary)">Alerts appear when portfolio companies trigger monitoring thresholds</div>
+              <div class="watch-time">--</div>
             </div>
           </div>
-          <div class="watch-item">
-            <div class="watch-severity warning"></div>
-            <div class="watch-body">
-              <div class="watch-title">Fed Rate Decision &mdash; FOMC Tomorrow</div>
-              <div class="watch-desc">Markets pricing 72% chance of hold. VC sentiment may shift if hawkish guidance. Monitor pre-market futures.</div>
-              <div class="watch-time" id="watchTime2">--</div>
-            </div>
-          </div>
-          <div class="watch-item">
-            <div class="watch-severity warning"></div>
-            <div class="watch-body">
-              <div class="watch-title">NovaPay DD &mdash; Reference Check Pending</div>
-              <div class="watch-desc">3 of 5 references completed. Outstanding: ex-CTO at Stripe, angel lead from seed round.</div>
-              <div class="watch-time" id="watchTime3">--</div>
-            </div>
-          </div>
-          <div class="watch-item">
-            <div class="watch-severity info"></div>
-            <div class="watch-body">
-              <div class="watch-title">RailPay &mdash; Series B Rumor</div>
-              <div class="watch-desc">Heard from LP network that Sequoia is circling. If confirmed, potential 3-4x markup on our seed position.</div>
-              <div class="watch-time" id="watchTime4">--</div>
-            </div>
-          </div>
-          <div class="watch-item">
-            <div class="watch-severity clear"></div>
-            <div class="watch-body">
-              <div class="watch-title">Portfolio Company Board Meetings</div>
-              <div class="watch-desc">All Q4 board decks received. Axiom and TerraGrid boards scheduled next week.</div>
-              <div class="watch-time" id="watchTime5">--</div>
-            </div>
-          </div>
-          <div class="watch-item">
-            <div class="watch-severity info"></div>
-            <div class="watch-body">
-              <div class="watch-title">Asia Markets &mdash; Nikkei Up 1.8%</div>
-              <div class="watch-desc">Strong open in Tokyo driven by tech rally. Watch for correlation to US tech futures. Positive signal for growth multiples.</div>
-              <div class="watch-time" id="watchTime6">--</div>
-            </div>
-          </div>
+          <!-- Dynamic alerts will be inserted here by API -->
         </div>
       </div>
 
