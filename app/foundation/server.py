@@ -1500,6 +1500,29 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
             return jsonify({"ok": False, "error": "assets directory not found"}), 404
         return send_from_directory(str(assets_root), filename)
 
+    # Serve site JS/CSS files that HTML pages load via relative paths
+    _SITE_FILE_MIMES = {
+        ".js": "application/javascript; charset=utf-8",
+        ".css": "text/css; charset=utf-8",
+        ".json": "application/json; charset=utf-8",
+    }
+
+    @app.get("/<path:filename>")
+    def site_static_file(filename: str) -> Any:
+        """Serve JS/CSS/JSON files from site/foundation/ for pages loaded on port 8797."""
+        safe_name = Path(filename).name  # prevent directory traversal
+        suffix = Path(safe_name).suffix.lower()
+        if suffix not in _SITE_FILE_MIMES:
+            return jsonify({"ok": False, "error": "not found"}), 404
+        file_path = site_root / safe_name
+        if not file_path.exists():
+            return jsonify({"ok": False, "error": f"{safe_name} not found"}), 404
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except OSError:
+            return jsonify({"ok": False, "error": "read error"}), 500
+        return Response(content, mimetype=_SITE_FILE_MIMES[suffix])
+
     @app.post("/auth/session")
     def auth_session() -> Any:
         payload = request.get_json(silent=True) or {}
