@@ -1574,3 +1574,174 @@ tbody tr:hover {
     backdrop-filter: none;
   }
 }
+
+
+/* ================================================================
+   PAGE SLIDER (Bottom Navigation Bar)
+   Apple-style dot pagination with back/prev/next
+   ================================================================ */
+
+.page-slider {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: var(--z-nav);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  background: var(--glass-nav-bg);
+  backdrop-filter: blur(var(--glass-nav-blur));
+  -webkit-backdrop-filter: blur(var(--glass-nav-blur));
+  border-top: 1px solid var(--glass-nav-border);
+  font-size: var(--fs-caption);
+  user-select: none;
+}
+
+.ps-back,
+.ps-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: color var(--dur-hover) var(--ease-smooth),
+              background var(--dur-hover) var(--ease-smooth);
+}
+.ps-back:hover,
+.ps-nav:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-surface-2);
+}
+.ps-nav:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.ps-back {
+  position: absolute;
+  left: var(--sp-4);
+}
+
+.ps-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ps-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  padding: 0;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+.ps-dot:hover {
+  background: var(--text-secondary);
+  transform: scale(1.3);
+}
+.ps-dot.active {
+  background: var(--accent);
+  width: 18px;
+  border-radius: var(--radius-pill);
+}
+
+.ps-label {
+  position: absolute;
+  right: var(--sp-4);
+  font-family: var(--font-label);
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 600px) {
+  .ps-label { display: none; }
+  .page-slider { height: 36px; }
+}
+
+
+/* ================================================================
+   UNIFIED DROPDOWN ADDITIONS
+   ================================================================ */
+
+/* Active page highlight in File dropdown */
+.mb-dropdown a.dd-active,
+.dropdown a.dd-active {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+.mb-dropdown a.dd-active::before,
+.dropdown a.dd-active::before {
+  content: "";
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Theme mode buttons row */
+.dd-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-4);
+}
+
+.dd-mode-btn {
+  flex: 1;
+  padding: var(--sp-1) var(--sp-2);
+  font-size: var(--fs-caption);
+  font-family: var(--font-label);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  transition: all var(--dur-hover) var(--ease-smooth);
+}
+.dd-mode-btn:hover {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
+}
+.dd-mode-btn.active {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: var(--fw-medium);
+}
+
+/* Zoom controls */
+.dd-zoom-row {
+  gap: var(--sp-2);
+}
+.dd-zoom-btn {
+  width: 28px; height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  transition: all var(--dur-hover) var(--ease-smooth);
+}
+.dd-zoom-btn:hover {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
+}
+.dd-zoom-reset {
+  width: auto;
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-regular);
+  margin-left: auto;
+}
+.dd-zoom-val {
+  font-family: var(--font-label);
+  font-size: var(--fs-caption);
+  color: var(--text-primary);
+  min-width: 36px;
+  text-align: center;
+}
+
+/* Ensure body has bottom padding for slider */
+body { padding-bottom: 44px; }
