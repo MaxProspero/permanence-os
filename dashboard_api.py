@@ -4733,6 +4733,182 @@ def get_markets_ohlcv(symbol):
 
 
 # ─────────────────────────────────────────────
+# SMC/ICT ANALYSIS + BACKTESTING
+# ─────────────────────────────────────────────
+
+
+def _smc_analyzer():
+    """Lazy import of smc_ict_analyzer."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import smc_ict_analyzer as smc
+        return smc
+    except ImportError:
+        return None
+
+
+def _backtest_engine():
+    """Lazy import of backtest_engine."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import backtest_engine as bt
+        return bt
+    except ImportError:
+        return None
+
+
+@app.route("/api/analysis/smc-ict/<symbol>", methods=["GET"])
+@_require_api_key(tier="free")
+def get_smc_analysis(symbol):
+    """Run SMC/ICT analysis on a symbol. ?range=3M."""
+    log_api_call("GET", f"/api/analysis/smc-ict/{symbol}")
+    mds = _market_service()
+    smc = _smc_analyzer()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    if not smc:
+        return jsonify({"error": "smc_ict_analyzer not available"}), 500
+    range_key = request.args.get("range", "3M")
+    try:
+        candles = mds.get_ohlcv(symbol, range_key)
+        if not candles:
+            return jsonify({"error": "No candle data available", "symbol": symbol}), 404
+        result = smc.analyze(candles, symbol=symbol)
+        return jsonify({
+            "symbol": symbol,
+            "range": range_key,
+            "candles": candles,
+            "analysis": result.to_dict(),
+            "summary": result.summary(),
+        })
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/backtest/run/<symbol>", methods=["POST"])
+@_require_api_key(tier="free")
+def run_backtest_endpoint(symbol):
+    """Run a strategy backtest on a symbol. POST {strategy, range}."""
+    log_api_call("POST", f"/api/backtest/run/{symbol}")
+    mds = _market_service()
+    bt = _backtest_engine()
+    if not mds:
+        return jsonify({"error": "market_data_service not available"}), 500
+    if not bt:
+        return jsonify({"error": "backtest_engine not available"}), 500
+    body = request.get_json(silent=True) or {}
+    strategy_id = body.get("strategy", "ob_fvg")
+    range_key = body.get("range", "3M")
+    try:
+        candles = mds.get_ohlcv(symbol, range_key)
+        if not candles:
+            return jsonify({"error": "No candle data available", "symbol": symbol}), 404
+        result = bt.run_backtest(candles, strategy_id, symbol, range_key)
+        return jsonify({
+            "symbol": symbol,
+            "strategy": strategy_id,
+            "range": range_key,
+            "summary": result.summary(),
+            "trades": [
+                {
+                    "direction": t.direction,
+                    "entry_date": t.entry_date,
+                    "entry_price": t.entry_price,
+                    "exit_date": t.exit_date,
+                    "exit_price": t.exit_price,
+                    "exit_reason": t.exit_reason,
+                    "pnl_pct": round(t.pnl_pct * 100, 2),
+                    "r_multiple": round(t.r_multiple, 2),
+                    "holding_bars": t.holding_bars,
+                }
+                for t in result.trades
+            ],
+        }), 201
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+# ─────────────────────────────────────────────
+# OCA LEAD MANAGEMENT
+# ─────────────────────────────────────────────
+
+
+def _oca_lead_generator():
+    """Lazy import of oca_lead_generator."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import oca_lead_generator as olg
+        return olg
+    except ImportError:
+        return None
+
+
+def _oca_proposal_generator():
+    """Lazy import of oca_proposal_generator."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import oca_proposal_generator as opg
+        return opg
+    except ImportError:
+        return None
+
+
+@app.route("/api/oca/leads", methods=["GET"])
+def get_oca_leads():
+    """List current OCA leads from sales pipeline."""
+    log_api_call("GET", "/api/oca/leads")
+    olg = _oca_lead_generator()
+    if not olg:
+        return jsonify({"error": "oca_lead_generator not available"}), 500
+    try:
+        leads = olg.get_recent_leads()
+        return jsonify({"leads": leads, "count": len(leads)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/oca/leads/scan", methods=["POST"])
+def scan_oca_leads():
+    """Trigger a lead scan. POST {industry, geo}."""
+    log_api_call("POST", "/api/oca/leads/scan")
+    olg = _oca_lead_generator()
+    if not olg:
+        return jsonify({"error": "oca_lead_generator not available"}), 500
+    body = request.get_json(silent=True) or {}
+    industry = body.get("industry", "")
+    geo = body.get("geo", "")
+    try:
+        results = olg.run_scan(industry=industry, geo=geo)
+        return jsonify(results), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/oca/proposals/generate", methods=["POST"])
+def generate_oca_proposal():
+    """Generate a proposal for a lead. POST {lead_name, workflow_id}."""
+    log_api_call("POST", "/api/oca/proposals/generate")
+    opg = _oca_proposal_generator()
+    if not opg:
+        return jsonify({"error": "oca_proposal_generator not available"}), 500
+    body = request.get_json(silent=True) or {}
+    lead_name = body.get("lead_name", "")
+    workflow_id = body.get("workflow_id", "lead_gen")
+    if not lead_name:
+        return jsonify({"error": "lead_name is required"}), 400
+    try:
+        result = opg.generate_proposal(
+            lead={"name": lead_name, "industry": body.get("industry", "")},
+            workflow_id=workflow_id,
+        )
+        return jsonify(result), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+# ─────────────────────────────────────────────
 # RUN
 # ─────────────────────────────────────────────
 

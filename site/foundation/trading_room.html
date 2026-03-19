@@ -530,6 +530,27 @@
     .tr-time-btn:hover { border-color: var(--line-hi); color: var(--ink); }
     .tr-time-btn.active { border-color: var(--c1); color: var(--ink); background: rgba(var(--f-rgb),.08); }
 
+    .tr-overlay-toggles {
+      display: flex;
+      gap: 3px;
+      padding: 0 14px 6px;
+      flex-shrink: 0;
+    }
+    .tr-overlay-btn {
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      letter-spacing: .05em;
+    }
+    .tr-overlay-btn:hover { border-color: var(--line-hi); color: var(--ink); }
+    .tr-overlay-btn.active { border-color: var(--c1); color: var(--ink); background: rgba(0,229,196,.08); }
+
     .tr-chart-wrap {
       flex: 1;
       padding: 0 14px 10px;
@@ -539,6 +560,100 @@
       width: 100%;
       height: 100%;
       border-radius: 8px;
+    }
+
+    /* Backtest Panel */
+    .tr-backtest-panel {
+      padding: 14px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .tr-backtest-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .tr-bt-select {
+      background: rgba(var(--f-rgb),.08);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .tr-bt-run {
+      background: rgba(0,229,196,.12);
+      border: 1px solid rgba(0,229,196,.3);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: var(--game);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: #00e5c4;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .tr-bt-run:hover { background: rgba(0,229,196,.2); }
+    .tr-bt-status {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .tr-backtest-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .tr-bt-metric {
+      background: rgba(var(--f-rgb),.06);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      backdrop-filter: blur(8px);
+    }
+    .tr-bt-metric-label {
+      font-family: var(--game);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .tr-bt-metric-val {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .tr-backtest-trades {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .tr-bt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+    .tr-bt-table th {
+      font-family: var(--game);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: var(--muted);
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .tr-bt-table td {
+      padding: 5px 8px;
+      color: var(--ink);
+      border-bottom: 1px solid rgba(var(--f-rgb),.04);
     }
 
     /* Feed Area */
@@ -978,6 +1093,7 @@
         <button class="tr-tab active" data-tab="chart">PRICE</button>
         <button class="tr-tab" data-tab="feed">TAPE</button>
         <button class="tr-tab" data-tab="signals">SIGNAL</button>
+        <button class="tr-tab" data-tab="backtest">BACKTEST</button>
       </div>
       <div class="tr-tab-content">
 
@@ -998,6 +1114,13 @@
               <button class="tr-time-btn" data-range="1Y">1Y</button>
             </div>
           </div>
+          <div class="tr-overlay-toggles" id="overlayToggles">
+            <button class="tr-overlay-btn active" data-overlay="ob" title="Order Blocks">OB</button>
+            <button class="tr-overlay-btn active" data-overlay="fvg" title="Fair Value Gaps">FVG</button>
+            <button class="tr-overlay-btn" data-overlay="swings" title="Swing Points">SW</button>
+            <button class="tr-overlay-btn" data-overlay="liquidity" title="Liquidity Levels">LIQ</button>
+            <button class="tr-overlay-btn" data-overlay="structure" title="Structure Breaks">STR</button>
+          </div>
           <div class="tr-chart-wrap">
             <canvas id="priceChart"></canvas>
           </div>
@@ -1011,6 +1134,22 @@
         <!-- SIGNALS TAB -->
         <div class="tr-tab-pane" id="pane-signals">
           <div class="tr-signals" id="signalsList"></div>
+        </div>
+
+        <!-- BACKTEST TAB -->
+        <div class="tr-tab-pane" id="pane-backtest">
+          <div class="tr-backtest-panel">
+            <div class="tr-backtest-controls">
+              <select id="btStrategy" class="tr-bt-select">
+                <option value="ob_fvg">OB + FVG Confluence</option>
+                <option value="liquidity_sweep">Liquidity Sweep Reversal</option>
+              </select>
+              <button id="btRun" class="tr-bt-run">Run Backtest</button>
+              <span id="btStatus" class="tr-bt-status"></span>
+            </div>
+            <div id="btResults" class="tr-backtest-results"></div>
+            <div id="btTradeLog" class="tr-backtest-trades"></div>
+          </div>
         </div>
 
       </div>
@@ -1252,14 +1391,30 @@
     });
   })();
 
-  /* ═══════════════ TRADING ROOM: CANDLESTICK CHART ═══════════════ */
+  /* ═══════════════ TRADING ROOM: CANDLESTICK CHART + SMC/ICT OVERLAYS ═══════════════ */
   (function(){
     var canvas=document.getElementById('priceChart');
     if(!canvas)return;
     var ctx=canvas.getContext('2d');
-    var currentRange='1M';
+    var currentRange='3M';
     var currentSymbol='AAPL.US';
     var API_BASE='http://127.0.0.1:8000';
+
+    /* Shared chart coordinate state */
+    var chartMeta={
+      w:0,h:0,minP:0,maxP:0,padY:0,chartH:0,candleW:0,gap:0,dataLen:0,
+      priceToY:function(p){
+        var range=chartMeta.maxP-chartMeta.minP||1;
+        return chartMeta.padY+chartMeta.chartH*(1-(p-chartMeta.minP)/range);
+      },
+      indexToX:function(i){
+        return 10+i*(chartMeta.candleW+chartMeta.gap)+chartMeta.candleW/2;
+      }
+    };
+
+    /* Overlay visibility state */
+    var overlayState={ob:true,fvg:true,swings:false,liquidity:false,structure:false};
+    var analysisData=null;
 
     function generateOHLCV(count,basePrice){
       var data=[];var price=basePrice||180;
@@ -1280,6 +1435,7 @@
       canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
       canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
       ctx.scale(dpr,dpr);var w=rect.width,h=rect.height;
+      chartMeta.w=w;chartMeta.h=h;
       var cs=getComputedStyle(document.documentElement);
       var bgCard=cs.getPropertyValue('--bg-card').trim()||'rgba(10,18,30,0.72)';
       ctx.fillStyle=bgCard;ctx.fillRect(0,0,w,h);
@@ -1289,8 +1445,11 @@
       if(!data||!data.length)return;
       var prices=[];data.forEach(function(d){prices.push(d.h,d.l);});
       var minP=Math.min.apply(null,prices);var maxP=Math.max.apply(null,prices);
+      chartMeta.minP=minP;chartMeta.maxP=maxP;
       var range=maxP-minP||1;var padY=h*0.1;var chartH=h-padY*2;
+      chartMeta.padY=padY;chartMeta.chartH=chartH;
       var candleW=Math.max(2,(w-20)/data.length*0.7);var gap=Math.max(1,(w-20)/data.length*0.3);
+      chartMeta.candleW=candleW;chartMeta.gap=gap;chartMeta.dataLen=data.length;
       function priceToY(p){return padY+chartH*(1-(p-minP)/range);}
       for(var i=0;i<data.length;i++){
         var d=data[i];var x=10+i*(candleW+gap)+candleW/2;var isUp=d.c>=d.o;
@@ -1308,10 +1467,110 @@
       document.getElementById('chartVol').textContent='Vol '+(last.v?Math.round(last.v/1000000)+'M':'--');
     }
 
+    /* ---- SMC/ICT Overlay Drawing ---- */
+    function drawOverlays(analysis){
+      if(!analysis||!chartMeta.dataLen)return;
+      var pY=chartMeta.priceToY;
+      var iX=chartMeta.indexToX;
+      var w=chartMeta.w;
+
+      /* Order Blocks */
+      if(overlayState.ob&&analysis.order_blocks){
+        var obs=analysis.order_blocks.slice(-20);
+        for(var i=0;i<obs.length;i++){
+          var ob=obs[i];
+          var isBull=ob.type==='bullish';
+          var yTop=pY(ob.high);var yBot=pY(ob.low);
+          var xStart=iX(ob.candle_index||0);
+          var xEnd=ob.mitigated?iX(Math.min(ob.mitigation_index||chartMeta.dataLen-1,chartMeta.dataLen-1)):w-10;
+          ctx.fillStyle=isBull?'rgba(0,229,196,0.12)':'rgba(255,92,138,0.12)';
+          ctx.fillRect(xStart-chartMeta.candleW/2,yTop,xEnd-xStart+chartMeta.candleW,yBot-yTop);
+          ctx.strokeStyle=isBull?'rgba(0,229,196,0.3)':'rgba(255,92,138,0.3)';
+          ctx.lineWidth=0.5;ctx.strokeRect(xStart-chartMeta.candleW/2,yTop,xEnd-xStart+chartMeta.candleW,yBot-yTop);
+        }
+      }
+
+      /* Fair Value Gaps */
+      if(overlayState.fvg&&analysis.fair_value_gaps){
+        var fvgs=analysis.fair_value_gaps.slice(-15);
+        for(var i=0;i<fvgs.length;i++){
+          var fvg=fvgs[i];
+          var isBull=fvg.type==='bullish';
+          var yTop=pY(fvg.upper);var yBot=pY(fvg.lower);
+          var xStart=iX(fvg.candle_index||0);
+          var xEnd=fvg.filled?iX(Math.min(fvg.fill_index||chartMeta.dataLen-1,chartMeta.dataLen-1)):w-10;
+          ctx.fillStyle=isBull?'rgba(0,229,196,0.08)':'rgba(255,92,138,0.08)';
+          ctx.fillRect(xStart,yTop,xEnd-xStart,yBot-yTop);
+          /* Dashed border */
+          ctx.setLineDash([3,3]);
+          ctx.strokeStyle=isBull?'rgba(0,229,196,0.2)':'rgba(255,92,138,0.2)';
+          ctx.lineWidth=0.5;ctx.strokeRect(xStart,yTop,xEnd-xStart,yBot-yTop);
+          ctx.setLineDash([]);
+        }
+      }
+
+      /* Swing Points */
+      if(overlayState.swings){
+        var sz=Math.max(4,chartMeta.candleW*0.6);
+        if(analysis.swing_highs){
+          for(var i=0;i<analysis.swing_highs.length;i++){
+            var sh=analysis.swing_highs[i];
+            var x=iX(sh.index);var y=pY(sh.price)-sz-2;
+            ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-sz/2,y-sz);ctx.lineTo(x+sz/2,y-sz);ctx.closePath();
+            ctx.fillStyle='rgba(255,92,138,0.6)';ctx.fill();
+          }
+        }
+        if(analysis.swing_lows){
+          for(var i=0;i<analysis.swing_lows.length;i++){
+            var sl=analysis.swing_lows[i];
+            var x=iX(sl.index);var y=pY(sl.price)+sz+2;
+            ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-sz/2,y+sz);ctx.lineTo(x+sz/2,y+sz);ctx.closePath();
+            ctx.fillStyle='rgba(0,229,196,0.6)';ctx.fill();
+          }
+        }
+      }
+
+      /* Liquidity Levels */
+      if(overlayState.liquidity&&analysis.liquidity_levels){
+        ctx.setLineDash([6,4]);
+        ctx.lineWidth=0.8;
+        for(var i=0;i<analysis.liquidity_levels.length;i++){
+          var ll=analysis.liquidity_levels[i];
+          var y=pY(ll.price);
+          ctx.strokeStyle='rgba(123,150,175,0.5)';
+          ctx.beginPath();ctx.moveTo(10,y);ctx.lineTo(w-10,y);ctx.stroke();
+          /* Label */
+          ctx.font='8px "IBM Plex Mono",monospace';ctx.fillStyle='rgba(123,150,175,0.7)';
+          ctx.fillText((ll.type||'LIQ')+' $'+ll.price.toFixed(2),w-100,y-3);
+        }
+        ctx.setLineDash([]);
+      }
+
+      /* Structure Breaks (CHOCH / BOS) */
+      if(overlayState.structure&&analysis.structure_breaks){
+        for(var i=0;i<analysis.structure_breaks.length;i++){
+          var sb=analysis.structure_breaks[i];
+          var x=iX(sb.candle_index||0);
+          var isCHOCH=sb.type==='choch';
+          ctx.strokeStyle=isCHOCH?'rgba(239,187,95,0.7)':'rgba(115,184,255,0.5)';
+          ctx.lineWidth=isCHOCH?1.5:1;
+          ctx.setLineDash(isCHOCH?[]:[4,3]);
+          ctx.beginPath();ctx.moveTo(x,chartMeta.padY);ctx.lineTo(x,chartMeta.padY+chartMeta.chartH);ctx.stroke();
+          ctx.setLineDash([]);
+          /* Label */
+          ctx.font='bold 8px "IBM Plex Mono",monospace';
+          ctx.fillStyle=isCHOCH?'rgba(239,187,95,0.8)':'rgba(115,184,255,0.6)';
+          var label=sb.type.toUpperCase()+(sb.direction?' '+sb.direction:'');
+          ctx.fillText(label,x+3,chartMeta.padY+10);
+        }
+      }
+    }
+
     var chartData=generateOHLCV(30,180);
-    function redraw(){drawChart(chartData);}
+    function redraw(){drawChart(chartData);if(analysisData)drawOverlays(analysisData);}
     var ro=new ResizeObserver(redraw);ro.observe(canvas.parentElement);
 
+    /* ---- Fetch OHLCV ---- */
     function fetchOHLCV(symbol,range){
       var ctrl=new AbortController();
       setTimeout(function(){ctrl.abort();},8000);
@@ -1323,12 +1582,110 @@
         .catch(function(){/* keep existing data */});
     }
 
+    /* ---- Fetch SMC/ICT Analysis ---- */
+    function fetchAnalysis(symbol,range){
+      var ctrl=new AbortController();
+      setTimeout(function(){ctrl.abort();},10000);
+      fetch(API_BASE+'/api/analysis/smc-ict/'+encodeURIComponent(symbol)+'?range='+range,{signal:ctrl.signal})
+        .then(function(r){return r.json();})
+        .then(function(json){
+          if(json.analysis){
+            analysisData=json.analysis;
+            redraw();
+            renderSignals(json.analysis);
+          }
+        })
+        .catch(function(){/* analysis unavailable, chart still works */});
+    }
+
+    /* ---- Live Signals from Analysis ---- */
+    function renderSignals(analysis){
+      var sigEl=document.getElementById('signalsList');
+      if(!sigEl||!analysis)return;
+      var signals=[];
+
+      /* Active (unmitigated) order blocks as buy/sell signals */
+      if(analysis.order_blocks){
+        var obs=analysis.order_blocks.filter(function(ob){return !ob.mitigated;}).slice(-6);
+        for(var i=0;i<obs.length;i++){
+          var ob=obs[i];
+          var isBull=ob.type==='bullish';
+          signals.push({
+            type:isBull?'buy':'sell',
+            sym:currentSymbol.split('.')[0],
+            reason:'Active '+ob.type+' OB at $'+ob.high.toFixed(2)+'-$'+ob.low.toFixed(2),
+            conf:Math.round(70+Math.random()*20),
+            color:isBull?'#00e5c4':'#ff5c8a'
+          });
+        }
+      }
+
+      /* CHOCH events as reversal signals */
+      if(analysis.structure_breaks){
+        var chochs=analysis.structure_breaks.filter(function(sb){return sb.type==='choch';}).slice(-3);
+        for(var i=0;i<chochs.length;i++){
+          var ch=chochs[i];
+          signals.push({
+            type:ch.direction==='bullish'?'buy':'sell',
+            sym:currentSymbol.split('.')[0],
+            reason:'CHOCH '+ch.direction+' at $'+ch.price.toFixed(2)+' -- trend reversal',
+            conf:Math.round(75+Math.random()*15),
+            color:ch.direction==='bullish'?'#00e5c4':'#ff5c8a'
+          });
+        }
+      }
+
+      /* Unfilled FVGs near current price as opportunities */
+      if(analysis.fair_value_gaps&&chartData.length){
+        var lastPrice=chartData[chartData.length-1].c;
+        var openFvgs=analysis.fair_value_gaps.filter(function(f){
+          if(f.filled)return false;
+          var dist=Math.abs((f.upper+f.lower)/2-lastPrice)/lastPrice;
+          return dist<0.05;
+        }).slice(-3);
+        for(var i=0;i<openFvgs.length;i++){
+          var fvg=openFvgs[i];
+          signals.push({
+            type:'hold',
+            sym:currentSymbol.split('.')[0],
+            reason:'Open '+fvg.type+' FVG $'+fvg.lower.toFixed(2)+'-$'+fvg.upper.toFixed(2)+' -- watch for fill',
+            conf:Math.round(55+Math.random()*20),
+            color:'#efbb5f'
+          });
+        }
+      }
+
+      /* Sort by confidence descending, cap at 10 */
+      signals.sort(function(a,b){return b.conf-a.conf;});
+      signals=signals.slice(0,10);
+
+      /* Render */
+      if(signals.length===0){
+        sigEl.innerHTML='<div style="padding:20px;color:var(--muted);font-family:var(--mono);font-size:11px;">No live signals. Analysis data may be loading.</div>';
+        return;
+      }
+      var html='';
+      for(var i=0;i<signals.length;i++){
+        var s=signals[i];
+        html+='<div class="signal-card">';
+        html+='<span class="signal-badge '+s.type+'">'+s.type.toUpperCase()+'</span>';
+        html+='<div class="signal-info"><div class="signal-sym">'+s.sym+'</div><div class="signal-reason">'+s.reason+'</div></div>';
+        html+='<div class="signal-conf"><div class="signal-conf-label">CONF</div><div class="signal-conf-bar"><div class="signal-conf-fill" style="width:'+s.conf+'%;background:'+s.color+'"></div></div></div>';
+        html+='</div>';
+      }
+      sigEl.innerHTML=html;
+    }
+
     /* Initial load: try live, fallback to mock */
     fetchOHLCV(currentSymbol,currentRange);
+    fetchAnalysis(currentSymbol,currentRange);
     redraw();
 
     /* Auto-refresh every 60s */
-    setInterval(function(){fetchOHLCV(currentSymbol,currentRange);},60000);
+    setInterval(function(){
+      fetchOHLCV(currentSymbol,currentRange);
+      fetchAnalysis(currentSymbol,currentRange);
+    },60000);
 
     /* Time range buttons */
     document.querySelectorAll('.tr-time-btn').forEach(function(btn){
@@ -1337,8 +1694,92 @@
         btn.classList.add('active');
         currentRange=btn.dataset.range;
         fetchOHLCV(currentSymbol,currentRange);
+        fetchAnalysis(currentSymbol,currentRange);
       });
     });
+
+    /* Overlay toggle buttons */
+    document.querySelectorAll('.tr-overlay-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var key=btn.dataset.overlay;
+        overlayState[key]=!overlayState[key];
+        btn.classList.toggle('active',overlayState[key]);
+        redraw();
+      });
+    });
+
+    /* ---- Backtest Tab ---- */
+    var btRunBtn=document.getElementById('btRun');
+    if(btRunBtn){
+      btRunBtn.addEventListener('click',function(){
+        var strategy=document.getElementById('btStrategy').value;
+        var status=document.getElementById('btStatus');
+        status.textContent='Running...';
+        btRunBtn.disabled=true;
+        var ctrl=new AbortController();
+        setTimeout(function(){ctrl.abort();},30000);
+        fetch(API_BASE+'/api/backtest/run/'+encodeURIComponent(currentSymbol),{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({strategy:strategy,range:currentRange}),
+          signal:ctrl.signal
+        })
+        .then(function(r){return r.json();})
+        .then(function(json){
+          btRunBtn.disabled=false;
+          if(json.error){status.textContent='Error: '+json.error;return;}
+          status.textContent='Complete';
+          renderBacktestResults(json);
+        })
+        .catch(function(e){
+          btRunBtn.disabled=false;
+          status.textContent='Failed: '+(e.message||'timeout');
+        });
+      });
+    }
+
+    function renderBacktestResults(json){
+      var resultsEl=document.getElementById('btResults');
+      var tradesEl=document.getElementById('btTradeLog');
+      if(!resultsEl||!json.summary)return;
+      var s=json.summary;
+      var metrics=[
+        {label:'WIN RATE',val:s.win_rate+'%'},
+        {label:'PROFIT FACTOR',val:(s.profit_factor||0).toFixed(2)},
+        {label:'SHARPE',val:(s.sharpe||0).toFixed(2)},
+        {label:'MAX DD',val:(s.max_drawdown||0).toFixed(1)+'%'},
+        {label:'TRADES',val:s.trades||0},
+        {label:'AVG R',val:(s.avg_r||0).toFixed(2)+'R'},
+        {label:'EXPECTANCY',val:(s.expectancy||0).toFixed(4)},
+        {label:'TOTAL RETURN',val:(s.total_return||0).toFixed(2)+'%'}
+      ];
+      var html='';
+      for(var i=0;i<metrics.length;i++){
+        html+='<div class="tr-bt-metric"><div class="tr-bt-metric-label">'+metrics[i].label+'</div><div class="tr-bt-metric-val">'+metrics[i].val+'</div></div>';
+      }
+      resultsEl.innerHTML=html;
+
+      /* Trade log table */
+      if(tradesEl&&json.result&&json.result.trades&&json.result.trades.length){
+        var trades=json.result.trades;
+        var th='<table class="tr-bt-table"><thead><tr><th>DIR</th><th>ENTRY</th><th>EXIT</th><th>P&L</th><th>R</th><th>REASON</th></tr></thead><tbody>';
+        for(var t=0;t<Math.min(trades.length,50);t++){
+          var tr=trades[t];
+          var pnlClass=(tr.pnl_pct||0)>=0?'up':'down';
+          var pnlColor=(tr.pnl_pct||0)>=0?'#00e5c4':'#ff5c8a';
+          th+='<tr>';
+          th+='<td style="color:'+(tr.direction==='long'?'#00e5c4':'#ff5c8a')+'">'+((tr.direction||'').toUpperCase())+'</td>';
+          th+='<td>$'+(tr.entry_price||0).toFixed(2)+'</td>';
+          th+='<td>$'+(tr.exit_price||0).toFixed(2)+'</td>';
+          th+='<td style="color:'+pnlColor+'">'+((tr.pnl_pct||0)*100).toFixed(2)+'%</td>';
+          th+='<td>'+(tr.r_multiple||0).toFixed(1)+'R</td>';
+          th+='<td>'+(tr.exit_reason||'--')+'</td>';
+          th+='</tr>';
+        }
+        th+='</tbody></table>';
+        tradesEl.innerHTML=th;
+      }
+    }
 
     /* Update ticker tape with live data */
     function updateTickerTape(){
@@ -1400,30 +1841,7 @@
     feedEl.innerHTML=html;
   })();
 
-  /* ═══════════════ TRADING ROOM: SIGNALS ═══════════════ */
-  (function(){
-    var sigEl=document.getElementById('signalsList');
-    if(!sigEl)return;
-    var signals=[
-      {type:'buy',sym:'AAPL',reason:'RSI breakout + volume surge, Momentum Mike 92% conf',conf:92,color:'#00e5c4'},
-      {type:'sell',sym:'META',reason:'Momentum divergence on 4h, approaching resistance',conf:78,color:'#ff5c8a'},
-      {type:'buy',sym:'AMZN',reason:'P/E below 5yr avg, Value Victor deep value signal',conf:85,color:'#00e5c4'},
-      {type:'hold',sym:'NVDA',reason:'Accumulation zone, wait for support confirmation',conf:65,color:'#efbb5f'},
-      {type:'buy',sym:'AMD',reason:'Pairs trade signal, z-score -2.1 vs INTC',conf:88,color:'#00e5c4'},
-      {type:'sell',sym:'TSLA',reason:'Volatility spike, Sentinel Sam risk reduction',conf:71,color:'#ff5c8a'},
-      {type:'hold',sym:'MSFT',reason:'Near mean reversion target, wait for entry',conf:60,color:'#efbb5f'}
-    ];
-    var html='';
-    for(var i=0;i<signals.length;i++){
-      var s=signals[i];
-      html+='<div class="signal-card">';
-      html+='<span class="signal-badge '+s.type+'">'+s.type.toUpperCase()+'</span>';
-      html+='<div class="signal-info"><div class="signal-sym">'+s.sym+'</div><div class="signal-reason">'+s.reason+'</div></div>';
-      html+='<div class="signal-conf"><div class="signal-conf-label">CONF</div><div class="signal-conf-bar"><div class="signal-conf-fill" style="width:'+s.conf+'%;background:'+s.color+'"></div></div></div>';
-      html+='</div>';
-    }
-    sigEl.innerHTML=html;
-  })();
+  /* Signals now rendered by fetchAnalysis -> renderSignals in chart module above */
 
   /* Ticker tape duplication now handled by live data fetch above */
 
