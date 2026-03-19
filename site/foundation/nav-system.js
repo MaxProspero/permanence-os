@@ -49,7 +49,7 @@
 
   // ── Replace "Dark" text with inline theme toggle ───────────────
   function createThemeToggle() {
-    var existing = document.getElementById("mbTheme");
+    var existing = document.getElementById("mbTheme") || document.getElementById("themeToggle");
     if (!existing) return;
 
     var toggle = document.createElement("button");
@@ -147,6 +147,8 @@
     if (ddGo) ddGo.remove();
     var btnGo = document.getElementById("mbGo");
     if (btnGo) btnGo.remove();
+    // Also remove any button with onclick containing 'go' (index.html pattern)
+    document.querySelectorAll('button[onclick*="openDD(\'go\'"]').forEach(function (b) { b.remove(); });
   }
 
   // ── Remove bottom page slider if it exists ─────────────────────

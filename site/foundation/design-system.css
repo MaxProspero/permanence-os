@@ -653,7 +653,10 @@ ul, ol { list-style: none; }
   color: var(--text-secondary);
   line-height: 1.6;
   max-width: 560px;
-  margin: 0 auto var(--sp-10);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--sp-10);
+  text-align: center;
 }
 
 .hero-actions {
