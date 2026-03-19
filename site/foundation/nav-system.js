@@ -34,7 +34,41 @@
     { file: "press_kit.html",        label: "Mind Map" }
   ];
 
-  var currentFile = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  // ── Port-aware routing (8787 static vs 8797 Flask /app/* routes) ──
+  var isAppRoute = location.pathname.indexOf("/app/") === 0;
+  var APP_ROUTES = {
+    "index.html":            "/app/official",
+    "ophtxn_shell.html":     "/app/ophtxn",
+    "local_hub.html":        "/app/hub",
+    "command_center.html":   "/app/command-center",
+    "trading_room.html":     "/app/trading",
+    "markets_terminal.html": "/app/markets",
+    "night_capital.html":    "/app/night-capital",
+    "daily_planner.html":    "/app/daily-planner",
+    "rooms.html":            "/app/rooms",
+    "ai_school.html":        "/app/ai-school",
+    "official_app.html":     "/app/studio",
+    "agent_view.html":       "/app/agent-view",
+    "comms_hub.html":        "/app/comms",
+    "press_kit.html":        "/app/press"
+  };
+
+  function pageHref(file) {
+    if (isAppRoute && APP_ROUTES[file]) return APP_ROUTES[file];
+    return file;
+  }
+
+  // ── Detect current page (works on both ports) ──
+  var currentFile;
+  if (isAppRoute) {
+    var curPath = location.pathname;
+    currentFile = "index.html";
+    for (var f in APP_ROUTES) {
+      if (APP_ROUTES[f] === curPath) { currentFile = f; break; }
+    }
+  } else {
+    currentFile = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  }
 
   // ── Zoom ───────────────────────────────────────────────────────
   var zoomKey = "ophtxn_zoom";
@@ -226,7 +260,7 @@
     var html = '<div class="dd-label">Pages</div>';
     PAGES.forEach(function (p) {
       var cls = p.file === currentFile ? ' class="dd-active"' : "";
-      html += '<a href="' + p.file + '"' + cls + '>' + p.label + '</a>';
+      html += '<a href="' + pageHref(p.file) + '"' + cls + '>' + p.label + '</a>';
     });
     return html;
   }
@@ -268,7 +302,7 @@
   function buildGoDropdown() {
     var rt = window.__OPHTXN_RUNTIME || {};
     var ccUrl = rt.commandCenterUrl || rt.apiBase || "http://127.0.0.1:8000";
-    var html = '<a href="rooms.html">Tower Overview</a>';
+    var html = '<a href="' + pageHref("rooms.html") + '">Tower Overview</a>';
     html += '<a href="' + ccUrl + '" target="_blank" rel="noopener">Permanence OS</a>';
     html += '<div class="dd-sep"></div>';
     html += '<a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener">GitHub</a>';

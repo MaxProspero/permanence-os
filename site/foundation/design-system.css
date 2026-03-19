@@ -501,6 +501,139 @@ ul, ol { list-style: none; }
 }
 
 
+/* ── OS Menubar (alias for nav-bar, used by all 14 pages) ──────── */
+
+.os-menubar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: var(--z-nav, 9000);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: rgba(8, 14, 22, 0.88);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--font-label, "DM Mono", monospace);
+  font-size: 12px;
+  user-select: none;
+}
+.mb-left { display: flex; align-items: center; gap: 2px; }
+.mb-logo {
+  display: flex; align-items: center; color: var(--text-primary, #e0e0e0);
+  text-decoration: none; margin-right: 6px;
+}
+.mb-logo svg { width: 14px; height: 14px; }
+.mb-appname {
+  font-weight: 700; font-size: 12px;
+  color: var(--text-primary, #e0e0e0);
+  margin-right: 8px; letter-spacing: 0.02em;
+}
+.mb-mi {
+  background: none; border: none; color: var(--text-secondary, #7b96af);
+  font-size: 12px; padding: 2px 8px; cursor: pointer;
+  border-radius: 4px; font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.mb-mi:hover, .mb-mi.open {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary, #e0e0e0);
+}
+.mb-center {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  pointer-events: none;
+}
+.mb-tagline {
+  font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary, #3a5068);
+  pointer-events: none;
+}
+.mb-right { display: flex; align-items: center; gap: 8px; }
+.mb-ext, .mb-clock, .mb-date {
+  color: var(--text-secondary, #7b96af);
+  font-size: 11px; cursor: default;
+}
+.mb-ext { cursor: pointer; }
+.mb-hamburger {
+  display: none; background: none; border: none;
+  color: var(--text-primary, #e0e0e0);
+  font-size: 16px; cursor: pointer; padding: 2px 6px; margin-left: 4px;
+}
+@media (max-width: 600px) {
+  .mb-hamburger { display: flex !important; }
+  .mb-center, .mb-mi, .mb-date { display: none; }
+}
+
+/* ── OS Menubar Dropdowns ─────────────────────────────────────── */
+
+.mb-dropdown {
+  display: none;
+  position: fixed;
+  top: 28px;
+  min-width: 200px;
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  background: rgba(8, 14, 22, 0.97);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+  padding: 4px 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: calc(var(--z-nav, 9000) + 100);
+  font-family: var(--font-body, "Sora", sans-serif);
+  font-size: 13px;
+}
+.mb-dropdown.open {
+  display: block;
+  animation: dd-mb-in 120ms ease-out;
+}
+@keyframes dd-mb-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mb-dropdown a, .mb-dropdown button {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; padding: 6px 14px;
+  color: var(--text-secondary, #7b96af);
+  font-size: 13px; font-weight: 400;
+  text-decoration: none; border: none; background: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.mb-dropdown a:hover, .mb-dropdown button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary, #e0e0e0);
+}
+.mb-dropdown .dd-active {
+  color: var(--c1, #00e5c4);
+  font-weight: 600;
+}
+
+/* ── Light mode overrides for menubar ──────────────────────────── */
+
+[data-brightness="light"] .os-menubar {
+  background: rgba(245, 245, 247, 0.92);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+[data-brightness="light"] .mb-appname,
+[data-brightness="light"] .mb-logo { color: #1a1a2e; }
+[data-brightness="light"] .mb-mi { color: #555; }
+[data-brightness="light"] .mb-mi:hover { background: rgba(0, 0, 0, 0.06); color: #1a1a2e; }
+[data-brightness="light"] .mb-dropdown {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: rgba(0, 0, 0, 0.10);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+[data-brightness="light"] .mb-dropdown a,
+[data-brightness="light"] .mb-dropdown button { color: #555; }
+[data-brightness="light"] .mb-dropdown a:hover,
+[data-brightness="light"] .mb-dropdown button:hover {
+  background: rgba(0, 0, 0, 0.04); color: #1a1a2e;
+}
+
 /* ================================================================
    SECTION 6: DROPDOWN MENUS
    ================================================================ */

@@ -12,7 +12,8 @@
   <meta name="description" content="Governed AI chat interface for Ophtxn inside Permanence OS.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;600&family=Syne:wght@400;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
   <style>
 /* ═══════════════════════════════════════════════════════
    RESET + BASE
@@ -324,24 +325,7 @@ body{
 .mb-ext:hover{color:var(--ink)}
 .mb-clock{font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:.03em}
 .mb-date{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.mb-powered{position:fixed;bottom:6px;right:12px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:rgba(var(--f-rgb),.18);text-transform:uppercase;z-index:100;pointer-events:none}
 .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
-/* Menubar Dropdowns */
-.mb-dropdown{display:none;position:fixed;top:28px;min-width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(8,14,22,.97);border:1px solid rgba(var(--f-rgb),.12);border-radius:8px;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9100;font-family:var(--sans);font-size:12px}
-.mb-dropdown.open{display:block;animation:ddIn 120ms ease-out}
-@keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.mb-dropdown a,.mb-dropdown button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 14px;border:none;background:none;color:var(--muted);text-decoration:none;font:inherit;cursor:pointer;transition:background .1s,color .1s;text-align:left}
-.mb-dropdown a:hover,.mb-dropdown button:hover{background:rgba(var(--f-rgb),.1);color:var(--ink)}
-.mb-dropdown .dd-sep{height:1px;background:rgba(var(--f-rgb),.08);margin:4px 10px}
-.mb-dropdown .dd-label{padding:6px 14px 2px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-.mb-dropdown .dd-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.6}
-.dd-theme-row{display:flex;align-items:center;padding:6px 14px;gap:6px}
-.dd-theme-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;width:40px}
-.dd-color-track{display:flex;gap:4px;flex-wrap:wrap;flex:1}
-.dd-color-dot{width:16px;height:16px;min-width:16px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s;padding:0;outline:none}
-.dd-color-dot:hover{transform:scale(1.15);border-color:rgba(255,255,255,.3)}
-.dd-color-dot.active{border-color:var(--ink);box-shadow:0 0 6px rgba(var(--f-rgb),.4)}
-.dd-color-custom{background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)!important;position:relative;overflow:hidden}
 .dd-color-input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:none}
 .dd-bright-btns{display:flex;gap:3px}
 .dd-bright-btn{width:24px;height:24px;border-radius:6px;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .15s;padding:0;font-size:12px}
@@ -702,58 +686,7 @@ body{
   </div>
 </div>
 
-<!-- MENUBAR DROPDOWNS -->
-<div class="mb-dropdown" id="ddFile" style="left:72px">
-  <div class="dd-label">Ophtxn OS</div>
-  <a href="index.html"><span class="dd-icon">⌂</span> Lobby</a>
-  <a href="press_kit.html"><span class="dd-icon">◆</span> Mind Map</a>
-  <a href="trading_room.html"><span class="dd-icon">△</span> Trading Room</a>
-  <a href="daily_planner.html"><span class="dd-icon">▣</span> Daily Planner</a>
-  <a href="command_center.html"><span class="dd-icon">⚙</span> The Office</a>
-  <a href="local_hub.html"><span class="dd-icon">◉</span> Control Room</a>
-  <a href="rooms.html"><span class="dd-icon">▲</span> Tower</a>
-  <div class="dd-sep"></div>
-  <div class="dd-label">Permanence Platform</div>
-  <a href="ai_school.html"><span class="dd-icon">◈</span> AI School</a>
-  <a href="official_app.html"><span class="dd-icon">⬡</span> App Studio</a>
-</div>
-
-<div class="mb-dropdown" id="ddView" style="left:112px">
-  <div class="dd-label">Theme</div>
-  <div class="dd-theme-row">
-    <span class="dd-theme-label">Color</span>
-    <div class="dd-color-track" id="ddThemeColor">
-      <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
-      <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
-      <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
-      <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
-      <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
-      <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
-      <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
-      <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
-      <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
-      <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
-      <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
-    </div>
-  </div>
-  <div class="dd-theme-row">
-    <span class="dd-theme-label">Mode</span>
-    <div class="dd-bright-btns" id="ddThemeBright">
-      <button class="dd-bright-btn" data-bright="dark" title="Dark">☾</button>
-      <button class="dd-bright-btn" data-bright="light" title="Light">☀</button>
-      <button class="dd-bright-btn" data-bright="system" title="System">⊡</button>
-    </div>
-  </div>
-</div>
-
-<div class="mb-dropdown" id="ddGo" style="left:150px">
-  <div class="dd-label">Quick Nav</div>
-  <a href="rooms.html"><span class="dd-icon">▲</span> Tower Overview</a>
-  <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">⚙</span> Command Center</a>
-  <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">▸</span> Live Shell</a>
-  <div class="dd-sep"></div>
-  <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">⌘</span> GitHub</a>
-</div>
+<!-- Dropdowns injected by nav-system.js -->
 
 <!-- Sidebar overlay for mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -886,47 +819,7 @@ var scrollFab = $("scrollFab");
   document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
 })();
 
-/* ═══ MENUBAR: DROPDOWNS ═══ */
-(function(){
-  var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
-  var openDD=null;
-  function closeAll(){
-    document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
-    document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
-    openDD=null;
-  }
-  Object.keys(menus).forEach(function(btnId){
-    var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
-    if(!btn||!dd)return;
-    btn.addEventListener('click',function(e){
-      e.stopPropagation();
-      if(openDD===dd){closeAll();return;}
-      closeAll();
-      dd.classList.add('open');btn.classList.add('open');openDD=dd;
-    });
-    btn.addEventListener('mouseenter',function(){
-      if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
-    });
-  });
-  document.addEventListener('click',function(){closeAll();});
-  document.querySelectorAll('.mb-dropdown').forEach(function(dd){
-    dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
-  });
-  var hb=document.getElementById('mbHamburger');
-  if(hb)hb.addEventListener('click',function(e){
-    e.stopPropagation();var dd=document.getElementById('ddFile');
-    if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
-  });
-  var tg=document.getElementById('mbTheme');
-  if(tg)tg.addEventListener('click',function(){
-    var cur=document.body.dataset.brightness||'dark';
-    var next=cur==='dark'?'light':'dark';
-    try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
-    document.body.dataset.brightness=next;
-    tg.textContent=next==='dark'?'☾':'☀';
-    if(typeof applyTheme==='function')applyTheme();
-  });
-})();
+/* Dropdowns handled by nav-system.js */
 
 /* ═══ SITE THEME (View dropdown) ═══ */
 var applyTheme;
