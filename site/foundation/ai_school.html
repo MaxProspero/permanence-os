@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-  <title>Ophtxn Research Library | Permanence Intelligence Feed</title>
+  <title>Ophtxn | AI School</title>
   <meta name="description" content="Your knowledge, continuously organized. Research agents scan X bookmarks, school documents, and Notebook LM to synthesize courses, articles, and research briefs.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -229,27 +229,29 @@
     }
 
     .filter-btn {
-      background: var(--surface);
+      background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
       border-radius: 999px;
       color: var(--muted);
-      font-family: "Instrument Sans", sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 7px 16px;
+      font-family: "DM Mono", monospace;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
       cursor: pointer;
       transition: background 0.2s, color 0.2s, border-color 0.2s;
+      letter-spacing: 0.02em;
     }
 
     .filter-btn:hover {
       color: var(--ink);
       border-color: var(--border-hi);
+      background: rgba(var(--f-rgb),0.05);
     }
 
     .filter-btn.active {
-      background: var(--c-teal);
-      color: #04201a;
-      border-color: var(--c-teal);
+      background: rgba(var(--f-rgb),0.12);
+      color: var(--c-teal);
+      border-color: rgba(var(--f-rgb),0.3);
     }
 
     /* -- SKILL CARDS -- */
@@ -257,6 +259,7 @@
       position: relative;
       background: rgba(13,21,32,0.8);
       border: 1px solid var(--border);
+      border-left: 3px solid var(--c-teal);
       border-radius: var(--r);
       padding: 22px 22px 18px;
       backdrop-filter: blur(8px);
@@ -297,18 +300,29 @@
 
     .skill-card:hover .skill-icon { opacity: 1; }
 
+    .skill-card[data-level="beginner"] { border-left-color: var(--c-teal); }
+    .skill-card[data-level="intermediate"] { border-left-color: var(--c-gold); }
+    .skill-card[data-level="advanced"] { border-left-color: var(--c-rose); }
+    .skill-card[data-level="twitter"] { border-left-color: var(--c-teal); }
+    .skill-card[data-level="school"] { border-left-color: var(--c-violet); }
+    .skill-card[data-level="notebook"] { border-left-color: var(--c-gold); }
+    .skill-card[data-level="agent"] { border-left-color: var(--c-rose); }
+
     .skill-card[data-level="beginner"]:hover {
       border-color: rgba(var(--f-rgb),0.3);
+      border-left-color: var(--c-teal);
       box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(var(--f-rgb),0.06);
     }
 
     .skill-card[data-level="intermediate"]:hover {
       border-color: rgba(248,200,66,0.3);
+      border-left-color: var(--c-gold);
       box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(248,200,66,0.06);
     }
 
     .skill-card[data-level="advanced"]:hover {
       border-color: rgba(255,92,138,0.3);
+      border-left-color: var(--c-rose);
       box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 24px rgba(255,92,138,0.06);
     }
 
@@ -471,6 +485,7 @@
       position: relative;
       margin-bottom: 28px;
       border: 1px solid var(--border);
+      border-left: 3px solid var(--c-rose);
       border-radius: var(--r);
       background: rgba(13,21,32,0.5);
       backdrop-filter: blur(8px);
@@ -1372,6 +1387,7 @@
     /* -- SKILL REQUEST / CREATE COURSE FORM -- */
     .request-section {
       border: 1px solid var(--border);
+      border-left: 3px solid var(--c-gold);
       border-radius: var(--r);
       background: rgba(13,21,32,0.6);
       backdrop-filter: blur(8px);
@@ -1505,6 +1521,7 @@
     /* -- RESEARCH FEED -- */
     .research-feed {
       border: 1px solid var(--border);
+      border-left: 3px solid var(--c-teal);
       border-radius: var(--r);
       background: rgba(13,21,32,0.6);
       backdrop-filter: blur(8px);
@@ -1618,6 +1635,7 @@
     /* -- DATA SOURCES PANEL -- */
     .data-sources-panel {
       border: 1px solid var(--border);
+      border-left: 3px solid var(--c-violet);
       border-radius: var(--r);
       background: rgba(13,21,32,0.5);
       backdrop-filter: blur(8px);
@@ -1643,12 +1661,13 @@
     }
     .ds-card {
       border: 1px solid var(--border);
+      border-left: 3px solid var(--c-teal);
       border-radius: 12px;
       background: rgba(255,255,255,0.03);
-      padding: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       transition: border-color 0.25s, transform 0.15s;
       animation: rise 500ms both;
     }
@@ -1994,14 +2013,7 @@
       width: 26px; height: 26px; flex-shrink: 0;
       color: var(--c-gold);
     }
-    .arc-eyebrow {
-      display: block;
-      font-family: monospace;
-      font-size: 10px; letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--c-gold); opacity: .4;
-      margin-bottom: 10px;
-    }
+    /* arc-eyebrow removed -- cleaner hero */
   body { padding-top: 28px; }
   .scanlines { position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); }
     /* ── THEME: COPPER ─── */
@@ -2065,7 +2077,7 @@
         <button class="mb-mi" id="mbLibSidebar">Library</button>
         <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
       </div>
-      <div class="mb-center"><span class="mb-tagline">AI SKILLS LIBRARY</span></div>
+      <div class="mb-center"><span class="mb-tagline">AI School</span></div>
       <div class="mb-right">
         <span class="mb-ext" id="mbTheme" title="Toggle dark/light">&#9790;</span>
         <span class="mb-clock" id="mbClock"></span>
@@ -2073,58 +2085,7 @@
       </div>
     </div>
 
-    <!-- MENUBAR DROPDOWNS -->
-    <div class="mb-dropdown" id="ddFile" style="left:72px">
-      <div class="dd-label">Ophtxn OS</div>
-      <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-      <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
-      <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
-      <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
-      <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
-      <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
-      <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
-      <div class="dd-sep"></div>
-      <div class="dd-label">Permanence Platform</div>
-      <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
-      <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
-    </div>
-
-    <div class="mb-dropdown" id="ddView" style="left:112px">
-      <div class="dd-label">Theme</div>
-      <div class="dd-theme-row">
-        <span class="dd-theme-label">Color</span>
-        <div class="dd-color-track" id="ddThemeColor">
-          <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
-          <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
-          <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
-          <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
-          <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
-          <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
-          <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
-          <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
-          <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
-          <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
-          <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
-        </div>
-      </div>
-      <div class="dd-theme-row">
-        <span class="dd-theme-label">Mode</span>
-        <div class="dd-bright-btns" id="ddThemeBright">
-          <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
-          <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
-          <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-dropdown" id="ddGo" style="left:150px">
-      <div class="dd-label">Quick Nav</div>
-      <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
-      <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
-      <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
-      <div class="dd-sep"></div>
-      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
-    </div>
+    <!-- Dropdowns injected by nav-system.js -->
 
     <div class="scanlines" aria-hidden="true"></div>
 
@@ -2187,12 +2148,11 @@
 
     <!-- HERO -->
     <section class="hero">
-      <span class="arc-eyebrow">PERM-LIB-001 // RESEARCH FEED</span>
-      <p class="eyebrow">PERMANENCE RESEARCH LIBRARY</p>
-      <h1>Your knowledge, continuously organized.</h1>
-      <p class="hero-sub">Research agents scan your X bookmarks, school documents, and Notebook LM &mdash; then synthesize courses, articles, and research briefs automatically.</p>
+      <p class="eyebrow">Research Library</p>
+      <h1>AI School</h1>
+      <p class="hero-sub">Knowledge from X bookmarks, documents, and research agents -- continuously organized.</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="#research-feed">Browse Feed &rarr;</a>
+        <a class="btn btn-primary" href="#research-feed">Browse Feed</a>
         <a class="btn btn-secondary" href="#data-sources">View Sources</a>
       </div>
     </section>
@@ -2224,34 +2184,7 @@
       </div>
     </div>
 
-    <!-- MOTION GRAPHIC + QUOTE -->
-    <div class="motion-hero">
-      <div class="motion-graphic">
-        <svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line class="edge-flow" x1="80" y1="100" x2="200" y2="60" stroke="rgba(0,229,196,0.3)" stroke-width="1.5"/>
-          <line class="edge-flow" x1="200" y1="60" x2="320" y2="100" stroke="rgba(123,111,255,0.3)" stroke-width="1.5"/>
-          <line class="edge-flow" x1="80" y1="100" x2="160" y2="160" stroke="rgba(0,229,196,0.2)" stroke-width="1"/>
-          <line class="edge-flow" x1="160" y1="160" x2="280" y2="160" stroke="rgba(123,111,255,0.2)" stroke-width="1"/>
-          <line class="edge-flow" x1="280" y1="160" x2="320" y2="100" stroke="rgba(255,92,138,0.2)" stroke-width="1"/>
-          <line class="edge-flow" x1="200" y1="60" x2="160" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
-          <line class="edge-flow" x1="200" y1="60" x2="280" y2="160" stroke="rgba(248,200,66,0.15)" stroke-width="1"/>
-          <circle class="node-pulse" cx="80" cy="100" r="8" fill="rgba(0,229,196,0.2)" stroke="var(--c-teal)" stroke-width="1.5"/>
-          <circle class="node-pulse" cx="200" cy="60" r="10" fill="rgba(123,111,255,0.2)" stroke="var(--c-violet)" stroke-width="1.5"/>
-          <circle class="node-pulse" cx="320" cy="100" r="8" fill="rgba(255,92,138,0.2)" stroke="var(--c-rose)" stroke-width="1.5"/>
-          <circle class="node-pulse" cx="160" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
-          <circle class="node-pulse" cx="280" cy="160" r="6" fill="rgba(248,200,66,0.2)" stroke="var(--c-gold)" stroke-width="1"/>
-          <circle cx="80" cy="100" r="3" fill="var(--c-teal)"/>
-          <circle cx="200" cy="60" r="4" fill="var(--c-violet)"/>
-          <circle cx="320" cy="100" r="3" fill="var(--c-rose)"/>
-          <circle cx="160" cy="160" r="2.5" fill="var(--c-gold)"/>
-          <circle cx="280" cy="160" r="2.5" fill="var(--c-gold)"/>
-        </svg>
-      </div>
-      <div class="motion-quote">
-        <blockquote>&ldquo;Knowledge is not a collection of facts but a web of connections.&rdquo;</blockquote>
-        <cite>&mdash; Permanence Research Network</cite>
-      </div>
-    </div>
+    <!-- Decorative divider removed for cleaner layout -->
 
     <!-- RESEARCH PIPELINE -->
     <div class="route-map" id="start-here">
@@ -2268,43 +2201,39 @@
     <!-- CONNECTED DATA SOURCES -->
     <div class="data-sources-panel" id="data-sources">
       <h3 class="ds-title">Connected Sources</h3>
-      <p class="ds-sub">Live connections feeding the research pipeline.</p>
+      <p class="ds-sub">Live data inputs.</p>
       <div class="ds-grid">
-        <div class="ds-card" style="animation-delay:60ms">
+        <div class="ds-card" style="animation-delay:60ms;border-left-color:var(--c-teal)">
           <div class="ds-card-header">
             <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-teal)" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
             <span class="ds-name">X Bookmarks</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">0 bookmarks indexed</p>
-          <span class="ds-tag">Connected</span>
+          <p class="ds-stat">0 indexed</p>
         </div>
-        <div class="ds-card" style="animation-delay:120ms">
+        <div class="ds-card" style="animation-delay:120ms;border-left-color:var(--c-violet)">
           <div class="ds-card-header">
             <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             <span class="ds-name">School Documents</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">0 documents processed</p>
-          <span class="ds-tag">Connected</span>
+          <p class="ds-stat">0 processed</p>
         </div>
-        <div class="ds-card" style="animation-delay:180ms">
+        <div class="ds-card" style="animation-delay:180ms;border-left-color:var(--c-gold)">
           <div class="ds-card-header">
             <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-gold)" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             <span class="ds-name">Notebook LM</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">0 notebooks synced</p>
-          <span class="ds-tag">Connected</span>
+          <p class="ds-stat">0 synced</p>
         </div>
-        <div class="ds-card" style="animation-delay:240ms">
+        <div class="ds-card" style="animation-delay:240ms;border-left-color:var(--c-rose)">
           <div class="ds-card-header">
             <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-rose)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             <span class="ds-name">Research Agents</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">0 agents active</p>
-          <span class="ds-tag">Running</span>
+          <p class="ds-stat">0 active</p>
         </div>
       </div>
     </div>
@@ -2337,8 +2266,8 @@
     <div class="sources-overlay" id="sources-overlay">
       <div class="sources-modal">
         <button class="sources-close" id="sources-close" aria-label="Close">&times;</button>
-        <h2>Data Sources &amp; Pipeline</h2>
-        <p class="sources-sub">Connected inputs feeding the Permanence Research Library.</p>
+        <h2>Data Sources</h2>
+        <p class="sources-sub">Connected inputs for the research pipeline.</p>
 
         <div class="source-section">
           <h4>X Bookmarks</h4>
@@ -3590,49 +3519,9 @@
     document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
   })();
 
-  /* ═══ MENUBAR: DROPDOWNS ═══ */
+  /* Menubar dropdowns handled by nav-system.js */
+  /* Library sidebar toggle from menubar */
   (function(){
-    var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
-    var openDD=null;
-    function closeAll(){
-      document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
-      document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
-      openDD=null;
-    }
-    Object.keys(menus).forEach(function(btnId){
-      var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
-      if(!btn||!dd)return;
-      btn.addEventListener('click',function(e){
-        e.stopPropagation();
-        if(openDD===dd){closeAll();return;}
-        closeAll();
-        dd.classList.add('open');btn.classList.add('open');openDD=dd;
-      });
-      btn.addEventListener('mouseenter',function(){
-        if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
-      });
-    });
-    document.addEventListener('click',function(){closeAll();});
-    document.querySelectorAll('.mb-dropdown').forEach(function(dd){
-      dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
-    });
-    /* Hamburger for mobile */
-    var hb=document.getElementById('mbHamburger');
-    if(hb)hb.addEventListener('click',function(e){
-      e.stopPropagation();var dd=document.getElementById('ddFile');
-      if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
-    });
-    /* Quick theme toggle via moon icon */
-    var tg=document.getElementById('mbTheme');
-    if(tg)tg.addEventListener('click',function(){
-      var cur=document.body.dataset.brightness||'dark';
-      var next=cur==='dark'?'light':'dark';
-      try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
-      document.body.dataset.brightness=next;
-      tg.textContent=next==='dark'?'\u263E':'\u2600';
-      applyTheme();
-    });
-    /* Library sidebar toggle from menubar */
     var libBtn=document.getElementById('mbLibSidebar');
     if(libBtn)libBtn.addEventListener('click',function(e){
       e.stopPropagation();

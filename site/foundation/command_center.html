@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<title>Ophtxn &middot; The Office</title>
+<title>Ophtxn | Command Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -337,14 +337,19 @@ body::after{
 }
 .pnl:hover{border-color:rgba(var(--f-rgb),.12)}
 
-/* panel header — serif for "office" feel */
+/* Accent stripes on panels */
+#pl{border-left:3px solid var(--accent)}
+#pc{border-left:3px solid var(--brass)}
+#pr{border-left:3px solid var(--accent-2)}
+
+/* panel header */
 .ph{
   padding:10px 14px;border-bottom:1px solid var(--glass-border);
-  font-family:var(--serif);font-size:12px;font-weight:600;
-  color:var(--brass);letter-spacing:.5px;
+  font-family:var(--sans);font-size:12px;font-weight:600;
+  color:var(--ink);letter-spacing:.3px;
   display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
 }
-.ph-sub{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--muted);font-weight:400}
+.ph-sub{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400}
 
 /* panel body — scrollable */
 .pb{flex:1;overflow-y:auto;padding:8px 12px;font-size:12px}
@@ -371,7 +376,7 @@ body::after{
 .aname{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.2px}
 .arole{font-size:9px;color:var(--muted);margin-top:1px;font-family:var(--mono)}
 .abadge{
-  font-size:8px;padding:3px 8px;border-radius:999px;letter-spacing:1.2px;
+  font-size:8px;padding:2px 6px;border-radius:999px;letter-spacing:.8px;
   font-family:var(--mono);font-weight:500;flex-shrink:0;
 }
 .badge-active{background:rgba(84,223,158,.1);color:var(--good);border:1px solid rgba(84,223,158,.25)}
@@ -439,19 +444,20 @@ body::after{
 #pc{grid-row:1;grid-column:2;display:flex;flex-direction:column}
 
 .tabbar{
-  display:flex;padding:6px;gap:4px;
+  display:flex;padding:8px 10px;gap:6px;
   border-bottom:1px solid var(--glass-border);flex-shrink:0;
 }
 .tab{
-  flex:1;padding:6px 12px;font-size:9px;letter-spacing:1.5px;color:var(--muted);
-  cursor:pointer;border-radius:8px;transition:all .2s ease;text-align:center;
+  padding:6px 16px;font-size:10px;letter-spacing:1px;color:var(--muted);
+  cursor:pointer;border-radius:999px;transition:all .2s ease;text-align:center;
   font-family:var(--mono);font-weight:500;
+  border:1px solid transparent;
 }
 .tab.on{
   background:var(--brass-dim);color:var(--brass);
   border:1px solid var(--brass-border);
 }
-.tab:hover:not(.on){background:var(--brass-dim);color:var(--ink-2)}
+.tab:hover:not(.on){background:rgba(255,255,255,.03);color:var(--ink-2);border-color:var(--border)}
 .tpane{display:none;flex:1;overflow:hidden}
 .tpane.on{display:flex;flex-direction:column}
 
@@ -935,74 +941,21 @@ body::after{
     <button class="mb-mi" id="mbView">View</button>
     <button class="mb-hamburger" id="mbHamburger">☰</button>
   </div>
-  <div class="mb-center"><span class="mb-tagline">THE OFFICE // COMMAND CENTER</span></div>
+  <div class="mb-center"><span class="mb-tagline">Command Center</span></div>
   <div class="mb-right">
-    <span class="th-conn"><span class="th-dot" id="connDot"></span><span id="connLabel">offline</span></span>
+    <span class="th-conn" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:var(--mono);color:var(--muted)"><span class="th-dot" id="connDot" style="width:6px;height:6px;border-radius:50%;background:var(--muted)"></span><span id="connLabel" style="letter-spacing:.5px">offline</span></span>
     <span class="mb-ext" id="mbTheme" title="Toggle dark/light">☾</span>
     <span class="mb-clock" id="mbClock"></span>
     <span class="mb-date" id="mbDate"></span>
   </div>
 </div>
 
-<!-- MENUBAR DROPDOWNS -->
-<div class="mb-dropdown" id="ddFile" style="left:72px">
-  <div class="dd-label">Ophtxn OS</div>
-  <a href="index.html"><span class="dd-icon">⌂</span> Lobby</a>
-  <a href="press_kit.html"><span class="dd-icon">◆</span> Mind Map</a>
-  <a href="trading_room.html"><span class="dd-icon">△</span> Trading Room</a>
-  <a href="daily_planner.html"><span class="dd-icon">▣</span> Daily Planner</a>
-  <a href="ophtxn_shell.html"><span class="dd-icon">▸</span> Terminal</a>
-  <a href="local_hub.html"><span class="dd-icon">◉</span> Control Room</a>
-  <a href="rooms.html"><span class="dd-icon">▲</span> Tower</a>
-  <div class="dd-sep"></div>
-  <div class="dd-label">Permanence Platform</div>
-  <a href="ai_school.html"><span class="dd-icon">◈</span> AI School</a>
-  <a href="official_app.html"><span class="dd-icon">⬡</span> App Studio</a>
-</div>
-
-<div class="mb-dropdown" id="ddView" style="left:112px">
-  <div class="dd-label">Theme</div>
-  <div class="dd-theme-row">
-    <span class="dd-theme-label">Color</span>
-    <div class="dd-color-track" id="ddThemeColor">
-      <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
-      <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
-      <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
-      <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
-      <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
-      <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
-      <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
-      <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
-      <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
-      <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
-      <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
-    </div>
-  </div>
-  <div class="dd-theme-row">
-    <span class="dd-theme-label">Mode</span>
-    <div class="dd-bright-btns" id="ddThemeBright">
-      <button class="dd-bright-btn" data-bright="dark" title="Dark">☾</button>
-      <button class="dd-bright-btn" data-bright="light" title="Light">☀</button>
-      <button class="dd-bright-btn" data-bright="system" title="System">⊡</button>
-    </div>
-  </div>
-</div>
-
-<div class="mb-dropdown" id="ddGo" style="left:150px">
-  <div class="dd-label">Quick Nav</div>
-  <a href="rooms.html"><span class="dd-icon">▲</span> Tower Overview</a>
-  <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">⚙</span> Command Center</a>
-  <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">▸</span> Live Shell</a>
-  <div class="dd-sep"></div>
-  <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">⌘</span> GitHub</a>
-</div>
-
-<!-- Powered by Permanence Systems -->
+<!-- Dropdowns injected by nav-system.js -->
 
 <!-- Boot -->
 <div id="boot">
   <div id="boot-logo">OPHTXN</div>
-  <div id="boot-sub">THE OFFICE // BUILD 2.1</div>
+  <div id="boot-sub">COMMAND CENTER</div>
   <div id="boot-log"></div>
   <div id="boot-bar"><div id="boot-fill"></div></div>
 </div>
@@ -1109,12 +1062,9 @@ var kbVisible = false;
    BOOT (short — opening the office, not booting a mainframe)
    ═══════════════════════════════════════════════════════ */
 var BOOT_LINES = [
-  "Verifying ledger integrity...",
   "Loading agent roster...",
-  "Connecting mesh topology...",
-  "Mounting PERMANENCE_FS...",
-  "Cognitive overlay ready.",
-  "Welcome to The Office.",
+  "Mounting runtime...",
+  "Command Center ready.",
 ];
 
 async function runBoot() {
@@ -1213,8 +1163,10 @@ function updateThemeButtonStates() {
    ═══════════════════════════════════════════════════════ */
 function setConn(ok) {
   var d=$("connDot"),l=$("connLabel");
-  if(d)d.className="th-dot "+(ok?"live":"err");
+  if(d)d.style.background=ok?"var(--good)":"var(--muted)";
+  if(d)d.style.boxShadow=ok?"0 0 6px var(--good)":"none";
   if(l)l.textContent=ok?"live":"offline";
+  if(l)l.style.color=ok?"var(--good)":"var(--muted)";
 }
 
 async function checkStatus() {
@@ -2305,47 +2257,7 @@ if (window.__OPHTXN_RUNTIME) {
   document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
 })();
 
-/* ═══ MENUBAR: DROPDOWNS ═══ */
-(function(){
-  var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
-  var openDD=null;
-  function closeAll(){
-    document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
-    document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
-    openDD=null;
-  }
-  Object.keys(menus).forEach(function(btnId){
-    var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
-    if(!btn||!dd)return;
-    btn.addEventListener('click',function(e){
-      e.stopPropagation();
-      if(openDD===dd){closeAll();return;}
-      closeAll();
-      dd.classList.add('open');btn.classList.add('open');openDD=dd;
-    });
-    btn.addEventListener('mouseenter',function(){
-      if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
-    });
-  });
-  document.addEventListener('click',function(){closeAll();});
-  document.querySelectorAll('.mb-dropdown').forEach(function(dd){
-    dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
-  });
-  var hb=document.getElementById('mbHamburger');
-  if(hb)hb.addEventListener('click',function(e){
-    e.stopPropagation();var dd=document.getElementById('ddFile');
-    if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
-  });
-  var tg=document.getElementById('mbTheme');
-  if(tg)tg.addEventListener('click',function(){
-    var cur=document.body.dataset.brightness||'dark';
-    var next=cur==='dark'?'light':'dark';
-    try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
-    document.body.dataset.brightness=next;
-    tg.textContent=next==='dark'?'☾':'☀';
-    applyTheme();
-  });
-})();
+/* Menubar dropdowns handled by nav-system.js */
 
 /* ═══ SITE THEME (View dropdown) ═══ */
 var applyTheme;
