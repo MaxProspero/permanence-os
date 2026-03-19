@@ -17,38 +17,7 @@
   <link rel="stylesheet" href="design-system.css">
 
   <style>
-    /* ═══════════════ TOKENS ═══════════════ */
-    :root {
-      --bg: var(--bg-base);
-      --bg-card: var(--glass-card-bg);
-      --glass: var(--glass-card-bg);
-      --line: var(--sep);
-      --line-hi: var(--sep-accent);
-      --ink: var(--text-primary);
-      --muted: var(--text-secondary);
-      --dim: var(--bg-surface-4);
-      --c1: var(--accent);
-      --c2: var(--accent-warm);
-      --c3: var(--accent-blue);
-      --rose: var(--accent-rose);
-      --violet: var(--accent-violet);
-      --radius: 16px;
-      --mono: var(--font-label);
-      --sans: var(--font-sans);
-      --game: var(--font-display);
-      --f-rgb: 0,229,196;
-      --f:       rgb(var(--f-rgb));
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; }
     body {
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--ink);
-      min-height: 100vh;
-      line-height: 1.5;
-      overflow-x: hidden;
       padding-top: 28px;
     }
 
@@ -96,113 +65,6 @@
       background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
     }
 
-    /* ═══════════════ OS MENUBAR ═══════════════ */
-    .os-menubar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
-      background: rgba(4,6,10,.92);
-      border-bottom: 1px solid rgba(var(--f-rgb),.1);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 12px;
-      backdrop-filter: blur(20px) saturate(1.5);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
-      font-family: var(--sans); font-size: 12px; color: var(--ink);
-      user-select: none;
-    }
-    .mb-left { display: flex; align-items: center; gap: 0; }
-    .mb-logo {
-      display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; text-decoration: none; color: var(--c1);
-      transition: color .2s;
-    }
-    .mb-logo:hover { color: var(--ink); }
-    .mb-logo svg { width: 16px; height: 16px; }
-    .mb-appname {
-      font-weight: 700; font-size: 12px; letter-spacing: .02em;
-      color: var(--ink); margin-right: 14px;
-    }
-    .mb-mi {
-      background: none; border: none; cursor: pointer;
-      color: var(--muted); font-family: var(--sans);
-      font-size: 12px; font-weight: 500; padding: 3px 10px;
-      border-radius: 4px; transition: background .15s, color .15s;
-    }
-    .mb-mi:hover, .mb-mi.open { background: rgba(var(--f-rgb),.12); color: var(--ink); }
-    .mb-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
-    .mb-tagline {
-      font-family: var(--mono); font-size: 9px;
-      letter-spacing: .14em; color: var(--dim); text-transform: uppercase;
-    }
-    .mb-right { display: flex; align-items: center; gap: 10px; }
-    .mb-ext {
-      color: var(--muted); cursor: pointer; font-size: 13px;
-      display: flex; align-items: center; transition: color .2s;
-    }
-    .mb-ext:hover { color: var(--ink); }
-    .mb-clock {
-      font-family: var(--mono); font-size: 11px;
-      font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: .03em;
-    }
-    .mb-date {
-      font-family: var(--mono); font-size: 11px; color: var(--muted);
-    }
-    .mb-powered {
-      position: fixed; bottom: 6px; right: 12px;
-      font-family: var(--mono); font-size: 8px;
-      letter-spacing: .1em; color: rgba(var(--f-rgb),.18);
-      text-transform: uppercase; z-index: 100; pointer-events: none;
-    }
-    /* ── Menubar Dropdowns ── */
-    .mb-dropdown {
-      display: none; position: fixed; top: 28px;
-      min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
-      background: rgba(8,14,22,.97); border: 1px solid rgba(var(--f-rgb),.12);
-      border-radius: 8px; padding: 4px 0;
-      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      z-index: 9100; font-family: var(--sans); font-size: 12px;
-    }
-    .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
-    @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-    .mb-dropdown a, .mb-dropdown button {
-      display: flex; align-items: center; gap: 8px;
-      width: 100%; padding: 6px 14px; border: none; background: none;
-      color: var(--muted); text-decoration: none; font: inherit; cursor: pointer;
-      transition: background .1s, color .1s; text-align: left;
-    }
-    .mb-dropdown a:hover, .mb-dropdown button:hover {
-      background: rgba(var(--f-rgb),.1); color: var(--ink);
-    }
-    .mb-dropdown .dd-sep {
-      height: 1px; background: rgba(var(--f-rgb),.08); margin: 4px 10px;
-    }
-    .mb-dropdown .dd-label {
-      padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
-      letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
-    }
-    .mb-dropdown .dd-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; opacity: .6; }
-    /* ── View dropdown theme section ── */
-    .dd-theme-row { display: flex; align-items: center; padding: 6px 14px; gap: 6px; }
-    .dd-theme-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; width: 40px; }
-    .dd-color-track { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
-    .dd-color-dot {
-      width: 16px; height: 16px; min-width: 16px; border-radius: 50%;
-      border: 2px solid transparent; cursor: pointer;
-      transition: all .15s; padding: 0; outline: none;
-    }
-    .dd-color-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.3); }
-    .dd-color-dot.active { border-color: var(--ink); box-shadow: 0 0 6px rgba(var(--f-rgb),.4); }
-    .dd-color-custom { background: conic-gradient(red,yellow,lime,aqua,blue,magenta,red) !important; position: relative; overflow: hidden; }
-    .dd-color-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: none; }
-    .dd-bright-btns { display: flex; gap: 3px; }
-    .dd-bright-btn {
-      width: 24px; height: 24px; border-radius: 6px; background: none;
-      border: 1px solid var(--line); display: flex; align-items: center;
-      justify-content: center; cursor: pointer; color: var(--muted);
-      transition: all .15s; padding: 0; font-size: 12px;
-    }
-    .dd-bright-btn:hover { border-color: var(--line-hi); color: var(--ink); }
-    .dd-bright-btn.active { border-color: var(--c1); background: rgba(var(--f-rgb),.1); color: var(--ink); }
-
     /* ═══════════════ TOAST ═══════════════ */
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -214,15 +76,6 @@
       backdrop-filter: blur(12px);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* ── MENUBAR RESPONSIVE ── */
-    @media(max-width:768px){
-      .mb-center{display:none}
-      .mb-mi{display:none}
-      .mb-date{display:none}
-      .mb-hamburger{display:flex!important}
-    }
-    .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
 
     /* ── FAB BOT ── */
     .fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
@@ -273,10 +126,6 @@
     @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="solar"]{--bg:#faf8f0;--bg-card:rgba(255,252,240,0.72);--ink:#3a2e0a;--muted:#a09050}}
     @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="crimson"]{--bg:#faf0f0;--bg-card:rgba(255,240,240,0.72);--ink:#3a0a0a;--muted:#a05050}}
     @media(prefers-color-scheme:light){[data-brightness="system"][data-theme="frost"]{--bg:#f0f8fa;--bg-card:rgba(240,252,255,0.72);--ink:#0a2a3a;--muted:#508888}}
-    [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
-    [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
-    [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
-
     /* ═══════════════ PANEL (glass card) ═══════════════ */
     .panel {
       position: relative;

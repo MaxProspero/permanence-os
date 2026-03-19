@@ -1,1294 +1,519 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0a1118">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<title>Ophtxn · Local Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="design-system.css">
-<style>
-  /* ── TOKENS ─────────────────────────────────────────────── */
-  :root {
-    --bg:        #050811;
-    --surface:   #090e1a;
-    --lift:      #0d1526;
-    --border:    rgba(255,255,255,0.07);
-    --border-hi: rgba(255,255,255,0.14);
-    --ink:       #e8eeff;
-    --muted:     #5a6a8a;
-    --dim:       #2e3d5c;
-
-    --c-a: #00e5c4;   /* teal   */
-    --c-b: #ff5c8a;   /* rose   */
-    --c-c: #7b6fff;   /* violet */
-    --c-d: #f8c842;   /* gold   */
-
-    --r: 14px;
-    --mono: "DM Mono", monospace;
-    --sans: "Syne", system-ui, sans-serif;
-    --ease: cubic-bezier(.22,.68,0,1.2);
-  }
-
-  /* copper theme */
-  [data-theme="copper"] {
-    --bg: #0c0906; --surface: #130e09; --lift: #1c1510;
-    --border: rgba(255,200,120,0.08); --border-hi: rgba(255,200,120,0.18);
-    --ink: #fff0d8; --muted: #7a5f40; --dim: #3a2810;
-    --c-a: #ffb347; --c-b: #ff6b6b; --c-c: #e8a87c; --c-d: #ffd700;
-  }
-
-  /* void theme */
-  [data-theme="void"] {
-    --bg: #000000; --surface: #080808; --lift: #101010;
-    --border: rgba(255,255,255,0.05); --border-hi: rgba(255,255,255,0.10);
-    --ink: #cccccc; --muted: #444; --dim: #1a1a1a;
-    --c-a: #e0e0e0; --c-b: #888; --c-c: #bbb; --c-d: #fff;
-  }
-
-  /* ocean theme */
-  [data-theme="ocean"] {
-    --bg: #060810; --surface: #0c1428; --lift: #0e182e;
-    --border: rgba(74,158,255,0.08); --border-hi: rgba(74,158,255,0.16);
-    --ink: #e0f0ff; --muted: #406090; --dim: #203050;
-    --c-a: #4a9eff; --c-b: #5090d0; --c-c: #00d4ff; --c-d: #80c0ff;
-  }
-
-  /* rose theme */
-  [data-theme="rose"] {
-    --bg: #100608; --surface: #1c0c14; --lift: #220e18;
-    --border: rgba(255,92,138,0.08); --border-hi: rgba(255,92,138,0.16);
-    --ink: #ffe7ef; --muted: #905060; --dim: #502030;
-    --c-a: #ff5c8a; --c-b: #ff8fab; --c-c: #ff5c8a; --c-d: #ffb0c8;
-  }
-
-  /* violet theme */
-  [data-theme="violet"] {
-    --bg: #0a0610; --surface: #140c22; --lift: #180e28;
-    --border: rgba(155,109,255,0.08); --border-hi: rgba(155,109,255,0.16);
-    --ink: #f0e7ff; --muted: #6a5090; --dim: #3a2060;
-    --c-a: #9b6dff; --c-b: #a070d0; --c-c: #ff6fff; --c-d: #c0a0ff;
-  }
-
-  /* forest theme */
-  [data-theme="forest"] {
-    --bg: #061008; --surface: #0c1e10; --lift: #0e2614;
-    --border: rgba(61,220,132,0.08); --border-hi: rgba(61,220,132,0.16);
-    --ink: #e0ffe7; --muted: #408060; --dim: #205030;
-    --c-a: #3ddc84; --c-b: #40b070; --c-c: #00bfa5; --c-d: #70e0a0;
-  }
-
-  /* solar theme */
-  [data-theme="solar"] {
-    --bg: #100e06; --surface: #201a0c; --lift: #262010;
-    --border: rgba(255,215,0,0.08); --border-hi: rgba(255,215,0,0.16);
-    --ink: #fff8e0; --muted: #907840; --dim: #605020;
-    --c-a: #ffd700; --c-b: #d0a020; --c-c: #ffb347; --c-d: #ffe060;
-  }
-
-  /* crimson theme */
-  [data-theme="crimson"] {
-    --bg: #100606; --surface: #1e0c0c; --lift: #260e0e;
-    --border: rgba(255,68,68,0.08); --border-hi: rgba(255,68,68,0.16);
-    --ink: #ffe0e0; --muted: #905050; --dim: #503030;
-    --c-a: #ff4444; --c-b: #ff4444; --c-c: #ff6b3d; --c-d: #ff8080;
-  }
-
-  /* frost theme */
-  [data-theme="frost"] {
-    --bg: #060e10; --surface: #0c1a20; --lift: #0e2026;
-    --border: rgba(136,216,245,0.08); --border-hi: rgba(136,216,245,0.16);
-    --ink: #e8f8ff; --muted: #507080; --dim: #304850;
-    --c-a: #88d8f5; --c-b: #60b0d0; --c-c: #b8e8ff; --c-d: #a0e0f0;
-  }
-
-  /* ── BRIGHTNESS: LIGHT ── */
-  [data-brightness="light"]{--bg:#f6f4f0;--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}
-  [data-brightness="light"][data-theme="copper"]{--bg:#faf6f0;--surface:#fffaf4;--ink:#2a1e10;--muted:#8a7a60}
-  [data-brightness="light"][data-theme="void"]{--bg:#f0f0f0;--surface:#fff;--ink:#111;--muted:#888}
-  [data-brightness="light"][data-theme="ocean"]{--bg:#f0f4fa;--surface:#f8faff;--lift:#eef4ff;--ink:#0a1e3a;--muted:#6080a0}
-  [data-brightness="light"][data-theme="rose"]{--bg:#faf0f4;--surface:#fff8fa;--lift:#fff0f4;--ink:#3a0a1e;--muted:#a06080}
-  [data-brightness="light"][data-theme="violet"]{--bg:#f4f0fa;--surface:#faf8ff;--lift:#f4f0ff;--ink:#1e0a3a;--muted:#8060a0}
-  [data-brightness="light"][data-theme="forest"]{--bg:#f0faf4;--surface:#f8fff8;--lift:#f0fff4;--ink:#0a3a1e;--muted:#60a080}
-  [data-brightness="light"][data-theme="solar"]{--bg:#faf8f0;--surface:#fffef8;--lift:#fff8f0;--ink:#3a2e0a;--muted:#a09060}
-  [data-brightness="light"][data-theme="crimson"]{--bg:#faf0f0;--surface:#fff8f8;--lift:#fff0f0;--ink:#3a0a0a;--muted:#a06060}
-  [data-brightness="light"][data-theme="frost"]{--bg:#f0f8fa;--surface:#f8feff;--lift:#f0faff;--ink:#0a2a3a;--muted:#608090}
-  @media(prefers-color-scheme:light){[data-brightness="system"]{--bg:#f6f4f0;--surface:#fff;--lift:#f5f3ef;--border:rgba(0,0,0,0.08);--border-hi:rgba(0,0,0,0.15);--ink:#1a1a2e;--muted:#8a8a9a;--dim:#c0c0c8}}
-
-  /* ── RESET ───────────────────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; scroll-behavior: smooth; }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    overflow-x: hidden;
-    transition: background .3s, color .3s;
-  }
-
-  /* ── GRID NOISE BACKGROUND ───────────────────────────────── */
-  body::before {
-    content: "";
-    position: fixed; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(var(--f-rgb),.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(var(--f-rgb),.035) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-    pointer-events: none;
-  }
-
-  /* glow orbs */
-  body::after {
-    content: "";
-    position: fixed; inset: 0; z-index: 0;
-    background:
-      radial-gradient(600px 400px at 15% 20%, rgba(var(--f-rgb),.09) 0%, transparent 70%),
-      radial-gradient(500px 350px at 85% 10%, rgba(123,111,255,.07) 0%, transparent 70%),
-      radial-gradient(700px 300px at 50% 100%, rgba(255,92,138,.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  /* ── LAYOUT ──────────────────────────────────────────────── */
-  .page { position: relative; z-index: 1; width: min(1280px, 94vw); margin: 0 auto; padding: 28px 0 96px; }
-
-  /* ── NAV ─────────────────────────────────────────────────── */
-  nav {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; flex-wrap: wrap; margin-bottom: 52px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .brand {
-    display: flex; align-items: center; gap: 10px;
-    text-decoration: none; color: var(--ink);
-    font-weight: 800; font-size: 15px; letter-spacing: -.01em;
-  }
-
-  .brand-mark {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--c-a), var(--c-c));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 800; color: #000; flex-shrink: 0;
-  }
-
-  .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-  .pill {
-    font-family: var(--mono); font-size: 11px;
-    padding: 6px 12px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--muted);
-    background: var(--surface); text-decoration: none;
-    transition: border-color .2s, color .2s;
-    cursor: pointer; appearance: none;
-  }
-  .pill:hover, .pill:focus { border-color: var(--border-hi); color: var(--ink); outline: none; }
-  .pill.active { border-color: var(--c-a); color: var(--c-a); }
-
-  select.pill { padding-right: 28px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6a8a'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-    background-size: 8px; -webkit-appearance: none; }
-
-  /* ── HERO ────────────────────────────────────────────────── */
-  .hero { margin-bottom: 48px; }
-
-  .eyebrow {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--c-a);
-    display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
-  }
-  .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--c-a); display: block; }
-
-  h1 {
-    font-size: clamp(42px, 6.5vw, 88px);
-    font-weight: 800; letter-spacing: -.04em;
-    line-height: .92; max-width: 900px;
-    margin-bottom: 22px;
-  }
-
-  h1 em {
-    font-style: normal;
-    background: linear-gradient(90deg, var(--c-a) 0%, var(--c-c) 50%, var(--c-b) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-family: var(--mono); font-size: 13px; color: var(--muted);
-    max-width: 600px; line-height: 1.7; margin-bottom: 28px;
-  }
-
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-
-  .btn-primary {
-    padding: 11px 22px; border-radius: 999px;
-    background: var(--c-a); color: #000;
-    font-family: var(--sans); font-weight: 700; font-size: 13px;
-    text-decoration: none; border: none; cursor: pointer;
-    transition: transform .2s var(--ease), box-shadow .2s;
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(var(--f-rgb),.3); }
-
-  .cmd-bar {
-    margin-top: 20px; padding: 12px 16px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); font-family: var(--mono); font-size: 12px;
-    color: var(--c-a); overflow-x: auto; white-space: nowrap;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .cmd-bar::before { content: "❯"; color: var(--muted); flex-shrink: 0; }
-
-  /* ── SERVICE CARDS ───────────────────────────────────────── */
-  .services {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 48px;
-  }
-
-  .svc {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px;
-    position: relative; overflow: hidden;
-    transition: border-color .25s, transform .25s var(--ease);
-    cursor: default;
-  }
-  .svc:hover { border-color: var(--border-hi); transform: translateY(-2px); }
-
-  /* accent bar on left */
-  .svc::before {
-    content: ""; position: absolute; left: 0; top: 16px; bottom: 16px;
-    width: 2px; border-radius: 2px;
-    background: var(--accent, var(--c-a));
-  }
-
-  .svc-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
-  }
-
-  .svc-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-
-  .svc-url {
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    margin-bottom: 14px; word-break: break-all;
-  }
-
-  /* status indicator */
-  .svc-status {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-family: var(--mono); font-size: 11px;
-    padding: 5px 10px; border-radius: 999px;
-    background: var(--lift); border: 1px solid var(--border);
-    transition: background .3s, border-color .3s, color .3s;
-  }
-  .svc-status .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--muted); transition: background .3s;
-    flex-shrink: 0;
-  }
-
-  .svc-status[data-s="ok"] { border-color: rgba(var(--f-rgb),.3); color: var(--c-a); }
-  .svc-status[data-s="ok"] .dot { background: var(--c-a); box-shadow: 0 0 6px var(--c-a); animation: pulse 2s infinite; }
-
-  .svc-status[data-s="warn"] { border-color: rgba(248,200,66,.3); color: var(--c-d); }
-  .svc-status[data-s="warn"] .dot { background: var(--c-d); }
-
-  .svc-status[data-s="err"] { border-color: rgba(255,92,138,.3); color: var(--c-b); }
-  .svc-status[data-s="err"] .dot { background: var(--c-b); }
-
-  @keyframes pulse {
-    0%,100% { opacity: 1; } 50% { opacity: .4; }
-  }
-
-  /* open link */
-  .svc-open {
-    display: block; margin-top: 12px;
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    text-decoration: none; transition: color .2s;
-  }
-  .svc-open:hover { color: var(--ink); }
-
-  /* ── APPROVAL QUEUE PANEL ───────────────────────────────── */
-  .aq-panel {
-    background: var(--surface);
-    border: 1px solid rgba(250,50,100,.18);
-    border-radius: var(--r);
-    padding: 20px 24px;
-    margin: 28px 0;
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
-    flex-wrap: wrap;
-  }
-  .aq-left { display: flex; align-items: center; gap: 16px; }
-  .aq-dot { width: 8px; height: 8px; border-radius: 50%; background: rgb(250,50,100); box-shadow: 0 0 8px rgba(250,50,100,.5); flex-shrink: 0; }
-  .aq-label { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: rgba(250,50,100,.7); text-transform: uppercase; }
-  .aq-count { font-family: var(--mono); font-size: 24px; font-weight: 700; color: rgb(250,50,100); letter-spacing: -.02em; }
-  .aq-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .aq-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .aq-btn-approve {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-    padding: 8px 20px; border-radius: 6px; cursor: pointer; transition: all .2s;
-    background: rgba(250,50,100,.12); border: 1px solid rgba(250,50,100,.35);
-    color: rgb(250,50,100);
-  }
-  .aq-btn-approve:hover { background: rgba(250,50,100,.22); border-color: rgba(250,50,100,.6); }
-  .aq-btn-approve:disabled { opacity: .38; cursor: not-allowed; }
-  .aq-btn-view {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-    padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all .2s;
-    background: none; border: 1px solid var(--border-hi); color: var(--muted);
-    text-decoration: none; display: inline-block;
-  }
-  .aq-btn-view:hover { color: var(--ink); border-color: var(--border); }
-  .aq-msg { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; width: 100%; }
-  .aq-msg.ok { color: #30d158; }
-  .aq-msg.err { color: rgb(250,50,100); }
-
-  /* ── SECTION HEADER ──────────────────────────────────────── */
-  .section-header {
-    display: flex; align-items: baseline; gap: 14px;
-    margin-bottom: 16px;
-  }
-  .section-header h2 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
-  .section-header p { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-
-  /* ── MATRIX ──────────────────────────────────────────────── */
-  .matrix-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 48px;
-  }
-
-  .mx {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 20px;
-    display: flex; flex-direction: column; gap: 10px;
-    transition: border-color .2s;
-  }
-  .mx:hover { border-color: var(--border-hi); }
-
-  .mx-badge {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
-    text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--muted);
-    align-self: flex-start;
-  }
-  .mx-badge.rec { border-color: rgba(var(--f-rgb),.4); color: var(--c-a); }
-  .mx-badge.sel { border-color: rgba(248,200,66,.4); color: var(--c-d); }
-  .mx-badge.no  { border-color: rgba(255,92,138,.3); color: var(--c-b); }
-
-  .mx h3 { font-size: 15px; font-weight: 700; }
-
-  .mx ul { padding-left: 14px; color: var(--muted); display: grid; gap: 6px; font-size: 13px; font-family: var(--mono); line-height: 1.5; }
-
-  .mx-rule {
-    margin-top: 2px; padding: 8px 12px;
-    background: var(--lift); border-left: 2px solid var(--c-b);
-    border-radius: 0 8px 8px 0;
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-  }
-
-  /* ── LANES ───────────────────────────────────────────────── */
-  .lanes-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 48px;
-  }
-
-  .lane {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 20px;
-    position: relative; overflow: hidden;
-  }
-
-  .lane::after {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(200px 200px at 100% 0%, var(--lane-glow, rgba(var(--f-rgb),.04)), transparent);
-    pointer-events: none;
-  }
-
-  .lane-icon {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: var(--lift); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; margin-bottom: 12px;
-  }
-
-  .lane h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-
-  .lane ul { padding-left: 14px; color: var(--muted); display: grid; gap: 7px; font-size: 12px; font-family: var(--mono); line-height: 1.5; }
-
-  /* ── FOOTER LINKS ────────────────────────────────────────── */
-  .doc-links { display: flex; flex-wrap: wrap; gap: 8px; }
-  .doc-links a {
-    font-family: var(--mono); font-size: 11px;
-    padding: 6px 12px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--muted);
-    text-decoration: none; transition: border-color .2s, color .2s;
-  }
-  .doc-links a:hover { border-color: var(--border-hi); color: var(--ink); }
-
-  /* ── DIVIDER ─────────────────────────────────────────────── */
-  .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 40px; }
-
-  /* ── RESPONSIVE ──────────────────────────────────────────── */
-  @media (max-width: 900px) {
-    .services, .matrix-grid, .lanes-grid, .dev-grid { grid-template-columns: 1fr; }
-  }
-
-  /* ── MODE TOGGLE ──────────────────────────────────────────── */
-  .pill.mode-active, .th-ctrl.mode-active {
-    border-color: var(--c-c); color: var(--c-c);
-    background: rgba(123,111,255,.08);
-  }
-
-  /* Personal mode: hide dev-only blocks, show personal-only */
-  .dev-only { display: none; }
-  .personal-only { display: block; }
-  [data-mode="dev"] .dev-only { display: block; }
-  [data-mode="dev"] .personal-only { display: none; }
-
-  /* ── PERSONAL DASHBOARD ────────────────────────────────────── */
-  .personal-dash {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 32px;
-  }
-  .pd-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 20px; position: relative;
-    overflow: hidden; transition: border-color .2s, box-shadow .2s;
-  }
-  .pd-card:hover {
-    border-color: var(--border-hi);
-    box-shadow: 0 0 20px rgba(var(--f-rgb),.04);
-  }
-  .pd-card::before {
-    content: ''; position: absolute; top: -1px; left: -1px;
-    width: 8px; height: 8px;
-    border-top: 1px solid rgba(var(--f-rgb),.3);
-    border-left: 1px solid rgba(var(--f-rgb),.3);
-  }
-  .pd-num {
-    font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900;
-    line-height: 1; margin-bottom: 6px; letter-spacing: -.02em;
-  }
-  .pd-num.teal { color: var(--c-a); text-shadow: 0 0 14px rgba(var(--f-rgb),.3); }
-  .pd-num.gold { color: var(--c-d); text-shadow: 0 0 14px rgba(248,200,66,.3); }
-  .pd-num.rose { color: var(--c-b); text-shadow: 0 0 14px rgba(255,92,138,.3); }
-  .pd-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--muted);
-  }
-  .pd-sub {
-    font-family: var(--mono); font-size: 11px; color: var(--dim);
-    margin-top: 8px; line-height: 1.5;
-  }
-
-  .quick-actions {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px;
-  }
-  .qa-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 16px; color: var(--ink);
-    font-family: var(--mono); font-size: 12px;
-    text-decoration: none; cursor: pointer;
-    transition: border-color .2s, background .2s, transform .15s;
-  }
-  .qa-btn:hover {
-    border-color: var(--c-a); background: rgba(var(--f-rgb),.04);
-    transform: translateY(-1px);
-  }
-  .qa-icon { font-size: 14px; }
-
-  @media (max-width: 900px) {
-    .personal-dash { grid-template-columns: 1fr; }
-  }
-
-  /* ── DEV PANEL ────────────────────────────────────────────── */
-  .dev-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; margin-bottom: 40px;
-  }
-
-  .dev-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 18px; overflow: hidden;
-  }
-
-  .dev-card-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
-  }
-
-  .dev-raw {
-    font-family: var(--mono); font-size: 11px; color: var(--c-c);
-    white-space: pre-wrap; word-break: break-all;
-    max-height: 180px; overflow-y: auto; line-height: 1.6;
-  }
-
-  .dev-table {
-    width: 100%; border-collapse: collapse;
-    font-family: var(--mono); font-size: 12px;
-    margin-bottom: 40px;
-  }
-
-  .dev-table th {
-    text-align: left; padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted); font-weight: 400;
-    font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-  }
-
-  .dev-table td {
-    padding: 9px 12px; border-bottom: 1px solid var(--border);
-    color: var(--muted);
-  }
-
-  .dev-table td:first-child { color: var(--c-a); }
-  .dev-table td:nth-child(2) { color: var(--c-d); }
-  .dev-table tr:hover td { background: var(--lift); }
-
-  /* ── ENTRY ANIMATIONS ────────────────────────────────────── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .hero         { animation: fadeUp .5s both; }
-  .services     { animation: fadeUp .55s .08s both; }
-  .matrix-grid  { animation: fadeUp .55s .14s both; }
-  .lanes-grid   { animation: fadeUp .55s .2s both; }
-
-  /* ── FILM GRAIN ─────────────────────────────────────────── */
-  #grain {
-    position: fixed; inset: -50%; width: 200%; height: 200%;
-    opacity: .05; mix-blend-mode: overlay;
-    animation: grainshift .5s steps(1) infinite;
-    pointer-events: none; z-index: 9999;
-  }
-  @keyframes grainshift {
-    0%  { transform: translate(0,0) }
-    10% { transform: translate(-2%,-3%) }
-    20% { transform: translate(3%,1%) }
-    30% { transform: translate(-1%,4%) }
-    40% { transform: translate(4%,-1%) }
-    50% { transform: translate(-3%,2%) }
-    60% { transform: translate(1%,-4%) }
-    70% { transform: translate(-4%,3%) }
-    80% { transform: translate(2%,2%) }
-    90% { transform: translate(-2%,-1%) }
-    100%{ transform: translate(0,0) }
-  }
-
-  /* ── RETICLE BRAND MARK ──────────────────────────────────── */
-  .brand-reticle {
-    width: 32px; height: 32px; flex-shrink: 0;
-    color: var(--c-a);
-  }
-
-  /* ── ARCHIVAL EYEBROW ────────────────────────────────────── */
-  .arc-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--c-d); opacity: .55;
-    margin-bottom: 8px;
-  }
-
-  /* ── HALFTONE on service cards ───────────────────────────── */
-  .svc::after {
-    content: "";
-    position: absolute; inset: 0;
-    background-image: radial-gradient(circle, rgba(255,200,120,.04) 1px, transparent 1px);
-    background-size: 14px 14px;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    border-radius: inherit;
-    z-index: 0;
-  }
-  .svc > * { position: relative; z-index: 1; }
-  /* ── OS MENUBAR ─── */
-  :root { --f-rgb: 0,229,196; --f: rgb(var(--f-rgb)); }
-  body { padding-top: 28px; }
-  .os-menubar{position:fixed;top:0;left:0;right:0;z-index:9000;height:28px;background:rgba(4,6,10,.92);border-bottom:1px solid rgba(var(--f-rgb),.1);display:flex;align-items:center;justify-content:space-between;padding:0 12px;backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);font-family:var(--mono);font-size:12px;color:var(--ink);user-select:none}
-  .mb-left{display:flex;align-items:center;gap:0}
-  .mb-logo{display:flex;align-items:center;justify-content:center;width:28px;height:28px;text-decoration:none;color:var(--f);transition:color .2s}
-  .mb-logo:hover{color:var(--ink)}
-  .mb-logo svg{width:16px;height:16px}
-  .mb-appname{font-weight:700;font-size:12px;letter-spacing:.02em;color:var(--ink);margin-right:14px}
-  .mb-mi{background:none;border:none;cursor:pointer;color:var(--dim);font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 10px;border-radius:4px;transition:background .15s,color .15s}
-  .mb-mi:hover,.mb-mi.open{background:rgba(var(--f-rgb),.12);color:var(--ink)}
-  .mb-center{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
-  .mb-tagline{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
-  .mb-right{display:flex;align-items:center;gap:10px}
-  .mb-ext{color:var(--dim);cursor:pointer;font-size:13px;display:flex;align-items:center;transition:color .2s}
-  .mb-ext:hover{color:var(--ink)}
-  .mb-clock{font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:.03em}
-  .mb-date{font-family:var(--mono);font-size:11px;color:var(--dim)}
-  .mb-powered{position:fixed;bottom:6px;right:12px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:rgba(var(--f-rgb),.18);text-transform:uppercase;z-index:100;pointer-events:none}
-  /* ── Menubar Dropdowns ── */
-  .mb-dropdown{display:none;position:fixed;top:28px;min-width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(8,14,22,.97);border:1px solid rgba(var(--f-rgb),.12);border-radius:8px;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9100;font-family:var(--mono);font-size:12px}
-  .mb-dropdown.open{display:block;animation:ddIn 120ms ease-out}
-  @keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-  .mb-dropdown a,.mb-dropdown button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 14px;border:none;background:none;color:var(--dim);text-decoration:none;font:inherit;cursor:pointer;transition:background .1s,color .1s;text-align:left}
-  .mb-dropdown a:hover,.mb-dropdown button:hover{background:rgba(var(--f-rgb),.1);color:var(--ink)}
-  .mb-dropdown .dd-sep{height:1px;background:rgba(var(--f-rgb),.08);margin:4px 10px}
-  .mb-dropdown .dd-label{padding:6px 14px 2px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-  .mb-dropdown .dd-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.6}
-  /* ── View dropdown theme section ── */
-  .dd-theme-row{display:flex;align-items:center;padding:6px 14px;gap:6px}
-  .dd-theme-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;width:40px}
-  .dd-color-track{display:flex;gap:4px;flex-wrap:wrap;flex:1}
-  .dd-color-dot{width:16px;height:16px;min-width:16px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s;padding:0;outline:none}
-  .dd-color-dot:hover{transform:scale(1.15);border-color:rgba(255,255,255,.3)}
-  .dd-color-dot.active{border-color:var(--ink);box-shadow:0 0 6px rgba(var(--f-rgb),.4)}
-  .dd-color-custom{background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)!important;position:relative;overflow:hidden}
-  .dd-color-input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:none}
-  .dd-bright-btns{display:flex;gap:3px}
-  .dd-bright-btn{width:24px;height:24px;border-radius:6px;background:none;border:1px solid rgba(var(--f-rgb),.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--dim);transition:all .15s;padding:0;font-size:12px}
-  .dd-bright-btn:hover{border-color:rgba(var(--f-rgb),.3);color:var(--ink)}
-  .dd-bright-btn.active{border-color:var(--f);background:rgba(var(--f-rgb),.1);color:var(--ink)}
-  /* -- MENUBAR RESPONSIVE -- */
-  @media(max-width:768px){.mb-center{display:none}.mb-mi{display:none}.mb-date{display:none}.mb-hamburger{display:flex!important}}
-  .mb-hamburger{display:none;background:none;border:none;color:var(--ink);font-size:16px;cursor:pointer;padding:2px 6px;margin-left:4px}
-  /* ── Light mode menubar overrides ── */
-  [data-brightness="light"] .os-menubar{background:rgba(246,244,240,.92);border-bottom-color:rgba(0,0,0,.08)}
-  [data-brightness="light"] .mb-dropdown{background:rgba(246,244,240,.97);border-color:rgba(0,0,0,.1)}
-  [data-brightness="light"] .mb-dropdown a:hover,[data-brightness="light"] .mb-dropdown button:hover{background:rgba(0,0,0,.06)}
-  .scanlines{position:fixed;inset:0;z-index:9997;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
-
-/* -- FAB BOT -- */
-.fab-bot{position:fixed;bottom:28px;right:28px;z-index:9500;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,rgba(var(--f-rgb),0.2),rgba(var(--f-rgb),0.08));border:1px solid rgba(var(--f-rgb),0.4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 24px rgba(var(--f-rgb),0.2),0 8px 32px rgba(0,0,0,0.4);transition:box-shadow 0.3s,transform 0.2s;user-select:none;touch-action:none}
-.fab-bot:hover{box-shadow:0 0 36px rgba(var(--f-rgb),0.35),0 8px 32px rgba(0,0,0,0.4);transform:scale(1.05)}
-.fab-bot svg{color:var(--accent, var(--c-a));pointer-events:none}
-.fab-popup{display:none;position:fixed;bottom:96px;right:28px;z-index:9501;background:rgba(10,18,30,0.95);border:1px solid rgba(var(--f-rgb),0.25);border-radius:14px;padding:14px;width:280px;box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 32px rgba(var(--f-rgb),0.08)}
-.fab-popup.open{display:block;animation:fabIn 200ms both}
-@keyframes fabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fab-popup input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(146,188,214,0.14);border-radius:8px;color:#e7f4ff;font-family:"DM Mono",monospace;font-size:13px;padding:10px 12px;outline:none;transition:border-color 0.2s}
-.fab-popup input:focus{border-color:var(--accent, var(--c-a))}
-.fab-popup input::placeholder{color:#7b96af}
-.fab-popup-label{font-size:11px;color:#7b96af;margin:0 0 8px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Control Room</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="design-system.css">
+
+  <style>
+    /* ── Page top padding for menubar ── */
+    .page { padding-top: 48px; }
+
+    /* ── Service Cards (glass-card with left accent stripe) ── */
+    .svc-card {
+      background: var(--glass-card-bg);
+      border: 1px solid var(--glass-card-border);
+      border-radius: var(--radius);
+      padding: var(--sp-6);
+      position: relative;
+      backdrop-filter: blur(var(--glass-card-blur));
+      -webkit-backdrop-filter: blur(var(--glass-card-blur));
+      transition: border-color var(--dur-hover) var(--ease-smooth),
+                  transform var(--dur-fast) var(--ease-out),
+                  box-shadow var(--dur-hover);
+    }
+    .svc-card:hover {
+      border-color: var(--glass-card-border-hover);
+      transform: translateY(-2px);
+    }
+    /* Left accent stripe */
+    .svc-card::before {
+      content: ""; position: absolute; left: 0; top: var(--sp-4); bottom: var(--sp-4);
+      width: 2px; border-radius: 2px;
+      background: var(--card-accent, var(--c1));
+    }
+    .svc-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--sp-2);
+    }
+    .svc-card-name {
+      font-family: var(--font-sans); font-size: var(--fs-body);
+      font-weight: var(--fw-bold); color: var(--text-primary);
+    }
+    .svc-card-desc {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      color: var(--text-secondary); line-height: var(--lh-label);
+    }
+    .svc-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: var(--sp-3);
+    }
+    .svc-card-port {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      color: var(--text-tertiary); letter-spacing: var(--ls-wide);
+    }
+    .svc-card-link {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      color: var(--text-secondary); text-decoration: none;
+      transition: color var(--dur-hover);
+    }
+    .svc-card-link:hover { color: var(--text-primary); }
+
+    /* ── Status dot ── */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      color: var(--text-secondary);
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-tertiary);
+      flex-shrink: 0; transition: background var(--dur-transition);
+    }
+    .status-pill[data-s="ok"] { color: var(--accent); }
+    .status-pill[data-s="ok"] .status-dot {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    .status-pill[data-s="warn"] { color: var(--accent-warm); }
+    .status-pill[data-s="warn"] .status-dot { background: var(--accent-warm); }
+    .status-pill[data-s="err"] { color: var(--accent-rose); }
+    .status-pill[data-s="err"] .status-dot { background: var(--accent-rose); }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+    /* ── Approval Queue ── */
+    .aq-panel {
+      background: var(--glass-card-bg);
+      border: 1px solid rgba(255, 69, 58, 0.15);
+      border-radius: var(--radius);
+      padding: var(--sp-6);
+      position: relative;
+      backdrop-filter: blur(var(--glass-card-blur));
+      -webkit-backdrop-filter: blur(var(--glass-card-blur));
+    }
+    .aq-panel::before {
+      content: ""; position: absolute; left: 0; top: var(--sp-4); bottom: var(--sp-4);
+      width: 2px; border-radius: 2px;
+      background: var(--rose);
+    }
+    .aq-header {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--sp-3);
+    }
+    .aq-left { display: flex; align-items: center; gap: var(--sp-3); }
+    .aq-title {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      letter-spacing: var(--ls-widest); text-transform: uppercase;
+      color: rgba(255, 69, 58, 0.6);
+    }
+    .aq-count {
+      font-family: var(--font-display); font-size: 22px;
+      font-weight: var(--fw-bold); color: var(--rose);
+      letter-spacing: var(--ls-tight);
+    }
+    .aq-sub {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      color: var(--text-secondary); margin-top: var(--sp-1);
+    }
+    .aq-actions { display: flex; gap: var(--sp-2); align-items: center; }
+    .aq-btn {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      letter-spacing: var(--ls-wide); padding: 7px 16px;
+      border-radius: var(--radius-sm); cursor: pointer;
+      transition: all var(--dur-hover);
+    }
+    .aq-btn-review {
+      background: none; border: 1px solid var(--sep-bold);
+      color: var(--text-secondary); text-decoration: none; display: inline-block;
+    }
+    .aq-btn-review:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+    .aq-btn-approve {
+      background: var(--rose-10); border: 1px solid rgba(255, 69, 58, 0.3);
+      color: var(--rose);
+    }
+    .aq-btn-approve:hover { background: rgba(255, 69, 58, 0.18); }
+    .aq-btn-approve:disabled { opacity: .35; cursor: not-allowed; }
+    .aq-msg {
+      font-family: var(--font-label); font-size: var(--fs-caption);
+      color: var(--text-secondary); margin-top: var(--sp-2);
+    }
+    .aq-msg.ok { color: var(--green); }
+    .aq-msg.err { color: var(--rose); }
+
+    /* ── Hero subtitle fix ── */
+    .hero-subtitle { text-align: center; }
+  </style>
 </head>
-<body data-theme="copper" data-brightness="dark">
+
+<body data-theme="aurora" data-brightness="dark">
 <script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
 
-<!-- FILM GRAIN OVERLAY -->
-<svg id="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <filter id="gf" x="0%" y="0%" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch">
-      <animate attributeName="seed" values="0;9;3;15;6;12;0" dur="0.6s" repeatCount="indefinite"/>
-    </feTurbulence>
-    <feColorMatrix type="saturate" values="0"/>
-  </filter>
-  <rect width="100%" height="100%" filter="url(#gf)" opacity="0.22"/>
-</svg>
+  <!-- Ambient background orbs -->
+  <div class="ambient">
+    <div class="ambient-orb teal"></div>
+    <div class="ambient-orb gold"></div>
+    <div class="ambient-orb violet"></div>
+  </div>
+  <div class="grid-bg"></div>
 
-<main class="page">
-
-  <!-- OS MENUBAR -->
+  <!-- ── OS MENUBAR ── -->
   <div class="os-menubar">
     <div class="mb-left">
       <a href="index.html" class="mb-logo" title="Ophtxn Home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
       </a>
       <span class="mb-appname">Ophtxn</span>
       <button class="mb-mi" id="mbFile">File</button>
       <button class="mb-mi" id="mbView">View</button>
       <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
     </div>
-    <div class="mb-center"><span class="mb-tagline">GOVERNANCE OS INTELLIGENCE</span></div>
     <div class="mb-right">
-      <span class="mb-ext" id="mbTheme" title="Toggle dark/light">&#9790;</span>
+      <span class="mb-mi" id="themeToggle" style="font-size:11px;padding:2px 8px;cursor:pointer;">Dark</span>
       <span class="mb-clock" id="mbClock"></span>
       <span class="mb-date" id="mbDate"></span>
     </div>
   </div>
 
-  <!-- MENUBAR DROPDOWNS -->
-  <div class="mb-dropdown" id="ddFile" style="left:72px">
-    <div class="dd-label">Ophtxn OS</div>
-    <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
-    <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
-    <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
-    <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
-    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
-    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
-    <div class="dd-sep"></div>
-    <div class="dd-label">Permanence Platform</div>
-    <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
-    <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
-  </div>
+  <!-- ── PAGE ── -->
+  <main class="page">
 
-  <div class="mb-dropdown" id="ddView" style="left:112px">
-    <div class="dd-label">Theme</div>
-    <div class="dd-theme-row">
-      <span class="dd-theme-label">Color</span>
-      <div class="dd-color-track" id="ddThemeColor">
-        <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
-        <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
-        <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
-        <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
-        <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
-        <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
-        <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
-        <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
-        <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
-        <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
-        <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
+    <!-- Hero -->
+    <section class="hero reveal">
+      <p class="hero-label">Control Room</p>
+      <h1 class="hero-title">Your agent stack, governed and live.</h1>
+      <p class="hero-subtitle">Three runtimes. One approval queue. Full local control.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" id="hero-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Open Command Center</a>
+        <a class="btn-secondary" href="ophtxn_shell.html">Open Terminal</a>
       </div>
-    </div>
-    <div class="dd-theme-row">
-      <span class="dd-theme-label">Mode</span>
-      <div class="dd-bright-btns" id="ddThemeBright">
-        <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
-        <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
-        <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
+    </section>
+
+    <!-- Services -->
+    <section class="section reveal">
+      <p class="section-label">Runtimes</p>
+      <h2 class="section-title">Local services</h2>
+      <div class="grid-3" style="margin-top: var(--sp-6);">
+
+        <div class="svc-card" style="--card-accent: var(--c1);">
+          <div class="svc-card-header">
+            <span class="svc-card-name">Command Center</span>
+            <div class="status-pill" id="st-8000" data-s="checking">
+              <span class="status-dot"></span><span class="status-text">checking</span>
+            </div>
+          </div>
+          <p class="svc-card-desc">Flask backend -- the brain. API, approvals, and orchestration.</p>
+          <div class="svc-card-footer">
+            <span class="svc-card-port">:8000</span>
+            <a class="svc-card-link" id="svc-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Open</a>
+          </div>
+        </div>
+
+        <div class="svc-card" style="--card-accent: var(--violet);">
+          <div class="svc-card-header">
+            <span class="svc-card-name">Foundation Site</span>
+            <div class="status-pill" id="st-8787" data-s="checking">
+              <span class="status-dot"></span><span class="status-text">checking</span>
+            </div>
+          </div>
+          <p class="svc-card-desc">Static front-end. 14 pages served with glassmorphism UI.</p>
+          <div class="svc-card-footer">
+            <span class="svc-card-port">:8787</span>
+            <a class="svc-card-link" id="svc-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">Open</a>
+          </div>
+        </div>
+
+        <div class="svc-card" style="--card-accent: var(--c2);">
+          <div class="svc-card-header">
+            <span class="svc-card-name">Ophtxn Shell</span>
+            <div class="status-pill" id="st-8797" data-s="checking">
+              <span class="status-dot"></span><span class="status-text">checking</span>
+            </div>
+          </div>
+          <p class="svc-card-desc">Interactive operator interface. CLI access via browser.</p>
+          <div class="svc-card-footer">
+            <span class="svc-card-port">:8797</span>
+            <a class="svc-card-link" id="svc-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">Open</a>
+          </div>
+        </div>
+
       </div>
-    </div>
-  </div>
+    </section>
 
-  <div class="mb-dropdown" id="ddGo" style="left:150px">
-    <div class="dd-label">Quick Nav</div>
-    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
-    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
-    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
-    <div class="dd-sep"></div>
-    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
-  </div>
-
-  <div class="scanlines" aria-hidden="true"></div>
-
-  <!-- HERO -->
-  <section class="hero">
-    <p class="arc-label">A-KWJ-0368 // NETWORK SURFACE ACTIVE</p>
-    <p class="eyebrow">Localhost Command Surface</p>
-    <h1>Your agent stack,<br><em>governed and live.</em></h1>
-    <p class="hero-sub">
-      Ophtxn stays your source of truth — memory, approvals, and governance
-      all live here. External tools plug in as workers, not controllers.
-    </p>
-    <div class="hero-actions">
-      <a class="btn-primary" id="hero-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Command Center</a>
-      <a class="pill" id="hero-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">App Shell</a>
-      <a class="pill" id="hero-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">Foundation</a>
-    </div>
-    <div class="cmd-bar">python cli.py operator-surface --run-horizon</div>
-  </section>
-
-  <!-- SERVICES -->
-  <section class="services">
-    <article class="svc" style="--accent: var(--c-a)">
-      <p class="svc-label">Runtime · Core</p>
-      <p class="svc-name">Command Center</p>
-      <p class="svc-url">127.0.0.1:8000</p>
-      <div class="svc-status" id="st-8000" data-s="checking">
-        <span class="dot"></span><span class="label">checking…</span>
+    <!-- Approval Queue -->
+    <section class="section reveal">
+      <p class="section-label">Governance</p>
+      <h2 class="section-title">Approval queue</h2>
+      <div class="aq-panel" id="aq-panel" style="margin-top: var(--sp-6);">
+        <div class="aq-header">
+          <div class="aq-left">
+            <div>
+              <div class="aq-title">Pending Actions</div>
+              <div class="aq-count" id="aq-count">--</div>
+              <div class="aq-sub" id="aq-sub">fetching...</div>
+            </div>
+          </div>
+          <div class="aq-actions">
+            <a class="aq-btn aq-btn-review" id="aq-link-review" href="http://127.0.0.1:8000" target="_blank" rel="noopener">Review</a>
+            <button class="aq-btn aq-btn-approve" id="aq-approve-btn" type="button">Approve All</button>
+          </div>
+        </div>
+        <div class="aq-msg" id="aq-msg"></div>
       </div>
-      <a class="svc-open" id="svc-link-cc" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Open</a>
-    </article>
+    </section>
 
-    <article class="svc" style="--accent: var(--c-c)">
-      <p class="svc-label">Runtime · Foundation</p>
-      <p class="svc-name">Foundation Site</p>
-      <p class="svc-url">127.0.0.1:8787</p>
-      <div class="svc-status" id="st-8787" data-s="checking">
-        <span class="dot"></span><span class="label">checking…</span>
+    <!-- System Status -->
+    <div class="stat-row reveal">
+      <div class="stat-item">
+        <div class="stat-value teal" id="pd-services">--</div>
+        <div class="stat-label">Services Online</div>
       </div>
-      <a class="svc-open" id="svc-link-site" href="http://127.0.0.1:8787" target="_blank" rel="noopener">→ Open</a>
-    </article>
-
-    <article class="svc" style="--accent: var(--c-b)">
-      <p class="svc-label">Runtime · App Shell</p>
-      <p class="svc-name">Ophtxn App</p>
-      <p class="svc-url">127.0.0.1:8797/app/ophtxn</p>
-      <div class="svc-status" id="st-8797" data-s="checking">
-        <span class="dot"></span><span class="label">checking…</span>
+      <div class="stat-item">
+        <div class="stat-value gold" id="pd-queue">--</div>
+        <div class="stat-label">Pending Approvals</div>
       </div>
-      <a class="svc-open" id="svc-link-shell" href="http://127.0.0.1:8797/app/ophtxn" target="_blank" rel="noopener">→ Open</a>
-    </article>
-  </section>
-
-  <!-- APPROVAL QUEUE -->
-  <div class="aq-panel" id="aq-panel">
-    <div class="aq-left">
-      <div class="aq-dot"></div>
-      <div>
-        <div class="aq-label">Approval Queue</div>
-        <div class="aq-count" id="aq-count">—</div>
-        <div class="aq-sub" id="aq-sub">fetching…</div>
-      </div>
-    </div>
-    <div class="aq-right">
-      <a class="aq-btn-view" id="aq-link-review" href="http://127.0.0.1:8000" target="_blank" rel="noopener">→ Review</a>
-      <button class="aq-btn-approve" id="aq-approve-btn" type="button">▸ Approve All</button>
-    </div>
-    <div class="aq-msg" id="aq-msg"></div>
-  </div>
-
-  <!-- PERSONAL DASHBOARD (hidden in dev mode) -->
-  <section class="personal-only" id="personal-dash-section">
-    <hr class="divider">
-    <div class="section-header">
-      <h2>Dashboard</h2>
-      <p>Quick status · actions · system health</p>
-    </div>
-
-    <div class="personal-dash">
-      <div class="pd-card">
-        <div class="pd-num teal" id="pd-services">—</div>
-        <div class="pd-label">Services Online</div>
-        <div class="pd-sub" id="pd-services-sub">checking status...</div>
-      </div>
-      <div class="pd-card">
-        <div class="pd-num gold" id="pd-queue">—</div>
-        <div class="pd-label">Pending Approvals</div>
-        <div class="pd-sub" id="pd-queue-sub">fetching queue...</div>
-      </div>
-      <div class="pd-card">
-        <div class="pd-num rose" id="pd-uptime">—</div>
-        <div class="pd-label">Session Uptime</div>
-        <div class="pd-sub" id="pd-uptime-sub">since page load</div>
+      <div class="stat-item">
+        <div class="stat-value rose" id="pd-uptime">--</div>
+        <div class="stat-label">Session Uptime</div>
       </div>
     </div>
 
-  </section>
+  </main>
 
-  <!-- DEV PANEL (hidden in personal mode) -->
-  <section class="dev-only" id="dev-panel">
-    <hr class="divider">
-    <div class="section-header">
-      <h2>Developer Panel</h2>
-      <p>Raw API responses · System info · Endpoint map</p>
-    </div>
-    <div class="dev-grid">
-      <div class="dev-card">
-        <p class="dev-card-label">Command Center :8000 — raw</p>
-        <pre class="dev-raw" id="raw-8000">—</pre>
-      </div>
-      <div class="dev-card">
-        <p class="dev-card-label">App Shell :8797 — raw</p>
-        <pre class="dev-raw" id="raw-8797">—</pre>
-      </div>
-      <div class="dev-card">
-        <p class="dev-card-label">Client Environment</p>
-        <pre class="dev-raw" id="raw-sys">—</pre>
-      </div>
-    </div>
+  <!-- ── TOAST ── -->
+  <div class="toast" id="toast"></div>
 
-    <div class="section-header">
-      <h2>API Endpoints</h2>
-      <p>Known local endpoints and methods</p>
-    </div>
-    <table class="dev-table">
-      <thead>
-        <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>/api/status</td><td>GET</td><td>Health check — returns ok, ts, version</td></tr>
-        <tr><td>/api/approve</td><td>POST</td><td>Approval gate — requires action + payload</td></tr>
-        <tr><td>/api/queue</td><td>GET</td><td>Pending approval queue</td></tr>
-        <tr><td>/api/tasks</td><td>GET</td><td>Active task list</td></tr>
-        <tr><td>/api/logs</td><td>GET</td><td>Structured event log stream</td></tr>
-        <tr><td>/health</td><td>GET</td><td>App shell readiness (:8797)</td></tr>
-      </tbody>
-    </table>
-  </section>
+  <script src="runtime.config.js"></script>
+  <script>
+    // ── RUNTIME CONFIG ──
+    var __RT = window.__OPHTXN_RUNTIME || {};
+    var API_BASE = __RT.apiBase || "http://127.0.0.1:8000";
+    var APP_BASE = __RT.appBase || "http://127.0.0.1:8797";
+    var SITE_BASE = __RT.siteUrl || "http://127.0.0.1:8787";
 
-</main>
-
-<script src="runtime.config.js"></script>
-<script>
-// ── RUNTIME CONFIG ────────────────────────────────────────────
-var __RT = window.__OPHTXN_RUNTIME || {};
-var API_BASE = __RT.apiBase || "http://127.0.0.1:8000";
-var APP_BASE = __RT.appBase || "http://127.0.0.1:8797";
-var SITE_BASE = __RT.siteUrl || "http://127.0.0.1:8787";
-
-// Resolve HTML href attributes from runtime config
-(function(){
-  var map = {
-    "hero-link-cc":    __RT.commandCenterUrl || API_BASE,
-    "hero-link-shell": __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
-    "hero-link-site":  SITE_BASE,
-    "svc-link-cc":     __RT.commandCenterUrl || API_BASE,
-    "svc-link-site":   SITE_BASE,
-    "svc-link-shell":  __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
-    "aq-link-review":  __RT.commandCenterUrl || API_BASE
-  };
-  for (var id in map) {
-    var el = document.getElementById(id);
-    if (el && map[id]) el.href = map[id];
-  }
-})();
-
-// ── MODE TOGGLE ───────────────────────────────────────────────
-const MODE_KEY  = 'ophtxn_hub_mode_v1';
-const modeBtn   = document.getElementById('modeBtn');
-
-function applyMode(m) {
-  document.body.dataset.mode = m;
-  if (modeBtn) {
-    modeBtn.textContent = m === 'dev' ? '← Personal' : 'Dev Mode';
-    modeBtn.classList.toggle('mode-active', m === 'dev');
-  }
-  try { localStorage.setItem(MODE_KEY, m); } catch(_) {}
-  if (m === 'dev') populateDevPanel();
-}
-
-const savedMode = (() => { try { return localStorage.getItem(MODE_KEY); } catch(_) { return null; } })();
-applyMode(savedMode || 'personal');
-
-if (modeBtn) modeBtn.addEventListener('click', () => {
-  applyMode(document.body.dataset.mode === 'dev' ? 'personal' : 'dev');
-});
-
-async function populateDevPanel() {
-  const sysEl = document.getElementById('raw-sys');
-  if (sysEl) {
-    sysEl.textContent = JSON.stringify({
-      time:     new Date().toISOString(),
-      viewport: `${window.innerWidth}×${window.innerHeight}`,
-      theme:    document.body.dataset.theme,
-      mode:     document.body.dataset.mode,
-      build:    'ophtxn-local-hub',
-    }, null, 2);
-  }
-
-  const el8000 = document.getElementById('raw-8000');
-  if (el8000) {
-    try {
-      const res  = await fetch(API_BASE + '/api/status', { signal: AbortSignal.timeout(3000) });
-      const data = await res.json();
-      el8000.textContent = JSON.stringify(data, null, 2);
-    } catch(e) { el8000.textContent = `Error: ${e.message}`; }
-  }
-
-  const el8797 = document.getElementById('raw-8797');
-  if (el8797) {
-    try {
-      const res  = await fetch(APP_BASE + '/health', { signal: AbortSignal.timeout(3000) });
-      const data = await res.json();
-      el8797.textContent = JSON.stringify(data, null, 2);
-    } catch(e) { el8797.textContent = `Error: ${e.message}`; }
-  }
-}
-
-// ── THEME (placeholder — full theme managed by menubar script below) ──
-const THEME_KEY = "ophtxn_site_theme";
-const BRIGHT_KEY = "ophtxn_site_brightness";
-// Theme is applied by the menubar theme script at the bottom of the page
-
-// ── SMART HEALTH POLLING ──────────────────────────────────────
-// Only updates the DOM when the state actually changes.
-// No blind re-writes every tick.
-
-const SERVICES = [
-  { id: "st-8000", url: API_BASE + "/api/status", expectJson: true  },
-  { id: "st-8787", url: SITE_BASE + "/",          expectJson: false },
-  { id: "st-8797", url: APP_BASE + "/health",     expectJson: true  },
-];
-
-// Track last known state so we skip DOM writes when nothing changed
-const lastState = {};
-
-function setState(id, status, text) {
-  // DIFF CHECK — bail if nothing changed
-  const prev = lastState[id];
-  if (prev && prev.status === status && prev.text === text) return;
-  lastState[id] = { status, text };
-
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.dataset.s = status;
-  el.querySelector(".label").textContent = text;
-}
-
-async function pingService({ id, url, expectJson }) {
-  try {
-    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) });
-    if (!res.ok) {
-      setState(id, "warn", `HTTP ${res.status}`);
-      return;
-    }
-    if (expectJson) {
-      try {
-        const data = await res.json();
-        const good = data && data.ok === true;
-        setState(id, good ? "ok" : "warn", good ? "online · ok" : "online · check payload");
-      } catch (_) {
-        setState(id, "warn", "online · bad json");
+    // Resolve HTML href attributes from runtime config
+    (function(){
+      var map = {
+        "hero-link-cc":    __RT.commandCenterUrl || API_BASE,
+        "svc-link-cc":     __RT.commandCenterUrl || API_BASE,
+        "svc-link-site":   SITE_BASE,
+        "svc-link-shell":  __RT.shellUrl || (APP_BASE + "/app/ophtxn"),
+        "aq-link-review":  __RT.commandCenterUrl || API_BASE
+      };
+      for (var id in map) {
+        var el = document.getElementById(id);
+        if (el && map[id]) el.href = map[id];
       }
-      return;
+    })();
+
+    /* ── Clock ── */
+    function tickClock() {
+      var el = document.getElementById('mbClock');
+      if (!el) return;
+      var now = new Date();
+      var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      el.textContent = h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ' ' + ampm;
     }
-    setState(id, "ok", "online");
-  } catch (err) {
-    // Try opaque no-cors probe as fallback
-    try {
-      await fetch(url, { mode: "no-cors", cache: "no-store", signal: AbortSignal.timeout(3000) });
-      setState(id, "warn", "reachable · opaque");
-    } catch (_) {
-      setState(id, "err", "offline");
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    /* ── Date ── */
+    (function() {
+      var d = document.getElementById('mbDate');
+      if (d) {
+        var now = new Date();
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        d.textContent = days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' + now.getDate();
+      }
+    })();
+
+    /* ── Toast ── */
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
     }
-  }
-}
 
-async function refreshAll() {
-  await Promise.all(SERVICES.map(pingService));
-}
+    /* ── Scroll Reveal ── */
+    (function() {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+      });
+    })();
 
-var refreshBtn = document.getElementById("refreshBtn");
-if (refreshBtn) refreshBtn.addEventListener("click", refreshAll);
+    // ── SMART HEALTH POLLING ──
+    var SERVICES = [
+      { id: "st-8000", url: API_BASE + "/api/status", expectJson: true  },
+      { id: "st-8787", url: SITE_BASE + "/",          expectJson: false },
+      { id: "st-8797", url: APP_BASE + "/health",     expectJson: true  },
+    ];
 
-// Initial ping + smart interval (30s — longer than before, diff-gated so no flicker)
-refreshAll();
-setInterval(refreshAll, 30_000);
+    var lastState = {};
 
-// ── APPROVAL QUEUE ────────────────────────────────────────────
-const AQ_BASE = API_BASE;
+    function setState(id, status, text) {
+      var prev = lastState[id];
+      if (prev && prev.status === status && prev.text === text) return;
+      lastState[id] = { status: status, text: text };
 
-async function aqFetch() {
-  const el = document.getElementById("aq-count");
-  const sub = document.getElementById("aq-sub");
-  try {
-    const res = await fetch(`${AQ_BASE}/api/approvals`, { signal: AbortSignal.timeout(4000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const n = data.total_pending ?? 0;
-    el.textContent = n;
-    sub.textContent = n === 0 ? "queue clear" : `${n} pending · LOW/MED auto-approvable`;
-    document.getElementById("aq-approve-btn").disabled = n === 0;
-  } catch (_) {
-    el.textContent = "—";
-    sub.textContent = "Command Center offline";
-    document.getElementById("aq-approve-btn").disabled = true;
-  }
-}
-
-document.getElementById("aq-approve-btn").addEventListener("click", async () => {
-  const btn = document.getElementById("aq-approve-btn");
-  const msg = document.getElementById("aq-msg");
-  btn.disabled = true;
-  btn.textContent = "approving…";
-  msg.textContent = "";
-  msg.className = "aq-msg";
-  try {
-    const res = await fetch(`${AQ_BASE}/api/approvals/approve-all`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notes: "bulk approve via Control Room" }),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    msg.textContent = `✓ ${data.approved} approved · ${data.skipped_high_risk} HIGH held for review`;
-    msg.className = "aq-msg ok";
-    await aqFetch();
-  } catch (e) {
-    msg.textContent = `✗ ${e.message}`;
-    msg.className = "aq-msg err";
-    btn.disabled = false;
-  }
-  btn.textContent = "▸ Approve All";
-});
-
-aqFetch();
-setInterval(aqFetch, 60_000);
-
-// ── PERSONAL DASHBOARD ──────────────────────────────────────
-const pdStartTime = Date.now();
-
-function updatePersonalDash() {
-  // Services count
-  const pdSvc = document.getElementById('pd-services');
-  const pdSvcSub = document.getElementById('pd-services-sub');
-  if (pdSvc) {
-    let online = 0; let total = SERVICES.length;
-    for (const svc of SERVICES) {
-      const st = lastState[svc.id];
-      if (st && st.status === 'ok') online++;
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.dataset.s = status;
+      var label = el.querySelector(".status-text");
+      if (label) label.textContent = text;
     }
-    pdSvc.textContent = `${online}/${total}`;
-    pdSvcSub.textContent = online === total ? 'all systems nominal' :
-      online === 0 ? 'all services offline' : `${total - online} service(s) down`;
-  }
 
-  // Queue count (reuse from aq)
-  const pdQ = document.getElementById('pd-queue');
-  const pdQSub = document.getElementById('pd-queue-sub');
-  if (pdQ) {
-    const aqEl = document.getElementById('aq-count');
-    const count = aqEl ? aqEl.textContent : '—';
-    pdQ.textContent = count;
-    pdQSub.textContent = count === '0' ? 'queue clear — nothing pending' :
-      count === '—' ? 'unable to reach queue' : `${count} action(s) awaiting review`;
-  }
+    function pingService(svc) {
+      var id = svc.id, url = svc.url, expectJson = svc.expectJson;
+      return fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) })
+        .then(function(res) {
+          if (!res.ok) { setState(id, "warn", "HTTP " + res.status); return; }
+          if (expectJson) {
+            return res.json().then(function(data) {
+              var good = data && data.ok === true;
+              setState(id, good ? "ok" : "warn", good ? "online" : "check payload");
+            }).catch(function() {
+              setState(id, "warn", "bad json");
+            });
+          }
+          setState(id, "ok", "online");
+        })
+        .catch(function() {
+          return fetch(url, { mode: "no-cors", cache: "no-store", signal: AbortSignal.timeout(3000) })
+            .then(function() { setState(id, "warn", "reachable"); })
+            .catch(function() { setState(id, "err", "offline"); });
+        });
+    }
 
-  // Uptime
-  const pdUp = document.getElementById('pd-uptime');
-  const pdUpSub = document.getElementById('pd-uptime-sub');
-  if (pdUp) {
-    const elapsed = Math.floor((Date.now() - pdStartTime) / 1000);
-    const mins = Math.floor(elapsed / 60);
-    const secs = elapsed % 60;
-    pdUp.textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-    pdUpSub.textContent = 'since page load';
-  }
+    function refreshAll() {
+      return Promise.all(SERVICES.map(pingService)).then(updateDashStats);
+    }
 
-  // Update quick action links from runtime config
-  const qaCC = document.getElementById('qa-cc');
-  const qaShell = document.getElementById('qa-shell');
-  if (qaCC) qaCC.href = __RT.commandCenterUrl || API_BASE;
-  if (qaShell) qaShell.href = __RT.shellUrl || (APP_BASE + '/app/ophtxn');
-}
+    refreshAll();
+    setInterval(refreshAll, 30000);
 
-// Update personal dash every 2s
-updatePersonalDash();
-setInterval(updatePersonalDash, 2000);
-</script>
-<!-- SHARED: FAB BOT -->
-<div class="fab-bot" id="fabBot" title="Ask Ophtxn">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-</div>
-<div class="fab-popup" id="fabPopup">
-  <p class="fab-popup-label">Ask Ophtxn</p>
-  <input type="text" id="fabInput" placeholder="Type a question&hellip;" autocomplete="off">
-</div>
+    // ── APPROVAL QUEUE ──
+    function aqFetch() {
+      var el = document.getElementById("aq-count");
+      var sub = document.getElementById("aq-sub");
+      return fetch(API_BASE + "/api/approvals", { signal: AbortSignal.timeout(4000) })
+        .then(function(res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          var n = data.total_pending || 0;
+          el.textContent = n;
+          sub.textContent = n === 0 ? "queue clear" : n + " pending";
+          document.getElementById("aq-approve-btn").disabled = n === 0;
+        })
+        .catch(function() {
+          el.textContent = "--";
+          sub.textContent = "Command Center offline";
+          document.getElementById("aq-approve-btn").disabled = true;
+        });
+    }
 
-<script>
-/* ═══ MENUBAR: CLOCK ═══ */
-(function(){
-  var ck=document.getElementById('mbClock'),dt=document.getElementById('mbDate');
-  if(!ck)return;
-  var hidden=false;
-  function tick(){
-    if(hidden)return;
-    var n=new Date();
-    ck.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    dt.textContent=n.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  }
-  tick();setInterval(tick,1000);
-  document.addEventListener('visibilitychange',function(){hidden=document.hidden;if(!hidden)tick();});
-})();
-
-/* ═══ MENUBAR: DROPDOWNS ═══ */
-(function(){
-  var menus={mbFile:'ddFile',mbView:'ddView',mbGo:'ddGo'};
-  var openDD=null;
-  function closeAll(){
-    document.querySelectorAll('.mb-dropdown.open').forEach(function(d){d.classList.remove('open');});
-    document.querySelectorAll('.mb-mi.open').forEach(function(b){b.classList.remove('open');});
-    openDD=null;
-  }
-  Object.keys(menus).forEach(function(btnId){
-    var btn=document.getElementById(btnId),dd=document.getElementById(menus[btnId]);
-    if(!btn||!dd)return;
-    btn.addEventListener('click',function(e){
-      e.stopPropagation();
-      if(openDD===dd){closeAll();return;}
-      closeAll();
-      dd.classList.add('open');btn.classList.add('open');openDD=dd;
+    document.getElementById("aq-approve-btn").addEventListener("click", function() {
+      var btn = document.getElementById("aq-approve-btn");
+      var msg = document.getElementById("aq-msg");
+      btn.disabled = true;
+      btn.textContent = "approving...";
+      msg.textContent = "";
+      msg.className = "aq-msg";
+      fetch(API_BASE + "/api/approvals/approve-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: "bulk approve via Control Room" }),
+        signal: AbortSignal.timeout(8000),
+      })
+        .then(function(res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          msg.textContent = data.approved + " approved, " + data.skipped_high_risk + " HIGH held for review";
+          msg.className = "aq-msg ok";
+          aqFetch();
+        })
+        .catch(function(e) {
+          msg.textContent = "Failed: " + e.message;
+          msg.className = "aq-msg err";
+          btn.disabled = false;
+        })
+        .finally(function() {
+          btn.textContent = "Approve All";
+        });
     });
-    btn.addEventListener('mouseenter',function(){
-      if(openDD&&openDD!==dd){closeAll();dd.classList.add('open');btn.classList.add('open');openDD=dd;}
-    });
-  });
-  document.addEventListener('click',function(){closeAll();});
-  document.querySelectorAll('.mb-dropdown').forEach(function(dd){
-    dd.addEventListener('click',function(e){if(!e.target.closest('.dd-color-dot,.dd-bright-btn,.dd-color-input'))e.stopPropagation();});
-  });
-  /* Hamburger for mobile */
-  var hb=document.getElementById('mbHamburger');
-  if(hb)hb.addEventListener('click',function(e){
-    e.stopPropagation();var dd=document.getElementById('ddFile');
-    if(!dd)return;if(openDD===dd){closeAll();}else{closeAll();dd.classList.add('open');dd.style.left='12px';openDD=dd;}
-  });
-  /* Quick theme toggle via moon icon */
-  var tg=document.getElementById('mbTheme');
-  if(tg)tg.addEventListener('click',function(){
-    var cur=document.body.dataset.brightness||'dark';
-    var next=cur==='dark'?'light':'dark';
-    try{localStorage.setItem('ophtxn_site_brightness',next);}catch(x){}
-    document.body.dataset.brightness=next;
-    tg.textContent=next==='dark'?'\u263E':'\u2600';
-    applyTheme();
-  });
-})();
 
-/* ═══ SITE THEME (View dropdown) ═══ */
-var applyTheme;
-(function(){
-  var TK='ophtxn_site_theme',BK='ophtxn_site_brightness',CK='ophtxn_site_custom';
-  function gt(){try{return localStorage.getItem(TK)||'aurora';}catch(e){return 'aurora';}}
-  function gb(){try{return localStorage.getItem(BK)||'dark';}catch(e){return 'dark';}}
-  function gc(){try{return localStorage.getItem(CK)||'#00e5c4';}catch(e){return '#00e5c4';}}
-  function hexToRgb(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
-  function applyCustom(hex){
-    var el=document.getElementById('customThemeStyle');
-    if(!el){el=document.createElement('style');el.id='customThemeStyle';document.head.appendChild(el);}
-    var rgb=hexToRgb(hex);
-    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-    var darkBg='#'+('0'+Math.round(r*.02).toString(16)).slice(-2)+('0'+Math.round(g*.02).toString(16)).slice(-2)+('0'+Math.round(b*.02).toString(16)).slice(-2);
-    el.textContent='[data-theme="custom"]{--bg:'+darkBg+';--surface:#'+('0'+Math.round(r*.05).toString(16)).slice(-2)+('0'+Math.round(g*.05).toString(16)).slice(-2)+('0'+Math.round(b*.05).toString(16)).slice(-2)+';--lift:#'+('0'+Math.round(r*.06).toString(16)).slice(-2)+('0'+Math.round(g*.06).toString(16)).slice(-2)+('0'+Math.round(b*.06).toString(16)).slice(-2)+';--border:rgba('+rgb+',0.08);--border-hi:rgba('+rgb+',0.16);--ink:#e8f0ff;--muted:#5a6a8a;--dim:#2e3d5c;--c-a:'+hex+';--c-b:'+hex+';--c-c:'+hex+';--c-d:'+hex+';--f-rgb: 0,229,196;--surface:#fff;--lift:#f5f3ef;--ink:#1a1a2e;--muted:#8a8a9a}';
-    var ci=document.getElementById('ddCustomColor');if(ci)ci.value=hex;
-    var cd=document.querySelector('.dd-color-custom');if(cd)cd.style.background='conic-gradient(from 0deg,'+hex+','+hex+')';
-  }
-  function apply(){
-    var t=gt(),b=gb();
-    document.body.dataset.theme=t;document.body.dataset.brightness=b;
-    if(t==='custom')applyCustom(gc());
-    else{var el=document.getElementById('customThemeStyle');if(el)el.textContent='';}
-    document.querySelectorAll('.dd-color-dot[data-color]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.color===t);});
-    document.querySelectorAll('.dd-bright-btn[data-bright]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.bright===b);});
-    var tgEl=document.getElementById('mbTheme');
-    if(tgEl)tgEl.textContent=b==='light'?'\u2600':'\u263E';
-  }
-  applyTheme=apply;
-  apply();
-  var cE=document.getElementById('ddThemeColor'),bE=document.getElementById('ddThemeBright');
-  if(cE)cE.addEventListener('click',function(e){
-    var btn=e.target.closest('.dd-color-dot');
-    if(!btn||!btn.dataset.color)return;
-    if(btn.dataset.color==='custom')return;
-    try{localStorage.setItem(TK,btn.dataset.color);}catch(x){}apply();
-  });
-  var ci=document.getElementById('ddCustomColor');
-  if(ci)ci.addEventListener('input',function(e){
-    try{localStorage.setItem(TK,'custom');localStorage.setItem(CK,e.target.value);}catch(x){}apply();
-  });
-  if(bE)bE.addEventListener('click',function(e){var btn=e.target.closest('.dd-bright-btn');if(!btn||!btn.dataset.bright)return;try{localStorage.setItem(BK,btn.dataset.bright);}catch(x){}apply();});
-  window.addEventListener('storage',function(e){if(e.key===TK||e.key===BK||e.key===CK)apply();});
-})();
+    aqFetch();
+    setInterval(aqFetch, 60000);
 
-/* SHARED: FAB BOT */
-(function(){
-  var fabBot=document.getElementById('fabBot'),fabPopup=document.getElementById('fabPopup'),fabInput=document.getElementById('fabInput');
-  if(!fabBot)return;
-  var fabDragging=false,fabDragStart={x:0,y:0},fabPos={x:0,y:0};
-  try{var sp=JSON.parse(localStorage.getItem('ophtxn_fab_pos'));if(sp&&typeof sp.right==='number'){fabBot.style.right=sp.right+'px';fabBot.style.bottom=sp.bottom+'px';fabPopup.style.right=sp.right+'px';fabPopup.style.bottom=(sp.bottom+68)+'px';}}catch(_){}
-  fabBot.addEventListener('click',function(){if(fabDragging)return;if(fabPopup){fabPopup.classList.toggle('open');if(fabPopup.classList.contains('open')&&fabInput)setTimeout(function(){fabInput.focus();},100);}});
-  var startDrag=function(sx,sy){fabDragging=false;var r=fabBot.getBoundingClientRect();fabDragStart={x:sx,y:sy};fabPos={right:window.innerWidth-r.right,bottom:window.innerHeight-r.bottom};
-    var moved=function(mx,my){var dx=mx-fabDragStart.x,dy=my-fabDragStart.y;if(Math.abs(dx)>4||Math.abs(dy)>4)fabDragging=true;if(!fabDragging)return;var nr=Math.max(8,Math.min(fabPos.right-dx,window.innerWidth-64)),nb=Math.max(8,Math.min(fabPos.bottom-dy,window.innerHeight-64));fabBot.style.right=nr+'px';fabBot.style.bottom=nb+'px';fabPopup.style.right=nr+'px';fabPopup.style.bottom=(nb+68)+'px';};
-    var end=function(){document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',end);document.removeEventListener('touchmove',tm);document.removeEventListener('touchend',end);if(fabDragging){try{localStorage.setItem('ophtxn_fab_pos',JSON.stringify({right:parseInt(fabBot.style.right),bottom:parseInt(fabBot.style.bottom)}));}catch(_){}setTimeout(function(){fabDragging=false;},50);}};
-    var mm=function(e){moved(e.clientX,e.clientY);};var tm=function(e){if(e.touches.length===1){moved(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();}};
-    document.addEventListener('mousemove',mm);document.addEventListener('mouseup',end);document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',end);
-  };
-  fabBot.addEventListener('mousedown',function(e){startDrag(e.clientX,e.clientY);});
-  fabBot.addEventListener('touchstart',function(e){if(e.touches.length===1)startDrag(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-  if(fabInput)fabInput.addEventListener('keydown',function(e){if(e.key==='Enter'){var q=fabInput.value.trim();if(q)window.location.href='ophtxn_shell.html?q='+encodeURIComponent(q);}});
-})();
-</script>
+    // ── DASHBOARD STATS ──
+    var pdStartTime = Date.now();
 
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(function(){});</script>
-<script src="nav-system.js"></script>
+    function updateDashStats() {
+      // Services count
+      var pdSvc = document.getElementById('pd-services');
+      if (pdSvc) {
+        var online = 0;
+        for (var i = 0; i < SERVICES.length; i++) {
+          var st = lastState[SERVICES[i].id];
+          if (st && st.status === 'ok') online++;
+        }
+        pdSvc.textContent = online + '/' + SERVICES.length;
+      }
+
+      // Queue count
+      var pdQ = document.getElementById('pd-queue');
+      if (pdQ) {
+        var aqEl = document.getElementById('aq-count');
+        pdQ.textContent = aqEl ? aqEl.textContent : '--';
+      }
+
+      // Uptime
+      var pdUp = document.getElementById('pd-uptime');
+      if (pdUp) {
+        var elapsed = Math.floor((Date.now() - pdStartTime) / 1000);
+        var mins = Math.floor(elapsed / 60);
+        var secs = elapsed % 60;
+        pdUp.textContent = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
+      }
+    }
+
+    updateDashStats();
+    setInterval(updateDashStats, 2000);
+
+    /* ── Service Worker ── */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    }
+  </script>
+
+  <script src="nav-system.js"></script>
 </body>
 </html>
