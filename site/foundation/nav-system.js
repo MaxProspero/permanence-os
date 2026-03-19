@@ -7,7 +7,7 @@
    Provides:
    - File dropdown (14 pages, current highlighted)
    - View dropdown (theme color dots, zoom slider, Dark/Light/System)
-   - Go dropdown (Tower Overview, Command Center, GitHub)
+   - Go dropdown (Tower Overview, Permanence OS :8000, GitHub)
    - Inline theme toggle cycling Dark > Light > System
    - Keyboard shortcuts (Cmd+/- zoom)
    - Removes: old Go buttons, Quick Launch, Navigate, bottom nav, Powered by
@@ -266,8 +266,10 @@
 
   // ── Build Go dropdown HTML ────────────────────────────────────
   function buildGoDropdown() {
+    var rt = window.__OPHTXN_RUNTIME || {};
+    var ccUrl = rt.commandCenterUrl || rt.apiBase || "http://127.0.0.1:8000";
     var html = '<a href="rooms.html">Tower Overview</a>';
-    html += '<a href="command_center.html">Command Center</a>';
+    html += '<a href="' + ccUrl + '" target="_blank" rel="noopener">Permanence OS</a>';
     html += '<div class="dd-sep"></div>';
     html += '<a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener">GitHub</a>';
     return html;
