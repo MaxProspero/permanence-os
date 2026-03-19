@@ -798,7 +798,6 @@
       <span class="mb-appname">Ophtxn</span>
       <button class="mb-mi" id="mbFile">File</button>
       <button class="mb-mi" id="mbView">View</button>
-      <button class="mb-mi" id="mbGo">Go</button>
       <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
     </div>
     <div class="mb-center"><span class="mb-tagline">GOVERNANCE OS INTELLIGENCE</span></div>
@@ -809,60 +808,7 @@
     </div>
   </div>
 
-  <!-- MENUBAR DROPDOWNS -->
-  <div class="mb-dropdown" id="ddFile" style="left:72px">
-    <div class="dd-label">Ophtxn OS</div>
-    <a href="index.html"><span class="dd-icon">&#8962;</span> Lobby</a>
-    <a href="press_kit.html"><span class="dd-icon">&#9670;</span> Mind Map</a>
-    <a href="trading_room.html"><span class="dd-icon">&#9651;</span> Trading Room</a>
-    <a href="daily_planner.html"><span class="dd-icon">&#9635;</span> Daily Planner</a>
-    <a href="ophtxn_shell.html"><span class="dd-icon">&#9656;</span> Terminal</a>
-    <a href="local_hub.html"><span class="dd-icon">&#9673;</span> Control Room</a>
-    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower</a>
-    <div class="dd-sep"></div>
-    <div class="dd-label">Permanence Platform</div>
-    <a href="ai_school.html"><span class="dd-icon">&#9672;</span> AI School</a>
-    <a href="official_app.html"><span class="dd-icon">&#11041;</span> App Studio</a>
-  </div>
-
-  <div class="mb-dropdown" id="ddView" style="left:112px">
-    <div class="dd-label">Theme</div>
-    <div class="dd-theme-row">
-      <span class="dd-theme-label">Color</span>
-      <div class="dd-color-track" id="ddThemeColor">
-        <button class="dd-color-dot" data-color="aurora" title="Aurora" style="background:linear-gradient(135deg,#00e5c4,#7b6fff)"></button>
-        <button class="dd-color-dot" data-color="copper" title="Copper" style="background:linear-gradient(135deg,#ffb347,#e8a87c)"></button>
-        <button class="dd-color-dot" data-color="ocean" title="Ocean" style="background:linear-gradient(135deg,#4a9eff,#00d4ff)"></button>
-        <button class="dd-color-dot" data-color="rose" title="Rose" style="background:linear-gradient(135deg,#ff5c8a,#ff8fab)"></button>
-        <button class="dd-color-dot" data-color="violet" title="Violet" style="background:linear-gradient(135deg,#9b6dff,#ff6fff)"></button>
-        <button class="dd-color-dot" data-color="forest" title="Forest" style="background:linear-gradient(135deg,#3ddc84,#00bfa5)"></button>
-        <button class="dd-color-dot" data-color="solar" title="Solar" style="background:linear-gradient(135deg,#ffd700,#ffb347)"></button>
-        <button class="dd-color-dot" data-color="crimson" title="Crimson" style="background:linear-gradient(135deg,#ff4444,#ff6b3d)"></button>
-        <button class="dd-color-dot" data-color="frost" title="Frost" style="background:linear-gradient(135deg,#88d8f5,#b8e8ff)"></button>
-        <button class="dd-color-dot" data-color="void" title="Void" style="background:linear-gradient(135deg,#888,#555)"></button>
-        <button class="dd-color-dot dd-color-custom" data-color="custom" title="Custom"><input type="color" class="dd-color-input" id="ddCustomColor" value="#00e5c4"></button>
-      </div>
-    </div>
-    <div class="dd-theme-row">
-      <span class="dd-theme-label">Mode</span>
-      <div class="dd-bright-btns" id="ddThemeBright">
-        <button class="dd-bright-btn" data-bright="dark" title="Dark">&#9790;</button>
-        <button class="dd-bright-btn" data-bright="light" title="Light">&#9728;</button>
-        <button class="dd-bright-btn" data-bright="system" title="System">&#8865;</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="mb-dropdown" id="ddGo" style="left:150px">
-    <div class="dd-label">Quick Nav</div>
-    <a href="rooms.html"><span class="dd-icon">&#9650;</span> Tower Overview</a>
-    <a href="http://127.0.0.1:8000" id="go-cc"><span class="dd-icon">&#9881;</span> Command Center</a>
-    <a href="http://127.0.0.1:8797/app/ophtxn" id="go-shell"><span class="dd-icon">&#9656;</span> Live Shell</a>
-    <div class="dd-sep"></div>
-    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
-  </div>
-
-  <div class="mb-powered">Powered by Permanence Systems</div>
+  <!-- Dropdowns injected by nav-system.js -->
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
@@ -884,9 +830,9 @@
             </div>
           </div>
           <div class="agent-stats">
-            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-mike-wr">68%</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-mike-pnl" style="color:#00e5c4">+$2,840</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-mike-str">4W</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-mike-wr">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-mike-pnl">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-mike-str">--</div></div>
           </div>
         </div>
         <div class="agent-card" data-agent="victor">
@@ -898,9 +844,9 @@
             </div>
           </div>
           <div class="agent-stats">
-            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-victor-wr">72%</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-victor-pnl" style="color:#00e5c4">+$4,120</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-victor-str">6W</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-victor-wr">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-victor-pnl">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-victor-str">--</div></div>
           </div>
         </div>
         <div class="agent-card" data-agent="quinn">
@@ -912,9 +858,9 @@
             </div>
           </div>
           <div class="agent-stats">
-            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-quinn-wr">65%</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-quinn-pnl" style="color:#00e5c4">+$1,560</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-quinn-str">2W</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-quinn-wr">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-quinn-pnl">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-quinn-str">--</div></div>
           </div>
         </div>
         <div class="agent-card" data-agent="sam">
@@ -926,9 +872,9 @@
             </div>
           </div>
           <div class="agent-stats">
-            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-sam-wr">81%</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-sam-pnl" style="color:#ff5c8a">-$320</div></div>
-            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-sam-str">1L</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Win Rate</div><div class="agent-stat-val" id="stat-sam-wr">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">P&amp;L</div><div class="agent-stat-val" id="stat-sam-pnl">--</div></div>
+            <div class="agent-stat"><div class="agent-stat-label">Streak</div><div class="agent-stat-val" id="stat-sam-str">--</div></div>
           </div>
         </div>
       </div>
@@ -949,9 +895,9 @@
           <div class="tr-chart-header">
             <div class="tr-chart-ticker">
               <span class="tr-chart-symbol">AAPL</span>
-              <span class="tr-chart-price" id="chartPrice">$185.42</span>
-              <span class="tr-chart-change up" id="chartChange">+$2.95 (+1.62%)</span>
-              <span class="tr-chart-vol" id="chartVol">Vol 42.1M</span>
+              <span class="tr-chart-price" id="chartPrice">--</span>
+              <span class="tr-chart-change" id="chartChange">--</span>
+              <span class="tr-chart-vol" id="chartVol">--</span>
             </div>
             <div class="tr-time-btns">
               <button class="tr-time-btn active" data-range="1D">1D</button>
@@ -985,49 +931,12 @@
       <div class="tr-header"><span class="dot" style="background:var(--c2)"></span>POSITIONS</div>
       <div class="tr-portfolio-summary">
         <div class="tr-portfolio-label">PORTFOLIO VALUE</div>
-        <div class="tr-portfolio-val">$127,420.00</div>
-        <div class="tr-portfolio-pnl" style="color:#00e5c4" id="portPnl">+$820.00 today (+0.65%)</div>
+        <div class="tr-portfolio-val">--</div>
+        <div class="tr-portfolio-pnl" id="portPnl">--</div>
       </div>
       <div class="tr-positions-list" id="posList">
-        <div class="pos-card">
-          <div class="pos-top">
-            <span class="pos-sym">AAPL</span>
-            <span class="pos-pnl up">+$295.00 (+1.62%)</span>
-          </div>
-          <div class="pos-details">
-            <span>100 shares</span>
-            <span>Avg $182.50</span>
-          </div>
-        </div>
-        <div class="pos-card">
-          <div class="pos-top">
-            <span class="pos-sym">NVDA</span>
-            <span class="pos-pnl down">-$125.00 (-0.29%)</span>
-          </div>
-          <div class="pos-details">
-            <span>50 shares</span>
-            <span>Avg $875.00</span>
-          </div>
-        </div>
-        <div class="pos-card">
-          <div class="pos-top">
-            <span class="pos-sym">MSFT</span>
-            <span class="pos-pnl up">+$562.50 (+1.81%)</span>
-          </div>
-          <div class="pos-details">
-            <span>75 shares</span>
-            <span>Avg $415.00</span>
-          </div>
-        </div>
-        <div class="pos-card">
-          <div class="pos-top">
-            <span class="pos-sym">TSLA</span>
-            <span class="pos-pnl up">+$87.50 (+1.41%)</span>
-          </div>
-          <div class="pos-details">
-            <span>25 shares</span>
-            <span>Avg $248.00</span>
-          </div>
+        <div class="pos-card" style="opacity:0.5;text-align:center;padding:20px 12px">
+          <div class="pos-top"><span class="pos-sym" style="color:var(--muted)">No open positions</span></div>
         </div>
       </div>
     </div>
@@ -1035,30 +944,7 @@
     <!-- BOTTOM: TICKER TAPE -->
     <div class="tr-ticker">
       <div class="ticker-track" id="tickerTrack">
-        <div class="ticker-item"><span class="ticker-sym">AAPL</span><span class="ticker-pct up">+1.62%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">NVDA</span><span class="ticker-pct down">-0.29%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">MSFT</span><span class="ticker-pct up">+1.81%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">TSLA</span><span class="ticker-pct up">+1.41%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">SPY</span><span class="ticker-pct up">+0.45%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">QQQ</span><span class="ticker-pct up">+0.72%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">AMZN</span><span class="ticker-pct up">+0.98%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">GOOG</span><span class="ticker-pct down">-0.34%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">META</span><span class="ticker-pct up">+1.25%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">AMD</span><span class="ticker-pct up">+2.14%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">JPM</span><span class="ticker-pct up">+0.55%</span></div>
-        <span class="ticker-sep">|</span>
-        <div class="ticker-item"><span class="ticker-sym">V</span><span class="ticker-pct down">-0.18%</span></div>
-        <span class="ticker-sep">|</span>
+        <div class="ticker-item"><span class="ticker-sym" style="color:var(--muted)">Awaiting live market data...</span></div>
       </div>
     </div>
 
@@ -1340,18 +1226,10 @@
       {name:'Sentinel Sam',color:'#ff5c8a'}
     ];
     var actions=[
-      {a:0,text:'Bought AAPL at $185.42 \u2014 RSI breakout signal detected'},
-      {a:1,text:'Watching NVDA for support at $870 \u2014 accumulation zone forming'},
-      {a:2,text:'Closed MSFT short at $418.20 \u2014 mean reversion target hit'},
-      {a:3,text:'Reduced TSLA position by 20% \u2014 volatility threshold exceeded'},
-      {a:0,text:'Added to QQQ long at $445.80 \u2014 momentum acceleration confirmed'},
-      {a:1,text:'Initiated AMZN position at $186.50 \u2014 P/E below 5yr average'},
-      {a:2,text:'Sold SPY straddle \u2014 implied vol 18% above realized, capture premium'},
-      {a:3,text:'Flagged portfolio beta at 1.32 \u2014 recommending hedge via VIX calls'},
-      {a:0,text:'Exited META at $512.30 \u2014 momentum divergence on 4h chart'},
-      {a:1,text:'Bid placed for JPM at $195.00 \u2014 book value discount play'},
-      {a:2,text:'Pairs trade: long AMD / short INTC \u2014 z-score at -2.1'},
-      {a:3,text:'Daily risk report: max drawdown 1.8%, within tolerance'}
+      {a:0,text:'Awaiting live signals...'},
+      {a:1,text:'No active positions -- connect market data to begin'},
+      {a:2,text:'System ready -- agents on standby'},
+      {a:3,text:'Risk monitoring idle -- no open exposure'}
     ];
     var now=Date.now();
     var html='';
@@ -1401,10 +1279,10 @@
   /* ═══════════════ TRADING ROOM: AGENT STATS UPDATE ═══════════════ */
   (function(){
     var defaults={
-      mike:{wr:68,pnl:2840,str:'4W'},
-      victor:{wr:72,pnl:4120,str:'6W'},
-      quinn:{wr:65,pnl:1560,str:'2W'},
-      sam:{wr:81,pnl:-320,str:'1L'}
+      mike:{wr:0,pnl:0,str:'--'},
+      victor:{wr:0,pnl:0,str:'--'},
+      quinn:{wr:0,pnl:0,str:'--'},
+      sam:{wr:0,pnl:0,str:'--'}
     };
     function load(){
       try{

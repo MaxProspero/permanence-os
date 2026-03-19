@@ -22,7 +22,7 @@
   <meta property="og:description" content="The first personal intelligence OS with built-in governance. Persistent memory, autonomous agents, human-in-the-loop approvals. Not a chatbot -- a runtime.">
   <meta property="og:site_name" content="Ophtxn by Permanence OS">
 
-  <!-- Twitter Card -->
+  <!-- X (formerly Twitter) Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Ophtxn -- Governed Personal Intelligence OS">
   <meta name="twitter:description" content="The first personal intelligence OS with built-in governance. Persistent memory, autonomous agents, human-in-the-loop approvals. Not a chatbot -- a runtime.">
@@ -95,17 +95,89 @@
   <link rel="stylesheet" href="design-system.css">
 
   <style>
-    /* Page-specific: hamburger, color dots, mobile menu */
-    .hamburger { display: none; width: 20px; height: 14px; flex-direction: column; justify-content: space-between; cursor: pointer; }
-    .hamburger span { display: block; height: 1.5px; background: var(--text-secondary); border-radius: 1px; transition: background 0.2s; }
-    .hamburger:hover span { background: var(--text-primary); }
-    .color-dot { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; transition: transform 0.15s; }
-    .color-dot:hover { transform: scale(1.25); }
-    .color-row { display: flex; gap: var(--sp-2); padding: var(--sp-2) var(--sp-4); }
-    @media (max-width: 600px) {
-      .hamburger { display: flex; }
-      .nav-items { display: none; }
+    /* ── OS Menubar (shared pattern) ── */
+    .os-menubar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9000; height: 28px;
+      background: rgba(4,6,10,.92);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px;
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      font-family: var(--font-label, 'DM Mono', monospace); font-size: 12px;
+      color: var(--text-primary); user-select: none;
     }
+    .mb-left { display: flex; align-items: center; gap: 0; }
+    .mb-logo {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; text-decoration: none; color: var(--accent, #00e5c4);
+      transition: color .2s;
+    }
+    .mb-logo:hover { color: var(--text-primary); }
+    .mb-logo svg { width: 16px; height: 16px; }
+    .mb-appname {
+      font-weight: 700; font-size: 12px; letter-spacing: .02em;
+      color: var(--text-primary); margin-right: 14px;
+    }
+    .mb-mi {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-secondary); font-family: inherit;
+      font-size: 12px; font-weight: 500; padding: 3px 10px;
+      border-radius: 4px; transition: background .15s, color .15s;
+    }
+    .mb-mi:hover, .mb-mi.open { background: rgba(255,255,255,.08); color: var(--text-primary); }
+    .mb-right { display: flex; align-items: center; gap: 10px; }
+    .mb-clock {
+      font-family: var(--font-label, 'DM Mono', monospace); font-size: 11px;
+      font-variant-numeric: tabular-nums; color: var(--text-primary); letter-spacing: .03em;
+    }
+    .mb-date {
+      font-family: var(--font-label, 'DM Mono', monospace); font-size: 11px; color: var(--text-secondary);
+    }
+    .mb-hamburger { display: none; background: none; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer; padding: 2px 6px; margin-left: 4px; }
+    @media (max-width: 768px) {
+      .mb-mi { display: none; }
+      .mb-date { display: none; }
+      .mb-hamburger { display: flex !important; }
+    }
+
+    /* ── Menubar Dropdowns ── */
+    .mb-dropdown {
+      display: none; position: fixed; top: 28px;
+      min-width: 220px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: rgba(8,14,22,.97); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px; padding: 4px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 9100; font-family: inherit; font-size: 12px;
+    }
+    .mb-dropdown.open { display: block; animation: ddIn 120ms ease-out; }
+    @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .mb-dropdown a, .mb-dropdown button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 6px 14px; border: none; background: none;
+      color: var(--text-secondary); text-decoration: none; font: inherit; cursor: pointer;
+      transition: background .1s, color .1s; text-align: left;
+    }
+    .mb-dropdown a:hover, .mb-dropdown button:hover {
+      background: rgba(255,255,255,.06); color: var(--text-primary);
+    }
+    .mb-dropdown .dd-sep { height: 1px; background: rgba(255,255,255,.06); margin: 4px 10px; }
+    .mb-dropdown .dd-label {
+      padding: 6px 14px 2px; font-size: 10px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--text-tertiary);
+    }
+
+    /* Light mode menubar overrides */
+    [data-brightness="light"] .os-menubar { background: rgba(246,244,240,.92); border-bottom-color: rgba(0,0,0,.08); }
+    [data-brightness="light"] .mb-dropdown { background: rgba(246,244,240,.97); border-color: rgba(0,0,0,.1); }
+    [data-brightness="light"] .mb-dropdown a:hover, [data-brightness="light"] .mb-dropdown button:hover { background: rgba(0,0,0,.06); }
+
+    /* ── Hero subtitle fix ── */
+    .hero-subtitle { text-align: center; }
+
+    /* ── Page top padding for menubar ── */
+    .page { padding-top: 48px; }
   </style>
 </head>
 
@@ -119,72 +191,22 @@
   </div>
   <div class="grid-bg"></div>
 
-  <!-- ── NAV BAR ── -->
-  <nav class="nav-bar">
-    <div class="nav-left">
-      <a href="index.html" class="nav-logo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/>
-        </svg>
-        <span>Ophtxn</span>
+  <!-- ── OS MENUBAR ── -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
       </a>
-      <div class="nav-items" style="display:flex;gap:var(--sp-1)">
-        <button class="nav-item" onclick="openDD('file',this)">File</button>
-        <button class="nav-item" onclick="openDD('view',this)">View</button>
-        <button class="nav-item" onclick="openDD('go',this)">Go</button>
-      </div>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
     </div>
-    <div class="nav-right">
-      <span class="nav-meta" id="clock"></span>
-      <button class="nav-item" id="themeToggle" onclick="toggleTheme()">Dark</button>
-      <button class="hamburger" onclick="openDD('file',this)" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+    <div class="mb-right">
+      <span class="mb-mi" id="themeToggle" style="font-size:11px;padding:2px 8px;cursor:pointer;">Dark</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
     </div>
-  </nav>
-
-  <!-- ── DROPDOWNS ── -->
-  <div class="dropdown" id="dd-file">
-    <div class="dd-label">Pages</div>
-    <a href="index.html">Lobby</a>
-    <a href="local_hub.html">Control Room</a>
-    <a href="command_center.html">Command Center</a>
-    <a href="trading_room.html">Trading Room</a>
-    <a href="markets_terminal.html">Markets Terminal</a>
-    <a href="night_capital.html">Night Capital</a>
-    <a href="daily_planner.html">Daily Planner</a>
-    <a href="ophtxn_shell.html">Terminal</a>
-    <a href="rooms.html">Tower</a>
-    <a href="ai_school.html">AI School</a>
-    <a href="official_app.html">App Studio</a>
-    <a href="agent_view.html">Agent View</a>
-    <a href="comms_hub.html">Comms Hub</a>
-    <a href="press_kit.html">Mind Map</a>
-  </div>
-
-  <div class="dropdown" id="dd-view">
-    <div class="dd-label">Theme Color</div>
-    <div class="color-row">
-      <span class="color-dot" style="background:#00e5c4" onclick="setThemeColor('#00e5c4')"></span>
-      <span class="color-dot" style="background:#efbb5f" onclick="setThemeColor('#efbb5f')"></span>
-      <span class="color-dot" style="background:#2997FF" onclick="setThemeColor('#2997FF')"></span>
-      <span class="color-dot" style="background:#FF453A" onclick="setThemeColor('#FF453A')"></span>
-      <span class="color-dot" style="background:#7b6fff" onclick="setThemeColor('#7b6fff')"></span>
-      <span class="color-dot" style="background:#30D158" onclick="setThemeColor('#30D158')"></span>
-    </div>
-    <div class="dd-sep"></div>
-    <div class="dd-label">Appearance</div>
-    <button onclick="setMode('dark')">Dark</button>
-    <button onclick="setMode('light')">Light</button>
-    <button onclick="setMode('system')">System</button>
-  </div>
-
-  <div class="dropdown" id="dd-go">
-    <div class="dd-label">Quick Launch</div>
-    <a href="http://127.0.0.1:8000" target="_blank">Command Center</a>
-    <a href="http://127.0.0.1:8797/app/ophtxn" target="_blank">Terminal</a>
-    <div class="dd-sep"></div>
-    <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener">GitHub</a>
   </div>
 
   <!-- ── PAGE ── -->
@@ -274,23 +296,13 @@
 
   </main>
 
-  <!-- ── FOOTER ── -->
-  <footer class="site-footer">
-    <span class="footer-text">Permanence Systems</span>
-    <div class="footer-links">
-      <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener">GitHub</a>
-      <a href="ai_school.html">AI School</a>
-      <a href="official_app.html">App Studio</a>
-    </div>
-  </footer>
-
   <!-- ── TOAST ── -->
   <div class="toast" id="toast"></div>
 
   <script>
     /* ── Clock ── */
     function tickClock() {
-      var el = document.getElementById('clock');
+      var el = document.getElementById('mbClock');
       if (!el) return;
       var now = new Date();
       var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
@@ -301,95 +313,21 @@
     tickClock();
     setInterval(tickClock, 1000);
 
-    /* ── Dropdowns ── */
-    var openMenu = null;
-
-    function openDD(name, btn) {
-      closeAll();
-      var dd = document.getElementById('dd-' + name);
-      if (!dd) return;
-      var rect = btn.getBoundingClientRect();
-      dd.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 240)) + 'px';
-      dd.classList.add('open');
-      openMenu = dd;
-    }
-
-    function closeAll() {
-      document.querySelectorAll('.dropdown.open').forEach(function(d) { d.classList.remove('open'); });
-      openMenu = null;
-    }
-
-    document.addEventListener('click', function(e) {
-      if (openMenu && !openMenu.contains(e.target) && !e.target.classList.contains('nav-item') && !e.target.classList.contains('hamburger')) {
-        closeAll();
-      }
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeAll();
-    });
-
-    /* ── Theme Toggle ── */
-    var currentMode = localStorage.getItem('theme-mode') || 'dark';
-
-    function setMode(mode) {
-      currentMode = mode;
-      localStorage.setItem('theme-mode', mode);
-      applyMode();
-      closeAll();
-    }
-
-    function toggleTheme() {
-      setMode(currentMode === 'dark' ? 'light' : 'dark');
-    }
-
-    function applyMode() {
-      var isDark = currentMode === 'dark' || (currentMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      var root = document.documentElement.style;
-      var btn = document.getElementById('themeToggle');
-      if (isDark) {
-        root.setProperty('--bg-base', '#0a0a0a');
-        root.setProperty('--bg-surface-1', '#1C1C1E');
-        root.setProperty('--bg-surface-2', '#2C2C2E');
-        root.setProperty('--text-primary', '#F5F5F7');
-        root.setProperty('--text-secondary', '#86868B');
-        root.setProperty('--text-tertiary', 'rgba(255,255,255,0.30)');
-        root.setProperty('--text-inverse', '#0a0a0a');
-        root.setProperty('--sep', 'rgba(255,255,255,0.08)');
-        root.setProperty('--sep-bold', 'rgba(255,255,255,0.15)');
-        if (btn) btn.textContent = 'Dark';
-      } else {
-        root.setProperty('--bg-base', '#FFFFFF');
-        root.setProperty('--bg-surface-1', '#F5F5F7');
-        root.setProperty('--bg-surface-2', '#E8E8ED');
-        root.setProperty('--text-primary', '#1D1D1F');
-        root.setProperty('--text-secondary', '#6E6E73');
-        root.setProperty('--text-tertiary', 'rgba(0,0,0,0.25)');
-        root.setProperty('--text-inverse', '#FFFFFF');
-        root.setProperty('--sep', 'rgba(0,0,0,0.08)');
-        root.setProperty('--sep-bold', 'rgba(0,0,0,0.15)');
-        if (btn) btn.textContent = 'Light';
-      }
-    }
-
-    applyMode();
-
-    /* ── Theme Color ── */
-    function setThemeColor(color) {
-      document.documentElement.style.setProperty('--accent', color);
-      localStorage.setItem('theme-color', color);
-      closeAll();
-      showToast('Theme color updated');
-    }
-
+    /* ── Date ── */
     (function() {
-      var saved = localStorage.getItem('theme-color');
-      if (saved) document.documentElement.style.setProperty('--accent', saved);
+      var d = document.getElementById('mbDate');
+      if (d) {
+        var now = new Date();
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        d.textContent = days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' + now.getDate();
+      }
     })();
 
     /* ── Toast ── */
     function showToast(msg) {
       var t = document.getElementById('toast');
+      if (!t) return;
       t.textContent = msg;
       t.classList.add('show');
       setTimeout(function() { t.classList.remove('show'); }, 2000);
@@ -405,7 +343,6 @@
           }
         });
       }, { threshold: 0.1 });
-
       document.querySelectorAll('.reveal').forEach(function(el) {
         observer.observe(el);
       });
@@ -417,6 +354,6 @@
     }
   </script>
 
-<script src="nav-system.js"></script>
+  <script src="nav-system.js"></script>
 </body>
 </html>

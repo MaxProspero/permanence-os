@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <title>Ophtxn Research Library | Permanence Intelligence Feed</title>
-  <meta name="description" content="Your knowledge, continuously organized. Research agents scan Twitter bookmarks, school documents, and Notebook LM to synthesize courses, articles, and research briefs.">
+  <meta name="description" content="Your knowledge, continuously organized. Research agents scan X bookmarks, school documents, and Notebook LM to synthesize courses, articles, and research briefs.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -2187,7 +2187,6 @@
         <span class="mb-appname">Ophtxn</span>
         <button class="mb-mi" id="mbFile">File</button>
         <button class="mb-mi" id="mbView">View</button>
-        <button class="mb-mi" id="mbGo">Go</button>
         <button class="mb-mi" id="mbLibSidebar">Library</button>
         <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
       </div>
@@ -2252,8 +2251,6 @@
       <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
     </div>
 
-    <div class="mb-powered">Powered by Permanence Systems</div>
-
     <div class="scanlines" aria-hidden="true"></div>
 
     <!-- SIDEBAR -->
@@ -2264,16 +2261,6 @@
         <button class="sb-close" id="sidebarClose">&times;</button>
       </div>
 
-      <div class="sb-section-label">Navigate</div>
-      <nav class="sb-nav">
-        <a href="index.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</a>
-        <a href="rooms.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Tower</a>
-        <a href="ai_school.html" class="active"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Library</a>
-        <a href="official_app.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>App Studio</a>
-        <a href="command_center.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Control Room</a>
-        <a href="ophtxn_shell.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal</a>
-        <a href="press_kit.html"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mind Map</a>
-      </nav>
 
       <button class="sb-courses-toggle" id="sbCoursesToggle">
         Courses
@@ -2328,7 +2315,7 @@
       <span class="arc-eyebrow">PERM-LIB-001 // RESEARCH FEED</span>
       <p class="eyebrow">PERMANENCE RESEARCH LIBRARY</p>
       <h1>Your knowledge, continuously organized.</h1>
-      <p class="hero-sub">Research agents scan your Twitter bookmarks, school documents, and Notebook LM &mdash; then synthesize courses, articles, and research briefs automatically.</p>
+      <p class="hero-sub">Research agents scan your X bookmarks, school documents, and Notebook LM &mdash; then synthesize courses, articles, and research briefs automatically.</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="#research-feed">Browse Feed &rarr;</a>
         <a class="btn btn-secondary" href="#data-sources">View Sources</a>
@@ -2354,7 +2341,7 @@
     <div class="filter-bar" id="filter-bar">
       <div class="filter-toggles" role="group" aria-label="Filter by source">
         <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="twitter">Twitter Bookmarks</button>
+        <button class="filter-btn" data-filter="twitter">X Bookmarks</button>
         <button class="filter-btn" data-filter="school">School Docs</button>
         <button class="filter-btn" data-filter="notebook">Notebook LM</button>
         <button class="filter-btn" data-filter="agent">Agent Research</button>
@@ -2411,10 +2398,10 @@
         <div class="ds-card" style="animation-delay:60ms">
           <div class="ds-card-header">
             <svg class="ds-icon" viewBox="0 0 24 24" fill="none" stroke="var(--c-teal)" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
-            <span class="ds-name">Twitter Bookmarks</span>
+            <span class="ds-name">X Bookmarks</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">1,247 bookmarks indexed</p>
+          <p class="ds-stat">0 bookmarks indexed</p>
           <span class="ds-tag">Connected</span>
         </div>
         <div class="ds-card" style="animation-delay:120ms">
@@ -2423,7 +2410,7 @@
             <span class="ds-name">School Documents</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">86 documents processed</p>
+          <p class="ds-stat">0 documents processed</p>
           <span class="ds-tag">Connected</span>
         </div>
         <div class="ds-card" style="animation-delay:180ms">
@@ -2432,7 +2419,7 @@
             <span class="ds-name">Notebook LM</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">12 notebooks synced</p>
+          <p class="ds-stat">0 notebooks synced</p>
           <span class="ds-tag">Connected</span>
         </div>
         <div class="ds-card" style="animation-delay:240ms">
@@ -2441,43 +2428,21 @@
             <span class="ds-name">Research Agents</span>
             <span class="ds-status-dot ds-connected"></span>
           </div>
-          <p class="ds-stat">4 agents active</p>
+          <p class="ds-stat">0 agents active</p>
           <span class="ds-tag">Running</span>
         </div>
       </div>
     </div>
 
-    <!-- REQUEST RESEARCH -->
+    <!-- RESEARCH INPUT -->
     <div class="request-section" id="create-course">
-      <h3>Request Research</h3>
-      <p class="req-sub">Submit a topic and Permanence agents will gather, analyze, and publish a research brief.</p>
-
-      <!-- Source selector (swipeable pills) -->
-      <div class="cc-subject-wrap">
-        <p class="cc-subject-label">Priority Source</p>
-        <div class="cc-subject-scroller" id="ccSubjectScroller">
-          <button class="cc-subject-pill active" data-cat="all-sources">All Sources</button>
-          <button class="cc-subject-pill" data-cat="twitter">Twitter</button>
-          <button class="cc-subject-pill" data-cat="school">School Docs</button>
-          <button class="cc-subject-pill" data-cat="notebook">Notebook LM</button>
-          <button class="cc-subject-pill" data-cat="agent">Agent Research</button>
-          <button class="cc-subject-pill" data-cat="custom">Custom</button>
-        </div>
-      </div>
-
-      <!-- Title + Description expandable boxes -->
       <div class="cc-fields">
         <div class="cc-field-box" id="ccTitleBox">
           <span class="cc-field-label">Research Topic</span>
-          <input class="cc-field-input" type="text" id="ccTitle" placeholder="What should agents research&hellip;">
-        </div>
-        <div class="cc-field-box" id="ccDescBox">
-          <span class="cc-field-label">Context</span>
-          <textarea class="cc-field-input" id="ccDesc" placeholder="Any specific angle, keywords, or constraints&hellip;" rows="2"></textarea>
+          <input class="cc-field-input" type="text" id="ccTitle" placeholder="What should agents research...">
         </div>
       </div>
-
-      <button class="req-submit" id="ccSubmit">Submit to Agents &rarr;</button>
+      <button class="req-submit" id="ccSubmit">Submit &rarr;</button>
     </div>
 
     <!-- EXPLORE RESEARCH CATEGORIES -->
@@ -2501,7 +2466,7 @@
         <p class="sources-sub">Connected inputs feeding the Permanence Research Library.</p>
 
         <div class="source-section">
-          <h4>Twitter Bookmarks</h4>
+          <h4>X Bookmarks</h4>
           <ul>
             <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>Finance &amp; trading threads</a></li>
             <li><a href="javascript:void(0)"><span class="resource-icon">&#9654;</span>AI/ML research papers &amp; threads</a></li>
@@ -2579,7 +2544,7 @@
           num: '01',
           title: 'Market Intelligence',
           category: 'twitter',
-          desc: 'Financial signals, market trends, and trading insights extracted from Twitter bookmarks and agent analysis.',
+          desc: 'Financial signals, market trends, and trading insights extracted from X bookmarks and agent analysis.',
           color: '--c-teal',
           icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
           skills: [
@@ -2588,7 +2553,7 @@
               level: 'twitter',
               desc: 'Real-time momentum signals from bookmarked finance accounts.',
               icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
-              detail: '<p class="skill-detail-text">Agents continuously scan your <strong>Twitter bookmarks</strong> tagged with finance/trading content, extracting momentum signals, price targets, and sentiment shifts from trusted accounts.</p><div class="code-block"><span class="code-lang">agent output</span><code><span class="ck">Signal:</span>  <span class="cs">NVDA momentum breakout</span>\n<span class="ck">Source:</span>  Twitter bookmark @MacroAlf\n<span class="ck">Date:</span>    2026-03-10\n<span class="ck">Type:</span>    <span class="cv">Technical + Sentiment</span>\n<span class="ck">Conf:</span>    <span class="cs">0.82</span>\n\n<span class="cm">Key findings:</span>\n<span class="cs">- RSI divergence on 4H chart</span>\n<span class="cs">- Volume 2.3x above 20d avg</span>\n<span class="cs">- 3 bookmarked accounts bullish</span></code></div><p class="skill-tip"><strong>Source:</strong> Extracted from 47 bookmarked trading threads this week.</p>',
+              detail: '<p class="skill-detail-text">Agents continuously scan your <strong>X bookmarks</strong> tagged with finance/trading content, extracting momentum signals, price targets, and sentiment shifts from trusted accounts.</p><div class="code-block"><span class="code-lang">agent output</span><code><span class="ck">Signal:</span>  <span class="cs">NVDA momentum breakout</span>\n<span class="ck">Source:</span>  X bookmark @MacroAlf\n<span class="ck">Date:</span>    2026-03-10\n<span class="ck">Type:</span>    <span class="cv">Technical + Sentiment</span>\n<span class="ck">Conf:</span>    <span class="cs">0.82</span>\n\n<span class="cm">Key findings:</span>\n<span class="cs">- RSI divergence on 4H chart</span>\n<span class="cs">- Volume 2.3x above 20d avg</span>\n<span class="cs">- 3 bookmarked accounts bullish</span></code></div><p class="skill-tip"><strong>Source:</strong> Extracted from 47 bookmarked trading threads this week.</p>',
               tip: 'Extracted from bookmarked trading threads.'
             },
             {
@@ -2596,7 +2561,7 @@
               level: 'twitter',
               desc: 'Weekly sector flow analysis from bookmarked macro accounts.',
               icon: 'M18 20V10 M12 20V4 M6 20v-6',
-              detail: '<p class="skill-detail-text">Agents track <strong>sector rotation patterns</strong> by analyzing bookmarked macro and institutional flow accounts on Twitter. Published as weekly sector heat maps.</p><div class="code-block"><span class="code-lang">research brief</span><code><span class="ck">Period:</span>  Week of 2026-03-03\n<span class="ck">Source:</span>  34 bookmarked macro accounts\n\n<span class="cv">Rotating INTO:</span>\n  <span class="cs">Tech (+2.8%)</span>  Energy (+1.4%)\n<span class="cr">Rotating OUT:</span>\n  <span class="cr">Utilities (-1.9%)</span>  REITs (-0.7%)\n\n<span class="cm">Key signal: institutional money</span>\n<span class="cm">favoring growth over defensives</span></code></div><p class="skill-tip"><strong>Source:</strong> Aggregated from 34 macro-focused bookmark threads.</p>',
+              detail: '<p class="skill-detail-text">Agents track <strong>sector rotation patterns</strong> by analyzing bookmarked macro and institutional flow accounts on X. Published as weekly sector heat maps.</p><div class="code-block"><span class="code-lang">research brief</span><code><span class="ck">Period:</span>  Week of 2026-03-03\n<span class="ck">Source:</span>  34 bookmarked macro accounts\n\n<span class="cv">Rotating INTO:</span>\n  <span class="cs">Tech (+2.8%)</span>  Energy (+1.4%)\n<span class="cr">Rotating OUT:</span>\n  <span class="cr">Utilities (-1.9%)</span>  REITs (-0.7%)\n\n<span class="cm">Key signal: institutional money</span>\n<span class="cm">favoring growth over defensives</span></code></div><p class="skill-tip"><strong>Source:</strong> Aggregated from 34 macro-focused bookmark threads.</p>',
               tip: 'Aggregated from macro-focused bookmark threads.'
             },
             {
@@ -2612,7 +2577,7 @@
               level: 'agent',
               desc: 'Cross-source macro environment classification.',
               icon: 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
-              detail: '<p class="skill-detail-text">Research agents combine <strong>Twitter bookmarks, school finance notes, and Notebook LM</strong> analyses to classify the current macro regime: risk-on, risk-off, or transitional.</p><div class="code-block"><span class="code-lang">regime report</span><code><span class="ck">Current Regime:</span> <span class="cs">Risk-On Transition</span>\n<span class="ck">Confidence:</span>    <span class="cs">0.74</span>\n<span class="ck">Sources used:</span>  <span class="cv">3 (Twitter, School, NLM)</span>\n\n<span class="cm">Indicators:</span>\n  <span class="cs">VIX: 14.2 (low)</span>\n  <span class="cs">Yield curve: normalizing</span>\n  <span class="cs">Credit spreads: tightening</span>\n  <span class="cs">Bookmark sentiment: 68% bullish</span></code></div><p class="skill-tip"><strong>Source:</strong> Multi-source synthesis across all connected data.</p>',
+              detail: '<p class="skill-detail-text">Research agents combine <strong>X bookmarks, school finance notes, and Notebook LM</strong> analyses to classify the current macro regime: risk-on, risk-off, or transitional.</p><div class="code-block"><span class="code-lang">regime report</span><code><span class="ck">Current Regime:</span> <span class="cs">Risk-On Transition</span>\n<span class="ck">Confidence:</span>    <span class="cs">0.74</span>\n<span class="ck">Sources used:</span>  <span class="cv">3 (X, School, NLM)</span>\n\n<span class="cm">Indicators:</span>\n  <span class="cs">VIX: 14.2 (low)</span>\n  <span class="cs">Yield curve: normalizing</span>\n  <span class="cs">Credit spreads: tightening</span>\n  <span class="cs">Bookmark sentiment: 68% bullish</span></code></div><p class="skill-tip"><strong>Source:</strong> Multi-source synthesis across all connected data.</p>',
               tip: 'Multi-source synthesis across all connected data.'
             }
           ],
@@ -2643,7 +2608,7 @@
               level: 'school',
               desc: 'Research brief on maximizing context window efficiency.',
               icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
-              detail: '<p class="skill-detail-text">Synthesized from <strong>school ML coursework</strong> and recent Twitter threads on context window management. Covers chunking strategies, retrieval-augmented generation, and attention optimization.</p><div class="code-block"><span class="code-lang">research brief</span><code><span class="ck">Topic:</span>   Context Window Optimization\n<span class="ck">Sources:</span> School ML notes + 23 tweets\n\n<span class="cv">Key Strategies:</span>\n  <span class="cs">1. Hierarchical summarization</span>\n  <span class="cs">2. Semantic chunking (vs fixed)</span>\n  <span class="cs">3. RAG with re-ranking</span>\n  <span class="cs">4. Sliding window attention</span>\n\n<span class="cm">Practical finding: semantic chunking</span>\n<span class="cm">outperforms fixed by 34% on recall</span></code></div><p class="skill-tip"><strong>Source:</strong> School ML coursework + 23 bookmarked threads.</p>',
+              detail: '<p class="skill-detail-text">Synthesized from <strong>school ML coursework</strong> and recent X threads on context window management. Covers chunking strategies, retrieval-augmented generation, and attention optimization.</p><div class="code-block"><span class="code-lang">research brief</span><code><span class="ck">Topic:</span>   Context Window Optimization\n<span class="ck">Sources:</span> School ML notes + 23 tweets\n\n<span class="cv">Key Strategies:</span>\n  <span class="cs">1. Hierarchical summarization</span>\n  <span class="cs">2. Semantic chunking (vs fixed)</span>\n  <span class="cs">3. RAG with re-ranking</span>\n  <span class="cs">4. Sliding window attention</span>\n\n<span class="cm">Practical finding: semantic chunking</span>\n<span class="cm">outperforms fixed by 34% on recall</span></code></div><p class="skill-tip"><strong>Source:</strong> School ML coursework + 23 bookmarked threads.</p>',
               tip: 'School ML coursework + bookmarked threads.'
             },
             {
@@ -2726,7 +2691,7 @@
               level: 'notebook',
               desc: 'Notebook LM synthesis of behavioral biases in markets.',
               icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
-              detail: '<p class="skill-detail-text">From <strong>Notebook LM sessions</strong> combining school behavioral finance notes with Twitter bookmark observations of bias-driven market moves.</p><div class="code-block"><span class="code-lang">notebook synthesis</span><code><span class="ck">Notebook:</span>  Behavioral Finance Review\n<span class="ck">Inputs:</span>   School notes + 18 tweet threads\n\n<span class="cv">Top Biases Observed in Markets:</span>\n  <span class="cs">Anchoring</span>       Price targets as anchors\n  <span class="cs">Herding</span>         Meme stock cascades\n  <span class="cs">Loss Aversion</span>   Holding losers too long\n  <span class="cs">Recency</span>         Overweighting recent data\n\n<span class="cm">Practical edge: fade consensus</span>\n<span class="cm">at extreme sentiment readings</span></code></div><p class="skill-tip"><strong>Source:</strong> Notebook LM + school behavioral finance notes.</p>',
+              detail: '<p class="skill-detail-text">From <strong>Notebook LM sessions</strong> combining school behavioral finance notes with X bookmark observations of bias-driven market moves.</p><div class="code-block"><span class="code-lang">notebook synthesis</span><code><span class="ck">Notebook:</span>  Behavioral Finance Review\n<span class="ck">Inputs:</span>   School notes + 18 tweet threads\n\n<span class="cv">Top Biases Observed in Markets:</span>\n  <span class="cs">Anchoring</span>       Price targets as anchors\n  <span class="cs">Herding</span>         Meme stock cascades\n  <span class="cs">Loss Aversion</span>   Holding losers too long\n  <span class="cs">Recency</span>         Overweighting recent data\n\n<span class="cm">Practical edge: fade consensus</span>\n<span class="cm">at extreme sentiment readings</span></code></div><p class="skill-tip"><strong>Source:</strong> Notebook LM + school behavioral finance notes.</p>',
               tip: 'Notebook LM + school behavioral finance notes.'
             }
           ],
@@ -2769,11 +2734,11 @@
               tip: 'Permanence OS agent integration docs.'
             },
             {
-              title: 'Twitter Bookmark Pipeline',
+              title: 'X Bookmark Pipeline',
               level: 'twitter',
-              desc: 'Automated ingestion and classification of Twitter bookmarks.',
+              desc: 'Automated ingestion and classification of X bookmarks.',
               icon: 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z',
-              detail: '<p class="skill-detail-text">How the <strong>Twitter bookmark pipeline</strong> works: agents fetch bookmarks, classify by topic, extract key claims, and route to the appropriate research category.</p><div class="code-block"><span class="code-lang">pipeline overview</span><code><span class="ck">Source:</span>     Twitter Bookmarks API\n<span class="ck">Indexed:</span>    1,247 bookmarks\n\n<span class="cv">Classification Distribution:</span>\n  <span class="cs">Finance/Trading</span>    412 (33%)\n  <span class="cs">AI/Technology</span>      389 (31%)\n  <span class="cs">Startup/Ops</span>        226 (18%)\n  <span class="cs">Other</span>              220 (18%)\n\n<span class="cm">Processing: new bookmarks scanned</span>\n<span class="cm">every 6 hours, classified in &lt;2s</span></code></div><p class="skill-tip"><strong>Source:</strong> Agent pipeline telemetry.</p>',
+              detail: '<p class="skill-detail-text">How the <strong>X bookmark pipeline</strong> works: agents fetch bookmarks, classify by topic, extract key claims, and route to the appropriate research category.</p><div class="code-block"><span class="code-lang">pipeline overview</span><code><span class="ck">Source:</span>     X Bookmarks API\n<span class="ck">Indexed:</span>    1,247 bookmarks\n\n<span class="cv">Classification Distribution:</span>\n  <span class="cs">Finance/Trading</span>    412 (33%)\n  <span class="cs">AI/Technology</span>      389 (31%)\n  <span class="cs">Startup/Ops</span>        226 (18%)\n  <span class="cs">Other</span>              220 (18%)\n\n<span class="cm">Processing: new bookmarks scanned</span>\n<span class="cm">every 6 hours, classified in &lt;2s</span></code></div><p class="skill-tip"><strong>Source:</strong> Agent pipeline telemetry.</p>',
               tip: 'Agent pipeline telemetry.'
             },
             {
@@ -2794,7 +2759,7 @@
               { label: 'Connect', skill: 'Notebook LM Integration Guide', desc: 'Notebook sync pipeline' }
             ],
             twitter: [
-              { label: 'Ingest', skill: 'Twitter Bookmark Pipeline', desc: 'Bookmark classification' }
+              { label: 'Ingest', skill: 'X Bookmark Pipeline', desc: 'Bookmark classification' }
             ]
           }
         },
@@ -2805,7 +2770,7 @@
           num: '05',
           title: 'Trading Strategies',
           category: 'course',
-          desc: 'Synthesized trading frameworks combining school finance, Twitter signals, and agent backtesting.',
+          desc: 'Synthesized trading frameworks combining school finance, X signals, and agent backtesting.',
           color: '--c-gold',
           icon: 'M18 20V10 M12 20V4 M6 20v-6',
           skills: [
@@ -2814,7 +2779,7 @@
               level: 'course',
               desc: 'Course generated from thesis research and bookmark signals.',
               icon: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0114.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0020.49 15',
-              detail: '<p class="skill-detail-text">A <strong>generated course</strong> combining thesis quantitative methods with real-world momentum signals from Twitter bookmarks. Covers entry/exit rules, position sizing, and risk management.</p><div class="code-block"><span class="code-lang">strategy brief</span><code><span class="ck">Strategy:</span>  Momentum + Mean Reversion\n<span class="ck">Sources:</span>   Thesis Ch.4 + 89 tweet signals\n\n<span class="cv">Rules:</span>\n  <span class="cs">Entry:</span>  RSI(14) crosses above 50\n          AND price > 20 SMA\n  <span class="cs">Exit:</span>   RSI(14) > 75 OR 2% stop-loss\n  <span class="cs">Size:</span>   Max 5% per position\n\n<span class="cm">Backtest (2024-2026): +31.2% CAGR</span>\n<span class="cm">Sharpe: 1.47, Max DD: -8.3%</span></code></div><p class="skill-tip"><strong>Source:</strong> Thesis Chapter 4 + 89 bookmarked trading signals.</p>',
+              detail: '<p class="skill-detail-text">A <strong>generated course</strong> combining thesis quantitative methods with real-world momentum signals from X bookmarks. Covers entry/exit rules, position sizing, and risk management.</p><div class="code-block"><span class="code-lang">strategy brief</span><code><span class="ck">Strategy:</span>  Momentum + Mean Reversion\n<span class="ck">Sources:</span>   Thesis Ch.4 + 89 tweet signals\n\n<span class="cv">Rules:</span>\n  <span class="cs">Entry:</span>  RSI(14) crosses above 50\n          AND price > 20 SMA\n  <span class="cs">Exit:</span>   RSI(14) > 75 OR 2% stop-loss\n  <span class="cs">Size:</span>   Max 5% per position\n\n<span class="cm">Backtest (2024-2026): +31.2% CAGR</span>\n<span class="cm">Sharpe: 1.47, Max DD: -8.3%</span></code></div><p class="skill-tip"><strong>Source:</strong> Thesis Chapter 4 + 89 bookmarked trading signals.</p>',
               tip: 'Thesis Chapter 4 + bookmarked trading signals.'
             },
             {
@@ -2864,7 +2829,7 @@
           num: '06',
           title: 'Knowledge Synthesis',
           category: 'course',
-          desc: 'Cross-source research briefs that connect dots across Twitter, school documents, Notebook LM, and agent outputs.',
+          desc: 'Cross-source research briefs that connect dots across X, school documents, Notebook LM, and agent outputs.',
           color: '--c-teal',
           icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
           skills: [
@@ -2873,7 +2838,7 @@
               level: 'agent',
               desc: 'Comprehensive weekly synthesis across all data sources.',
               icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8',
-              detail: '<p class="skill-detail-text">Every Monday, agents compile a <strong>weekly intelligence brief</strong> synthesizing the most important findings from all connected sources into a single actionable document.</p><div class="code-block"><span class="code-lang">weekly brief</span><code><span class="ck">Week:</span>      2026-03-03 to 2026-03-10\n<span class="ck">Sources:</span>   All (Twitter, School, NLM, Agents)\n\n<span class="cv">Top 3 Findings:</span>\n  <span class="cs">1. Tech sector momentum accelerating</span>\n     <span class="cm">(Twitter bookmarks + agent analysis)</span>\n  <span class="cs">2. Vol surface signals mean reversion</span>\n     <span class="cm">(School derivatives + market data)</span>\n  <span class="cs">3. LLM context optimization breakthrough</span>\n     <span class="cm">(Notebook LM + AI researcher tweets)</span>\n\n<span class="cv">Action Items:</span> 4 flagged for review</code></div><p class="skill-tip"><strong>Source:</strong> All connected sources, synthesized weekly.</p>',
+              detail: '<p class="skill-detail-text">Every Monday, agents compile a <strong>weekly intelligence brief</strong> synthesizing the most important findings from all connected sources into a single actionable document.</p><div class="code-block"><span class="code-lang">weekly brief</span><code><span class="ck">Week:</span>      2026-03-03 to 2026-03-10\n<span class="ck">Sources:</span>   All (X, School, NLM, Agents)\n\n<span class="cv">Top 3 Findings:</span>\n  <span class="cs">1. Tech sector momentum accelerating</span>\n     <span class="cm">(X bookmarks + agent analysis)</span>\n  <span class="cs">2. Vol surface signals mean reversion</span>\n     <span class="cm">(School derivatives + market data)</span>\n  <span class="cs">3. LLM context optimization breakthrough</span>\n     <span class="cm">(Notebook LM + AI researcher tweets)</span>\n\n<span class="cv">Action Items:</span> 4 flagged for review</code></div><p class="skill-tip"><strong>Source:</strong> All connected sources, synthesized weekly.</p>',
               tip: 'All connected sources, synthesized weekly.'
             },
             {
@@ -2881,7 +2846,7 @@
               level: 'notebook',
               desc: 'Visual map of how ideas connect across all your sources.',
               icon: 'M12 12m-10 0a10 10 0 1020 0 10 10 0 10-20 0z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z',
-              detail: '<p class="skill-detail-text">Agents build a <strong>knowledge graph</strong> connecting concepts across all sources. Shows how a Twitter thread on momentum connects to your thesis on risk, to a Notebook LM session on agent design.</p><div class="code-block"><span class="code-lang">knowledge graph</span><code><span class="ck">Nodes:</span>     847 concepts identified\n<span class="ck">Edges:</span>     2,341 connections mapped\n\n<span class="cv">Strongest Clusters:</span>\n  <span class="cs">Risk Management</span>\n    VaR &harr; Monte Carlo &harr; Backtesting\n  <span class="cs">Agent Systems</span>\n    MCP &harr; Pipeline &harr; Governance\n  <span class="cs">Market Structure</span>\n    Momentum &harr; Vol &harr; Correlation\n\n<span class="cm">Cross-cluster insight: risk models</span>\n<span class="cm">from thesis apply to agent governance</span></code></div><p class="skill-tip"><strong>Source:</strong> Cross-source knowledge graph analysis.</p>',
+              detail: '<p class="skill-detail-text">Agents build a <strong>knowledge graph</strong> connecting concepts across all sources. Shows how an X thread on momentum connects to your thesis on risk, to a Notebook LM session on agent design.</p><div class="code-block"><span class="code-lang">knowledge graph</span><code><span class="ck">Nodes:</span>     847 concepts identified\n<span class="ck">Edges:</span>     2,341 connections mapped\n\n<span class="cv">Strongest Clusters:</span>\n  <span class="cs">Risk Management</span>\n    VaR &harr; Monte Carlo &harr; Backtesting\n  <span class="cs">Agent Systems</span>\n    MCP &harr; Pipeline &harr; Governance\n  <span class="cs">Market Structure</span>\n    Momentum &harr; Vol &harr; Correlation\n\n<span class="cm">Cross-cluster insight: risk models</span>\n<span class="cm">from thesis apply to agent governance</span></code></div><p class="skill-tip"><strong>Source:</strong> Cross-source knowledge graph analysis.</p>',
               tip: 'Cross-source knowledge graph analysis.'
             },
             {
@@ -2889,7 +2854,7 @@
               level: 'agent',
               desc: 'Identifies topics where your sources have conflicting or missing data.',
               icon: 'M11 19a8 8 0 100-16 8 8 0 000 16z M21 21l-4.35-4.35',
-              detail: '<p class="skill-detail-text">Agents analyze your <strong>knowledge graph for gaps</strong>: topics with thin coverage, conflicting claims across sources, or areas where deeper research would connect isolated clusters.</p><div class="code-block"><span class="code-lang">gap analysis</span><code><span class="ck">Scan:</span>      Complete library analysis\n<span class="ck">Gaps:</span>      7 identified\n\n<span class="cv">Top Research Gaps:</span>\n  <span class="cr">1. Crypto regulation impact</span>\n     <span class="cm">0 school docs, 3 tweets only</span>\n  <span class="cr">2. Agent cost optimization</span>\n     <span class="cm">NLM session exists, no Twitter data</span>\n  <span class="cr">3. Macro &harr; micro factor bridge</span>\n     <span class="cm">Thesis covers macro, tweets micro</span>\n\n<span class="cv">Suggested: request agent research</span>\n<span class="cv">on gap #3 for portfolio integration</span></code></div><p class="skill-tip"><strong>Source:</strong> Automated gap detection across all sources.</p>',
+              detail: '<p class="skill-detail-text">Agents analyze your <strong>knowledge graph for gaps</strong>: topics with thin coverage, conflicting claims across sources, or areas where deeper research would connect isolated clusters.</p><div class="code-block"><span class="code-lang">gap analysis</span><code><span class="ck">Scan:</span>      Complete library analysis\n<span class="ck">Gaps:</span>      7 identified\n\n<span class="cv">Top Research Gaps:</span>\n  <span class="cr">1. Crypto regulation impact</span>\n     <span class="cm">0 school docs, 3 tweets only</span>\n  <span class="cr">2. Agent cost optimization</span>\n     <span class="cm">NLM session exists, no X data</span>\n  <span class="cr">3. Macro &harr; micro factor bridge</span>\n     <span class="cm">Thesis covers macro, tweets micro</span>\n\n<span class="cv">Suggested: request agent research</span>\n<span class="cv">on gap #3 for portfolio integration</span></code></div><p class="skill-tip"><strong>Source:</strong> Automated gap detection across all sources.</p>',
               tip: 'Automated gap detection across all sources.'
             },
             {
@@ -3238,7 +3203,7 @@
          RENDER: SKILL CARDS
          ================================================================ */
       var SOURCE_LABELS = {
-        twitter: 'Twitter Bookmarks',
+        twitter: 'X Bookmarks',
         school: 'School Docs',
         notebook: 'Notebook LM',
         agent: 'Agent Research',
@@ -3692,12 +3657,6 @@
          ================================================================ */
       var RF_KEY = 'ophtxn_research_feed';
       var DEMO_FEED = [
-        { title: 'Trading Signal: NVDA momentum breakout detected', source: 'Twitter Bookmarks', time: '2 hours ago', tag: 'signal', tagClass: 'rf-tag-signal' },
-        { title: 'Research Brief: LLM Context Window Optimization', source: 'School Docs', time: '5 hours ago', tag: 'brief', tagClass: 'rf-tag-brief' },
-        { title: 'Course Generated: Agentic Workflow Patterns', source: 'Notebook LM', time: '1 day ago', tag: 'course', tagClass: 'rf-tag-course' },
-        { title: 'Sector Alert: Tech rotation accelerating', source: 'Agent Research', time: '1 day ago', tag: 'alert', tagClass: 'rf-tag-alert' },
-        { title: 'Earnings Preview: AAPL Q1 sentiment compilation', source: 'Twitter Bookmarks', time: '2 days ago', tag: 'brief', tagClass: 'rf-tag-brief' },
-        { title: 'Knowledge Gap: Crypto regulation coverage needed', source: 'Agent Research', time: '3 days ago', tag: 'alert', tagClass: 'rf-tag-alert' }
       ];
 
       function loadResearchFeed() {

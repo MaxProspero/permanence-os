@@ -604,7 +604,6 @@
       <span class="mb-appname">Ophtxn</span>
       <button class="mb-mi" id="mbFile">File</button>
       <button class="mb-mi" id="mbView">View</button>
-      <button class="mb-mi" id="mbGo">Go</button>
       <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
     </div>
     <div class="mb-center"><span class="mb-tagline">GOVERNANCE OS INTELLIGENCE</span></div>
@@ -667,8 +666,6 @@
     <div class="dd-sep"></div>
     <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
   </div>
-
-  <div class="mb-powered">Powered by Permanence Systems</div>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
@@ -949,17 +946,11 @@
       saveAll(all);
     }
 
-    /* Sample tasks for today */
+    /* Sample tasks for today -- empty by default */
     function seedSample(ds){
       var all=loadAll();
       if(all[ds]&&all[ds].length>0) return;
-      all[ds]=[
-        {id:uid(),title:'Morning Review',start:'08:00',end:'09:00',status:'pending',agent:'Sentinel Sam',color:'#ff5c8a',priority:'high'},
-        {id:uid(),title:'Strategy Session',start:'09:30',end:'10:30',status:'pending',agent:'',color:'#00e5c4',priority:'medium'},
-        {id:uid(),title:'Lunch Break',start:'12:00',end:'13:00',status:'pending',agent:'',color:'#7b96af',priority:'low'},
-        {id:uid(),title:'Deep Work Block',start:'14:00',end:'15:30',status:'in_progress',agent:'',color:'#73b8ff',priority:'high'},
-        {id:uid(),title:'Agent Check-in',start:'16:00',end:'16:30',status:'pending',agent:'Horizon Scout',color:'#ffb347',priority:'medium'}
-      ];
+      all[ds]=[];
       saveAll(all);
     }
 

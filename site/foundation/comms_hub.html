@@ -709,7 +709,6 @@
       <span class="mb-appname">Ophtxn</span>
       <button class="mb-mi" id="mbFile">File</button>
       <button class="mb-mi" id="mbView">View</button>
-      <button class="mb-mi" id="mbGo">Go</button>
       <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
     </div>
     <div class="mb-center"><span class="mb-tagline">COMMS HUB &middot; UNIFIED COMMUNICATIONS</span></div>
@@ -778,8 +777,6 @@
     <a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener"><span class="dd-icon">&#8984;</span> GitHub</a>
   </div>
 
-  <div class="mb-powered">Powered by Permanence Systems</div>
-
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
@@ -801,7 +798,7 @@
           <div class="channel-item active" data-channel="discord" data-platform="Discord">
             <span class="channel-dot connected"></span>
             <span class="channel-name">Discord</span>
-            <span class="unread-badge">3</span>
+            <span class="unread-badge zero">0</span>
           </div>
           <!-- Discord sub-channels -->
           <div class="channel-item sub-channel" data-channel="discord-general" data-platform="Discord">
@@ -820,12 +817,12 @@
           <div class="channel-item" data-channel="telegram" data-platform="Telegram">
             <span class="channel-dot connected"></span>
             <span class="channel-name">Telegram</span>
-            <span class="unread-badge">7</span>
+            <span class="unread-badge zero">0</span>
           </div>
           <div class="channel-item" data-channel="whatsapp" data-platform="WhatsApp">
             <span class="channel-dot syncing"></span>
             <span class="channel-name">WhatsApp</span>
-            <span class="unread-badge">1</span>
+            <span class="unread-badge zero">0</span>
           </div>
           <div class="channel-item" data-channel="internal" data-platform="Internal">
             <span class="channel-dot connected"></span>
@@ -835,7 +832,7 @@
           <div class="channel-item" data-channel="email" data-platform="Email Digest">
             <span class="channel-dot connected"></span>
             <span class="channel-name">Email Digest</span>
-            <span class="unread-badge">2</span>
+            <span class="unread-badge zero">0</span>
           </div>
         </div>
       </div>
@@ -844,24 +841,24 @@
       <div class="conn-manager">
         <div class="sec-label"><span class="dot" style="background:var(--c3)"></span>CONNECTIONS</div>
         <div class="conn-item">
-          <span class="channel-dot connected"></span>
+          <span class="channel-dot"></span>
           <span class="conn-platform">Discord</span>
-          <span class="conn-status">Connected -- synced 2m ago</span>
+          <span class="conn-status">--</span>
         </div>
         <div class="conn-item">
-          <span class="channel-dot connected"></span>
+          <span class="channel-dot"></span>
           <span class="conn-platform">Telegram</span>
-          <span class="conn-status">Connected -- synced 1m ago</span>
+          <span class="conn-status">--</span>
         </div>
         <div class="conn-item">
-          <span class="channel-dot syncing"></span>
+          <span class="channel-dot"></span>
           <span class="conn-platform">WhatsApp</span>
-          <span class="conn-status">Syncing -- last 4m ago</span>
+          <span class="conn-status">--</span>
         </div>
         <div class="conn-item">
-          <span class="channel-dot connected"></span>
+          <span class="channel-dot"></span>
           <span class="conn-platform">Internal</span>
-          <span class="conn-status">Connected -- synced 30s ago</span>
+          <span class="conn-status">--</span>
         </div>
         <div class="conn-item">
           <span class="channel-dot connected"></span>
@@ -884,84 +881,8 @@
       </div>
 
       <div class="chat-messages">
-        <!-- Message 1 -->
-        <div class="msg incoming">
-          <span class="msg-sender">Marcus</span>
-          <div class="msg-bubble">Just pushed the new auth middleware to staging. Can someone review the token rotation logic?</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via Discord</span>
-            <span>10:42 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 2 -->
-        <div class="msg outgoing">
-          <span class="msg-sender">Payton</span>
-          <div class="msg-bubble">Looking at it now. The refresh window seems tight -- are we handling clock skew on the edge nodes?</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via Discord</span>
-            <span>10:44 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 3 -->
-        <div class="msg incoming">
-          <span class="msg-sender">Marcus</span>
-          <div class="msg-bubble">Good catch. I added a 30-second grace period but we might need more for the Asia-Pacific relays.</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via Discord</span>
-            <span>10:45 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 4 -->
-        <div class="msg incoming">
-          <span class="msg-sender">Elena</span>
-          <div class="msg-bubble">Forwarding the investor update from Telegram -- they want the Q1 deck by Friday. I already drafted the executive summary section.</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via Telegram</span>
-            <span>10:51 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 5 -->
-        <div class="msg outgoing">
-          <span class="msg-sender">Payton</span>
-          <div class="msg-bubble">Perfect. Share the draft in #dev when ready. I will add the technical roadmap slides tonight.</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via Discord</span>
-            <span>10:53 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 6 -->
-        <div class="msg incoming">
-          <span class="msg-sender">System</span>
-          <div class="msg-bubble">WhatsApp bridge reconnected. 1 pending message synced from Alex R.</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via Internal</span>
-            <span>11:02 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 7 -->
-        <div class="msg incoming">
-          <span class="msg-sender">Alex R.</span>
-          <div class="msg-bubble">Hey, can we move the standup to 2pm tomorrow? I have a conflict with the compliance review.</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via WhatsApp</span>
-            <span>11:04 AM</span>
-          </div>
-        </div>
-
-        <!-- Message 8 -->
-        <div class="msg outgoing">
-          <span class="msg-sender">Payton</span>
-          <div class="msg-bubble">Works for me. I will update the calendar and notify the team on Discord.</div>
-          <div class="msg-meta">
-            <span class="msg-platform-tag">via WhatsApp</span>
-            <span>11:06 AM</span>
-          </div>
+        <div style="text-align:center;color:var(--muted);padding:40px 20px;opacity:0.6">
+          No messages yet -- connect platforms to begin
         </div>
 
         <!-- Message 9 -->
