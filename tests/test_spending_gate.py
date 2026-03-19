@@ -25,14 +25,25 @@ from core.spending_gate import (
 )
 
 
+_PROVIDER_CREDIT_KEYS = [
+    "PERMANENCE_ANTHROPIC_CREDIT_USD",
+    "PERMANENCE_OPENAI_CREDIT_USD",
+    "PERMANENCE_XAI_CREDIT_USD",
+    "PERMANENCE_OPENCLAW_CREDIT_USD",
+]
+
+
 @pytest.fixture
 def gate(tmp_path):
     """Create a SpendingGate with temp paths and some initial credits."""
     state_path = str(tmp_path / "spending_state.json")
     log_path = str(tmp_path / "spending_gate.jsonl")
 
-    # Set env vars for credits
-    os.environ["PERMANENCE_PREPAID_CREDIT_USD"] = "15.00"
+    # Save any existing env state that might pollute
+    saved = {k: os.environ.pop(k, None) for k in _PROVIDER_CREDIT_KEYS}
+
+    # Set env vars for credits -- $5 per provider explicitly
+    os.environ["PERMANENCE_PREPAID_CREDIT_USD"] = "20.00"
     os.environ["PERMANENCE_SPENDING_APPROVAL_MODE"] = "gate"
 
     g = SpendingGate(state_path=state_path, log_path=log_path)
@@ -43,11 +54,18 @@ def gate(tmp_path):
     os.environ.pop("PERMANENCE_PREPAID_CREDIT_USD", None)
     os.environ.pop("PERMANENCE_SPENDING_APPROVAL_MODE", None)
     os.environ.pop("PERMANENCE_DAILY_SPEND_CAP_USD", None)
+    # Restore any saved provider-specific env vars
+    for k, v in saved.items():
+        if v is not None:
+            os.environ[k] = v
+        else:
+            os.environ.pop(k, None)
 
 
 @pytest.fixture
 def block_gate(tmp_path):
     """Create a SpendingGate in block mode."""
+    saved = {k: os.environ.pop(k, None) for k in _PROVIDER_CREDIT_KEYS}
     os.environ["PERMANENCE_SPENDING_APPROVAL_MODE"] = "block"
     g = SpendingGate(
         state_path=str(tmp_path / "state.json"),
@@ -55,11 +73,17 @@ def block_gate(tmp_path):
     )
     yield g
     os.environ.pop("PERMANENCE_SPENDING_APPROVAL_MODE", None)
+    for k, v in saved.items():
+        if v is not None:
+            os.environ[k] = v
+        else:
+            os.environ.pop(k, None)
 
 
 @pytest.fixture
 def auto_gate(tmp_path):
     """Create a SpendingGate in auto mode."""
+    saved = {k: os.environ.pop(k, None) for k in _PROVIDER_CREDIT_KEYS}
     os.environ["PERMANENCE_SPENDING_APPROVAL_MODE"] = "auto"
     os.environ["PERMANENCE_PREPAID_CREDIT_USD"] = "10.00"
     g = SpendingGate(
@@ -69,11 +93,17 @@ def auto_gate(tmp_path):
     yield g
     os.environ.pop("PERMANENCE_SPENDING_APPROVAL_MODE", None)
     os.environ.pop("PERMANENCE_PREPAID_CREDIT_USD", None)
+    for k, v in saved.items():
+        if v is not None:
+            os.environ[k] = v
+        else:
+            os.environ.pop(k, None)
 
 
 @pytest.fixture
 def capped_gate(tmp_path):
     """Create a SpendingGate with a daily cap."""
+    saved = {k: os.environ.pop(k, None) for k in _PROVIDER_CREDIT_KEYS}
     os.environ["PERMANENCE_SPENDING_APPROVAL_MODE"] = "gate"
     os.environ["PERMANENCE_PREPAID_CREDIT_USD"] = "100.00"
     os.environ["PERMANENCE_DAILY_SPEND_CAP_USD"] = "10.00"
@@ -85,6 +115,11 @@ def capped_gate(tmp_path):
     os.environ.pop("PERMANENCE_SPENDING_APPROVAL_MODE", None)
     os.environ.pop("PERMANENCE_PREPAID_CREDIT_USD", None)
     os.environ.pop("PERMANENCE_DAILY_SPEND_CAP_USD", None)
+    for k, v in saved.items():
+        if v is not None:
+            os.environ[k] = v
+        else:
+            os.environ.pop(k, None)
 
 
 # ── Check (Gate Mode) ────────────────────────────────────────────────────
@@ -101,7 +136,7 @@ class TestGateMode:
         assert result["reason"] == "within_credits"
 
     def test_exceeds_credits_blocked(self, gate):
-        # Default credits = 15 / 3 providers = 5 each
+        # Default credits = 20 / 4 providers = 5 each
         result = gate.check(provider="anthropic", estimated_cost_usd=10.00)
         assert result["allowed"] is False
         assert result["fallback"] == "ollama"

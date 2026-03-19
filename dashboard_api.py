@@ -341,25 +341,31 @@ def approve_all():
     approvals = _load_approvals()
     approved_ids = []
     skipped_high = []
+    skipped_no_priority = []
 
     for item in approvals:
         if item.get("status") != "PENDING_HUMAN_REVIEW":
             continue
-        priority = str(item.get("priority", "")).upper()
-        if priority == "HIGH":
-            skipped_high.append(item.get("id") or item.get("approval_id", ""))
-            continue
+        priority = str(item.get("priority", "")).upper().strip()
         approval_id = item.get("id") or item.get("approval_id", "")
-        _update_approval_status(approval_id, "APPROVED", notes)
+        if priority in ("HIGH", "CRITICAL"):
+            skipped_high.append(approval_id)
+            continue
+        if not priority:
+            skipped_no_priority.append(approval_id)
+            continue
+        _update_approval_status(approval_id, "APPROVED", notes, decision_source="dashboard_api_bulk")
         approved_ids.append(approval_id)
 
     return jsonify({
         "approved": len(approved_ids),
         "skipped_high_risk": len(skipped_high),
+        "skipped_no_priority": len(skipped_no_priority),
         "approved_ids": approved_ids,
         "skipped_ids": skipped_high,
+        "skipped_no_priority_ids": skipped_no_priority,
         "decided_at": utc_iso(),
-        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH-risk items kept for individual review.",
+        "message": f"Approved {len(approved_ids)} items. {len(skipped_high)} HIGH/CRITICAL items and {len(skipped_no_priority)} unclassified items kept for individual review.",
     })
 
 
@@ -3866,7 +3872,7 @@ def _load_approvals() -> list:
             return []
 
 
-def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
+def _update_approval_status(approval_id: str, status: str, notes: str, *, decision_source: str = "") -> bool:
     approvals = _load_approvals()
     found = False
     for a in approvals:
@@ -3874,6 +3880,8 @@ def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
             a["status"] = status
             a["decided_at"] = utc_iso()
             a["decision_notes"] = notes
+            if decision_source:
+                a["decision_source"] = decision_source
             a["decision_hash"] = hashlib.sha256(
                 f"{approval_id}{status}{notes}{utc_iso()}".encode()
             ).hexdigest()[:16]
@@ -3881,8 +3889,13 @@ def _update_approval_status(approval_id: str, status: str, notes: str) -> bool:
             break
 
     if found:
-        os.makedirs(os.path.dirname(PATHS["approvals"]), exist_ok=True)
-        with open(PATHS["approvals"], "w") as f:
+        approvals_path = PATHS["approvals"]
+        os.makedirs(os.path.dirname(approvals_path), exist_ok=True)
+        lock_path = approvals_path + ".lock"
+        # Atomic write with lock file for integrity
+        with open(lock_path, "w") as lf:
+            lf.write(utc_iso())
+        with open(approvals_path, "w") as f:
             json.dump(approvals, f, indent=2)
 
     return found
