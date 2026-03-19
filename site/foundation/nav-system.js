@@ -529,12 +529,25 @@
   }
 
   // ── Init ───────────────────────────────────────────────────────
+  // ── Logo click → Permanence OS ────────────────────────────────
+  function wireLogoToggle() {
+    var logo = document.querySelector(".mb-logo");
+    if (!logo) return;
+    var rt = window.__OPHTXN_RUNTIME || {};
+    var ccUrl = rt.commandCenterUrl || rt.apiBase || "http://127.0.0.1:8000";
+    logo.setAttribute("href", ccUrl);
+    logo.setAttribute("target", "_blank");
+    logo.setAttribute("rel", "noopener");
+    logo.setAttribute("title", "Open Permanence OS");
+  }
+
   function init() {
     injectStyles();
     removeOldElements();
     replaceThemeToggle();
     injectDropdowns();
     initKeyboard();
+    wireLogoToggle();
     applyZoom();
 
     // Apply saved theme and brightness

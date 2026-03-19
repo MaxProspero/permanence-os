@@ -165,10 +165,33 @@
     /* ── Render room cards ── */
     var grid = document.getElementById('roomGrid');
 
+    /* ── Port-aware routing (matches nav-system.js logic) ── */
+    var isAppRoute = location.pathname.indexOf("/app/") === 0;
+    var APP_ROUTES = {
+      "index.html": "/app/official",
+      "ophtxn_shell.html": "/app/ophtxn",
+      "local_hub.html": "/app/hub",
+      "command_center.html": "/app/command-center",
+      "trading_room.html": "/app/trading",
+      "markets_terminal.html": "/app/markets",
+      "night_capital.html": "/app/night-capital",
+      "daily_planner.html": "/app/daily-planner",
+      "rooms.html": "/app/rooms",
+      "ai_school.html": "/app/ai-school",
+      "official_app.html": "/app/studio",
+      "agent_view.html": "/app/agent-view",
+      "comms_hub.html": "/app/comms",
+      "press_kit.html": "/app/press"
+    };
+    function roomHref(file) {
+      if (isAppRoute && APP_ROUTES[file]) return APP_ROUTES[file];
+      return file;
+    }
+
     ROOMS.forEach(function(room) {
       var card = document.createElement('a');
       card.className = 'room-card';
-      card.href = room.url;
+      card.href = roomHref(room.url);
       card.style.setProperty('--room-accent', room.accent);
 
       card.innerHTML =
