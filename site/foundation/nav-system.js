@@ -1,37 +1,69 @@
 /* ================================================================
-   PERMANENCE OS -- Unified Navigation System v4
+   PERMANENCE OS -- Unified Navigation System v5 (Surface Tabs)
 
    Single source of truth for navigation across ALL 14 pages.
-   Replaces ALL per-page dropdown HTML with one shared system.
 
    Provides:
-   - File dropdown (14 pages, current highlighted)
+   - 5 Surface tabs: Command, Flow, Markets, Intelligence, Network
    - View dropdown (theme color dots, zoom slider, Dark/Light/System)
-   - Go dropdown (Tower Overview, Permanence OS :8000, GitHub)
-   - Inline theme toggle cycling Dark > Light > System
+   - System icons: Inbox, Terminal, Dark/Light toggle, Clock, Date
+   - Logo click -> Permanence OS
    - Keyboard shortcuts (Cmd+/- zoom)
-   - Removes: old Go buttons, Quick Launch, Navigate, bottom nav, Powered by
+   - Removes old nav artifacts
    ================================================================ */
 
 (function () {
   "use strict";
 
-  // ── Page Registry ──────────────────────────────────────────────
-  var PAGES = [
-    { file: "index.html",            label: "Lobby" },
-    { file: "local_hub.html",        label: "Control Room" },
-    { file: "command_center.html",   label: "Command Center" },
-    { file: "trading_room.html",     label: "Trading Room" },
-    { file: "markets_terminal.html", label: "Markets Terminal" },
-    { file: "night_capital.html",    label: "Night Capital" },
-    { file: "daily_planner.html",    label: "Daily Planner" },
-    { file: "ophtxn_shell.html",     label: "Terminal" },
-    { file: "rooms.html",            label: "Tower" },
-    { file: "ai_school.html",        label: "AI School" },
-    { file: "official_app.html",     label: "App Studio" },
-    { file: "agent_view.html",       label: "Agent View" },
-    { file: "comms_hub.html",        label: "Comms Hub" },
-    { file: "press_kit.html",        label: "Mind Map" }
+  // ── Surface Definitions ──────────────────────────────────────
+  var SURFACES = [
+    {
+      id: "command",
+      label: "Command",
+      primary: "command_center.html",
+      pages: [
+        { file: "command_center.html", label: "Overview" },
+        { file: "local_hub.html",      label: "Control Room" },
+        { file: "agent_view.html",     label: "Agent View" },
+        { file: "rooms.html",          label: "Tower" }
+      ]
+    },
+    {
+      id: "flow",
+      label: "Flow",
+      primary: "daily_planner.html",
+      pages: [
+        { file: "daily_planner.html", label: "Daily Planner" },
+        { file: "official_app.html",  label: "App Studio" }
+      ]
+    },
+    {
+      id: "markets",
+      label: "Markets",
+      primary: "trading_room.html",
+      pages: [
+        { file: "trading_room.html",     label: "Trading Room" },
+        { file: "markets_terminal.html", label: "Markets Terminal" },
+        { file: "night_capital.html",    label: "Night Capital" }
+      ]
+    },
+    {
+      id: "intelligence",
+      label: "Intelligence",
+      primary: "ai_school.html",
+      pages: [
+        { file: "ai_school.html", label: "AI School" },
+        { file: "press_kit.html", label: "Mind Map" }
+      ]
+    },
+    {
+      id: "network",
+      label: "Network",
+      primary: "comms_hub.html",
+      pages: [
+        { file: "comms_hub.html", label: "Comms Hub" }
+      ]
+    }
   ];
 
   // ── Port-aware routing (8787 static vs 8797 Flask /app/* routes) ──
@@ -69,6 +101,19 @@
   } else {
     currentFile = (location.pathname.split("/").pop() || "index.html").toLowerCase();
   }
+
+  // ── Detect active surface ──
+  function getActiveSurface() {
+    for (var i = 0; i < SURFACES.length; i++) {
+      var surf = SURFACES[i];
+      for (var j = 0; j < surf.pages.length; j++) {
+        if (surf.pages[j].file === currentFile) return surf.id;
+      }
+    }
+    return null;
+  }
+
+  var activeSurface = getActiveSurface();
 
   // ── Zoom ───────────────────────────────────────────────────────
   var zoomKey = "ophtxn_zoom";
@@ -109,12 +154,10 @@
     try { localStorage.setItem("ophtxn_site_brightness", mode); } catch (e) { /* */ }
     updateModeLabel();
     updateViewModeButtons();
-    // Also apply to old index.html pattern if present
     applyLegacyTheme(mode);
   }
 
   function applyLegacyTheme(mode) {
-    // index.html uses CSS custom props for theme; keep that working
     var resolved = mode;
     if (mode === "system") {
       resolved = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
@@ -188,7 +231,6 @@
   function setThemeColor(colorId) {
     document.body.dataset.theme = colorId;
     try { localStorage.setItem("ophtxn_site_theme", colorId); } catch (e) { /* */ }
-    // Also set the accent CSS prop for index.html design-system pattern
     var flat = { aurora: "#00e5c4", copper: "#ffb347", ocean: "#4a9eff", rose: "#ff5c8a",
       violet: "#9b6dff", forest: "#3ddc84", solar: "#ffd700", frost: "#88d8f5", void: "#888" };
     if (flat[colorId]) {
@@ -211,29 +253,22 @@
 
   // ── Nuke ALL old nav artifacts ────────────────────────────────
   function removeOldElements() {
-    // Remove all old dropdown containers (both patterns)
     ["ddFile", "ddView", "ddGo", "dd-file", "dd-view", "dd-go"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.remove();
     });
 
-    // Remove Go buttons (both patterns)
     var goBtn = document.getElementById("mbGo");
     if (goBtn) goBtn.remove();
     document.querySelectorAll('button[onclick*="openDD"]').forEach(function (b) {
       if (b.textContent.trim() === "Go") b.remove();
     });
 
-    // Remove "Powered by" footer
     document.querySelectorAll(".mb-powered").forEach(function (el) { el.remove(); });
-
-    // Remove site-footer (index.html)
     document.querySelectorAll(".site-footer").forEach(function (el) { el.remove(); });
 
-    // Remove Navigate sections (ai_school sidebar)
     document.querySelectorAll('.sb-section-label').forEach(function (el) {
       if (el.textContent.trim() === "Navigate") {
-        // Remove the label and subsequent nav links until next section
         var next = el.nextElementSibling;
         el.remove();
         while (next && !next.classList.contains("sb-section-label")) {
@@ -245,34 +280,6 @@
         }
       }
     });
-  }
-
-  // ── Replace theme toggle in menubar ──────────────────────────
-  function replaceThemeToggle() {
-    // Find existing theme element (different IDs on different pages)
-    var existing = document.getElementById("mbTheme") || document.getElementById("themeToggle");
-    if (!existing) return;
-
-    var toggle = document.createElement("button");
-    toggle.id = "navModeToggle";
-    toggle.className = "mb-mi nav-mode-toggle";
-    toggle.style.cssText = "font-size:11px;padding:2px 8px;min-width:48px;text-align:center;";
-    toggle.addEventListener("click", function (e) {
-      e.stopPropagation();
-      cycleMode();
-    });
-    existing.replaceWith(toggle);
-    updateModeLabel();
-  }
-
-  // ── Build File dropdown HTML ──────────────────────────────────
-  function buildFileDropdown() {
-    var html = '<div class="dd-label">Pages</div>';
-    PAGES.forEach(function (p) {
-      var cls = p.file === currentFile ? ' class="dd-active"' : "";
-      html += '<a href="' + pageHref(p.file) + '"' + cls + '>' + p.label + '</a>';
-    });
-    return html;
   }
 
   // ── Build View dropdown HTML ──────────────────────────────────
@@ -308,50 +315,108 @@
     return html;
   }
 
-  // ── Build Go dropdown HTML ────────────────────────────────────
-  function buildGoDropdown() {
-    var rt = window.__OPHTXN_RUNTIME || {};
-    var ccUrl = rt.commandCenterUrl || rt.apiBase || "http://127.0.0.1:8000";
-    var html = '<a href="' + pageHref("rooms.html") + '">Tower Overview</a>';
-    html += '<a href="' + ccUrl + '" target="_blank" rel="noopener">Permanence OS</a>';
-    html += '<div class="dd-sep"></div>';
-    html += '<a href="https://github.com/MaxProspero/permanence-os" target="_blank" rel="noopener">GitHub</a>';
+  // ── Build Surface dropdown HTML ───────────────────────────────
+  function buildSurfaceDropdown(surface) {
+    var html = '';
+    surface.pages.forEach(function (p) {
+      var cls = p.file === currentFile ? ' class="dd-active"' : "";
+      html += '<a href="' + pageHref(p.file) + '"' + cls + '>' + p.label + '</a>';
+    });
     return html;
   }
 
-  // ── Inject unified dropdowns ──────────────────────────────────
+  // ── Rewrite the menubar ───────────────────────────────────────
+  function rewriteMenubar() {
+    var menubar = document.querySelector(".os-menubar");
+    if (!menubar) return;
+
+    // Preserve the logo element
+    var logo = menubar.querySelector(".mb-logo");
+    var logoHTML = logo ? logo.outerHTML : '';
+
+    // Build the new menubar content
+    var html = '';
+
+    // Logo
+    html += logoHTML;
+
+    // Ophtxn label
+    html += '<span class="mb-mi nav-brand-label">Ophtxn</span>';
+
+    // Divider
+    html += '<span class="nav-divider"></span>';
+
+    // Surface tabs
+    SURFACES.forEach(function (surf) {
+      var isActive = surf.id === activeSurface;
+      var activeClass = isActive ? " nav-surface-active" : "";
+      html += '<button class="mb-mi nav-surface-tab' + activeClass + '" data-surface="' + surf.id + '">';
+      html += surf.label;
+      if (surf.pages.length > 1) {
+        html += ' <span class="nav-tab-arrow">&#9662;</span>';
+      }
+      html += '</button>';
+    });
+
+    // Divider
+    html += '<span class="nav-divider"></span>';
+
+    // View button
+    html += '<button class="mb-mi nav-view-btn" id="mbView">View</button>';
+
+    // Spacer pushes right items to the right
+    html += '<span class="nav-spacer"></span>';
+
+    // System icons area (right side)
+    // Inbox icon (SVG envelope)
+    html += '<button class="mb-mi nav-sys-icon" id="navInbox" title="Inbox">';
+    html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
+    html += '</button>';
+
+    // Terminal link
+    html += '<a class="mb-mi nav-sys-icon" href="' + pageHref("ophtxn_shell.html") + '" title="Terminal">';
+    html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>';
+    html += '</a>';
+
+    // Mode toggle
+    html += '<button class="mb-mi nav-mode-toggle" id="navModeToggle" title="Toggle appearance"></button>';
+
+    // Clock
+    html += '<span class="mb-mi nav-clock" id="navClock"></span>';
+
+    // Date
+    html += '<span class="mb-mi nav-date" id="navDate"></span>';
+
+    menubar.innerHTML = html;
+  }
+
+  // ── Clock and Date ────────────────────────────────────────────
+  function updateClock() {
+    var clock = document.getElementById("navClock");
+    var dateEl = document.getElementById("navDate");
+    if (!clock && !dateEl) return;
+    var now = new Date();
+    if (clock) {
+      var h = now.getHours();
+      var m = now.getMinutes();
+      var ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12 || 12;
+      clock.textContent = h + ":" + (m < 10 ? "0" : "") + m + " " + ampm;
+    }
+    if (dateEl) {
+      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      dateEl.textContent = days[now.getDay()] + " " + months[now.getMonth()] + " " + now.getDate();
+    }
+  }
+
+  // ── Inject dropdowns and wire events ──────────────────────────
   function injectDropdowns() {
-    // Determine which menubar pattern is in use
-    var isOsMb = !!document.querySelector(".os-menubar");
-
-    // Create File dropdown
-    var ddFile = document.createElement("div");
-    ddFile.className = isOsMb ? "mb-dropdown" : "dropdown";
-    ddFile.id = "ddFile";
-    ddFile.innerHTML = buildFileDropdown();
-
-    // Create View dropdown
-    var ddView = document.createElement("div");
-    ddView.className = isOsMb ? "mb-dropdown" : "dropdown";
-    ddView.id = "ddView";
-    ddView.innerHTML = buildViewDropdown();
-
-    // Create Go dropdown
-    var ddGo = document.createElement("div");
-    ddGo.className = isOsMb ? "mb-dropdown" : "dropdown";
-    ddGo.id = "ddGo";
-    ddGo.innerHTML = buildGoDropdown();
-
-    document.body.appendChild(ddFile);
-    document.body.appendChild(ddView);
-    document.body.appendChild(ddGo);
-
-    // ── Wire menu buttons ──
     var openDD = null;
 
     function closeAll() {
-      document.querySelectorAll(".mb-dropdown.open, .dropdown.open").forEach(function (d) { d.classList.remove("open"); });
-      document.querySelectorAll(".mb-mi.open, .nav-item.open").forEach(function (b) { b.classList.remove("open"); });
+      document.querySelectorAll(".nav-dropdown.open").forEach(function (d) { d.classList.remove("open"); });
+      document.querySelectorAll(".nav-surface-tab.open, .nav-view-btn.open").forEach(function (b) { b.classList.remove("open"); });
       openDD = null;
     }
 
@@ -360,9 +425,19 @@
       dd.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 240)) + "px";
     }
 
-    function wireButton(btn, dd) {
-      if (!btn || !dd) return;
-      btn.removeAttribute("onclick");
+    // Create surface dropdowns
+    SURFACES.forEach(function (surf) {
+      if (surf.pages.length <= 1) return; // No dropdown for single-page surfaces
+
+      var dd = document.createElement("div");
+      dd.className = "nav-dropdown";
+      dd.id = "ddSurface-" + surf.id;
+      dd.innerHTML = buildSurfaceDropdown(surf);
+      document.body.appendChild(dd);
+
+      var btn = document.querySelector('.nav-surface-tab[data-surface="' + surf.id + '"]');
+      if (!btn) return;
+
       btn.addEventListener("click", function (e) {
         e.stopPropagation();
         if (openDD === dd) { closeAll(); return; }
@@ -372,6 +447,7 @@
         btn.classList.add("open");
         openDD = dd;
       });
+
       btn.addEventListener("mouseenter", function () {
         if (openDD && openDD !== dd) {
           closeAll();
@@ -381,58 +457,63 @@
           openDD = dd;
         }
       });
-    }
+    });
 
-    // Wire File button -- find by id or by text content
-    var fileBtn = document.getElementById("mbFile");
-    if (!fileBtn) {
-      document.querySelectorAll(".nav-item, button").forEach(function (b) {
-        if (b.textContent.trim() === "File" && !fileBtn) fileBtn = b;
+    // For single-page surfaces, clicking navigates directly
+    SURFACES.forEach(function (surf) {
+      if (surf.pages.length > 1) return;
+      var btn = document.querySelector('.nav-surface-tab[data-surface="' + surf.id + '"]');
+      if (!btn) return;
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        closeAll();
+        window.location.href = pageHref(surf.primary);
       });
-    }
-    wireButton(fileBtn, ddFile);
+    });
 
-    // Wire View button
+    // Create View dropdown
+    var ddView = document.createElement("div");
+    ddView.className = "nav-dropdown";
+    ddView.id = "ddView";
+    ddView.innerHTML = buildViewDropdown();
+    document.body.appendChild(ddView);
+
     var viewBtn = document.getElementById("mbView");
-    if (!viewBtn) {
-      document.querySelectorAll(".nav-item, button").forEach(function (b) {
-        if (b.textContent.trim() === "View" && !viewBtn) viewBtn = b;
+    if (viewBtn) {
+      viewBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (openDD === ddView) { closeAll(); return; }
+        closeAll();
+        positionDropdown(ddView, viewBtn);
+        ddView.classList.add("open");
+        viewBtn.classList.add("open");
+        openDD = ddView;
+      });
+
+      viewBtn.addEventListener("mouseenter", function () {
+        if (openDD && openDD !== ddView) {
+          closeAll();
+          positionDropdown(ddView, viewBtn);
+          ddView.classList.add("open");
+          viewBtn.classList.add("open");
+          openDD = ddView;
+        }
       });
     }
-    wireButton(viewBtn, ddView);
 
-    // Wire Go button -- add one if needed
-    var goBtn = document.getElementById("mbGo");
-    if (!goBtn) {
-      // Find the View button and add Go after it
-      var vb = viewBtn;
-      if (vb) {
-        goBtn = document.createElement("button");
-        goBtn.className = vb.className;
-        goBtn.id = "mbGo";
-        goBtn.textContent = "Go";
-        vb.parentNode.insertBefore(goBtn, vb.nextSibling);
-      }
-    }
-    wireButton(goBtn, ddGo);
-
-    // Close on outside click
+    // Close on outside click and Escape
     document.addEventListener("click", function () { closeAll(); });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeAll();
     });
 
-    // Hamburger (both patterns)
+    // Hamburger fallback
     var hb = document.getElementById("mbHamburger") || document.querySelector(".hamburger");
     if (hb) {
       hb.removeAttribute("onclick");
       hb.addEventListener("click", function (e) {
         e.stopPropagation();
-        if (openDD === ddFile) { closeAll(); return; }
         closeAll();
-        ddFile.style.left = "12px";
-        ddFile.classList.add("open");
-        openDD = ddFile;
       });
     }
 
@@ -464,11 +545,99 @@
     });
   }
 
-  // ── Inject dropdown CSS ───────────────────────────────────────
+  // ── Inject CSS ────────────────────────────────────────────────
   function injectStyles() {
     var style = document.createElement("style");
-    style.id = "nav-system-v4-css";
+    style.id = "nav-system-v5-css";
     style.textContent = [
+      /* Surface tabs */
+      ".nav-surface-tab {",
+      "  font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;",
+      "  font-family: 'Sora', sans-serif; color: rgba(255,255,255,.5);",
+      "  background: none; border: none; border-bottom: 2px solid transparent;",
+      "  padding: 4px 10px; cursor: pointer; transition: all .15s;",
+      "  display: inline-flex; align-items: center; gap: 3px;",
+      "  height: 28px; box-sizing: border-box; line-height: 1;",
+      "}",
+      ".nav-surface-tab:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,.8); }",
+      ".nav-surface-tab.open { background: rgba(255,255,255,0.08); color: #fff; }",
+      ".nav-surface-active { border-bottom-color: #00e5c4; color: #fff; }",
+      ".nav-tab-arrow { font-size: 8px; opacity: 0.5; margin-left: 1px; }",
+
+      /* Brand label */
+      ".nav-brand-label {",
+      "  font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;",
+      "  font-family: 'Orbitron', 'Sora', sans-serif; color: rgba(255,255,255,.7);",
+      "  padding: 0 8px; cursor: default;",
+      "}",
+
+      /* View button */
+      ".nav-view-btn {",
+      "  font-size: 12px; letter-spacing: 0.05em;",
+      "  font-family: 'Sora', sans-serif; color: rgba(255,255,255,.5);",
+      "  background: none; border: none; padding: 4px 10px; cursor: pointer;",
+      "  transition: all .15s; height: 28px; box-sizing: border-box;",
+      "}",
+      ".nav-view-btn:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,0.05); }",
+      ".nav-view-btn.open { background: rgba(255,255,255,0.08); color: #fff; }",
+
+      /* Divider */
+      ".nav-divider {",
+      "  width: 1px; height: 14px; background: rgba(255,255,255,.12);",
+      "  margin: 0 4px; display: inline-block; vertical-align: middle;",
+      "}",
+
+      /* Spacer */
+      ".nav-spacer { flex: 1; }",
+
+      /* System icons */
+      ".nav-sys-icon {",
+      "  color: rgba(255,255,255,.45); padding: 2px 6px; cursor: pointer;",
+      "  background: none; border: none; transition: color .15s;",
+      "  display: inline-flex; align-items: center; text-decoration: none;",
+      "}",
+      ".nav-sys-icon:hover { color: rgba(255,255,255,.9); }",
+
+      /* Mode toggle in menubar */
+      ".nav-mode-toggle {",
+      "  color: rgba(255,255,255,.45); font-size: 11px !important;",
+      "  padding: 2px 8px; min-width: 40px; text-align: center;",
+      "  background: none; border: none; cursor: pointer;",
+      "  transition: color .2s;",
+      "}",
+      ".nav-mode-toggle:hover { color: rgba(255,255,255,.9); }",
+
+      /* Clock and Date */
+      ".nav-clock, .nav-date {",
+      "  font-size: 11px; color: rgba(255,255,255,.45);",
+      "  font-family: 'IBM Plex Mono', 'DM Mono', monospace;",
+      "  font-variant-numeric: tabular-nums; padding: 0 4px; cursor: default;",
+      "}",
+
+      /* Unified dropdown (surfaces + view) */
+      ".nav-dropdown {",
+      "  position: fixed; top: 28px; left: 0; min-width: 200px;",
+      "  background: rgba(28,28,30,.95); backdrop-filter: blur(20px);",
+      "  -webkit-backdrop-filter: blur(20px);",
+      "  border: 1px solid rgba(255,255,255,.1); border-radius: 8px;",
+      "  box-shadow: 0 8px 32px rgba(0,0,0,.5); padding: 4px 0;",
+      "  z-index: 10001; display: none;",
+      "}",
+      ".nav-dropdown.open { display: block; }",
+      ".nav-dropdown a {",
+      "  display: block; padding: 6px 14px; color: rgba(255,255,255,.7);",
+      "  text-decoration: none; font-size: 12px; font-family: 'Sora', sans-serif;",
+      "  transition: background .12s;",
+      "}",
+      ".nav-dropdown a:hover { background: rgba(255,255,255,.08); color: #fff; }",
+      ".nav-dropdown a.dd-active { color: #00e5c4; }",
+      ".nav-dropdown .dd-label {",
+      "  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;",
+      "  color: rgba(255,255,255,.3); padding: 6px 14px 2px;",
+      "  font-family: 'DM Mono', monospace;",
+      "}",
+      ".nav-dropdown .dd-sep { height: 1px; background: rgba(255,255,255,.08); margin: 4px 0; }",
+
       /* Color dot row */
       ".nav-dd-color-row { display: flex; gap: 5px; padding: 6px 14px; flex-wrap: wrap; }",
       ".nav-dd-color-dot {",
@@ -507,14 +676,28 @@
       "  border-color: #00e5c4; background: rgba(0,229,196,.1); color: #fff;",
       "}",
 
-      /* Mode toggle in menubar */
-      ".nav-mode-toggle {",
-      "  color: rgba(255,255,255,.5); font-size: 11px !important;",
-      "  transition: color .2s;",
-      "}",
-      ".nav-mode-toggle:hover { color: rgba(255,255,255,.9); }",
-
       /* Light mode adjustments */
+      "[data-brightness='light'] .nav-surface-tab { color: rgba(0,0,0,.45); }",
+      "[data-brightness='light'] .nav-surface-tab:hover { background: rgba(0,0,0,.05); color: rgba(0,0,0,.8); }",
+      "[data-brightness='light'] .nav-surface-tab.open { background: rgba(0,0,0,.08); color: #111; }",
+      "[data-brightness='light'] .nav-surface-active { border-bottom-color: #00a89a; color: #111; }",
+      "[data-brightness='light'] .nav-brand-label { color: rgba(0,0,0,.6); }",
+      "[data-brightness='light'] .nav-view-btn { color: rgba(0,0,0,.45); }",
+      "[data-brightness='light'] .nav-view-btn:hover { color: rgba(0,0,0,.8); background: rgba(0,0,0,.05); }",
+      "[data-brightness='light'] .nav-view-btn.open { background: rgba(0,0,0,.08); color: #111; }",
+      "[data-brightness='light'] .nav-divider { background: rgba(0,0,0,.12); }",
+      "[data-brightness='light'] .nav-sys-icon { color: rgba(0,0,0,.4); }",
+      "[data-brightness='light'] .nav-sys-icon:hover { color: rgba(0,0,0,.9); }",
+      "[data-brightness='light'] .nav-clock, [data-brightness='light'] .nav-date { color: rgba(0,0,0,.4); }",
+      "[data-brightness='light'] .nav-dropdown {",
+      "  background: rgba(245,245,247,.95); border-color: rgba(0,0,0,.1);",
+      "  box-shadow: 0 8px 32px rgba(0,0,0,.15);",
+      "}",
+      "[data-brightness='light'] .nav-dropdown a { color: rgba(0,0,0,.7); }",
+      "[data-brightness='light'] .nav-dropdown a:hover { background: rgba(0,0,0,.05); color: #111; }",
+      "[data-brightness='light'] .nav-dropdown a.dd-active { color: #00a89a; }",
+      "[data-brightness='light'] .nav-dropdown .dd-label { color: rgba(0,0,0,.3); }",
+      "[data-brightness='light'] .nav-dropdown .dd-sep { background: rgba(0,0,0,.08); }",
       "[data-brightness='light'] .nav-dd-zoom-slider { background: rgba(0,0,0,.12); }",
       "[data-brightness='light'] .nav-dd-zoom-slider::-webkit-slider-thumb { background: #00a89a; }",
       "[data-brightness='light'] .nav-dd-zoom-val { color: rgba(0,0,0,.5); }",
@@ -523,8 +706,11 @@
       "[data-brightness='light'] .nav-dd-mode-btn.active { border-color: #00a89a; background: rgba(0,169,154,.1); color: #111; }",
       "[data-brightness='light'] .nav-dd-color-dot:hover { border-color: rgba(0,0,0,.3); }",
       "[data-brightness='light'] .nav-dd-color-dot.active { border-color: #111; box-shadow: 0 0 6px rgba(0,0,0,.2); }",
-      "[data-brightness='light'] .nav-mode-toggle { color: rgba(0,0,0,.5); }",
-      "[data-brightness='light'] .nav-mode-toggle:hover { color: rgba(0,0,0,.9); }"
+      "[data-brightness='light'] .nav-mode-toggle { color: rgba(0,0,0,.45); }",
+      "[data-brightness='light'] .nav-mode-toggle:hover { color: rgba(0,0,0,.9); }",
+
+      /* Ensure menubar is flex for spacer */
+      ".os-menubar { display: flex; align-items: center; }"
     ].join("\n");
     document.head.appendChild(style);
   }
@@ -538,8 +724,7 @@
     });
   }
 
-  // ── Init ───────────────────────────────────────────────────────
-  // ── Logo click → Permanence OS ────────────────────────────────
+  // ── Logo click -> Permanence OS ────────────────────────────────
   function wireLogoToggle() {
     var logo = document.querySelector(".mb-logo");
     if (!logo) return;
@@ -551,13 +736,26 @@
     logo.setAttribute("title", "Open Permanence OS");
   }
 
+  // ── Wire mode toggle button ────────────────────────────────────
+  function wireModeToggle() {
+    var btn = document.getElementById("navModeToggle");
+    if (!btn) return;
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      cycleMode();
+    });
+    updateModeLabel();
+  }
+
+  // ── Init ───────────────────────────────────────────────────────
   function init() {
     injectStyles();
     removeOldElements();
-    replaceThemeToggle();
+    rewriteMenubar();
+    wireLogoToggle();
+    wireModeToggle();
     injectDropdowns();
     initKeyboard();
-    wireLogoToggle();
     applyZoom();
 
     // Apply saved theme and brightness
@@ -565,6 +763,10 @@
     if (savedTheme) setThemeColor(savedTheme);
     var savedMode = getMode();
     if (savedMode) setMode(savedMode);
+
+    // Start clock
+    updateClock();
+    setInterval(updateClock, 30000);
   }
 
   if (document.readyState === "loading") {
