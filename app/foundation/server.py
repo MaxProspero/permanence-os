@@ -418,6 +418,12 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     markets_terminal_html_path = site_root / "markets_terminal.html"
     trading_room_html_path = site_root / "trading_room.html"
     night_capital_html_path = site_root / "night_capital.html"
+    # v2 Surface files
+    command_surface_path = site_root / "command.html"
+    flow_surface_path = site_root / "flow.html"
+    markets_surface_path = site_root / "markets.html"
+    intelligence_surface_path = site_root / "intelligence.html"
+    network_surface_path = site_root / "network.html"
     runtime_config_path = site_root / "runtime.config.js"
     assets_root = site_root / "assets"
 
@@ -1457,6 +1463,25 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     @app.get("/app/night-capital")
     def night_capital() -> Any:
         return _serve_html(night_capital_html_path, "night capital")
+
+    # ── v2 Surface Routes ──────────────────────────────────────
+    @app.get("/app/command")
+    def surface_command() -> Any:
+        return _serve_html(command_surface_path, "command surface")
+
+    @app.get("/app/flow")
+    def surface_flow() -> Any:
+        return _serve_html(flow_surface_path, "flow surface")
+
+    @app.get("/app/markets-surface")
+    def surface_markets() -> Any:
+        return _serve_html(markets_surface_path, "markets surface")
+
+    @app.get("/app/intelligence")
+    def surface_intelligence() -> Any:
+        return _serve_html(intelligence_surface_path, "intelligence surface")
+
+    # network.html already served via /app/network above
 
     legacy_html_routes: dict[str, tuple[Path, str]] = {
         "/index.html": (official_html_path, "official site"),

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Network</title>
+  <meta name="description" content="Network -- external signals, messaging, contacts, and relationships.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
+
+  <style>
+    .page { padding-top: 48px; }
+
+    /* -- Subview tabs -- */
+    .subview-tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px; padding: 4px;
+      margin-bottom: 32px; width: fit-content;
+    }
+    .subview-tab {
+      padding: 8px 20px; border-radius: 8px;
+      font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+      color: var(--text-secondary); cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .subview-tab:hover { color: var(--text-primary); background: rgba(255,255,255,.04); }
+    .subview-tab.active {
+      color: var(--text-primary); background: rgba(255,255,255,.06);
+      font-weight: 600;
+    }
+    .subview { display: none; }
+    .subview.active { display: block; }
+
+    /* -- Channel cards -- */
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px; margin-bottom: 24px;
+    }
+    .channel-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-left: 3px solid var(--c1);
+      border-radius: 12px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+      transition: border-color .2s, background .2s;
+    }
+    .channel-card:hover {
+      border-color: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+    .channel-dot {
+      width: 8px; height: 8px; min-width: 8px;
+      border-radius: 50%; flex-shrink: 0;
+      background: rgba(255,255,255,.15);
+    }
+    .channel-dot.connected { background: var(--green); box-shadow: 0 0 6px rgba(48,209,88,.4); }
+    .channel-info { flex: 1; min-width: 0; }
+    .channel-name {
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--text-primary);
+    }
+    .channel-status {
+      font-family: var(--font-label); font-size: 11px;
+      color: var(--text-secondary); margin-top: 2px;
+    }
+
+    /* -- Message feed -- */
+    .message-feed {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-left: 3px solid var(--c1);
+      border-radius: 12px; padding: 40px 20px; text-align: center;
+    }
+    .feed-empty { font-family: var(--font-sans); font-size: 14px; color: var(--text-secondary); }
+    .feed-hint { font-family: var(--font-label); font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+
+    /* -- Compose -- */
+    .compose-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-left: 3px solid var(--c1);
+      border-radius: 12px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 16px;
+    }
+    .compose-input {
+      flex: 1; background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px; padding: 10px 14px;
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--text-primary); outline: none;
+      transition: border-color .2s;
+    }
+    .compose-input::placeholder { color: var(--text-tertiary); }
+    .compose-input:focus { border-color: rgba(0,229,196,.3); }
+    .compose-select {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px; padding: 9px 11px;
+      font-family: var(--font-label); font-size: 11px;
+      color: var(--text-secondary); outline: none; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+    }
+    .compose-send {
+      background: var(--c1-10); border: 1px solid var(--c1-20);
+      border-radius: 8px; padding: 8px 18px;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      color: var(--c1); cursor: pointer; transition: all .15s;
+    }
+    .compose-send:hover { background: rgba(0,229,196,.14); color: var(--text-primary); }
+
+    /* -- Empty state card -- */
+    .empty-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-left: 3px solid var(--c1);
+      border-radius: 12px; padding: 40px 20px; text-align: center;
+    }
+    .empty-title { font-family: var(--font-sans); font-size: 14px; color: var(--text-secondary); }
+    .empty-hint { font-family: var(--font-label); font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+
+    /* -- Contact list -- */
+    .contact-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .contact-item:last-child { border-bottom: none; }
+    .contact-name { font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .contact-meta { font-family: var(--font-label); font-size: 11px; color: var(--text-secondary); }
+
+    /* -- Add button -- */
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; margin-top: 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+      color: var(--text-secondary); cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-add:hover { background: rgba(255,255,255,.07); color: var(--text-primary); }
+
+    @media (max-width: 640px) {
+      .channels-grid { grid-template-columns: 1fr; }
+      .compose-card { flex-wrap: wrap; }
+      .subview-tabs { width: 100%; overflow-x: auto; }
+    }
+  </style>
+</head>
+
+<body data-theme="aurora" data-brightness="dark">
+<script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
+
+  <!-- Ambient background orbs -->
+  <div class="ambient">
+    <div class="ambient-orb teal"></div>
+    <div class="ambient-orb gold"></div>
+    <div class="ambient-orb violet"></div>
+  </div>
+  <div class="grid-bg"></div>
+
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
+    </div>
+    <div class="mb-right">
+      <span class="mb-mi" id="themeToggle" style="font-size:11px;padding:2px 8px;cursor:pointer;">Dark</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <!-- Hero -->
+    <section class="hero reveal">
+      <p class="hero-label">External Signals</p>
+      <h1 class="hero-title">Network</h1>
+      <p class="hero-subtitle" style="text-align:center;">External signals, messaging, and relationships -- all in one surface.</p>
+    </section>
+
+    <!-- Subview tabs -->
+    <div class="subview-tabs reveal">
+      <button class="subview-tab active" data-view="messages">Messages</button>
+      <button class="subview-tab" data-view="contacts">Contacts</button>
+      <button class="subview-tab" data-view="relationships">Relationships</button>
+      <button class="subview-tab" data-view="feeds">Feeds</button>
+    </div>
+
+    <!-- Messages subview -->
+    <div class="subview active" id="view-messages">
+      <section class="section reveal">
+        <p class="section-label">Channels</p>
+        <h2 class="section-title">Connected platforms</h2>
+        <div class="channels-grid">
+          <div class="channel-card">
+            <span class="channel-dot"></span>
+            <div class="channel-info">
+              <div class="channel-name">Telegram</div>
+              <div class="channel-status">-- not connected</div>
+            </div>
+          </div>
+          <div class="channel-card">
+            <span class="channel-dot"></span>
+            <div class="channel-info">
+              <div class="channel-name">Discord</div>
+              <div class="channel-status">-- not connected</div>
+            </div>
+          </div>
+          <div class="channel-card">
+            <span class="channel-dot"></span>
+            <div class="channel-info">
+              <div class="channel-name">Email</div>
+              <div class="channel-status">-- not connected</div>
+            </div>
+          </div>
+          <div class="channel-card">
+            <span class="channel-dot"></span>
+            <div class="channel-info">
+              <div class="channel-name">WhatsApp</div>
+              <div class="channel-status">-- not connected</div>
+            </div>
+          </div>
+          <div class="channel-card">
+            <span class="channel-dot"></span>
+            <div class="channel-info">
+              <div class="channel-name">Internal</div>
+              <div class="channel-status">-- not connected</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal">
+        <p class="section-label">Messages</p>
+        <h2 class="section-title">Recent messages</h2>
+        <div class="message-feed">
+          <div class="feed-empty">No messages yet</div>
+          <div class="feed-hint">Connect a platform above to begin receiving messages</div>
+        </div>
+        <div class="compose-card">
+          <select class="compose-select" id="composeChannel">
+            <option value="telegram">Telegram</option>
+            <option value="discord">Discord</option>
+            <option value="email">Email</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="internal">Internal</option>
+          </select>
+          <input type="text" class="compose-input" placeholder="Type a message..." id="composeInput">
+          <button class="compose-send" id="composeSend">Send</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Contacts subview -->
+    <div class="subview" id="view-contacts">
+      <section class="section reveal">
+        <p class="section-label">People</p>
+        <h2 class="section-title">Contacts</h2>
+        <div class="empty-card" id="contactsList">
+          <div class="empty-title">No contacts added</div>
+          <div class="empty-hint">Add contacts to track relationships and interactions</div>
+        </div>
+        <button class="btn-add" id="addContactBtn">+ Add contact</button>
+      </section>
+    </div>
+
+    <!-- Relationships subview -->
+    <div class="subview" id="view-relationships">
+      <section class="section reveal">
+        <p class="section-label">Connections</p>
+        <h2 class="section-title">Relationships</h2>
+        <div class="empty-card">
+          <div class="empty-title">No relationships tracked</div>
+          <div class="empty-hint">Priority contacts, follow-up reminders, and interaction frequency will appear here</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Feeds subview -->
+    <div class="subview" id="view-feeds">
+      <section class="section reveal">
+        <p class="section-label">External</p>
+        <h2 class="section-title">Feeds</h2>
+        <div class="empty-card">
+          <div class="empty-title">No feeds connected</div>
+          <div class="empty-hint">Add RSS, X, or news sources to aggregate external signals</div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* -- Clock -- */
+    function tickClock() {
+      var el = document.getElementById('mbClock');
+      if (!el) return;
+      var now = new Date();
+      var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      el.textContent = h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ' ' + ampm;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    /* -- Date -- */
+    (function() {
+      var d = document.getElementById('mbDate');
+      if (d) {
+        var now = new Date();
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        d.textContent = days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' + now.getDate();
+      }
+    })();
+
+    /* -- Toast -- */
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+
+    /* -- Scroll Reveal -- */
+    (function() {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+      });
+    })();
+
+    /* -- Subview tabs -- */
+    (function() {
+      var tabs = document.querySelectorAll('.subview-tab');
+      var views = document.querySelectorAll('.subview');
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          var target = tab.getAttribute('data-view');
+          tabs.forEach(function(t) { t.classList.remove('active'); });
+          views.forEach(function(v) { v.classList.remove('active'); });
+          tab.classList.add('active');
+          var view = document.getElementById('view-' + target);
+          if (view) {
+            view.classList.add('active');
+            view.querySelectorAll('.reveal:not(.visible)').forEach(function(el) {
+              el.classList.add('visible');
+            });
+          }
+        });
+      });
+    })();
+
+    /* -- Compose (cosmetic) -- */
+    (function() {
+      var input = document.getElementById('composeInput');
+      var send = document.getElementById('composeSend');
+      if (!input || !send) return;
+      function handleSend() {
+        var val = input.value.trim();
+        if (!val) return;
+        showToast('Message queued (connect a platform first)');
+        input.value = '';
+        input.focus();
+      }
+      send.addEventListener('click', handleSend);
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+      });
+    })();
+
+    /* -- Service Worker -- */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    }
+  </script>
+
+  <script src="nav-system.js"></script>
+</body>
+</html>

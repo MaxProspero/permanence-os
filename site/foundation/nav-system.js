@@ -20,48 +20,42 @@
     {
       id: "command",
       label: "Command",
-      primary: "command_center.html",
+      primary: "command.html",
       pages: [
-        { file: "command_center.html", label: "Overview" },
-        { file: "local_hub.html",      label: "Control Room" },
-        { file: "agent_view.html",     label: "Agent View" },
-        { file: "rooms.html",          label: "Tower" }
+        { file: "command.html",   label: "Command" },
+        { file: "rooms.html",    label: "Tower" }
       ]
     },
     {
       id: "flow",
       label: "Flow",
-      primary: "daily_planner.html",
+      primary: "flow.html",
       pages: [
-        { file: "daily_planner.html", label: "Daily Planner" },
-        { file: "official_app.html",  label: "App Studio" }
+        { file: "flow.html", label: "Flow" }
       ]
     },
     {
       id: "markets",
       label: "Markets",
-      primary: "trading_room.html",
+      primary: "markets.html",
       pages: [
-        { file: "trading_room.html",     label: "Trading Room" },
-        { file: "markets_terminal.html", label: "Markets Terminal" },
-        { file: "night_capital.html",    label: "Night Capital" }
+        { file: "markets.html", label: "Markets" }
       ]
     },
     {
       id: "intelligence",
       label: "Intelligence",
-      primary: "ai_school.html",
+      primary: "intelligence.html",
       pages: [
-        { file: "ai_school.html", label: "AI School" },
-        { file: "press_kit.html", label: "Mind Map" }
+        { file: "intelligence.html", label: "Intelligence" }
       ]
     },
     {
       id: "network",
       label: "Network",
-      primary: "comms_hub.html",
+      primary: "network.html",
       pages: [
-        { file: "comms_hub.html", label: "Comms Hub" }
+        { file: "network.html", label: "Network" }
       ]
     }
   ];
@@ -81,8 +75,13 @@
     "ai_school.html":        "/app/ai-school",
     "official_app.html":     "/app/studio",
     "agent_view.html":       "/app/agent-view",
+    "network.html":          "/app/network",
     "comms_hub.html":        "/app/comms",
-    "press_kit.html":        "/app/press"
+    "press_kit.html":        "/app/press",
+    "command.html":          "/app/command",
+    "flow.html":             "/app/flow",
+    "markets.html":          "/app/markets-surface",
+    "intelligence.html":     "/app/intelligence"
   };
 
   function pageHref(file) {

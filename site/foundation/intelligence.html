@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Intelligence</title>
+  <meta name="description" content="Intelligence -- knowledge, research, reasoning, and mind mapping in one surface.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
+
+  <style>
+    .page { padding-top: 48px; padding-bottom: var(--sp-8); }
+
+    /* -- Hero -- */
+    .int-hero { text-align: center; padding: var(--sp-12) 0 var(--sp-8); }
+    .int-hero h1 { font-size: clamp(28px, 4vw, 42px); font-weight: var(--fw-extrabold); letter-spacing: var(--ls-tight); color: var(--text-primary); margin-bottom: var(--sp-2); }
+    .int-hero p { font-family: var(--font-label); font-size: var(--fs-caption); letter-spacing: var(--ls-widest); text-transform: uppercase; color: var(--text-secondary); }
+
+    /* -- Subview tabs -- */
+    .sv-tabs {
+      display: flex; gap: 2px; padding: 0 var(--sp-3);
+      background: var(--glass-card-bg); border: 1px solid var(--glass-card-border);
+      border-radius: var(--radius); backdrop-filter: blur(var(--glass-card-blur));
+      -webkit-backdrop-filter: blur(var(--glass-card-blur));
+      margin-bottom: var(--sp-4); overflow-x: auto;
+    }
+    .sv-tab {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      padding: 12px 18px; cursor: pointer;
+      font-family: var(--font-label); font-size: 10px; font-weight: var(--fw-bold);
+      letter-spacing: var(--ls-widest); text-transform: uppercase;
+      color: var(--text-secondary); white-space: nowrap;
+      transition: color var(--dur-hover), border-color var(--dur-hover), background var(--dur-hover);
+    }
+    .sv-tab:hover { color: var(--text-primary); background: var(--c1-10); }
+    .sv-tab.active { color: var(--c1); border-bottom-color: var(--c1); background: rgba(0,229,196,.04); }
+
+    .sv-pane { display: none; animation: svFadeUp .35s ease forwards; }
+    .sv-pane.active { display: block; }
+    @keyframes svFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* -- Accent stripes -- */
+    .glass-card.accent-teal  { border-left: 3px solid var(--c1); }
+    .glass-card.accent-gold  { border-left: 3px solid var(--c2); }
+    .glass-card.accent-blue  { border-left: 3px solid var(--c3); }
+    .glass-card.accent-violet { border-left: 3px solid var(--violet); }
+    .glass-card.accent-rose  { border-left: 3px solid var(--rose); }
+
+    .card-header {
+      font-family: var(--font-label); font-size: 10px; font-weight: var(--fw-medium);
+      letter-spacing: var(--ls-widest); text-transform: uppercase;
+      color: var(--text-tertiary); padding: var(--sp-3) var(--sp-4) var(--sp-2);
+      border-bottom: 1px solid var(--sep); display: flex; align-items: center; gap: var(--sp-2);
+    }
+    .card-header .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; }
+
+    .int-empty {
+      text-align: center; padding: var(--sp-8) var(--sp-4);
+      color: var(--text-tertiary); font-family: var(--font-label); font-size: var(--fs-small);
+    }
+
+    /* -- Research: pipeline visualization -- */
+    .research-pipeline {
+      display: flex; justify-content: center; align-items: flex-start; gap: 0;
+      padding: var(--sp-6) var(--sp-4); position: relative; flex-wrap: wrap;
+    }
+    .research-pipeline::before {
+      content: ""; position: absolute; top: 50px; left: 15%; right: 15%; height: 2px;
+      background: linear-gradient(90deg, var(--c1), var(--violet) 50%, var(--rose)); opacity: .3;
+    }
+    .pipeline-node {
+      flex: 1; min-width: 100px; max-width: 180px; display: flex; flex-direction: column;
+      align-items: center; gap: 8px; position: relative; z-index: 1; padding: 0 8px;
+    }
+    .pipeline-orb {
+      width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 14px; font-weight: 900; position: relative;
+    }
+    .pipeline-orb::after {
+      content: ""; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2px dashed currentColor; opacity: .25; animation: orbSpin 12s linear infinite;
+    }
+    @keyframes orbSpin { to { transform: rotate(360deg); } }
+    .pipeline-node:nth-child(1) .pipeline-orb { background: rgba(0,229,196,.12); border: 2px solid rgba(0,229,196,.5); color: var(--c1); box-shadow: 0 0 20px rgba(0,229,196,.15); }
+    .pipeline-node:nth-child(2) .pipeline-orb { background: rgba(123,111,255,.12); border: 2px solid rgba(123,111,255,.5); color: var(--violet); box-shadow: 0 0 20px rgba(123,111,255,.15); }
+    .pipeline-node:nth-child(2) .pipeline-orb::after { animation-delay: -4s; }
+    .pipeline-node:nth-child(3) .pipeline-orb { background: rgba(255,69,58,.12); border: 2px solid rgba(255,69,58,.5); color: var(--rose); box-shadow: 0 0 20px rgba(255,69,58,.15); }
+    .pipeline-node:nth-child(3) .pipeline-orb::after { animation-delay: -8s; }
+    .pipeline-label { font-family: var(--font-label); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-secondary); }
+    .pipeline-desc { font-family: var(--font-sans); font-size: 11px; color: var(--text-tertiary); text-align: center; max-width: 140px; line-height: 1.3; }
+
+    /* Skill cards grid */
+    .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-3); margin-top: var(--sp-4); }
+    .skill-card {
+      background: var(--glass-card-bg); border: 1px solid var(--glass-card-border);
+      border-left: 3px solid var(--c1); border-radius: var(--radius);
+      padding: var(--sp-4) var(--sp-5); backdrop-filter: blur(var(--glass-card-blur));
+      transition: border-color .25s, transform .2s;
+    }
+    .skill-card:hover { border-color: var(--glass-card-border-hover); transform: translateY(-2px); }
+    .skill-card[data-cat="research"] { border-left-color: var(--c1); }
+    .skill-card[data-cat="analysis"] { border-left-color: var(--violet); }
+    .skill-card[data-cat="synthesis"] { border-left-color: var(--rose); }
+    .skill-card h3 { font-family: var(--font-sans); font-size: 15px; font-weight: var(--fw-semibold); color: var(--text-primary); margin-bottom: var(--sp-1); }
+    .skill-card p { font-family: var(--font-sans); font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+    .skill-badge { display: inline-block; font-family: var(--font-label); font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-bottom: var(--sp-2); }
+    .skill-badge.research { background: var(--c1-10); color: var(--c1); border: 1px solid rgba(0,229,196,.25); }
+    .skill-badge.analysis { background: var(--violet-10); color: var(--violet); border: 1px solid rgba(123,111,255,.25); }
+    .skill-badge.synthesis { background: var(--rose-10); color: var(--rose); border: 1px solid rgba(255,69,58,.25); }
+
+    /* Filter bar */
+    .filter-bar { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+    .filter-btn {
+      background: rgba(255,255,255,.03); border: 1px solid var(--sep); border-radius: 999px;
+      color: var(--text-secondary); font-family: var(--font-label); font-size: 11px;
+      padding: 5px 14px; cursor: pointer; transition: all .2s;
+    }
+    .filter-btn:hover { color: var(--text-primary); border-color: var(--sep-bold); }
+    .filter-btn.active { background: var(--c1-10); color: var(--c1); border-color: rgba(0,229,196,.3); }
+    .skill-card[hidden] { display: none; }
+
+    /* Research input */
+    .research-input-row { display: flex; gap: var(--sp-3); margin-top: var(--sp-4); }
+    .research-input {
+      flex: 1; padding: var(--sp-2) var(--sp-3); background: var(--bg-surface-1);
+      border: 1px solid var(--sep); border-radius: var(--radius-sm);
+      color: var(--text-primary); font-family: var(--font-mono); font-size: var(--fs-small); outline: none;
+    }
+    .research-input:focus { border-color: var(--c1); }
+    .research-btn {
+      padding: var(--sp-2) var(--sp-4); background: var(--c1-10); border: 1px solid rgba(0,229,196,.3);
+      border-radius: var(--radius-sm); color: var(--c1); font-family: var(--font-label);
+      font-size: var(--fs-small); font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .research-btn:hover { background: var(--c1-15); }
+
+    /* -- Notes -- */
+    .notes-list { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-3); }
+    .note-item {
+      background: var(--glass-card-bg); border: 1px solid var(--glass-card-border);
+      border-radius: var(--radius-sm); padding: var(--sp-3) var(--sp-4);
+      font-family: var(--font-sans); font-size: 13px; color: var(--text-primary);
+    }
+    .note-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); margin-top: 4px; }
+    .note-input-row { display: flex; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+
+    /* -- Mind Map -- */
+    .mm-canvas-card {
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+      border-left: 3px solid var(--c1); border-radius: 12px; padding: var(--sp-6);
+      min-height: 420px; position: relative; display: flex; flex-direction: column;
+    }
+    .mm-toolbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: var(--sp-4); flex-wrap: wrap; }
+    .mm-toolbar-btn {
+      height: 32px; padding: 0 14px; border: 1px solid rgba(255,255,255,.06); border-radius: 8px;
+      background: none; color: var(--text-secondary); font-family: var(--font-label); font-size: 11px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .15s; white-space: nowrap;
+    }
+    .mm-toolbar-btn:hover { border-color: rgba(255,255,255,.12); color: var(--text-primary); }
+    .mm-toolbar-btn.active { border-color: var(--c1); background: rgba(0,229,196,.06); color: var(--text-primary); }
+    .mm-toolbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,.06); margin: 0 4px; }
+    .mm-canvas-area {
+      flex: 1; position: relative; border-radius: 8px; background: rgba(0,0,0,.15);
+      border: 1px solid rgba(255,255,255,.04); min-height: 340px; overflow: hidden;
+    }
+    .mm-dot-grid {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 24px 24px; pointer-events: none;
+    }
+    .mm-canvas-inner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-origin: 0 0; }
+    .mm-edges-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .mm-edges-svg path { fill: none; stroke: rgba(0,229,196,.3); stroke-width: 2; }
+    .mm-empty-state { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+    .mm-empty-title { font-family: var(--font-sans); font-size: 16px; font-weight: 600; color: var(--text-primary); opacity: .4; margin-bottom: 6px; }
+    .mm-empty-hint { font-family: var(--font-sans); font-size: 13px; color: var(--text-tertiary); }
+
+    /* Mind Map Nodes */
+    .mm-node {
+      position: absolute; width: 240px; min-height: 70px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 14px 14px 14px 18px;
+      cursor: grab; user-select: none; transition: box-shadow .15s; z-index: 10;
+    }
+    .mm-node:hover { box-shadow: 0 8px 24px rgba(0,0,0,.3); z-index: 11; }
+    .mm-node.selected { border-color: rgba(0,229,196,.4); box-shadow: 0 0 0 2px rgba(0,229,196,.15), 0 8px 24px rgba(0,0,0,.3); z-index: 12; }
+    .mm-node.dragging { cursor: grabbing; opacity: .9; z-index: 100; }
+    .mm-node::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 2px; }
+    .mm-node[data-type="plan"]::before { background: var(--c1); }
+    .mm-node[data-type="task"]::before { background: var(--c2); }
+    .mm-node[data-type="note"]::before { background: var(--violet); }
+    .mm-node[data-type="workflow"]::before { background: var(--rose); }
+    .mm-node-type { font-family: var(--font-label); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px; }
+    .mm-node-title { font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.3; margin-bottom: 4px; }
+    .mm-node-body { font-family: var(--font-sans); font-size: 12px; color: var(--text-secondary); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .mm-node-port {
+      position: absolute; width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,.04); border: 2px solid rgba(255,255,255,.08);
+      cursor: crosshair; z-index: 15; transition: all .15s;
+    }
+    .mm-node-port:hover { border-color: rgba(0,229,196,.5); background: rgba(0,229,196,.15); transform: scale(1.3); }
+    .mm-node-port.port-r { right: -5px; top: 50%; transform: translateY(-50%); }
+    .mm-node-port.port-b { bottom: -5px; left: 50%; transform: translateX(-50%); }
+    .mm-node-port.port-l { left: -5px; top: 50%; transform: translateY(-50%); }
+    .mm-node-port.port-t { top: -5px; left: 50%; transform: translateX(-50%); }
+    .mm-zoom-label { font-family: var(--font-label); font-size: 10px; color: var(--text-secondary); padding: 0 6px; display: flex; align-items: center; }
+
+    /* Edit Modal */
+    .mm-modal-overlay { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+    .mm-modal-overlay.open { display: flex; }
+    .mm-modal { background: var(--bg-surface-2); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px; width: 400px; max-width: 90vw; box-shadow: 0 24px 48px rgba(0,0,0,.5); }
+    .mm-modal h3 { font-family: var(--font-sans); font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; }
+    .mm-modal label { display: block; font-family: var(--font-label); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px; margin-top: 12px; }
+    .mm-modal input, .mm-modal textarea, .mm-modal select { width: 100%; padding: 8px 12px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; color: var(--text-primary); font-family: var(--font-sans); font-size: 13px; outline: none; resize: vertical; }
+    .mm-modal input:focus, .mm-modal textarea:focus, .mm-modal select:focus { border-color: rgba(0,229,196,.4); }
+    .mm-modal textarea { min-height: 80px; }
+    .mm-modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+    .mm-modal-actions button { padding: 8px 16px; border-radius: 8px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,.08); background: none; color: var(--text-secondary); transition: all .15s; }
+    .mm-modal-actions button:hover { border-color: rgba(255,255,255,.15); color: var(--text-primary); }
+    .mm-modal-actions .mm-save { border-color: transparent; background: rgba(0,229,196,.12); color: var(--text-primary); }
+    .mm-modal-actions .mm-save:hover { background: rgba(0,229,196,.2); }
+    .mm-modal-actions .mm-delete { color: #ff5c5c; border-color: rgba(255,92,92,.3); }
+    .mm-modal-actions .mm-delete:hover { background: rgba(255,92,92,.1); }
+
+    /* -- Memory + Canon sections -- */
+    .mem-section { margin-bottom: var(--sp-4); }
+    .mem-section-title { font-family: var(--font-label); font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: var(--sp-2); }
+
+    /* -- Responsive -- */
+    @media (max-width: 768px) {
+      .skill-grid { grid-template-columns: 1fr; }
+      .research-pipeline { flex-direction: column; align-items: center; }
+      .research-pipeline::before { display: none; }
+    }
+    @media (max-width: 640px) {
+      .page { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+    }
+  </style>
+</head>
+
+<body data-theme="aurora" data-brightness="dark">
+<script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
+
+  <div class="ambient">
+    <div class="ambient-orb teal"></div>
+    <div class="ambient-orb gold"></div>
+    <div class="ambient-orb violet"></div>
+  </div>
+  <div class="grid-bg"></div>
+
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
+    </div>
+    <div class="mb-right">
+      <span class="mb-mi" id="themeToggle" style="font-size:11px;padding:2px 8px;cursor:pointer;">Dark</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <main class="page">
+
+    <!-- Hero -->
+    <section class="int-hero reveal">
+      <p>Knowledge and Reasoning</p>
+      <h1>Intelligence</h1>
+    </section>
+
+    <!-- Subview tabs -->
+    <div class="sv-tabs">
+      <button class="sv-tab active" data-sv="research">Research</button>
+      <button class="sv-tab" data-sv="notes">Notes</button>
+      <button class="sv-tab" data-sv="mindmap">Mind Map</button>
+      <button class="sv-tab" data-sv="memory">Memory</button>
+      <button class="sv-tab" data-sv="canon">Canon</button>
+    </div>
+
+    <!-- ========== RESEARCH ========== -->
+    <div class="sv-pane active" id="sv-research">
+
+      <!-- Research pipeline -->
+      <div class="glass-card accent-teal" style="padding:0;overflow:hidden;margin-bottom:var(--sp-4);">
+        <div class="card-header"><span class="dot" style="background:var(--c1)"></span>RESEARCH PIPELINE</div>
+        <div class="research-pipeline">
+          <div class="pipeline-node">
+            <div class="pipeline-orb">1</div>
+            <div class="pipeline-label">Ingest</div>
+            <div class="pipeline-desc">Bookmarks, feeds, documents</div>
+          </div>
+          <div class="pipeline-node">
+            <div class="pipeline-orb">2</div>
+            <div class="pipeline-label">Analyze</div>
+            <div class="pipeline-desc">Extract themes, classify</div>
+          </div>
+          <div class="pipeline-node">
+            <div class="pipeline-orb">3</div>
+            <div class="pipeline-label">Synthesize</div>
+            <div class="pipeline-desc">Briefs, threads, insights</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="research">Research</button>
+        <button class="filter-btn" data-filter="analysis">Analysis</button>
+        <button class="filter-btn" data-filter="synthesis">Synthesis</button>
+      </div>
+
+      <!-- Skill cards -->
+      <div class="skill-grid" id="skillGrid">
+        <div class="skill-card" data-cat="research">
+          <span class="skill-badge research">Research</span>
+          <h3>X Bookmark Ingestion</h3>
+          <p>Automatically ingest and classify bookmarks from X/Twitter into research categories.</p>
+        </div>
+        <div class="skill-card" data-cat="research">
+          <span class="skill-badge research">Research</span>
+          <h3>Web Research Agent</h3>
+          <p>Deploy research agents to gather information on any topic with source verification.</p>
+        </div>
+        <div class="skill-card" data-cat="analysis">
+          <span class="skill-badge analysis">Analysis</span>
+          <h3>Market Intelligence</h3>
+          <p>SMC/ICT analysis: order blocks, fair value gaps, break of structure, liquidity sweeps.</p>
+        </div>
+        <div class="skill-card" data-cat="analysis">
+          <span class="skill-badge analysis">Analysis</span>
+          <h3>Competitive Analysis</h3>
+          <p>Track competitor positioning, pricing, and product changes across your market.</p>
+        </div>
+        <div class="skill-card" data-cat="synthesis">
+          <span class="skill-badge synthesis">Synthesis</span>
+          <h3>Content Generation</h3>
+          <p>Transform research into threads, newsletters, and posts with voice compliance.</p>
+        </div>
+        <div class="skill-card" data-cat="synthesis">
+          <span class="skill-badge synthesis">Synthesis</span>
+          <h3>Research Briefs</h3>
+          <p>Generate executive summaries from multiple sources with key findings and actions.</p>
+        </div>
+      </div>
+
+      <!-- Research request input -->
+      <div class="research-input-row">
+        <input type="text" class="research-input" id="researchInput" placeholder="Enter a research topic...">
+        <button class="research-btn" id="researchBtn">Search</button>
+      </div>
+
+      <!-- Connected sources -->
+      <div class="glass-card accent-violet" style="padding:var(--sp-4);margin-top:var(--sp-4);">
+        <div style="font-family:var(--font-label);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:var(--sp-3);">Connected Sources</div>
+        <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap;font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);">
+          <span>X Bookmarks</span>
+          <span>Notebook LM</span>
+          <span>Web Search</span>
+          <span>RSS Feeds</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== NOTES ========== -->
+    <div class="sv-pane" id="sv-notes">
+      <div class="glass-card accent-gold" style="padding:var(--sp-6);">
+        <div class="card-header" style="padding-left:0;padding-right:0;"><span class="dot" style="background:var(--c2)"></span>NOTES</div>
+        <div class="note-input-row" style="margin-top:var(--sp-3);">
+          <input type="text" class="research-input" id="noteInput" placeholder="Capture a thought...">
+          <button class="research-btn" id="noteAddBtn">Add</button>
+        </div>
+        <div class="notes-list" id="notesList">
+          <div class="int-empty">No notes yet. Capture thoughts from the Terminal.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MIND MAP ========== -->
+    <div class="sv-pane" id="sv-mindmap">
+      <div class="mm-canvas-card">
+        <div class="mm-toolbar-row" id="mmToolbar">
+          <button class="mm-toolbar-btn mm-tool active" data-tool="select" title="Select (V)">Select</button>
+          <button class="mm-toolbar-btn mm-tool" data-tool="pan" title="Pan (Space)">Pan</button>
+          <div class="mm-toolbar-sep"></div>
+          <button class="mm-toolbar-btn" data-add="plan" title="New Plan">+ Plan</button>
+          <button class="mm-toolbar-btn" data-add="task" title="New Task">+ Task</button>
+          <button class="mm-toolbar-btn" data-add="note" title="New Note">+ Note</button>
+          <button class="mm-toolbar-btn" data-add="workflow" title="New Workflow">+ Workflow</button>
+          <div class="mm-toolbar-sep"></div>
+          <button class="mm-toolbar-btn mm-tool" data-tool="connect" title="Connect (C)">Link</button>
+          <div class="mm-toolbar-sep"></div>
+          <button class="mm-toolbar-btn" id="mmZoomOut" title="Zoom Out">-</button>
+          <span class="mm-zoom-label" id="mmZoomLevel">100%</span>
+          <button class="mm-toolbar-btn" id="mmZoomIn" title="Zoom In">+</button>
+          <button class="mm-toolbar-btn" id="mmFitAll" title="Fit All">Fit</button>
+          <div class="mm-toolbar-sep"></div>
+          <button class="mm-toolbar-btn" id="mmClear" title="Clear All">Clear</button>
+        </div>
+        <div class="mm-canvas-area" id="mmCanvasWrap">
+          <div class="mm-canvas-inner" id="mmCanvas">
+            <div class="mm-dot-grid"></div>
+            <svg class="mm-edges-svg" id="mmEdges">
+              <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><path d="M0 0 L10 3.5 L0 7 z"/></marker></defs>
+            </svg>
+            <div id="mmNodes"></div>
+            <div class="mm-empty-state" id="mmEmpty">
+              <div class="mm-empty-title">Empty canvas</div>
+              <div class="mm-empty-hint">Double-click anywhere or use the toolbar to add nodes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MEMORY ========== -->
+    <div class="sv-pane" id="sv-memory">
+      <div class="glass-card accent-blue" style="padding:var(--sp-6);">
+        <div class="card-header" style="padding-left:0;padding-right:0;"><span class="dot" style="background:var(--c3)"></span>MEMORY</div>
+        <div style="margin-top:var(--sp-4);">
+          <div class="mem-section"><div class="mem-section-title">Preferences</div><div class="int-empty">No preferences stored.</div></div>
+          <div class="mem-section"><div class="mem-section-title">Patterns</div><div class="int-empty">No patterns detected.</div></div>
+          <div class="mem-section"><div class="mem-section-title">Facts</div><div class="int-empty">No facts recorded.</div></div>
+          <div class="mem-section"><div class="mem-section-title">Context</div><div class="int-empty">No contextual memory.</div></div>
+        </div>
+        <div class="int-empty" style="padding-top:0;">The system learns as you use it.</div>
+      </div>
+    </div>
+
+    <!-- ========== CANON ========== -->
+    <div class="sv-pane" id="sv-canon">
+      <div class="glass-card accent-rose" style="padding:var(--sp-6);">
+        <div class="card-header" style="padding-left:0;padding-right:0;"><span class="dot" style="background:var(--rose)"></span>CANON</div>
+        <div style="margin-top:var(--sp-4);">
+          <div class="mem-section"><div class="mem-section-title">Principles</div><div class="int-empty">No principles defined.</div></div>
+          <div class="mem-section"><div class="mem-section-title">Rules</div><div class="int-empty">No rules active.</div></div>
+          <div class="mem-section"><div class="mem-section-title">Governance</div><div class="int-empty">No governance entries.</div></div>
+          <div class="mem-section"><div class="mem-section-title">Strategy</div><div class="int-empty">No strategy entries.</div></div>
+        </div>
+        <div class="int-empty" style="padding-top:0;">Principles are added through governance.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Mind Map Edit Modal -->
+  <div class="mm-modal-overlay" id="mmModal">
+    <div class="mm-modal">
+      <h3 id="mmModalTitle">Edit Node</h3>
+      <label>Title</label>
+      <input type="text" id="mmEditTitle" placeholder="Node title..." />
+      <label>Description</label>
+      <textarea id="mmEditBody" placeholder="Details, notes, steps..."></textarea>
+      <label>Type</label>
+      <select id="mmEditType">
+        <option value="plan">Plan</option>
+        <option value="task">Task</option>
+        <option value="note">Note</option>
+        <option value="workflow">Workflow</option>
+      </select>
+      <div class="mm-modal-actions">
+        <button class="mm-delete" id="mmDeleteNode">Delete</button>
+        <button id="mmCancelEdit">Cancel</button>
+        <button class="mm-save" id="mmSaveNode">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* === Shared: Clock, Date, Toast, Reveal === */
+  function tickClock(){var el=document.getElementById('mbClock');if(!el)return;var now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds(),ap=h>=12?'PM':'AM';h=h%12||12;el.textContent=h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' '+ap;}
+  tickClock();setInterval(tickClock,1000);
+  (function(){var d=document.getElementById('mbDate');if(d){var now=new Date(),days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];d.textContent=days[now.getDay()]+' '+months[now.getMonth()]+' '+now.getDate();}})();
+  function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);}
+  (function(){var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.1});document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});})();
+
+  /* === Subview Tab Switching === */
+  (function(){
+    var tabs=document.querySelectorAll('.sv-tab');
+    var panes=document.querySelectorAll('.sv-pane');
+    var inited={};
+    tabs.forEach(function(tab){
+      tab.addEventListener('click',function(){
+        var sv=tab.dataset.sv;
+        tabs.forEach(function(t){t.classList.toggle('active',t.dataset.sv===sv);});
+        panes.forEach(function(p){p.classList.toggle('active',p.id==='sv-'+sv);});
+        if(sv==='mindmap'&&!inited.mindmap){inited.mindmap=true;initMindMap();}
+        if(sv==='notes'&&!inited.notes){inited.notes=true;initNotes();}
+      });
+    });
+  })();
+
+  /* === RESEARCH: Filter system === */
+  (function(){
+    var btns=document.querySelectorAll('.filter-btn');
+    var cards=document.querySelectorAll('.skill-card');
+    btns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var f=btn.dataset.filter;
+        btns.forEach(function(b){b.classList.toggle('active',b===btn);});
+        cards.forEach(function(c){
+          if(f==='all'){c.removeAttribute('hidden');}
+          else{c.toggleAttribute('hidden',c.dataset.cat!==f);}
+        });
+      });
+    });
+    var resBtn=document.getElementById('researchBtn');
+    if(resBtn)resBtn.addEventListener('click',function(){
+      var val=document.getElementById('researchInput').value.trim();
+      if(val)showToast('Research request queued: '+val);
+    });
+  })();
+
+  /* === NOTES: localStorage-backed === */
+  function initNotes(){
+    var SK='ophtxn_notes';
+    var list=document.getElementById('notesList');
+    var input=document.getElementById('noteInput');
+    var addBtn=document.getElementById('noteAddBtn');
+    function load(){try{return JSON.parse(localStorage.getItem(SK))||[];}catch(e){return [];}}
+    function save(notes){try{localStorage.setItem(SK,JSON.stringify(notes));}catch(e){}}
+    function render(){
+      var notes=load();
+      if(!notes.length){list.innerHTML='<div class="int-empty">No notes yet. Capture thoughts from the Terminal.</div>';return;}
+      var html='';notes.forEach(function(n){
+        var d=new Date(n.ts);
+        html+='<div class="note-item">'+n.text+'<div class="note-time">'+d.toLocaleDateString()+' '+d.toLocaleTimeString()+'</div></div>';
+      });
+      list.innerHTML=html;
+    }
+    render();
+    if(addBtn)addBtn.addEventListener('click',function(){
+      var val=input.value.trim();if(!val)return;
+      var notes=load();notes.unshift({text:val,ts:Date.now()});save(notes);render();
+      input.value='';showToast('Note saved');
+    });
+    if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter')addBtn.click();});
+  }
+
+  /* === MIND MAP ENGINE === */
+  function initMindMap(){
+    var SK='ophtxn_mindmap';
+    var canvas=document.getElementById('mmCanvas');
+    var nodesEl=document.getElementById('mmNodes');
+    var edgesSvg=document.getElementById('mmEdges');
+    var emptyEl=document.getElementById('mmEmpty');
+    var modal=document.getElementById('mmModal');
+    if(!canvas)return;
+
+    var state={viewport:{x:0,y:0,zoom:1},nodes:[],edges:[]};
+    function load(){try{var s=JSON.parse(localStorage.getItem(SK));if(s&&s.nodes)state=s;}catch(e){}}
+    function save(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
+    function uid(){return 'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+    function render(){
+      canvas.style.transform='translate('+state.viewport.x+'px,'+state.viewport.y+'px) scale('+state.viewport.zoom+')';
+      var zl=document.getElementById('mmZoomLevel');if(zl)zl.textContent=Math.round(state.viewport.zoom*100)+'%';
+      nodesEl.innerHTML='';
+      state.nodes.forEach(function(n){
+        var div=document.createElement('div');
+        div.className='mm-node'+(selectedId===n.id?' selected':'');
+        div.dataset.id=n.id;div.dataset.type=n.type||'note';
+        div.style.left=n.x+'px';div.style.top=n.y+'px';if(n.w)div.style.width=n.w+'px';
+        div.innerHTML='<div class="mm-node-type">'+(n.type||'note').toUpperCase()+'</div>'+
+          '<div class="mm-node-title">'+(n.title||'Untitled')+'</div>'+
+          (n.body?'<div class="mm-node-body">'+n.body+'</div>':'')+
+          '<div class="mm-node-port port-r" data-port="r" data-node="'+n.id+'"></div>'+
+          '<div class="mm-node-port port-b" data-port="b" data-node="'+n.id+'"></div>'+
+          '<div class="mm-node-port port-l" data-port="l" data-node="'+n.id+'"></div>'+
+          '<div class="mm-node-port port-t" data-port="t" data-node="'+n.id+'"></div>';
+        nodesEl.appendChild(div);
+      });
+      var paths=edgesSvg.querySelectorAll('path.mm-edge');paths.forEach(function(p){p.remove();});
+      state.edges.forEach(function(e){
+        var from=state.nodes.find(function(n){return n.id===e.from;});
+        var to=state.nodes.find(function(n){return n.id===e.to;});
+        if(!from||!to)return;
+        var fx=from.x+(from.w||240)/2,fy=from.y+40,tx=to.x+(to.w||240)/2,ty=to.y+40;
+        var dx=Math.abs(tx-fx)*0.5;
+        var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d','M'+fx+' '+fy+' C'+(fx+dx)+' '+fy+' '+(tx-dx)+' '+ty+' '+tx+' '+ty);
+        path.setAttribute('marker-end','url(#arrowhead)');path.classList.add('mm-edge');
+        edgesSvg.appendChild(path);
+      });
+      if(emptyEl)emptyEl.style.display=state.nodes.length?'none':'block';
+    }
+
+    var currentTool='select',selectedId=null,dragNode=null,dragOffset={x:0,y:0};
+    var panning=false,panStart={x:0,y:0},panVp={x:0,y:0};
+    var connecting=false,connectFrom=null;
+
+    function setTool(t){currentTool=t;document.querySelectorAll('.mm-tool').forEach(function(b){b.classList.toggle('active',b.dataset.tool===t);});}
+
+    var toolbar=document.getElementById('mmToolbar');
+    if(toolbar)toolbar.addEventListener('click',function(e){
+      var btn=e.target.closest('button');if(!btn)return;
+      if(btn.dataset.tool){setTool(btn.dataset.tool);return;}
+      if(btn.dataset.add){
+        var wrap=document.getElementById('mmCanvasWrap');
+        var cx=(wrap.offsetWidth/2-state.viewport.x)/state.viewport.zoom;
+        var cy=(wrap.offsetHeight/2-state.viewport.y)/state.viewport.zoom;
+        cx+=Math.random()*100-50;cy+=Math.random()*100-50;
+        state.nodes.push({id:uid(),x:Math.round(cx-120),y:Math.round(cy-40),w:240,type:btn.dataset.add,title:'New '+btn.dataset.add.charAt(0).toUpperCase()+btn.dataset.add.slice(1),body:'',created:Date.now()});
+        save();render();return;
+      }
+      if(btn.id==='mmZoomIn'){state.viewport.zoom=Math.min(3,state.viewport.zoom*1.2);save();render();return;}
+      if(btn.id==='mmZoomOut'){state.viewport.zoom=Math.max(0.2,state.viewport.zoom/1.2);save();render();return;}
+      if(btn.id==='mmFitAll'){fitAll();return;}
+      if(btn.id==='mmClear'){if(confirm('Clear all nodes and connections?')){state.nodes=[];state.edges=[];selectedId=null;save();render();}return;}
+    });
+
+    function fitAll(){
+      if(!state.nodes.length)return;
+      var wrap=document.getElementById('mmCanvasWrap');
+      var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+      state.nodes.forEach(function(n){if(n.x<minX)minX=n.x;if(n.y<minY)minY=n.y;if(n.x+(n.w||240)>maxX)maxX=n.x+(n.w||240);if(n.y+100>maxY)maxY=n.y+100;});
+      var bw=maxX-minX+100,bh=maxY-minY+100;
+      var scale=Math.min((wrap.offsetWidth-80)/bw,(wrap.offsetHeight-120)/bh,1.5);
+      scale=Math.max(0.2,Math.min(3,scale));
+      state.viewport.zoom=scale;
+      state.viewport.x=(wrap.offsetWidth-bw*scale)/2-minX*scale+50;
+      state.viewport.y=(wrap.offsetHeight-bh*scale)/2-minY*scale+60;
+      save();render();
+    }
+
+    var wrap=document.getElementById('mmCanvasWrap');
+    wrap.addEventListener('mousedown',function(e){
+      if(e.target.closest('.mm-node-port')){
+        var port=e.target.closest('.mm-node-port');connecting=true;connectFrom=port.dataset.node;
+        setTool('connect');e.preventDefault();return;
+      }
+      var nodeEl=e.target.closest('.mm-node');
+      if(nodeEl&&currentTool==='select'){
+        var id=nodeEl.dataset.id;selectedId=id;
+        var node=state.nodes.find(function(n){return n.id===id;});if(!node)return;
+        dragNode=node;dragOffset.x=e.clientX/state.viewport.zoom-node.x;dragOffset.y=e.clientY/state.viewport.zoom-node.y;
+        nodeEl.classList.add('dragging');e.preventDefault();render();return;
+      }
+      if(!nodeEl){selectedId=null;panning=true;panStart.x=e.clientX;panStart.y=e.clientY;panVp.x=state.viewport.x;panVp.y=state.viewport.y;wrap.style.cursor='grabbing';render();}
+    });
+
+    document.addEventListener('mousemove',function(e){
+      if(dragNode){dragNode.x=Math.round(e.clientX/state.viewport.zoom-dragOffset.x-state.viewport.x/state.viewport.zoom);dragNode.y=Math.round(e.clientY/state.viewport.zoom-dragOffset.y-state.viewport.y/state.viewport.zoom);render();}
+      if(panning){state.viewport.x=panVp.x+(e.clientX-panStart.x);state.viewport.y=panVp.y+(e.clientY-panStart.y);render();}
+    });
+
+    document.addEventListener('mouseup',function(e){
+      if(dragNode){var el=document.querySelector('.mm-node.dragging');if(el)el.classList.remove('dragging');dragNode=null;save();}
+      if(panning){panning=false;wrap.style.cursor='';save();}
+      if(connecting){
+        var port=e.target.closest('.mm-node-port');
+        if(port&&port.dataset.node!==connectFrom){
+          var exists=state.edges.some(function(ed){return ed.from===connectFrom&&ed.to===port.dataset.node;});
+          if(!exists){state.edges.push({id:uid(),from:connectFrom,to:port.dataset.node});save();}
+        }
+        connecting=false;connectFrom=null;setTool('select');render();
+      }
+    });
+
+    wrap.addEventListener('dblclick',function(e){
+      var nodeEl=e.target.closest('.mm-node');
+      if(nodeEl){openEdit(nodeEl.dataset.id);return;}
+      var rect=wrap.getBoundingClientRect();
+      var x=(e.clientX-rect.left-state.viewport.x)/state.viewport.zoom;
+      var y=(e.clientY-rect.top-state.viewport.y)/state.viewport.zoom;
+      var n={id:uid(),x:Math.round(x-120),y:Math.round(y-40),w:240,type:'note',title:'',body:'',created:Date.now()};
+      state.nodes.push(n);save();render();openEdit(n.id);
+    });
+
+    wrap.addEventListener('wheel',function(e){
+      e.preventDefault();var rect=wrap.getBoundingClientRect();
+      var mx=e.clientX-rect.left,my=e.clientY-rect.top;
+      var oldZ=state.viewport.zoom,delta=e.deltaY>0?0.9:1.1;
+      var newZ=Math.max(0.2,Math.min(3,oldZ*delta));
+      state.viewport.x=mx-(mx-state.viewport.x)*(newZ/oldZ);
+      state.viewport.y=my-(my-state.viewport.y)*(newZ/oldZ);
+      state.viewport.zoom=newZ;save();render();
+    },{passive:false});
+
+    var editingId=null;
+    function openEdit(id){
+      editingId=id;var n=state.nodes.find(function(nd){return nd.id===id;});if(!n)return;
+      document.getElementById('mmEditTitle').value=n.title||'';
+      document.getElementById('mmEditBody').value=n.body||'';
+      document.getElementById('mmEditType').value=n.type||'note';
+      document.getElementById('mmModalTitle').textContent=n.title?'Edit Node':'New Node';
+      modal.classList.add('open');
+      setTimeout(function(){document.getElementById('mmEditTitle').focus();},100);
+    }
+    document.getElementById('mmSaveNode').addEventListener('click',function(){
+      var n=state.nodes.find(function(nd){return nd.id===editingId;});if(!n)return;
+      n.title=document.getElementById('mmEditTitle').value.trim()||'Untitled';
+      n.body=document.getElementById('mmEditBody').value.trim();
+      n.type=document.getElementById('mmEditType').value;
+      save();render();modal.classList.remove('open');editingId=null;
+    });
+    document.getElementById('mmCancelEdit').addEventListener('click',function(){
+      var n=state.nodes.find(function(nd){return nd.id===editingId;});
+      if(n&&!n.title&&!n.body){state.nodes=state.nodes.filter(function(nd){return nd.id!==editingId;});save();}
+      modal.classList.remove('open');editingId=null;render();
+    });
+    document.getElementById('mmDeleteNode').addEventListener('click',function(){
+      state.nodes=state.nodes.filter(function(nd){return nd.id!==editingId;});
+      state.edges=state.edges.filter(function(ed){return ed.from!==editingId&&ed.to!==editingId;});
+      if(selectedId===editingId)selectedId=null;save();render();
+      modal.classList.remove('open');editingId=null;
+    });
+    modal.addEventListener('click',function(e){if(e.target===modal){modal.classList.remove('open');editingId=null;}});
+
+    document.addEventListener('keydown',function(e){
+      if(modal.classList.contains('open'))return;
+      if(e.key==='v'||e.key==='V')setTool('select');
+      if(e.key==='c'||e.key==='C')setTool('connect');
+      if(e.key==='Delete'||e.key==='Backspace'){
+        if(selectedId){state.nodes=state.nodes.filter(function(n){return n.id!==selectedId;});
+        state.edges=state.edges.filter(function(ed){return ed.from!==selectedId&&ed.to!==selectedId;});
+        selectedId=null;save();render();}
+      }
+      if(e.key==='='||e.key==='+'){state.viewport.zoom=Math.min(3,state.viewport.zoom*1.2);save();render();}
+      if(e.key==='-'){state.viewport.zoom=Math.max(0.2,state.viewport.zoom/1.2);save();render();}
+      if(e.key==='Escape'){selectedId=null;setTool('select');render();}
+    });
+
+    load();render();
+  }
+
+  /* === Service Worker === */
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
+  </script>
+
+  <script src="nav-system.js"></script>
+</body>
+</html>

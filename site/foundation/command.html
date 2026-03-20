@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <title>Ophtxn | Command</title>
+  <meta name="description" content="Command -- Supervision, triage, and decisions. What needs your attention now.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="design-system.css">
+
+  <style>
+    .page { padding-top: 48px; }
+    .hero-subtitle { text-align: center; }
+
+    /* -- Subview tab bar -- */
+    .subview-tabs {
+      display: flex; gap: 6px; justify-content: center;
+      flex-wrap: wrap; margin-top: var(--sp-4, 16px);
+    }
+    .subview-tab {
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      color: var(--text-secondary, #7b96af);
+      cursor: pointer; transition: all .2s;
+    }
+    .subview-tab:hover {
+      background: rgba(255,255,255,.06);
+      color: var(--text-primary, #E0E0E0);
+    }
+    .subview-tab.active {
+      background: rgba(0,229,196,.1);
+      border-color: rgba(0,229,196,.3);
+      color: var(--c1, #00e5c4);
+    }
+    .subview-panel { display: none; }
+    .subview-panel.active { display: block; }
+
+    /* -- Glass card with accent stripe -- */
+    .cmd-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .cmd-card::before {
+      content: ""; position: absolute; left: 0; top: 16px; bottom: 16px;
+      width: 2px; border-radius: 2px;
+      background: var(--card-accent, var(--c1, #00e5c4));
+    }
+    .cmd-card-title {
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-secondary, #7b96af);
+      margin-bottom: 16px;
+    }
+    .cmd-empty {
+      font-family: var(--font-sans, 'Sora', sans-serif);
+      font-size: 14px; color: var(--text-tertiary, rgba(255,255,255,.3));
+      padding: 24px 0; text-align: center;
+    }
+
+    /* -- Agent cards grid -- */
+    .agent-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 16px; margin-bottom: 24px;
+    }
+    @media (max-width: 640px) { .agent-grid { grid-template-columns: 1fr; } }
+
+    .agent-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-left: 3px solid var(--c1, #00e5c4);
+      border-radius: 12px; padding: 20px 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .agent-card[data-glow="gold"]   { border-left-color: var(--c2, #efbb5f); }
+    .agent-card[data-glow="blue"]   { border-left-color: var(--c3, #2997FF); }
+    .agent-card[data-glow="violet"] { border-left-color: var(--violet, #7b6fff); }
+    .agent-card[data-glow="rose"]   { border-left-color: var(--rose, #FF453A); }
+    .agent-card[data-glow="teal"]   { border-left-color: var(--c1, #00e5c4); }
+
+    .agent-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .agent-card-name {
+      font-family: var(--font-sans, 'Sora', sans-serif);
+      font-weight: 700; font-size: 15px;
+      color: var(--text-primary, #E0E0E0);
+    }
+    .agent-card-status {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--text-secondary, #7b96af);
+    }
+    .agent-status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-secondary, #7b96af);
+    }
+    .agent-card-role {
+      font-family: var(--font-sans, 'Sora', sans-serif);
+      font-size: 13px; color: var(--text-secondary, #7b96af);
+      line-height: 1.5; margin-bottom: 10px;
+    }
+    .agent-card-model {
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 10px; letter-spacing: .06em;
+      color: var(--text-tertiary, rgba(255,255,255,.3));
+    }
+
+    /* -- Approval table -- */
+    .approval-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-sans, 'Sora', sans-serif); font-size: 13px;
+    }
+    .approval-table th {
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-tertiary, rgba(255,255,255,.3));
+      text-align: left; padding: 8px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .approval-table td {
+      padding: 10px 12px; color: var(--text-secondary, #7b96af);
+      border-bottom: 1px solid rgba(255,255,255,.03);
+    }
+
+    .btn-approve-all {
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 11px; letter-spacing: .06em;
+      padding: 8px 18px; border-radius: 6px;
+      background: rgba(0,229,196,.1); border: 1px solid rgba(0,229,196,.3);
+      color: var(--c1, #00e5c4); cursor: pointer;
+      transition: all .2s; margin-top: 16px;
+    }
+    .btn-approve-all:hover { background: rgba(0,229,196,.18); }
+    .btn-approve-all:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* -- Audit log -- */
+    .audit-log {
+      font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+      font-size: 12px; color: var(--text-secondary, #7b96af);
+      line-height: 1.7; max-height: 320px; overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    /* -- Status dot (service health) -- */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-label, 'DM Mono', monospace);
+      font-size: 11px; color: var(--text-secondary, #7b96af);
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-tertiary, rgba(255,255,255,.3));
+      flex-shrink: 0;
+    }
+    .status-pill[data-s="ok"] { color: var(--c1, #00e5c4); }
+    .status-pill[data-s="ok"] .status-dot {
+      background: var(--c1, #00e5c4);
+      box-shadow: 0 0 6px var(--c1, #00e5c4);
+    }
+    .status-pill[data-s="warn"] { color: var(--c2, #efbb5f); }
+    .status-pill[data-s="warn"] .status-dot { background: var(--c2, #efbb5f); }
+    .status-pill[data-s="err"] { color: var(--rose, #FF453A); }
+    .status-pill[data-s="err"] .status-dot { background: var(--rose, #FF453A); }
+  </style>
+  <script src="runtime.config.js"></script>
+</head>
+
+<body data-theme="aurora" data-brightness="dark">
+<script>(function(){try{var b=document.body;b.dataset.theme=localStorage.getItem('ophtxn_site_theme')||'aurora';b.dataset.brightness=localStorage.getItem('ophtxn_site_brightness')||'dark';}catch(e){}})()</script>
+
+  <!-- Ambient background orbs -->
+  <div class="ambient">
+    <div class="ambient-orb teal"></div>
+    <div class="ambient-orb gold"></div>
+    <div class="ambient-orb violet"></div>
+  </div>
+  <div class="grid-bg"></div>
+
+  <!-- OS MENUBAR -->
+  <div class="os-menubar">
+    <div class="mb-left">
+      <a href="index.html" class="mb-logo" title="Ophtxn Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+      </a>
+      <span class="mb-appname">Ophtxn</span>
+      <button class="mb-mi" id="mbFile">File</button>
+      <button class="mb-mi" id="mbView">View</button>
+      <button class="mb-hamburger" id="mbHamburger">&#9776;</button>
+    </div>
+    <div class="mb-right">
+      <span class="mb-mi" id="themeToggle" style="font-size:11px;padding:2px 8px;cursor:pointer;">Dark</span>
+      <span class="mb-clock" id="mbClock"></span>
+      <span class="mb-date" id="mbDate"></span>
+    </div>
+  </div>
+
+  <!-- PAGE -->
+  <main class="page">
+
+    <!-- Hero -->
+    <section class="hero reveal">
+      <p class="hero-label">Supervision and Triage</p>
+      <h1 class="hero-title">Command</h1>
+      <p class="hero-subtitle">What needs your attention now.</p>
+
+      <!-- Subview tabs -->
+      <div class="subview-tabs" id="cmdTabs">
+        <button class="subview-tab active" data-tab="overview">Overview</button>
+        <button class="subview-tab" data-tab="briefing">Briefing</button>
+        <button class="subview-tab" data-tab="approvals">Approvals</button>
+        <button class="subview-tab" data-tab="agents">Agents</button>
+        <button class="subview-tab" data-tab="audit">Audit</button>
+      </div>
+    </section>
+
+    <!-- ============ OVERVIEW ============ -->
+    <div class="subview-panel active" id="panel-overview">
+
+      <!-- Stat row -->
+      <div class="stat-row reveal">
+        <div class="stat-item">
+          <div class="stat-value teal" id="cmdSvcCount">0</div>
+          <div class="stat-label">Services Online</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value gold" id="cmdApprovalCount">0</div>
+          <div class="stat-label">Pending Approvals</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value blue" id="cmdAgentCount">0</div>
+          <div class="stat-label">Active Agents</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value rose" id="cmdUptime">--</div>
+          <div class="stat-label">Session Uptime</div>
+        </div>
+      </div>
+
+      <!-- Three cards -->
+      <section class="section reveal">
+        <div class="grid-3">
+          <div class="cmd-card" style="--card-accent: var(--c1);">
+            <div class="cmd-card-title">Operating Feed</div>
+            <div class="cmd-empty" id="cmdFeed">No items need attention</div>
+          </div>
+          <div class="cmd-card" style="--card-accent: var(--c2);">
+            <div class="cmd-card-title">Active Missions</div>
+            <div class="cmd-empty" id="cmdMissions">No missions running</div>
+          </div>
+          <div class="cmd-card" style="--card-accent: var(--c3);">
+            <div class="cmd-card-title">Today</div>
+            <div class="cmd-empty" id="cmdToday">No tasks due today</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ BRIEFING ============ -->
+    <div class="subview-panel" id="panel-briefing">
+      <section class="section reveal">
+        <div class="cmd-card" style="--card-accent: var(--c1);">
+          <div class="cmd-card-title">Daily Briefing</div>
+          <div class="cmd-empty" id="cmdBriefing">No briefing generated yet. Run /briefing in Terminal.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ APPROVALS ============ -->
+    <div class="subview-panel" id="panel-approvals">
+      <section class="section reveal">
+        <div class="cmd-card" style="--card-accent: var(--rose);">
+          <div class="cmd-card-title">Pending Approvals</div>
+          <table class="approval-table" id="cmdApprovalTable">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="cmdApprovalBody">
+            </tbody>
+          </table>
+          <div class="cmd-empty" id="cmdApprovalEmpty">No pending approvals</div>
+          <button class="btn-approve-all" id="cmdApproveAllBtn" disabled>Approve All Low-Risk</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ AGENTS ============ -->
+    <div class="subview-panel" id="panel-agents">
+      <section class="section reveal">
+        <p class="section-label">Roster</p>
+        <h2 class="section-title">Active agents</h2>
+        <div class="agent-grid">
+          <div class="agent-card" data-glow="teal">
+            <div class="agent-card-header">
+              <span class="agent-card-name">Sentinel</span>
+              <span class="agent-card-status"><span class="agent-status-dot"></span> Idle</span>
+            </div>
+            <div class="agent-card-role">Constitutional referee -- enforces governance rules</div>
+            <div class="agent-card-model">--</div>
+          </div>
+          <div class="agent-card" data-glow="gold">
+            <div class="agent-card-header">
+              <span class="agent-card-name">Orchestrator</span>
+              <span class="agent-card-status"><span class="agent-status-dot"></span> Idle</span>
+            </div>
+            <div class="agent-card-role">CEO-level task decomposer and coordinator</div>
+            <div class="agent-card-model">--</div>
+          </div>
+          <div class="agent-card" data-glow="blue">
+            <div class="agent-card-header">
+              <span class="agent-card-name">Adaptive Loop</span>
+              <span class="agent-card-status"><span class="agent-status-dot"></span> Idle</span>
+            </div>
+            <div class="agent-card-role">Continuous learner -- calibrates expert weights</div>
+            <div class="agent-card-model">--</div>
+          </div>
+          <div class="agent-card" data-glow="rose">
+            <div class="agent-card-header">
+              <span class="agent-card-name">Risk Manager</span>
+              <span class="agent-card-status"><span class="agent-status-dot"></span> Idle</span>
+            </div>
+            <div class="agent-card-role">Kelly Criterion and value trap detection</div>
+            <div class="agent-card-model">--</div>
+          </div>
+          <div class="agent-card" data-glow="violet">
+            <div class="agent-card-header">
+              <span class="agent-card-name">Social Listener</span>
+              <span class="agent-card-status"><span class="agent-status-dot"></span> Idle</span>
+            </div>
+            <div class="agent-card-role">Whisper AI transcription pipeline</div>
+            <div class="agent-card-model">--</div>
+          </div>
+          <div class="agent-card" data-glow="teal">
+            <div class="agent-card-header">
+              <span class="agent-card-name">Whale Tracker</span>
+              <span class="agent-card-status"><span class="agent-status-dot"></span> Idle</span>
+            </div>
+            <div class="agent-card-role">On-chain intelligence module</div>
+            <div class="agent-card-model">--</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity Feed -->
+      <section class="section reveal">
+        <div class="cmd-card" style="--card-accent: var(--violet);">
+          <div class="cmd-card-title">Activity Feed</div>
+          <div class="cmd-empty" id="cmdAgentFeed">No agent activity</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ AUDIT ============ -->
+    <div class="subview-panel" id="panel-audit">
+      <section class="section reveal">
+        <div class="cmd-card" style="--card-accent: var(--violet);">
+          <div class="cmd-card-title">Audit Log</div>
+          <div class="audit-log" id="cmdAuditLog"></div>
+          <div class="cmd-empty" id="cmdAuditEmpty">No audit entries</div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ── Runtime Config ── */
+    var __RT = window.__OPHTXN_RUNTIME || {};
+    var API_BASE = __RT.apiBase || 'http://127.0.0.1:8000';
+    var APP_BASE = __RT.appBase || 'http://127.0.0.1:8797';
+    var SITE_BASE = __RT.siteUrl || 'http://127.0.0.1:8787';
+
+    /* ── Clock ── */
+    function tickClock() {
+      var el = document.getElementById('mbClock');
+      if (!el) return;
+      var now = new Date();
+      var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      el.textContent = h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ' ' + ampm;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    /* ── Date ── */
+    (function() {
+      var d = document.getElementById('mbDate');
+      if (d) {
+        var now = new Date();
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        d.textContent = days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' + now.getDate();
+      }
+    })();
+
+    /* ── Toast ── */
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+
+    /* ── Scroll Reveal ── */
+    (function() {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+      });
+    })();
+
+    /* ── Tab switching ── */
+    (function() {
+      var STORAGE_KEY = 'ophtxn_cmd_tab';
+      var tabs = document.querySelectorAll('#cmdTabs .subview-tab');
+      var panels = document.querySelectorAll('.subview-panel');
+
+      function activateTab(name) {
+        tabs.forEach(function(t) {
+          t.classList.toggle('active', t.dataset.tab === name);
+        });
+        panels.forEach(function(p) {
+          p.classList.toggle('active', p.id === 'panel-' + name);
+        });
+        try { localStorage.setItem(STORAGE_KEY, name); } catch(e) {}
+      }
+
+      tabs.forEach(function(t) {
+        t.addEventListener('click', function() { activateTab(t.dataset.tab); });
+      });
+
+      /* Restore saved tab */
+      try {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && document.getElementById('panel-' + saved)) {
+          activateTab(saved);
+        }
+      } catch(e) {}
+    })();
+
+    /* ── Service health polling ── */
+    var SERVICES = [
+      { id: 'svc-api',  url: API_BASE + '/api/status', expectJson: true  },
+      { id: 'svc-site', url: SITE_BASE + '/',           expectJson: false },
+      { id: 'svc-shell', url: APP_BASE + '/health',     expectJson: true  }
+    ];
+
+    var svcState = {};
+    var cmdStartTime = Date.now();
+
+    function pingService(svc) {
+      return fetch(svc.url, { cache: 'no-store', signal: AbortSignal.timeout(4000) })
+        .then(function(res) {
+          if (!res.ok) { svcState[svc.id] = 'warn'; return; }
+          if (svc.expectJson) {
+            return res.json().then(function(data) {
+              svcState[svc.id] = (data && data.ok === true) ? 'ok' : 'warn';
+            }).catch(function() { svcState[svc.id] = 'warn'; });
+          }
+          svcState[svc.id] = 'ok';
+        })
+        .catch(function() {
+          svcState[svc.id] = 'err';
+        });
+    }
+
+    function refreshServices() {
+      return Promise.all(SERVICES.map(pingService)).then(updateStats);
+    }
+
+    /* ── Approval queue fetch ── */
+    var pendingCount = 0;
+
+    function fetchApprovals() {
+      return fetch(API_BASE + '/api/approvals', { signal: AbortSignal.timeout(4000) })
+        .then(function(res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          pendingCount = data.total_pending || 0;
+          document.getElementById('cmdApprovalCount').textContent = pendingCount;
+          document.getElementById('cmdApproveAllBtn').disabled = pendingCount === 0;
+          if (pendingCount === 0) {
+            document.getElementById('cmdApprovalEmpty').style.display = 'block';
+            document.getElementById('cmdApprovalTable').style.display = 'none';
+          }
+        })
+        .catch(function() {
+          pendingCount = 0;
+          document.getElementById('cmdApprovalCount').textContent = '--';
+          document.getElementById('cmdApproveAllBtn').disabled = true;
+        });
+    }
+
+    /* ── Approve All handler ── */
+    document.getElementById('cmdApproveAllBtn').addEventListener('click', function() {
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = 'Approving...';
+      fetch(API_BASE + '/api/approvals/approve-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: 'bulk approve via Command surface' }),
+        signal: AbortSignal.timeout(8000)
+      })
+        .then(function(res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          showToast(data.approved + ' approved, ' + data.skipped_high_risk + ' held for review');
+          fetchApprovals();
+        })
+        .catch(function(e) {
+          showToast('Approve failed: ' + e.message);
+        })
+        .finally(function() {
+          btn.textContent = 'Approve All Low-Risk';
+          btn.disabled = false;
+        });
+    });
+
+    /* ── Update dashboard stats ── */
+    function updateStats() {
+      /* Services count */
+      var online = 0;
+      SERVICES.forEach(function(s) { if (svcState[s.id] === 'ok') online++; });
+      document.getElementById('cmdSvcCount').textContent = online + '/' + SERVICES.length;
+
+      /* Uptime */
+      var elapsed = Math.floor((Date.now() - cmdStartTime) / 1000);
+      var mins = Math.floor(elapsed / 60);
+      var secs = elapsed % 60;
+      document.getElementById('cmdUptime').textContent = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
+    }
+
+    /* ── Init polling ── */
+    refreshServices();
+    fetchApprovals();
+    setInterval(refreshServices, 30000);
+    setInterval(fetchApprovals, 60000);
+    setInterval(updateStats, 2000);
+
+    /* ── Service Worker ── */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    }
+  </script>
+
+  <script src="nav-system.js"></script>
+</body>
+</html>
