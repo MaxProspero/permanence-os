@@ -1481,7 +1481,9 @@ def create_app(storage_root: Path | None = None, tool_root: Path | None = None, 
     def surface_intelligence() -> Any:
         return _serve_html(intelligence_surface_path, "intelligence surface")
 
-    # network.html already served via /app/network above
+    @app.get("/app/network")
+    def surface_network() -> Any:
+        return _serve_html(network_surface_path, "network surface")
 
     legacy_html_routes: dict[str, tuple[Path, str]] = {
         "/index.html": (official_html_path, "official site"),

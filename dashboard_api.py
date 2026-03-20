@@ -128,6 +128,16 @@ except ImportError:
     pass
 
 # ─────────────────────────────────────────────
+# ENTITY GRAPH BLUEPRINT
+# ─────────────────────────────────────────────
+
+try:
+    from scripts.graph_api import graph_bp
+    app.register_blueprint(graph_bp, url_prefix="/api/graph")
+except ImportError:
+    pass
+
+# ─────────────────────────────────────────────
 # API KEY MANAGEMENT (admin endpoints, local only)
 # ─────────────────────────────────────────────
 
