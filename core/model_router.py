@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional
 from core.model_capabilities import DEFAULT_MODEL_CAPABILITIES
 from core.model_policy import classify_task_context
 
-PROVIDERS = ("anthropic", "openai", "xai", "openclaw", "ollama")
+PROVIDERS = ("anthropic", "openai", "xai", "ollama")  # openclaw removed -- deprecated
 
 BUDGET_TIER_PRESETS: Dict[str, Dict[str, Any]] = {
     "free": {
@@ -156,27 +156,7 @@ DEFAULT_MODEL_BY_TASK_BY_PROVIDER: Dict[str, Dict[str, str]] = {
         "formatting": "grok-2-mini",
         "default": "grok-3-mini",
     },
-    "openclaw": {
-        "canon_interpretation": "openclaw-opus",
-        "strategy": "openclaw-opus",
-        "code_generation": "openclaw-opus",
-        "adversarial_review": "openclaw-opus",
-        "finance_analysis": "openclaw-opus",
-        "portfolio_risk": "openclaw-opus",
-        "valuation": "openclaw-opus",
-        "research_synthesis": "openclaw-sonnet",
-        "planning": "openclaw-sonnet",
-        "review": "openclaw-sonnet",
-        "execution": "openclaw-sonnet",
-        "conciliation": "openclaw-sonnet",
-        "financial_review": "openclaw-sonnet",
-        "market_monitoring": "openclaw-sonnet",
-        "classification": "openclaw-haiku",
-        "summarization": "openclaw-haiku",
-        "tagging": "openclaw-haiku",
-        "formatting": "openclaw-haiku",
-        "default": "openclaw-sonnet",
-    },
+    # openclaw deprecated -- Claude Code handles computer-use natively
     "ollama": {
         "canon_interpretation": "qwen2.5:7b",
         "strategy": "qwen2.5:7b",

@@ -4636,6 +4636,113 @@ def voice_check_endpoint():
 
 
 # ─────────────────────────────────────────────
+# CONTENT WORKFLOW PIPELINE
+# ─────────────────────────────────────────────
+
+def _content_workflow():
+    """Lazy import of content_workflow module."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
+        import content_workflow as cwf
+        return cwf
+    except ImportError:
+        return None
+
+
+@app.route("/api/content/workflow/items", methods=["GET"])
+def get_workflow_items():
+    """List content workflow items. Optional query params: stage, source_type, theme, limit."""
+    log_api_call("GET", "/api/content/workflow/items")
+    cwf = _content_workflow()
+    if not cwf:
+        return jsonify({"error": "content_workflow not available"}), 500
+    try:
+        stage = request.args.get("stage")
+        source_type = request.args.get("source_type")
+        theme = request.args.get("theme")
+        limit = int(request.args.get("limit", 50))
+        items = cwf.list_items(
+            stage=stage, source_type=source_type, theme=theme, limit=limit
+        )
+        return jsonify({"items": items, "count": len(items)})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/workflow/capture", methods=["POST"])
+def workflow_capture():
+    """Capture a new content item. POST {source_type, body, title?, metadata?}."""
+    log_api_call("POST", "/api/content/workflow/capture")
+    cwf = _content_workflow()
+    if not cwf:
+        return jsonify({"error": "content_workflow not available"}), 500
+    body = request.get_json(silent=True) or {}
+    source_type = body.get("source_type", "note")
+    content_body = body.get("body", "")
+    title = body.get("title", "")
+    metadata = body.get("metadata", {})
+    if not content_body:
+        return jsonify({"error": "body is required"}), 400
+    try:
+        result = cwf.capture(
+            source_type=source_type, body=content_body,
+            title=title, metadata=metadata,
+        )
+        status_code = 201 if result.get("ok") else 400
+        return jsonify(result), status_code
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/workflow/process/<item_id>", methods=["POST"])
+def workflow_process(item_id):
+    """Process a captured item (auto-tag, summarize, detect theme)."""
+    log_api_call("POST", f"/api/content/workflow/process/{item_id}")
+    cwf = _content_workflow()
+    if not cwf:
+        return jsonify({"error": "content_workflow not available"}), 500
+    try:
+        result = cwf.process_item(item_id)
+        status_code = 200 if result.get("ok") else 400
+        return jsonify(result), status_code
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/workflow/move/<item_id>", methods=["POST"])
+def workflow_move(item_id):
+    """Move an item to a new stage. POST {to_stage}."""
+    log_api_call("POST", f"/api/content/workflow/move/{item_id}")
+    cwf = _content_workflow()
+    if not cwf:
+        return jsonify({"error": "content_workflow not available"}), 500
+    body = request.get_json(silent=True) or {}
+    to_stage = body.get("to_stage", "")
+    if not to_stage:
+        return jsonify({"error": "to_stage is required"}), 400
+    try:
+        result = cwf.move_item(item_id, to_stage=to_stage)
+        status_code = 200 if result.get("ok") else 400
+        return jsonify(result), status_code
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/content/workflow/stats", methods=["GET"])
+def workflow_stats():
+    """Get content workflow statistics."""
+    log_api_call("GET", "/api/content/workflow/stats")
+    cwf = _content_workflow()
+    if not cwf:
+        return jsonify({"error": "content_workflow not available"}), 500
+    try:
+        stats = cwf.get_stats()
+        return jsonify(stats)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+# ─────────────────────────────────────────────
 # LIVE MARKET DATA (auth-protected for external access)
 # ─────────────────────────────────────────────
 

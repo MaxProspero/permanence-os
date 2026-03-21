@@ -156,7 +156,7 @@ def test_model_router_provider_cap_exhausted_stays_primary():
             os.environ.pop(key, None)
         os.environ["PERMANENCE_MODEL_PROVIDER"] = "anthropic"
         os.environ["PERMANENCE_MODEL_PROVIDER_FALLBACKS"] = "anthropic,openai,xai"
-        os.environ["PERMANENCE_MODEL_PROVIDER_CAPS_USD"] = "anthropic=5,openai=2,xai=1,ollama=1,openclaw=1"
+        os.environ["PERMANENCE_MODEL_PROVIDER_CAPS_USD"] = "anthropic=5,openai=2,xai=1,ollama=1"
         with tempfile.TemporaryDirectory() as tmp:
             router = ModelRouter(log_path=str(Path(tmp) / "routing.jsonl"))
             router._monthly_budget_snapshot = lambda: {"budget_usd": 50.0, "spend_usd": 20.0, "ratio": 0.5}  # type: ignore[assignment]
@@ -165,7 +165,6 @@ def test_model_router_provider_cap_exhausted_stays_primary():
                 "openai": 2.5,
                 "xai": 1.1,
                 "ollama": 1.2,
-                "openclaw": 1.5,
             }
             model = router.route("planning")
             assert model == "claude-sonnet-4-6"

@@ -35,7 +35,7 @@ class ModelRegistry:
         "formatting": "haiku",
     }
 
-    SUPPORTED_PROVIDERS = ("anthropic", "openai", "xai", "openclaw", "ollama")
+    SUPPORTED_PROVIDERS = ("anthropic", "openai", "xai", "ollama")  # openclaw deprecated
     PROVIDER_ALIASES = {
         "anthropic": "anthropic",
         "claude": "anthropic",
@@ -43,15 +43,12 @@ class ModelRegistry:
         "gpt": "openai",
         "xai": "xai",
         "grok": "xai",
-        "openclaw": "openclaw",
-        "open_claw": "openclaw",
-        "claw": "openclaw",
         "ollama": "ollama",
         "local": "ollama",
         "qwen": "ollama",
     }
     DEFAULT_PROVIDER = "anthropic"
-    DEFAULT_FALLBACKS = "anthropic,openai,xai,openclaw,ollama"
+    DEFAULT_FALLBACKS = "anthropic,openai,xai,ollama"
 
     def __init__(self):
         self._adapters = {}
@@ -69,8 +66,7 @@ class ModelRegistry:
             return "anthropic"
         if token.startswith("grok") or token.startswith("xai"):
             return "xai"
-        if token.startswith("openclaw") or token.startswith("claw"):
-            return "openclaw"
+        # openclaw deprecated -- Claude Code handles computer-use natively
         if token.startswith("gpt") or token.startswith("o1") or token.startswith("o3") or token.startswith("o4"):
             return "openai"
         if token.startswith("qwen") or token.startswith("llama") or token.startswith("gemma") or "ollama" in token:
@@ -112,10 +108,7 @@ class ModelRegistry:
             from models.xai import XAIModel
 
             return XAIModel
-        if normalized == "openclaw":
-            from models.openclaw import OpenClawModel
-
-            return OpenClawModel
+        # openclaw deprecated -- Claude Code handles computer-use natively
         if normalized == "ollama":
             from models.ollama import OllamaModel
 

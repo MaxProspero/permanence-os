@@ -29,7 +29,6 @@ _PROVIDER_CREDIT_KEYS = [
     "PERMANENCE_ANTHROPIC_CREDIT_USD",
     "PERMANENCE_OPENAI_CREDIT_USD",
     "PERMANENCE_XAI_CREDIT_USD",
-    "PERMANENCE_OPENCLAW_CREDIT_USD",
 ]
 
 
@@ -42,8 +41,8 @@ def gate(tmp_path):
     # Save any existing env state that might pollute
     saved = {k: os.environ.pop(k, None) for k in _PROVIDER_CREDIT_KEYS}
 
-    # Set env vars for credits -- $5 per provider explicitly
-    os.environ["PERMANENCE_PREPAID_CREDIT_USD"] = "20.00"
+    # 3 paid providers (anthropic, openai, xai) => $15 / 3 = $5 each
+    os.environ["PERMANENCE_PREPAID_CREDIT_USD"] = "15.00"
     os.environ["PERMANENCE_SPENDING_APPROVAL_MODE"] = "gate"
 
     g = SpendingGate(state_path=state_path, log_path=log_path)
