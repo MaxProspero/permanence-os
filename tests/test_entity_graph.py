@@ -385,9 +385,9 @@ class TestEdgeCases:
         assert "TASK" in ENTITY_TYPES
         assert "AGENT" in ENTITY_TYPES
         assert "USER" in ENTITY_TYPES
-        assert len(ENTITY_TYPES) == 17
+        assert len(ENTITY_TYPES) == 19
 
     def test_relationship_types_constant(self):
         assert "LINKED_TO" in RELATIONSHIP_TYPES
         assert "ASSIGNED_TO" in RELATIONSHIP_TYPES
-        assert len(RELATIONSHIP_TYPES) == 9
+        assert len(RELATIONSHIP_TYPES) == 11
