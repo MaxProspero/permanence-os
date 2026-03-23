@@ -5039,6 +5039,95 @@ def generate_oca_proposal():
 
 
 # ─────────────────────────────────────────────
+# SEARCH + DOCUMENTS
+# ─────────────────────────────────────────────
+
+@app.route("/api/search")
+def api_search():
+    """Cross-system semantic search across entities, documents, and content."""
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify({"error": "Query parameter 'q' is required"}), 400
+    limit = min(int(request.args.get("limit", 20)), 100)
+    types_raw = request.args.get("types", "")
+    types_list = [t.strip() for t in types_raw.split(",") if t.strip()] if types_raw else None
+    try:
+        sys.path.insert(0, os.path.join(BASE_DIR, "scripts"))
+        from scripts.semantic_search import search as semantic_search
+        results = semantic_search(q, limit=limit, types=types_list)
+        return jsonify({"ok": True, "query": q, "count": len(results), "results": results})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/documents")
+def api_documents_list():
+    """List all ingested documents."""
+    limit = min(int(request.args.get("limit", 50)), 200)
+    try:
+        from core.document_ingest import list_documents
+        docs = list_documents(limit=limit)
+        return jsonify({"ok": True, "count": len(docs), "documents": docs})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/documents/ingest", methods=["POST"])
+def api_documents_ingest():
+    """Ingest a new document from text, URL, or file path."""
+    body = request.get_json(silent=True) or {}
+    source = body.get("source", "").strip()
+    if not source:
+        return jsonify({"error": "source is required"}), 400
+    source_type = body.get("source_type", "auto")
+    title = body.get("title", "")
+    try:
+        from core.document_ingest import ingest as doc_ingest
+        result = doc_ingest(source=source, source_type=source_type, title=title)
+        status_code = 201 if result.get("ok") else 400
+        return jsonify(result), status_code
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/documents/<doc_id>")
+def api_document_get(doc_id):
+    """Get a specific document by ID."""
+    try:
+        from core.document_ingest import get_document
+        doc = get_document(doc_id)
+        if doc is None:
+            return jsonify({"error": f"Document {doc_id} not found"}), 404
+        return jsonify({"ok": True, "document": doc})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/documents/<doc_id>/chunks")
+def api_document_chunks(doc_id):
+    """Get all chunks for a document."""
+    try:
+        from core.document_ingest import get_chunks
+        chunks = get_chunks(doc_id)
+        return jsonify({"ok": True, "document_id": doc_id, "count": len(chunks), "chunks": chunks})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/documents/<doc_id>", methods=["DELETE"])
+def api_document_delete(doc_id):
+    """Delete a document and its chunks."""
+    try:
+        from core.document_ingest import delete_document
+        deleted = delete_document(doc_id)
+        if not deleted:
+            return jsonify({"error": f"Document {doc_id} not found"}), 404
+        return jsonify({"ok": True, "deleted": doc_id})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+# ─────────────────────────────────────────────
 # RUN
 # ─────────────────────────────────────────────
 

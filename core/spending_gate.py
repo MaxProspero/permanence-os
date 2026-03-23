@@ -67,7 +67,7 @@ DEFAULT_GATE_LOG = os.path.join(BASE_DIR, "logs", "spending_gate.jsonl")
 DEFAULT_GATE_STATE = os.path.join(BASE_DIR, "memory", "working", "spending_gate_state.json")
 
 # Provider list
-PAID_PROVIDERS = ("anthropic", "openai", "xai")  # openclaw removed -- Claude Code handles computer-use natively
+PAID_PROVIDERS = ("anthropic", "openai", "xai", "openclaw")  # Claude Code builds, OpenClaw operates autonomously
 
 # Approval type constants
 APPROVAL_TYPE_CREDITS = "credits"           # Basic credit-based (original)
